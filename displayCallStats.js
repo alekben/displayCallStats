@@ -456,31 +456,19 @@ function flushStats() {
       value: remoteTracksStats.video.renderFrameRate,
       unit: ""
     }, {
-      description: "Recieve Audio Delay",
-      value: Number(remoteTracksStats.audio.receiveDelay).toFixed(2),
-      unit: "ms"
-    }, {
-      description: "Receive Video Delay",
-      value: Number(remoteTracksStats.video.receiveDelay).toFixed(2),
-      unit: "ms"
-    }, {
-      description: "Total audio packets loss rate",
-      value: Number(remoteTracksStats.audio.packetLossRate).toFixed(3),
-      unit: "%"
-    }, {
-      description: "Video received resolution height",
+      description: "Video received height",
       value: remoteTracksStats.video.receiveResolutionHeight,
       unit: ""
     }, {
-      description: "Video received resolution width",
+      description: "Video received width",
       value: remoteTracksStats.video.receiveResolutionWidth,
       unit: ""
     }, {
-      description: "Receiving video bit rate",
+      description: "Receiving video bitrate",
       value: remoteTracksStats.video.receiveBitrate,
       unit: "bps"
     }, {
-      description: "Total video packets loss rate",
+      description: "Video packet lossrate",
       value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
       unit: "%"
     }, {
