@@ -360,27 +360,27 @@ function flushStats() {
   // get the client stats message
   const clientStats = client.getRTCStats();
   const clientStatsList = [{
-    description: "Number of users in channel",
+    description: "Host Count",
     value: clientStats.UserCount,
     unit: ""
   }, {
-    description: "Duration in channel",
+    description: "Joined Duration",
     value: clientStats.Duration,
     unit: "s"
   }, {
-    description: "Bit rate receiving",
+    description: "Bitrate receive",
     value: clientStats.RecvBitrate,
     unit: "bps"
   }, {
-    description: "Bit rate being sent",
+    description: "Bitrate sent",
     value: clientStats.SendBitrate,
     unit: "bps"
   }, {
-    description: "Outgoing available bandwidth",
+    description: "Outgoing B/W",
     value: clientStats.OutgoingAvailableBandwidth.toFixed(3),
     unit: "kbps"
   }, {
-    description: "RTT from SDK to SD-RTN access node",
+    description: "RTT to SD-RTN Edge",
     value: clientStats.RTT,
     unit: "ms"
   }];

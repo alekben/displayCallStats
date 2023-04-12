@@ -43,8 +43,8 @@ input {
 }
 
 .player {
-  width: 240px;
-  height: 240px;
+  width: 210px;
+  height: 210px;
   margin-right: 10px;
   display: flex;
   position: relative;
@@ -73,6 +73,12 @@ input {
   color: rgb(255, 255, 255);
   margin-left: 10px;
   position: absolute;
+}
+
+.stats2 {
+  color: rgb(0, 0, 0);
+  margin-left: 10px;
+  font-size: 12px;
 }
 
 .remoteStats {
