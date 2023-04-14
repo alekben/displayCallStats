@@ -83,7 +83,7 @@ AgoraRTC.onCameraChanged = async changedDevice => {
 async function initDevices() {
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: "music_standard"
+      encoderConfig: "standard_stereo"
     });
   }
   if (!localTracks.videoTrack) {
