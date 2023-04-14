@@ -202,6 +202,7 @@ async function join() {
   // add event listener to play remote tracks when remote user publishs.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
+  client.on("exception", handleLowInput);
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
@@ -319,6 +320,15 @@ function handleUserPublished(user, mediaType) {
       console.log(`Remote User Video Count now: ${userCount}`);
     }
     subscribe(user, mediaType);
+  }
+}
+
+function handleLowInput(event) {
+  if (event == 2001) {
+    console.log("audio input low trigger, reset track");
+    localTracks.audioTrack.setEnabled(false).then(() => {
+      localTracks.audioTrack.setEnabled(true);
+    });
   }
 }
 
