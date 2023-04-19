@@ -349,6 +349,9 @@ async function leave() {
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
+  if (loopback) {
+    stopLoopbackClient();
+  }
 }
 
 async function startLoopbackClient() {
