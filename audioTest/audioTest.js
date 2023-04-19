@@ -461,7 +461,7 @@ function handleUserPublishedLoopback(user, mediaType) {
 function handleUserUnpublishedLoopback(user, mediaType) {
   if (mediaType === 'audio') {
     if (options.uid = user.uid) {
-      delete remoteUsersLoopback[id];
+      delete remoteUsersLoopback[user.uid];
     }    
   }
 }
