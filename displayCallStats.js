@@ -10,6 +10,7 @@ var localTracks = {
 };
 var remoteUsers = {};
 var userCount = 0;
+var backcam = 0;
 // Agora client options
 var options = {
   appid: null,
@@ -89,7 +90,7 @@ async function initDevices() {
   }
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: curVideoProfile.value
+      encoderConfig: curVideoProfile.value, facingMode: "user"
     });
   }
   // get mics
@@ -118,6 +119,41 @@ async function switchCamera(label) {
   // switch device of local video track.
   await localTracks.videoTrack.setDevice(currentCam.deviceId);
 }
+
+async function switchCamMobile() {
+  if (backcam) {
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: curVideoProfile.value, facingMode: "user"
+      });
+    backcam = 0;
+    localTracks.videoTrack.play("local-player");
+    await client.publish(localTracks.videoTrack);
+  } else {
+    stream = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: curVideoProfile.value, facingMode: "user"
+    });
+    localTracks.videoTrack.replaceTrack(stream.getMediaStreamTrack(), true);
+    backcam = 0;
+  }
+  } else {
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: curVideoProfile.value, facingMode: "environment"
+      });
+    backcam = 1;
+    localTracks.videoTrack.play("local-player");
+    await client.publish(localTracks.videoTrack);
+  } else {
+    stream = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: curVideoProfile.value, facingMode: "environment"
+    });
+    localTracks.videoTrack.replaceTrack(stream.getMediaStreamTrack(), true);
+    backcam = 1;
+  }
+  }
+}
+
 async function switchMicrophone(label) {
   currentMic = mics.find(mic => mic.label === label);
   $(".mic-input").val(currentMic.label);
@@ -189,6 +225,9 @@ $("#join-form").submit(async function (e) {
 $("#leave").click(function (e) {
   leave();
 });
+$("#switchCamMobile").click(function (e) {
+  switchCamMobile();
+});
 $('#agora-collapse').on('show.bs.collapse	', function () {
   initDevices();
 });
@@ -214,7 +253,7 @@ async function join() {
   }
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: curVideoProfile.value
+      encoderConfig: curVideoProfile.value, facingMode: "user"
     });
   }
   // play local video track
