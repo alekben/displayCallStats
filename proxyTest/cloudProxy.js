@@ -113,7 +113,7 @@ $("#leave").click(function (e) {
  */
 async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
-  client.enableLogUpload();
+  //client.enableLogUpload();
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("is-using-cloud-proxy", reportProxyUsed);
