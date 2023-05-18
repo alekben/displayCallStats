@@ -23,6 +23,7 @@ var localTracks = {
  * On initiation no users are connected.
  */
 var remoteUsers = {};
+var remotesArray = [];
 
 /*
  * On initiation. `client` is not attached to any project or channel for any specific user.
@@ -33,6 +34,7 @@ var options = {
   uid: null,
   token: null
 };
+
 
 // you can find all the agora preset video profiles here https://docs.agora.io/en/Voice/API%20Reference/web_ng/globals.html#videoencoderconfigurationpreset
 var videoProfiles = [{
@@ -149,6 +151,38 @@ async function changeVideoProfile(label) {
   localTracks.videoTrack && (await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value));
 }
 
+async function changeTargetUID(label) {
+  $(".uid-input").val(`${label}`);
+}
+
+function updateUIDs(id, action) {
+  if (remotesArray.length == 0 && action == "remove") {
+    $(".uid-list").empty();
+    $(".uid-input").val(``);
+  } else {
+  let i = 0;
+  while (i < remotesArray.length) {
+    if (remotesArray[i] == id) {
+      console.log("UID already in list");
+      return;
+    }
+    i++;
+  }
+
+  $(".uid-list").empty();
+  remotesArray.push(id);
+
+  //repopulate
+  let j = 0;
+  while (j < remotesArray.length) {
+    $(".uid-list").append(`<a class="dropdown-item" label="${remotesArray[j]}" href="#">${remotesArray[j]}</a>`);
+    j++;
+  } 
+  $(".uid-input").val(`${remotesArray[0]}`);
+}
+}
+
+
 /*
  * When this page is called with parameters in the URL, this procedure
  * attempts to join a Video Call channel using those parameters.
@@ -180,6 +214,8 @@ $(() => {
 $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
+  $("#subscribe").attr("disabled", false);
+  $("#unsubscribe").attr("disabled", false);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
@@ -220,7 +256,31 @@ $(".cam-list").delegate("a", "click", function (e) {
 $(".mic-list").delegate("a", "click", function (e) {
   switchMicrophone(this.text);
 });
+$(".uid-list").delegate("a", "click", function (e) {
+  changeTargetUID(this.getAttribute("label"));
+});
+$("#subscribe").click(function (e) {
+  manualSub();
+});
+$("#unsubscribe").click(function (e) {
+  manualUnsub();
+});
 
+async function manualSub() {
+  //get value of of uid-input
+  const id = $(".uid-input").val();
+  let user = remoteUsers[id];
+  await subscribe(user, "video");
+  await subscribe(user, "audio");
+}
+
+async function manualUnsub() {
+  //get value of of uid-input
+  const id = $(".uid-input").val();
+  let user = remoteUsers[id];
+  await client.unsubscribe(user, "");
+  $(`#player-wrapper-${id}`).remove();
+}
 /*
  * Join a channel, then create local video and audio tracks and publish them to the channel.
  */
@@ -268,12 +328,18 @@ async function leave() {
   remoteUsers = {};
   $("#remote-playerlist").html("");
 
+  remotesArray = [];
+  $(".uid-list").empty();
+  $(".uid-input").val(``);
+
   // leave the channel
   await client.leave();
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#joined-setup").css("display", "none");
+  $("#subscribe").attr("disabled", true);
+  $("#unsubscribe").attr("disabled", true);
   console.log("client leaves channel success");
 }
 
@@ -311,6 +377,7 @@ async function subscribe(user, mediaType) {
  */
 function handleUserPublished(user, mediaType) {
   const id = user.uid;
+  updateUIDs(id, "add");
   remoteUsers[id] = user;
   subscribe(user, mediaType);
 }
@@ -323,10 +390,13 @@ function handleUserPublished(user, mediaType) {
 function handleUserUnpublished(user, mediaType) {
   if (mediaType === "video") {
     const id = user.uid;
+    removeItemOnce(remotesArray, id);
+    updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
 }
+
 function getCodec() {
   var radios = document.getElementsByName("radios");
   var value;
@@ -336,4 +406,12 @@ function getCodec() {
     }
   }
   return value;
+}
+
+function removeItemOnce(arr, value) {
+  var index = arr.indexOf(value);
+  if (index > -1) {
+    arr.splice(index, 1);
+  }
+  return arr;
 }
