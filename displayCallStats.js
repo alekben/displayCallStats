@@ -3,6 +3,9 @@ var client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp8"
 });
+
+AgoraRTC.setParameter("DISABLE_WEBAUDIO", true)
+
 AgoraRTC.enableLogUpload();
 var localTracks = {
   videoTrack: null,
