@@ -4,7 +4,7 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", true)
+AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
