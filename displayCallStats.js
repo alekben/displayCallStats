@@ -5,6 +5,8 @@ var client = AgoraRTC.createClient({
 });
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+console.log("Start with Web Audio off");
+var webAudioOff = true;
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -157,6 +159,20 @@ async function switchCamMobile() {
   }
 }
 
+async function toggleWebAudio() {
+  if (webAudioOff) {
+    console.log("Turning WebAudio back on.");
+    webAudioOff = false;
+    AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
+    $("#webAudio").text("Disable WebAudio");
+  } else {
+    console.log("Turning WebAudio off.");
+    webAudioOff = true;
+    AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+    $("#webAudio").text("Enable WebAudio");
+  }
+}
+
 async function switchMicrophone(label) {
   currentMic = mics.find(mic => mic.label === label);
   $(".mic-input").val(currentMic.label);
@@ -230,6 +246,9 @@ $("#leave").click(function (e) {
 });
 $("#switchCamMobile").click(function (e) {
   switchCamMobile();
+});
+$("#webAudio").click(function (e) {
+  toggleWebAudio();
 });
 $('#agora-collapse').on('show.bs.collapse	', function () {
   initDevices();
