@@ -365,8 +365,8 @@ async function subscribe(user, mediaType) {
         console.log(`Adding remote to row 1 - User Count: ${userCount}`);
         break;
       case 2:
-        $("#remote-playerlist-row1").append(player);
-        console.log(`Adding remote to row 1 - User Count: ${userCount}`);
+        $("#remote-playerlist-row2").append(player);
+        console.log(`Adding remote to row 2 - User Count: ${userCount}`);
         break;
       case 3:
         $("#remote-playerlist-row2").append(player);
