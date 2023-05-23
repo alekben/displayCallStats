@@ -9,6 +9,10 @@ var loopback_client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
+console.log("Start with Web Audio ON");
+var webAudioOff = false;
+
 AgoraRTC.enableLogUpload();
 var localTracks = {
   videoTrack: null,
@@ -245,6 +249,10 @@ $("#setEnabled").click(function (e) {
   }
 });
 
+$("#webAudio").click(function (e) {
+  toggleWebAudio();
+});
+
 $('#agora-collapse').on('show.bs.collapse	', function () {
   initDevices();
 });
@@ -252,7 +260,19 @@ $(".mic-list").delegate("a", "click", function (e) {
   switchMicrophone(this.text);
 });
 
-
+async function toggleWebAudio() {
+  if (webAudioOff) {
+    console.log("Turning WebAudio back ON.");
+    webAudioOff = false;
+    AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
+    $("#webAudio").text("Disable WebAudio");
+  } else {
+    console.log("Turning WebAudio OFF.");
+    webAudioOff = true;
+    AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+    $("#webAudio").text("Enable WebAudio");
+  }
+}
 
 async function publishMic() {
   if (!localTracks.audioTrack) {
