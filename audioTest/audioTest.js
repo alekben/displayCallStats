@@ -26,7 +26,7 @@ function stop(stream) {
 startButton.addEventListener("click", function() {
   let astream = remoteUsers[remoteToBeRecorded].audioTrack.getMediaStreamTrack();
   download.href = remoteUsers[remoteToBeRecorded].audioTrack;
-  startRecording(astream.captureStream(), recordingTimeMS)
+  startRecording(astream, recordingTimeMS)
   .then (recordedChunks => {
   let recordedBlob = new Blob(recordedChunks, { type: "audio/webm; codecs=opus" });
   //vvstream.src = URL.createObjectURL(recordedBlob);
