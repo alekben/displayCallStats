@@ -60,6 +60,15 @@ var audioProfiles = [{
   label: "high_quality_stereo",
   detail: "48 Khz, stereo, 192 Kbps",
   value: "high_quality_stereo"
+}, {
+  label: "stupidly_high",
+  detail: "48 Khz, stereo, 320 Kbps",
+  value: {
+    biterate: 320,
+    sampleRate: 48000,
+    sampleSize: 16,
+    stereo: true
+  }
 }];
 var curMicProfile;
 
