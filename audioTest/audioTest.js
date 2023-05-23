@@ -24,9 +24,12 @@ function stop(stream) {
 
 //Handles startRecording being triggered by start button
 startButton.addEventListener("click", function() {
-  let astream = remoteUsers[remoteToBeRecorded].audioTrack.getMediaStreamTrack();
+  let astream = remoteUsers[remoteToBeRecorded].audioTrack.getTrackId();
+  astream = "audio_" + astream;
+  let aastream = document.getElementById(`${astream}`);
   download.href = remoteUsers[remoteToBeRecorded].audioTrack;
-  startRecording(astream, recordingTimeMS)
+  aastream.captureStream = aastream.captureStream || aastream.mozCaptureStream;
+  startRecording(aastream.captureStream(), recordingTimeMS)
   .then (recordedChunks => {
   let recordedBlob = new Blob(recordedChunks, { type: "audio/webm; codecs=opus" });
   //vvstream.src = URL.createObjectURL(recordedBlob);
