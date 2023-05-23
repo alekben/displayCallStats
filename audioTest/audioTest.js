@@ -27,7 +27,7 @@ startButton.addEventListener("click", function() {
   let astream = remoteUsers[remoteToBeRecorded].audioTrack.getTrackId();
   astream = "audio_" + astream;
   let aastream = document.getElementById(`${astream}`);
-  download.href = remoteTracks[remoteToBeRecorded].audioTrack;
+  download.href = remoteUsers[remoteToBeRecorded].audioTrack;
   aastream.captureStream = aastream.captureStream || aastream.mozCaptureStream;
   startRecording(aastream.captureStream(), recordingTimeMS)
   .then (recordedChunks => {
