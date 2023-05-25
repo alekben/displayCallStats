@@ -136,7 +136,7 @@ var audioProfiles = [{
   detail: "48 Khz, stereo, 192 Kbps",
   value: "high_quality_stereo"
 }, {
-  label: "stupidly_high",
+  label: "320_high",
   detail: "48 Khz, stereo, 320 Kbps",
   value: {
     bitrate: 320,
