@@ -4,9 +4,8 @@
 let startButton = document.getElementById("record");
 let downloadButton = document.getElementById("download");
 let logElement = document.getElementById("log");
-let recordingTimeMS = 5000;
-let remoteJoined = false;
-let remoteToBeRecorded = 0;
+let recordingTimeMS = 10000;
+
 
 function log(msg) {
   logElement.innerHTML += msg + "\n";
@@ -24,20 +23,20 @@ function stop(stream) {
 
 //Handles startRecording being triggered by start button
 startButton.addEventListener("click", function() {
-  let astream = remoteUsers[remoteToBeRecorded].audioTrack.getTrackId();
-  astream = "audio_" + astream;
-  let aastream = document.getElementById(`${astream}`);
-  download.href = remoteUsers[remoteToBeRecorded].audioTrack;
-  aastream.captureStream = aastream.captureStream || aastream.mozCaptureStream;
-  startRecording(aastream.captureStream(), recordingTimeMS)
-  .then (recordedChunks => {
-  let recordedBlob = new Blob(recordedChunks, { type: "audio/webm; codecs=opus" });
-  //vvstream.src = URL.createObjectURL(recordedBlob);
-  download.href = URL.createObjectURL(recordedBlob);
-  download.download = "Recordedaudio.webm";
-  log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-  $("#download").attr("hidden", false);
-  })
+      let astream = localTracks.audioTrack.getMediaStreamTrack();
+      //astream = "video_" + vstream;
+      //let vvstream = document.getElementById(`${vstream}`);
+      download.href = localTracks.audioTrack;
+      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
+      startRecording(astream, recordingTimeMS)
+      .then (recordedChunks => {
+      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
+      //vvstream.src = URL.createObjectURL(recordedBlob);
+      download.href = URL.createObjectURL(recordedBlob);
+      download.download = "RecordedVideo.ogg";
+      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
+      $("#download").attr("hidden", false);
+      })
 });
 
 //creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
@@ -69,6 +68,7 @@ function startRecording(stream, lengthInMS) {
 
 
 
+
 // create Agora client
 var client = AgoraRTC.createClient({
   mode: "rtc",
@@ -80,9 +80,9 @@ var loopback_client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
-console.log("Start with Web Audio ON");
-var webAudioOff = false;
+AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+console.log("Start with Web Audio OFF");
+var webAudioOff = true;
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -267,7 +267,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
-    //$("#record").attr("disabled", false);
+    $("#record").attr("disabled", false);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
     $("#startLoopback").attr("disabled", true);
@@ -450,8 +450,6 @@ async function leave() {
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
   $("#record").attr("disabled", true);
-  remoteToBeRecorded = 0;
-  remoteJoined = false;
   $("#download").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
@@ -530,12 +528,6 @@ async function subscribe(user, mediaType) {
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
-    if (!remoteJoined) {
-      $("#record").attr("disabled", false);
-      remoteToBeRecorded = uid;
-      remoteJoined = true;
-      console.log(`First remote joined, Record button will record audio from uid ${uid}`);
-    }
   }
 }
 
