@@ -35,7 +35,7 @@ startButton.addEventListener("click", function() {
       let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
       //vvstream.src = URL.createObjectURL(recordedBlob);
       download.href = URL.createObjectURL(recordedBlob);
-      download.download = "RecordedVideo.ogg";
+      download.download = "RecordedMicTrack.ogg";
       log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
       $("#download").attr("hidden", false);
       })
