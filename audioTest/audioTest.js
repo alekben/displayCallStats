@@ -24,11 +24,12 @@ function stop(stream) {
 //Handles startRecording being triggered by start button
 startButton.addEventListener("click", function() {
       let astream = localTracks.audioTrack.getMediaStreamTrack();
+      let aastream = new MediaStream(astream);
       //astream = "video_" + vstream;
       //let vvstream = document.getElementById(`${vstream}`);
       download.href = localTracks.audioTrack;
       //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-      startRecording(astream, recordingTimeMS)
+      startRecording(aastream, recordingTimeMS)
       .then (recordedChunks => {
       let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
       //vvstream.src = URL.createObjectURL(recordedBlob);
