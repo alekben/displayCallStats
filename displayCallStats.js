@@ -60,6 +60,14 @@ var videoProfiles = [{
   label: "1080p_2",
   detail: "1920×1080, 30fps, 3000Kbps",
   value: "1080p_2"
+}, {
+  label: "Custom",
+  detail: "VenueLive",
+  value: {width:{ max: 848, min: 640 },
+    height:{ max: 480, min: 480 },
+    frameRate: 30,
+    bitrateMax: 1000,
+    bitrateMin: 750}
 }];
 var curVideoProfile;
 
