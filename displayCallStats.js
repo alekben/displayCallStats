@@ -59,9 +59,9 @@ var videoProfiles = [{
 }, {
   label: "Custom",
   detail: "VenueLive",
-  value: {width:{ max: 848, min: 640 },
-    height:{ max: 480, min: 480 },
-    frameRate: 30,
+  value: {width:{ max: 10050, min: 1 },
+    height:{ max: 20600, min: 2 },
+    frameRate: 34,
     bitrateMax: 1000,
     bitrateMin: 750}
 }];
