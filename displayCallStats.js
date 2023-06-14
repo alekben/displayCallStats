@@ -1,8 +1,4 @@
-// create Agora client
-var client = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp8"
-});
+
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 console.log("Start with Web Audio off");
