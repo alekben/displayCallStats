@@ -1,4 +1,4 @@
-
+var client;
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 console.log("Start with Web Audio off");
