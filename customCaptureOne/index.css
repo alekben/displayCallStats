@@ -2,6 +2,15 @@
   display: block;
 }
 
+.col {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.remoteRow {
+  display: flex;
+}
+
 .banner {
   padding: 0;
   background-color: #52575c;
@@ -28,28 +37,83 @@
   margin-bottom: 2px;
 }
 
-.join-info-group input {
+input {
   width: 100%;
   margin-bottom: 2px;
 }
 
 .player {
-  width: 480px;
-  height: 320px;
+  width: 1280px;
+  height: 720px;
+  margin-right: 10px;
+  display: flex;
+  position: relative;
+}
+
+.remotePlayer {
+  width: 200px;
+  height: 200px;
+  margin-right: 10px;
+  display: flex;
 }
 
 .player-name {
   margin: 8px 0;
 }
 
-#success-alert, #success-alert-with-token {
+#success-alert, #success-alert-with-token, #room-full-alert {
   display: none;
 }
 
-@media (max-width: 640px) {
+#client-stats {
+  margin-top: 10px;
+}
+
+.stats {
+  color: rgb(255, 255, 255);
+  margin-left: 10px;
+  position: absolute;
+}
+
+.stats2 {
+  color: rgb(0, 0, 0);
+  margin-left: 10px;
+  font-size: 12px;
+}
+
+.remoteStats {
+  color: rgb(255, 255, 255);
+  margin-left: 10px;
+  position: absolute;
+}
+
+.stats-row {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.player-with-stats {
+  display: flex;
+  position: relative;
+}
+
+.stream-stats {
+  min-width: 260px;
+}
+
+@media (max-width: 240px) {
   .player {
-    width: 320px;
+    width: 240px;
     height: 240px;
+  }
+
+  .remotePlayer {
+    width: 200px;
+    height: 200px;
+  }
+
+  .player-with-stats {
+    display: block;
   }
 }
 
