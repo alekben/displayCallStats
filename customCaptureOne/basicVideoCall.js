@@ -289,8 +289,10 @@ async function join() {
 
 
 function getCustomVideoTrack() {
-  const videoElement = document.querySelector("#local-player");
-  const stream = videoElement.captureStream(30);
+  let videoElement = localTracks.videoTrack.getTrackId();
+  videoElement = "#video_" + videoElement;
+  const captureThis = document.querySelector(`${videoElement}`);
+  const stream = captureThis.captureStream(30);
   const [videoTrack] = stream.getVideoTracks();
   return AgoraRTC.createCustomVideoTrack({
     mediaStreamTrack: videoTrack
