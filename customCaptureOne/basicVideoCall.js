@@ -295,7 +295,8 @@ function getCustomVideoTrack() {
   const stream = captureThis.captureStream(30);
   const [videoTrack] = stream.getVideoTracks();
   return AgoraRTC.createCustomVideoTrack({
-    mediaStreamTrack: videoTrack
+    mediaStreamTrack: videoTrack, 
+      encoderConfig: curVideoProfile.value
   });
 }
 
