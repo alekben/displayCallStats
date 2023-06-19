@@ -188,7 +188,7 @@ function handleUserUnpublished(user, mediaType) {
 function handleUserJoined(user) {
   const id = user.uid;
   var x = document.getElementById("popup");
-  $("#popup").val(`UID ${id} Joined as Host`);
+  $("#popup").text(`UID ${id} Joined as Host`);
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
@@ -196,7 +196,7 @@ function handleUserJoined(user) {
 function handleUserLeft(user) {
   const id = user.uid;
   var x = document.getElementById("popup");
-  $("#popup").val(`UID ${id} Offline`);
+  $("#popup").text(`UID ${id} Offline`);
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
