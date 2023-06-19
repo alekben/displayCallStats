@@ -39,7 +39,7 @@ function updateUIDs(id, action) {
     $(".uid-list").append(`<a class="dropdown-item" label="${remotesArray[j]}" href="#">${remotesArray[j]}</a>`);
     j++;
   } 
-  $(".uid-input").val(`Online user count: ` + remotesArray.length());
+  $(".uid-input").val(`Online user count: ` + remotesArray.length);
 }
 }
 
