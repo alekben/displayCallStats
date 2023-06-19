@@ -115,6 +115,9 @@ async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
+  client.on("user-joined", handleUserJoined);
+  client.on("user-left", handleUserLeft);
+
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   $("#joined-setup").css("display", "flex");
@@ -180,6 +183,22 @@ function handleUserUnpublished(user, mediaType) {
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
+}
+
+function handleUserJoined(user) {
+  const id = user.uid;
+  var x = document.getElementById("popup");
+  $("#popup").val(`UID ${id} Joined as Host`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+function handleUserLeft(user) {
+  const id = user.uid;
+  var x = document.getElementById("popup");
+  $("#popup").val(`UID ${id} Offline`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
 function removeItemOnce(arr, value) {
