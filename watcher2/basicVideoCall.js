@@ -231,30 +231,30 @@ function handleUserLeft(user) {
 }
 
 function showPopup(message) {
-  if (popup == 0) {
-    const newPopup = popup + 1;
+  if (popups == 0) {
+    const newPopup = popups + 1;
     console.log("Popup count: 1");
     const y = $(`<div id="popup-${newPopup}">${message}</div>`);
     $("#popup-section").append(y);
     //$("#popup").text(`UID ${id} Offline`);
     var x = document.getElementById(`popup-${newPopup}`);
     x.className = "show";
-    popup = 1;
+    popups = 1;
     setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     $(`#popup-${newPopup}`).remove();
-    popup = 0;
+    popups = 0;
   } else {
-    const newPopup = popup + 1;
+    const newPopup = popups + 1;
     console.log(`Popup count: ${newPopup}`);
     const y = $(`<div id="popup-${newPopup}">${message}</div>`);
     $("#popup-section").append(y);
     //$("#popup").text(`UID ${id} Offline`);
     var x = document.getElementById(`popup-${newPopup}`);
     x.className = "show";
-    popup = 1;
+    popups = 1;
     setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     $(`#popup-${newPopup}`).remove();
-    popup--;
+    popups--;
   }
   }
 
