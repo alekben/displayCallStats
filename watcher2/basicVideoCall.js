@@ -177,10 +177,11 @@ async function subscribe(user, mediaType) {
 
 function handleUserPublished(user, mediaType) {
   const id = user.uid;
-  var x = document.getElementById("popup");
-  $("#popup").text(`UID ${id} published ${mediaType}`);
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  showPopup(`UID ${id} published ${mediaType}`);
+  //var x = document.getElementById("popup");
+  //$("#popup").text(`UID ${id} published ${mediaType}`);
+  //x.className = "show";
+  //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
   updateUIDs(id, "add");
   remoteUsers[id] = user;
   subscribe(user, mediaType);
@@ -189,40 +190,55 @@ function handleUserPublished(user, mediaType) {
 function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
   if (mediaType === "video") {
-    var x = document.getElementById("popup");
-    $("#popup").text(`UID ${id} unpublished video`);
-    x.className = "show";
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    showPopup(`UID ${id} unpublished video`);
+    //var x = document.getElementById("popup");
+    //$("#popup").text(`UID ${id} unpublished video`);
+    //x.className = "show";
+    //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   } else {
-    var x = document.getElementById("popup");
-    $("#popup").text(`UID ${id} unpublished audio`);
-    x.className = "show";
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    showPopup(`UID ${id} unpublished audio`);
+    //var x = document.getElementById("popup");
+    //$("#popup").text(`UID ${id} unpublished audio`);
+    //x.className = "show";
+    //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
   }
 }
 
 function handleUserJoined(user) {
   const id = user.uid;
   updateUIDs(id, "add");
-  var x = document.getElementById("popup");
-  $("#popup").text(`UID ${id} Joined as Host`);
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  showPopup(`UID ${id} Joined as Host`);
+  //var x = document.getElementById("popup");
+  //$("#popup").text(`UID ${id} Joined as Host`);
+  //x.className = "show";
+  //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
 function handleUserLeft(user) {
   const id = user.uid;
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
-  var x = document.getElementById("popup");
-  $("#popup").text(`UID ${id} Offline`);
+  showPopup(`UID ${id} Offline`);
+  //var x = document.getElementById("popup");
+  //$("#popup").text(`UID ${id} Offline`);
+  //x.className = "show";
+  //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+function showPopup(message) {
+  
+  const popup = $(`<div id="popup-0">${message}</div>`);
+  $("#popup-section").append(popup);
+  //$("#popup").text(`UID ${id} Offline`);
+  var x = document.getElementById("popup-0");
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
+
 
 function removeItemOnce(arr, value) {
   var index = arr.indexOf(value);
