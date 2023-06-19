@@ -20,6 +20,12 @@ var localTracks = {
   audioTrack: null
 };
 
+var localTrackState = {
+  audioTrackMuted: false,
+  audioTrackEnabled: false,
+  audioPublished: false
+};
+
 /*
  * On initiation no users are connected.
  */
@@ -217,6 +223,9 @@ $("#join-form").submit(async function (e) {
   $("#join").attr("disabled", true);
   $("#subscribe").attr("disabled", false);
   $("#unsubscribe").attr("disabled", false);
+  $("#publishTrack").attr("disabled", false);
+  $("#setMuted").attr("disabled", false);
+  $("#setEnabled").attr("disabled", false);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
@@ -267,6 +276,118 @@ $("#subscribe").click(function (e) {
 $("#unsubscribe").click(function (e) {
   manualUnsub();
 });
+$("#publishTrack").click(function (e) {
+  publishMic();
+  $("#publishTrack").attr("disabled", true);
+});
+$("#setMuted").click(function (e) {
+  if (!localTrackState.audioTrackMuted) {
+    muteAudio();
+  } else {
+    unmuteAudio();
+  }
+});
+$("#setEnabled").click(function (e) {
+  if (localTrackState.audioTrackEnabled) {
+    disableAudio();
+  } else {
+    enableAudio();
+  }
+});
+
+
+async function publishMic() {
+  if (localTrackState.audioPublished == "true") {
+    unpublishMic();
+  } else {
+
+  if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+    });
+  }
+    await client.publish(localTracks.audioTrack);
+    console.log("Published mic track");
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = true;
+    localTrackState.audioPublished = true;
+    $("#publishTrack").text("Unpublish Mic Track");
+    var x = document.getElementById("popup");
+    $("#popup").text(`Mic Published`);
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+}
+
+async function unpublishMic() {
+  if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+    });
+  }
+    await client.publish(localTracks.audioTrack);
+    console.log("Published mic track");
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = true;
+    localTrackState.audioPublished = false;
+    $("#publishTrack").text("Publish Mic Track");
+    var x = document.getElementById("popup");
+    $("#popup").text(`Mic Unpublished`);
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function muteAudio() {
+  if (!localTracks.audioTrack) return;
+  /**
+   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
+   * Calling setEnabled to disable a track, the SDK stops audio or video capture
+   */
+  await localTracks.audioTrack.setMuted(true);
+  localTrackState.audioTrackMuted = true;
+  $("#setMuted").text("Unmute Mic Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Mic Track Muted`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function unmuteAudio() {
+  if (!localTracks.audioTrack) return;
+  await localTracks.audioTrack.setMuted(false);
+  localTrackState.audioTrackMuted = false;
+  $("#setMuted").text("Mute Mic Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Mic Track Unmuted`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function disableAudio() {
+  if (!localTracks.audioTrack) return;
+  /**
+   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
+   * Calling setEnabled to disable a track, the SDK stops audio or video capture
+   */
+  await localTracks.audioTrack.setEnabled(false);
+  localTrackState.audioTrackEnabled = false;
+  $("#setEnabled").text("Enable Mic Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Mic Track Disabled`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function enableAudio() {
+  if (!localTracks.audioTrack) return;
+  await localTracks.audioTrack.setEnabled(true);
+  localTrackState.audioTrackEnabled = true;
+  $("#setEnabled").text("Disable Mic Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Mic Track Enabled`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
 
 async function manualSub() {
   //get value of of uid-input
@@ -326,6 +447,12 @@ async function leave() {
     }
   }
 
+  localTrackState = {
+    audioTrackMuted: false,
+    audioTrackEnabled: false,
+    audioPublished: false
+  };
+
   // Remove remote users and player views.
   remoteUsers = {};
   $("#remote-playerlist").html("");
@@ -342,6 +469,9 @@ async function leave() {
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
+  $("#publishTrack").attr("disabled", true);
+  $("#setMuted").attr("disabled", true);
+  $("#setEnabled").attr("disabled", true);
   console.log("client leaves channel success");
 }
 
