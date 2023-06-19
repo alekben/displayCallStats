@@ -31,7 +31,12 @@ function updateUIDs(id, action) {
   }
 
   $(".uid-list").empty();
-  remotesArray.push(id);
+  if (action == "remove") {
+    console.log("UID should already have been removed, not pushing id.");
+  } else {
+    remotesArray.push(id);
+  }
+
 
   //repopulate
   let j = 0;
