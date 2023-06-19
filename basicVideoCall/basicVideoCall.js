@@ -323,7 +323,7 @@ async function publishMic() {
 }
 
 async function unpublishMic() {
-    await client.publish(localTracks.audioTrack);
+    await client.unpublish(localTracks.audioTrack);
     console.log("Unpublished mic track");
     //localTrackState.audioTrackMuted = false;
     //localTrackState.audioTrackEnabled = true;
