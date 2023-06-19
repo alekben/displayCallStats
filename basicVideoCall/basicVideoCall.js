@@ -278,7 +278,7 @@ $("#unsubscribe").click(function (e) {
 });
 $("#publishTrack").click(function (e) {
   publishMic();
-  $("#publishTrack").attr("disabled", true);
+  $("#publishTrack").attr("disabled", false);
 });
 $("#setMuted").click(function (e) {
   if (!localTrackState.audioTrackMuted) {
