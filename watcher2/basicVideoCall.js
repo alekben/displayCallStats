@@ -177,6 +177,10 @@ async function subscribe(user, mediaType) {
 
 function handleUserPublished(user, mediaType) {
   const id = user.uid;
+  var x = document.getElementById("popup");
+  $("#popup").text(`UID ${id} published ${mediaType}`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
   updateUIDs(id, "add");
   remoteUsers[id] = user;
   subscribe(user, mediaType);
@@ -185,10 +189,19 @@ function handleUserPublished(user, mediaType) {
 function handleUserUnpublished(user, mediaType) {
   if (mediaType === "video") {
     const id = user.uid;
+    var x = document.getElementById("popup");
+    $("#popup").text(`UID ${id} unpublished video`);
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
+  } else {
+    var x = document.getElementById("popup");
+    $("#popup").text(`UID ${id} unpublished audio`);
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
   }
 }
 
