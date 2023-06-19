@@ -187,8 +187,8 @@ function handleUserPublished(user, mediaType) {
 }
 
 function handleUserUnpublished(user, mediaType) {
+  const id = user.uid;
   if (mediaType === "video") {
-    const id = user.uid;
     var x = document.getElementById("popup");
     $("#popup").text(`UID ${id} unpublished video`);
     x.className = "show";
