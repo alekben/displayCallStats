@@ -67,6 +67,7 @@ $("#join-form").submit(async function (e) {
     options.token = $("#token").val();
 
     client.setClientRole("audience");
+    client.enableLogUpload();
 
     await join();
     if (options.token) {

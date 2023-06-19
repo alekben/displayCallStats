@@ -228,6 +228,7 @@ $("#join-form").submit(async function (e) {
     options.appid = $("#appid").val();
     options.token = $("#token").val();
     client.setClientRole("host");
+    client.enableLogUpload();
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
