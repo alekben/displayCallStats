@@ -219,7 +219,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "rtc",
+        mode: "live",
         codec: getCodec()
       });
     }
@@ -227,6 +227,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
+    client.setClientRole("host");
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -307,7 +308,7 @@ async function join() {
   $("#joined-setup").css("display", "flex");
 
   // Publish the local video and audio tracks to the channel.
-  await client.publish(Object.values(localTracks));
+  //await client.publish(Object.values(localTracks));
   console.log("publish success");
 }
 
