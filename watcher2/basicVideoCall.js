@@ -1,4 +1,5 @@
 var client;
+var popups = 0;
 AgoraRTC.enableLogUpload();
 var remoteUsers = {};
 var remotesArray = [];
@@ -230,14 +231,32 @@ function handleUserLeft(user) {
 }
 
 function showPopup(message) {
-  
-  const popup = $(`<div id="popup-0">${message}</div>`);
-  $("#popup-section").append(popup);
-  //$("#popup").text(`UID ${id} Offline`);
-  var x = document.getElementById("popup-0");
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-}
+  if (popup == 0) {
+    const newPopup = popup + 1;
+    console.log("Popup count: 1");
+    const y = $(`<div id="popup-${newPopup}">${message}</div>`);
+    $("#popup-section").append(y);
+    //$("#popup").text(`UID ${id} Offline`);
+    var x = document.getElementById(`popup-${newPopup}`);
+    x.className = "show";
+    popup = 1;
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    $(`#popup-${newPopup}`).remove();
+    popup = 0;
+  } else {
+    const newPopup = popup + 1;
+    console.log(`Popup count: ${newPopup}`);
+    const y = $(`<div id="popup-${newPopup}">${message}</div>`);
+    $("#popup-section").append(y);
+    //$("#popup").text(`UID ${id} Offline`);
+    var x = document.getElementById(`popup-${newPopup}`);
+    x.className = "show";
+    popup = 1;
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    $(`#popup-${newPopup}`).remove();
+    popup--;
+  }
+  }
 
 
 function removeItemOnce(arr, value) {
