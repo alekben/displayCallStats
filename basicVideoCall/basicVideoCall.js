@@ -10,6 +10,7 @@
  * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
 var client;
+AgoraRTC.enableLogUpload();
 
 /*
  * Clear the video and audio tracks used by `client` on initiation.
@@ -227,8 +228,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    client.setClientRole("host");
-    client.enableLogUpload();
+    client.setClientRole("host");  
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");

@@ -1,4 +1,5 @@
 var client;
+AgoraRTC.enableLogUpload();
 var remoteUsers = {};
 var remotesArray = [];
 var options = {
@@ -67,7 +68,7 @@ $("#join-form").submit(async function (e) {
     options.token = $("#token").val();
 
     client.setClientRole("audience");
-    client.enableLogUpload();
+
 
     await join();
     if (options.token) {
