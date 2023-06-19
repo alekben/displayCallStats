@@ -239,6 +239,9 @@ $("#join-form").submit(async function (e) {
     options.token = $("#token").val();
     client.setClientRole("host");  
     await join();
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = true;
+    localTrackState.audioPublished = false;
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
     } else {
@@ -297,7 +300,7 @@ $("#setEnabled").click(function (e) {
 
 
 async function publishMic() {
-  if (localTrackState.audioPublished == "true") {
+  if (localTrackState.audioPublished == true) {
     unpublishMic();
   } else {
 
@@ -308,8 +311,8 @@ async function publishMic() {
   }
     await client.publish(localTracks.audioTrack);
     console.log("Published mic track");
-    localTrackState.audioTrackMuted = false;
-    localTrackState.audioTrackEnabled = true;
+    //localTrackState.audioTrackMuted = false;
+    //localTrackState.audioTrackEnabled = true;
     localTrackState.audioPublished = true;
     $("#publishTrack").text("Unpublish Mic Track");
     var x = document.getElementById("popup");
@@ -320,15 +323,10 @@ async function publishMic() {
 }
 
 async function unpublishMic() {
-  if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-    });
-  }
     await client.publish(localTracks.audioTrack);
-    console.log("Published mic track");
-    localTrackState.audioTrackMuted = false;
-    localTrackState.audioTrackEnabled = true;
+    console.log("Unpublished mic track");
+    //localTrackState.audioTrackMuted = false;
+    //localTrackState.audioTrackEnabled = true;
     localTrackState.audioPublished = false;
     $("#publishTrack").text("Publish Mic Track");
     var x = document.getElementById("popup");
@@ -429,9 +427,13 @@ async function join() {
   $("#local-player-name").text(`localVideo(${options.uid})`);
   $("#joined-setup").css("display", "flex");
 
+  localTrackState.audioTrackMuted = false;
+  localTrackState.audioTrackEnabled = true;
+  localTrackState.audioPublished = false;
+
   // Publish the local video and audio tracks to the channel.
   //await client.publish(Object.values(localTracks));
-  console.log("publish success");
+  //console.log("publish success");
 }
 
 /*
