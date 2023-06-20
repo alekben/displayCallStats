@@ -125,6 +125,7 @@ async function join() {
   client.on("user-unpublished", handleUserUnpublished);
   client.on("user-joined", handleUserJoined);
   client.on("user-left", handleUserLeft);
+  client.on("user-info-updated", handleUserInfoUpdated)
 
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
@@ -230,18 +231,12 @@ function handleUserLeft(user) {
   //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
+function handleUserInfoUpdated(uid, message) {
+  console.log(`User Info Updated for ${uid}, new state is: ${message}`);
+  showPopup(`UID ${uid} new state: ${message}`);
+}
+
 function showPopup(message) {
-  if (popups == 0) {
-    const newPopup = popups + 1;
-    console.log("Popup count: 1");
-    const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
-    $("#popup-section").append(y);
-    //$("#popup").text(`UID ${id} Offline`);
-    var x = document.getElementById(`popup-${newPopup}`);
-    x.className = "popupShow";
-    popups = 1;
-    setTimeout(function(){$(`#popup-${newPopup}`).remove(); popups = 0;}, 10000);
-  } else {
     const newPopup = popups + 1;
     console.log(`Popup count: ${newPopup}`);
     const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
@@ -253,7 +248,6 @@ function showPopup(message) {
     $(`#popup-${newPopup}`).css("left", `${z}%`);
     popups++;
     setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
-  }
   }
 
 
