@@ -111,7 +111,7 @@
   color: #fff; /* White text color */
   text-align: center; /* Centered text */
   border-radius: 2px; /* Rounded borders */
-  padding: 10px; /* Padding */
+  padding: 2px; /* Padding */
   position: fixed; /* Sit on top of the screen */
   z-index: 1; /* Add a z-index if needed */
   left: 0%; /* Center the snackbar */
