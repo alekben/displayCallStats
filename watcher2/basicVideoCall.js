@@ -244,7 +244,7 @@ function showPopup(message) {
     //$("#popup").text(`UID ${id} Offline`);
     var x = document.getElementById(`popup-${newPopup}`);
     x.className = "popupShow";
-    z = popups * 20;
+    z = popups * 10;
     $(`#popup-${newPopup}`).css("left", `${z}%`);
     popups++;
     setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
