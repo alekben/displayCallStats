@@ -471,8 +471,11 @@ async function leave() {
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
+  $("#publishTrack").text("Publish Mic Track");
   $("#publishTrack").attr("disabled", true);
+  $("#setMuted").text("Mute Mic Track");
   $("#setMuted").attr("disabled", true);
+  $("#setEnabled").text("Disable Mic Track");
   $("#setEnabled").attr("disabled", true);
   console.log("client leaves channel success");
 }

@@ -234,27 +234,25 @@ function showPopup(message) {
   if (popups == 0) {
     const newPopup = popups + 1;
     console.log("Popup count: 1");
-    const y = $(`<div id="popup-${newPopup}">${message}</div>`);
+    const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
     $("#popup-section").append(y);
     //$("#popup").text(`UID ${id} Offline`);
     var x = document.getElementById(`popup-${newPopup}`);
-    x.className = "show";
+    x.className = "popupShow";
     popups = 1;
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-    $(`#popup-${newPopup}`).remove();
-    popups = 0;
+    setTimeout(function(){$(`#popup-${newPopup}`).remove(); popups = 0;}, 10000);
   } else {
     const newPopup = popups + 1;
     console.log(`Popup count: ${newPopup}`);
-    const y = $(`<div id="popup-${newPopup}">${message}</div>`);
+    const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
     $("#popup-section").append(y);
     //$("#popup").text(`UID ${id} Offline`);
     var x = document.getElementById(`popup-${newPopup}`);
-    x.className = "show";
-    popups = 1;
-    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-    $(`#popup-${newPopup}`).remove();
-    popups--;
+    x.className = "popupShow";
+    z = popups * 20;
+    $(`#popup-${newPopup}`).css("left", `${z}%`);
+    popups++;
+    setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
   }
   }
 
