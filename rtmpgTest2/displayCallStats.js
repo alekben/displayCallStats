@@ -656,6 +656,14 @@ function flushStats() {
       value: remoteTracksStats.video.receiveBitrate,
       unit: "bps"
     }, {
+      description: "Receiving video end2EndDelay",
+      value: remoteTracksStats.video.end2EndDelay,
+      unit: "ms"
+    }, {
+      description: "Receiving video delay",
+      value: remoteTracksStats.video.receiveDelay,
+      unit: "ms"
+    }, {
       description: "Video packet lossrate",
       value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
       unit: "%"
@@ -667,6 +675,26 @@ function flushStats() {
       description: "video freeze rate",
       value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
       unit: "%"
+    }, {
+      description: "Audio receive bitrate",
+      value: Number(remoteTracksStats.audio.receiveBitrate),
+      unit: "bps"
+    }, {
+      description: "Audio end2EndDelay",
+      value: Number(remoteTracksStats.audio.end2EndDelay),
+      unit: "ms"
+    }, {
+      description: "Audio receive delay",
+      value: Number(remoteTracksStats.audio.receiveDelay),
+      unit: "ms"
+    }, {
+      description: "Audio transport delay",
+      value: Number(remoteTracksStats.audio.transportDelay),
+      unit: "ms"
+    }, {
+      description: "Audio receive packets lost",
+      value: Number(remoteTracksStats.audio.receivePacketsLost),
+      unit: ""
     }];
     $(`#player-wrapper-${uid} .track-stats`).html(`
       ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
