@@ -656,10 +656,18 @@ function flushStats() {
       value: remoteTracksStats.video.receiveBitrate,
       unit: "bps"
     }, {
-      description: "Receiving video delay",
-      value: remoteTracksStats.video.receiveDelay,
+      description: "Audio receive bitrate",
+      value: Number(remoteTracksStats.audio.receiveBitrate),
+      unit: "bps"
+    }, {
+      description: "Video receive delay",
+      value: Number(remoteTracksStats.video.receiveDelay),
       unit: "ms"
     }, {
+      description: "Audio receive delay",
+      value: Number(remoteTracksStats.audio.receiveDelay),
+      unit: "ms"
+    },, {
       description: "Video packet lossrate",
       value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
       unit: "%"
@@ -672,16 +680,8 @@ function flushStats() {
       value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
       unit: "%"
     }, {
-      description: "Audio receive bitrate",
-      value: Number(remoteTracksStats.audio.receiveBitrate),
-      unit: "bps"
-    }, {
       description: "Audio end2EndDelay",
       value: Number(remoteTracksStats.audio.end2EndDelay),
-      unit: "ms"
-    }, {
-      description: "Audio receive delay",
-      value: Number(remoteTracksStats.audio.receiveDelay),
       unit: "ms"
     }, {
       description: "Audio transport delay",
