@@ -656,10 +656,6 @@ function flushStats() {
       value: remoteTracksStats.video.receiveBitrate,
       unit: "bps"
     }, {
-      description: "Receiving video end2EndDelay",
-      value: remoteTracksStats.video.end2EndDelay,
-      unit: "ms"
-    }, {
       description: "Receiving video delay",
       value: remoteTracksStats.video.receiveDelay,
       unit: "ms"
