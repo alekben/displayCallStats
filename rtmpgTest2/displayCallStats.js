@@ -661,13 +661,13 @@ function flushStats() {
       unit: "bps"
     }, {
       description: "Video receive delay",
-      value: Number(remoteTracksStats.video.receiveDelay),
+      value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
       unit: "ms"
     }, {
       description: "Audio receive delay",
       value: Number(remoteTracksStats.audio.receiveDelay),
       unit: "ms"
-    },, {
+    }, {
       description: "Video packet lossrate",
       value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
       unit: "%"
