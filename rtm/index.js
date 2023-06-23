@@ -4,6 +4,8 @@ let options = {
     token: ""
 }
 
+var client;
+
 // Your app ID
 let appID = ""
 // Your token
@@ -11,48 +13,46 @@ options.token = ""
 
 // Initialize client
 
-
-// Client Event listeners
-// Display messages from peer
-client.on('MessageFromPeer', function (message, peerId) {
-
+function setupListners () {
+    // Client Event listeners
+    // Display messages from peer
+    client.on('MessageFromPeer', function (message, peerId) {
     document.getElementById("log").appendChild(document.createElement('div')).append("Message from: " + peerId + " Message: " + message)
-})
-// Display connection state changes
-client.on('ConnectionStateChanged', function (state, reason) {
-
+    })
+    // Display connection state changes
+    client.on('ConnectionStateChanged', function (state, reason) {
     document.getElementById("log").appendChild(document.createElement('div')).append("State changed To: " + state + " Reason: " + reason)
+    })
 
-})
+    let channel = client.createChannel("demoChannel")
 
-let channel = client.createChannel("demoChannel")
-
-channel.on('ChannelMessage', function (message, memberId) {
-
+    channel.on('ChannelMessage', function (message, memberId) {
     document.getElementById("log").appendChild(document.createElement('div')).append("Message received from: " + memberId + " Message: " + message)
-
-})
-// Display channel member stats
-channel.on('MemberJoined', function (memberId) {
-
+    })
+    // Display channel member stats
+    channel.on('MemberJoined', function (memberId) {
     document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " joined the channel")
-
-})
-// Display channel member stats
-channel.on('MemberLeft', function (memberId) {
-
+    })
+    // Display channel member stats
+    channel.on('MemberLeft', function (memberId) {
     document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " left the channel")
+    })
+}
 
-})
 
 // Button behavior
 window.onload = function () {
 
     // Buttons
     // login
-    document.getElementById("login").onclick = async function () {
+
+    document.getElementById("start").onclick = async function () {
         appID = options.uid = document.getElementById("appid").value.toString()
-        const client = AgoraRTM.createInstance(appID)
+        client = AgoraRTM.createInstance(appID)
+        setupListners()
+    }
+
+    document.getElementById("login").onclick = async function () {
         options.uid = document.getElementById("userID").value.toString()
         options.token = document.getElementById("token").value.toString()  
         await client.login(options)
