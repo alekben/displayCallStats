@@ -88,14 +88,6 @@ async function join() {
  * Stop all local and remote tracks then leave the channel.
  */
 async function leave() {
-  for (trackName in localTracks) {
-    var track = localTracks[trackName];
-    if (track) {
-      track.stop();
-      track.close();
-      localTracks[trackName] = undefined;
-    }
-  }
 
   // Remove remote users and player views.
   remoteUsers = {};
