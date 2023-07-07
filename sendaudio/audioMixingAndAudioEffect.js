@@ -1,8 +1,11 @@
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "rtc",
+  mode: "live",
   codec: "vp8"
 });
+
+client.setClientRole("host");
+
 var localTracks = {
   videoTrack: null,
   audioTrack: null,
