@@ -22,48 +22,84 @@ var options = {
 
 var videoProfiles = [{
   label: "240p_1",
-  detail: "320x240, 15fps, 200Kbps",
-  value: "240p_1"
+  detail: "320x240, 15fps, 100Kbps",
+  value: {width: 320,
+    height: 240,
+    frameRate: 15,
+    bitrateMax: 100,
+    bitrateMin: 50 }
 }, {
   label: "360p_7",
-  detail: "480×360, 15fps, 320Kbps",
-  value: "360p_7"
+  detail: "480×360, 15fps, 180Kbps",
+  value: {width: 480,
+    height: 360,
+    frameRate: 15,
+    bitrateMax: 180,
+    bitrateMin: 90 }
 }, {
   label: "360p_8",
-  detail: "480×360, 30fps, 490Kbps",
-  value: "360p_8"
+  detail: "480×360, 30fps, 245Kbps",
+  value: {width: 480,
+    height: 360,
+    frameRate: 30,
+    bitrateMax: 245,
+    bitrateMin: 115 }
 }, {
   label: "480p_1",
-  detail: "640×480, 15fps, 500Kbps",
-  value: "480p_1"
+  detail: "640×480, 15fps, 250Kbps",
+  value: {width: 640,
+    height: 480,
+    frameRate: 15,
+    bitrateMax: 250,
+    bitrateMin: 125 }
 }, {
   label: "480p_2",
-  detail: "640×480, 30fps, 1000Kbps",
-  value: "480p_2"
+  detail: "640×480, 30fps, 500Kbps",
+  value: {width: 640,
+    height: 480,
+    frameRate: 30,
+    bitrateMax: 500,
+    bitrateMin: 250 }
 }, {
   label: "720p_1",
-  detail: "1280×720, 15fps, 1130Kbps",
-  value: "720p_1"
+  detail: "1280×720, 15fps, 570Kbps",
+  value: {width: 1280,
+    height: 720,
+    frameRate: 15,
+    bitrateMax: 570,
+    bitrateMin: 265 }
 }, {
   label: "720p_2",
-  detail: "1280×720, 30fps, 2000Kbps",
-  value: "720p_2"
+  detail: "1280×720, 30fps, 1000Kbps",
+  value: {width: 1280,
+    height: 720,
+    frameRate: 30,
+    bitrateMax: 1000,
+    bitrateMin: 500 }
 }, {
   label: "1080p_1",
-  detail: "1920×1080, 15fps, 2080Kbps",
-  value: "1080p_1"
+  detail: "1920×1080, 15fps, 1040Kbps",
+  value: {width: 1920,
+    height: 1080,
+    frameRate: 15,
+    bitrateMax: 1040,
+    bitrateMin: 500 }
 }, {
   label: "1080p_2",
-  detail: "1920×1080, 30fps, 3000Kbps",
-  value: "1080p_2"
+  detail: "1920×1080, 30fps, 1500Kbps",
+  value: {width: 1920,
+    height: 1080,
+    frameRate: 30,
+    bitrateMax: 1500,
+    bitrateMin: 750 }
 }, {
   label: "Custom",
   detail: "VenueLive",
-  value: {width:{ max: 10050, min: 1 },
-    height:{ max: 20600, min: 2 },
-    frameRate: 34,
+  value: {width: 1920,
+    height: 1080,
+    frameRate: 30,
     bitrateMax: 1000,
-    bitrateMin: 750}
+    bitrateMin: 750 }
 }];
 var curVideoProfile;
 
