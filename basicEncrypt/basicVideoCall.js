@@ -335,7 +335,7 @@ function base64ToUint8Array(base64Str)
 
 async function setEncryption() {
   // Get the channel name and use it as the key
-  let encryptKey = "1ADC6C3881845E42B3F36124A9183300003318A92461F3B3425E8481386CDC1A";
+  let encryptKey = hex2ascii("1ADC6C3881845E42B3F36124A9183300003318A92461F3B3425E8481386CDC1A");
   let encryptSalt = base64ToUint8Array("ADMYqSRh87NCXoSBOGzcGhrcbDiBhF5Cs/NhJKkYMwA=");
   let encryptionMode = "aes-256-gcm2";
   // Start channel encryption, set before every join
