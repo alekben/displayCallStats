@@ -313,12 +313,22 @@ async function join() {
   console.log("publish success");
 }
 
+function hex2ascii(hexx)
+{
+  const hex = hexx.toString();//force conversion
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2)
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  return str;
+}
+
 async function setEncryption() {
   // Get the channel name and use it as the key
-  let encryptKey = options.channel;
-  let encryptionMode = "aes-256-gcm";
+  let encryptKey = "1ADC6C3881845E42B3F36124A9183300003318A92461F3B3425E8481386CDC1A";
+  let encryptSalt = hex2ascii("ADMYqSRh87NCXoSBOGzcGhrcbDiBhF5Cs/NhJKkYMwA=");
+  let encryptionMode = "aes-256-gcm2";
   // Start channel encryption, set before every join
-  client.setEncryptionConfig(encryptionMode, encryptKey);
+  client.setEncryptionConfig(encryptionMode, encryptKey, encryptSalt);
 }
 
 
