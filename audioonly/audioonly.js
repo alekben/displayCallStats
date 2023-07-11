@@ -1,4 +1,6 @@
 
+let autoplayFailTriggered = false;
+
 var client = AgoraRTC.createClient({
   mode: "live",
   codec: "vp8"
@@ -15,6 +17,7 @@ var options = {
 
 AgoraRTC.onAutoplayFailed = () => {
   alert("click to start autoplay!");
+  autoplayFailTriggered = true;
 };
 
 /*
@@ -108,6 +111,11 @@ async function subscribe(user, mediaType) {
     await client.subscribe(user, mediaType);
     console.log(`subscribe to audio of UID ${uid} success`);
     user.audioTrack.play();
+    //Autoplay callback will trigger here if there hasn't been any page interaction
+    if (autoplayFailTriggered) {
+      user.audioTrack.play();
+    }
+    autoplayFailTriggered = false;
     const audioLabel = $(`
       <div id="audio-${uid}">
         <p>Listening to audio from remoteUser (${uid})</p>
