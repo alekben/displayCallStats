@@ -74,15 +74,16 @@ function startRecording(stream, lengthInMS) {
 // create Agora client
 var client = AgoraRTC.createClient({
   mode: "rtc",
-  codec: "vp8"
+  codec: "h264"
 });
 
 var loopback_client = AgoraRTC.createClient({
   mode: "rtc",
-  codec: "vp8"
+  codec: "h264"
 });
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
 
