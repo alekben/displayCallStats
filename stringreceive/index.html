@@ -26,7 +26,7 @@
   Create the banner at the top of the page.
 -->
   <div class="container-fluid banner">
-    <p class="banner-text">Basic Video Call</p>
+    <p class="banner-text">Basic Watcher</p>
     <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
       class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
       <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
@@ -81,7 +81,7 @@
       <div class="row join-info-group">
         <div class="col-sm sso-hidden">
           <p class="join-info-text">APP ID</p>
-          <input id="appid" type="text" placeholder="Enter the appid">
+          <input id="appid" type="text" value="">
           <p class="tips">You find your APP ID in the <a href="https://console.agora.io/projects">Agora Console</a></p>
         </div>
         <div class="col-sm sso-hidden">
@@ -92,7 +92,7 @@
         </div>
         <div class="col-sm">
           <p class="join-info-text">Channel Name</p>
-          <input id="channel" type="text" placeholder="Enter the channel name" required>
+          <input id="channel" type="text" value="" required>
           <p class="tips">You create a channel when you create a temporary token. You guessed it, in <a
               href="https://console.agora.io/projects">Agora Console</a></p>
         </div>
@@ -111,9 +111,6 @@
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
         <button id="subscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Subscribe</button>
         <button id="unsubscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Unsubscribe</button>
-        <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
-        <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>
-        <button id="setEnabled" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Disable Mic Track</button>
 
 
 
@@ -122,69 +119,6 @@
             <div class="uid-list dropdown-menu"></div>
           <input type="text" class="uid-input form-control" aria-label="Text input with dropdown button"
             readonly>
-
-
-        <div class="collapse-wrapper" style="height: 30px;">
-          <div class="collapse-content">
-            <button class="btn btn-primary btn-sm collapse-btn" type="button" data-toggle="collapse"
-              data-target="#agora-collapse" aria-expanded="false" aria-controls="agora-collapse">
-              ADVANCED SETTINGS
-            </button>
-            <!-- collapse -->
-            <div class="collapse" id="agora-collapse" style="width: 100%;z-index: 9999;">
-              <div class="card card-body">
-                <!-- Microphone -->
-                <h6 class="device-name">Microphone</h6>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">Mics</button>
-                    <div class="mic-list dropdown-menu"></div>
-                  </div>
-                  <input type="text" class="mic-input form-control" aria-label="Text input with dropdown button"
-                    readonly>
-                </div>
-                <!-- Camera -->
-                <h6 class="device-name">Camera</h6>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">Cams</button>
-                    <div class="cam-list dropdown-menu"></div>
-                  </div>
-                  <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button"
-                    readonly>
-                </div>
-                <!-- CODEC -->
-                <h6 class="device-name">CODEC</h6>
-                <span style="padding-left: 1.25rem;">
-                  <input class="form-check-input" type="radio" name="radios" id="vp8" value="vp8"
-                    checked>
-                  <label class="form-check-label" for="vp8">
-                    vp8
-                  </label>
-                </span>
-                <span style="padding-left: 1.25rem;" class="mb-3">
-                  <input class="form-check-input" type="radio" name="radios" id="h264" value="h264">
-                  <label class="form-check-label" for="h264">
-                    h264
-                  </label>
-                </span>
-                <!-- profile -->
-                <h6 class="device-name">Video Profiles</h6>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">Profiles</button>
-                    <div class="profile-list dropdown-menu"></div>
-                  </div>
-                  <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button"
-                    readonly>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </form>
 
@@ -192,10 +126,6 @@
     This local media splayer is enabled when the user has successfully joined a Video Call channel.
   -->
     <div class="row video-group">
-      <div class="col">
-        <p id="local-player-name" class="player-name"></p>
-        <div id="local-player" class="player"></div>
-      </div>
       <div class="w-100"></div>
       <div class="col">
         <div id="remote-playerlist"></div>
@@ -203,7 +133,8 @@
     </div>
   </div>
 
-  <div id="popup">Nothing here yet</div>
+
+<div id="popup-section"></div>
 
   <!--
   Import the Agora Video Call SDK for Web and local calls to it.
