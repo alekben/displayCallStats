@@ -25,9 +25,9 @@ $(() => {
   }
 });
 
-AgoraRTC.onAutoplayFailed = () => {
-  alert("click to start autoplay!");
-};
+//AgoraRTC.onAutoplayFailed = () => {
+//  alert("click to start autoplay!");
+//};
 
 async function changeTargetUID(label) {
   $(".uid-input").val(`${label}`);
