@@ -398,12 +398,12 @@ async function join() {
     localTrackState.audioTrackPublished = false;
   } else {
     localTrackState.audioTrackCreated = true;
-    if (localTracks.audioTrack.enabled = true) {
+    if (localTracks.audioTrack.enabled == "true") {
       localTrackState.audioTrackEnabled = true;
     } else {
       localTrackState.audioTrackEnabled = false;
     }
-    if (localTracks.audioTrack.muted = true) {
+    if (localTracks.audioTrack.muted == "true") {
       localTrackState.audioTrackMuted = true;
     } else {
       localTrackState.audioTrackMuted = false;
@@ -411,6 +411,8 @@ async function join() {
   }
 
   localTrackState.audioTrackPublished = false;
+  localTracks.audioTrack.setEnabled(false);
+  localTrackState.audioTrackEnabled = false;
 
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
