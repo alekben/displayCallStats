@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Basic Video Call -- Agora</title>
+  <title>String Sender -- Agora</title>
   <link rel="stylesheet" href="../bootstrap.min.css">
   <link rel="stylesheet" href="./index.css">
 </head>
@@ -26,7 +26,7 @@
   Create the banner at the top of the page.
 -->
   <div class="container-fluid banner">
-    <p class="banner-text">Basic Video Call</p>
+    <p class="banner-text">String Sender</p>
     <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
       class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
       <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
@@ -98,8 +98,7 @@
         </div>
         <div class="col-sm">
           <p class="join-info-text">User ID(optional)</p>
-          <input id="uid" type="text" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
-            onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="Enter the user ID">
+          <input id="uid" type="text" placeholder="Enter the user ID">
         </div>
       </div>
 
@@ -111,9 +110,9 @@
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
         <button id="subscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Subscribe</button>
         <button id="unsubscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Unsubscribe</button>
-        <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
         <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>
         <button id="setEnabled" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Disable Mic Track</button>
+        <button id="setRole" type="button" class="btn btn-primary btn-sm" style="height: 30px;">Set Role As Audience</button>
 
 
 
@@ -212,7 +211,7 @@
   <script src="../jquery-3.4.1.min.js"></script>
   <script src="../bootstrap.bundle.min.js"></script>
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-  <script src="./basicVideoCall.js"></script>
+  <script src="./stringsend.js"></script>
 </body>
 
 </html>

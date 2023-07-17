@@ -103,6 +103,15 @@
         </div>
       </div>
 
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Cloud Proxy</button>
+          <div class="proxy-list dropdown-menu"></div>
+        </div>
+        <input type="text" class="proxy-input form-control" aria-label="Text input with dropdown button" readonly>
+      </div>
+
       <!--
       Join or leave a Video Call channel.
     -->
@@ -111,7 +120,6 @@
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
         <button id="subscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Subscribe</button>
         <button id="unsubscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Unsubscribe</button>
-        <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
         <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>
         <button id="setEnabled" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Disable Mic Track</button>
 
