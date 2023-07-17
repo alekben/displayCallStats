@@ -4,6 +4,12 @@ var popups = 0;
 var client;
 AgoraRTC.enableLogUpload();
 
+var connectionState = {
+  isJoined: null,
+  mediaReceived: null,
+  isProxy: null,
+  isTURN: null
+}
 
 var localTracks = {
   videoTrack: null,
@@ -17,6 +23,9 @@ var localTrackState = {
   audioTrackCreated: false
 };
 
+
+var specialJoinUDP = false;
+var specialJoinTCP = false;
 
 var remoteUsers = {};
 var remotesArray = [];
@@ -44,11 +53,11 @@ var modes = [{
 }, {
   label: "Auto + Force UDP",
   detail: "Try direct, then Auto TCP Cloud Proxy, then Forced UDP 443",
-  value: "3"
+  value: "6"
 }, {
   label: "Auto + Force TCP",
   detail: "Try direct, then Auto TCP Cloud Proxy, then Forced TCP 443",
-  value: "5"
+  value: "7"
 }];
 
 var mode;
@@ -375,17 +384,36 @@ async function join() {
   client.on("user-unpublished", handleUserUnpublished);
   client.on("is-using-cloud-proxy", reportProxyUsed);
   client.on("join-fallback-to-proxy", reportAutoFallback);
-  client.on("stream-type-changed", reportStreamTypeChanged)
+  client.on("stream-type-changed", reportStreamTypeChanged);
+  client.on("connection-state-change", reportConnectionState);
 
   // Enable Cloud Proxy according to setting
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
     client.startProxyServer(value);
   }
+  if (value === 6) {
+    specialJoinUDP = true;
+    specialJoinTCP = false;
+  }
+  if (value === 7) {
+    specialJoinUDP = false;
+    specialJoinTCP = true;
+  }
   if (value === 0) {
     client.stopProxyServer();
+    specialJoinUDP = false;
+    specialJoinTCP = false;
   }
-  // Join the channel.
+
+
+  // Join the channel with mode 0,3,5, nothing special required.
+  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+
+  // Join the channel with mode 6, try direct first, then auto for additional 3 seconds, then force UDP, give up after 15 seconds
+  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+
+  // Join the channel with mode 7, try direct first, then auto for additional 3 seconds, then force TCP, give up after 15 seconds
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
   if (!localTracks.audioTrack) {
@@ -461,6 +489,13 @@ async function leave() {
     audioTrackEnabled: false,
     audioTrackPublished: false
   };
+
+  connectionState = {
+    isJoined: false,
+    isProxy: false,
+    isTURN: false,
+    mediaReceived: false
+  }
 
   // Remove remote users and player views.
   remoteUsers = {};
@@ -561,11 +596,32 @@ function reportStreamTypeChanged(uid, streamType) {
 function reportAutoFallback(proxyServer) {
 console.log(`AutoFallback proxy being used detected, server is: ${proxyServer}`);
 showPopup(`AutoFallback proxy being used detected, server is: ${proxyServer}`);
+connectionState.isProxy = true;
 }
 
 function reportProxyUsed(isProxyUsed) {
 console.log(`is-cloud-proxy-used reports: ${isProxyUsed}`);
+connectionState.isTURN = true;
 }
+
+function reportConnectionState(cur, prev, reason) {
+  if (cur == "DISCONNECTED") {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+    showPopup(`Connection State: ${cur}, Reason: ${reason}`)
+    if (reason == "FALLBACK") {
+      console.log(`Autofallback TCP Proxy being attempted.`);
+      showPopup(`Autofallback TCP Proxy Attempted`);
+    }
+  } else if (cur == "CONNECTED") {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Connection State: ${cur}`);
+    connectionState.isJoined = true;
+  } else {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Connection State: ${cur}`);
+    connectionState.isJoined = false;
+  }
+  }
 
 async function changeModes(label) {
   mode = modes.find(profile => profile.label === label);
