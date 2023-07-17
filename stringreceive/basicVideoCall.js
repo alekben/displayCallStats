@@ -140,7 +140,7 @@ async function join() {
   client.on("user-unpublished", handleUserUnpublished);
   client.on("user-joined", handleUserJoined);
   client.on("user-left", handleUserLeft);
-  client.on("user-info-updated", handleUserInfoUpdated)
+  client.on("user-info-updated", handleUserInfoUpdated);
 
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
@@ -195,10 +195,6 @@ async function subscribe(user, mediaType) {
 function handleUserPublished(user, mediaType) {
   const id = user.uid;
   showPopup(`UID ${id} published ${mediaType}`);
-  //var x = document.getElementById("popup");
-  //$("#popup").text(`UID ${id} published ${mediaType}`);
-  //x.className = "show";
-  //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
   updateUIDs(id, "add");
   remoteUsers[id] = user;
   subscribe(user, mediaType);
@@ -208,20 +204,12 @@ function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
   if (mediaType === "video") {
     showPopup(`UID ${id} unpublished video`);
-    //var x = document.getElementById("popup");
-    //$("#popup").text(`UID ${id} unpublished video`);
-    //x.className = "show";
-    //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   } else {
     showPopup(`UID ${id} unpublished audio`);
-    //var x = document.getElementById("popup");
-    //$("#popup").text(`UID ${id} unpublished audio`);
-    //x.className = "show";
-    //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
   }
 }
 
@@ -229,10 +217,6 @@ function handleUserJoined(user) {
   const id = user.uid;
   updateUIDs(id, "add");
   showPopup(`UID ${id} Joined as Host`);
-  //var x = document.getElementById("popup");
-  //$("#popup").text(`UID ${id} Joined as Host`);
-  //x.className = "show";
-  //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
 function handleUserLeft(user) {
@@ -240,10 +224,6 @@ function handleUserLeft(user) {
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
   showPopup(`UID ${id} Offline`);
-  //var x = document.getElementById("popup");
-  //$("#popup").text(`UID ${id} Offline`);
-  //x.className = "show";
-  //setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
 function handleUserInfoUpdated(uid, message) {
@@ -256,7 +236,6 @@ function showPopup(message) {
     console.log(`Popup count: ${newPopup}`);
     const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
     $("#popup-section").append(y);
-    //$("#popup").text(`UID ${id} Offline`);
     var x = document.getElementById(`popup-${newPopup}`);
     x.className = "popupShow";
     z = popups * 10;

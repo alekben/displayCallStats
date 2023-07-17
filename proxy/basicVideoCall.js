@@ -1,4 +1,6 @@
 
+var popups = 0;
+
 var client;
 AgoraRTC.enableLogUpload();
 
@@ -11,7 +13,8 @@ var localTracks = {
 var localTrackState = {
   audioTrackMuted: false,
   audioTrackEnabled: false,
-  audioPublished: false
+  audioTrackPublished: false,
+  audioTrackCreated: false
 };
 
 
@@ -28,21 +31,29 @@ var options = {
 
 var modes = [{
   label: "Close",
-  detail: "Disable Cloud Proxy",
+  detail: "Disable Forced Cloud Proxy, direct and auto only.",
   value: "0"
 }, {
   label: "UDP Mode",
-  detail: "Enable Cloud Proxy via UDP protocol",
+  detail: "Force Cloud Proxy via UDP protocol",
   value: "3"
 }, {
   label: "TCP Mode",
-  detail: "Enable Cloud Proxy via TCP/TLS port 443",
+  detail: "Force Cloud Proxy via TCP/TLS port 443",
+  value: "5"
+}, {
+  label: "Auto + Force UDP",
+  detail: "Try direct, then Auto TCP Cloud Proxy, then Forced UDP 443",
+  value: "3"
+}, {
+  label: "Auto + Force TCP",
+  detail: "Try direct, then Auto TCP Cloud Proxy, then Forced TCP 443",
   value: "5"
 }];
+
 var mode;
 
 
-// you can find all the agora preset video profiles here https://docs.agora.io/en/Voice/API%20Reference/web_ng/globals.html#videoencoderconfigurationpreset
 var videoProfiles = [{
   label: "360p_7",
   detail: "480×360, 15fps, 320Kbps",
@@ -105,6 +116,10 @@ async function initDevices() {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       encoderConfig: "music_standard"
     });
+    localTrackState.audioTrackCreated = true;
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = true;
+    localTrackState.audioTrackPublished = false;
   }
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
@@ -216,17 +231,12 @@ $(() => {
   }
 });
 
-/*
- * When a user clicks Join or Leave in the HTML form, this procedure gathers the information
- * entered in the form and calls join asynchronously. The UI is updated to match the options entered
- * by the user.
- */
+
 $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
   $("#subscribe").attr("disabled", false);
   $("#unsubscribe").attr("disabled", false);
-  $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
   try {
     if (!client) {
@@ -241,9 +251,6 @@ $("#join-form").submit(async function (e) {
     options.token = $("#token").val();
     client.setClientRole("host");  
     await join();
-    localTrackState.audioTrackMuted = false;
-    localTrackState.audioTrackEnabled = true;
-    localTrackState.audioPublished = false;
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
     } else {
@@ -308,10 +315,7 @@ async function muteAudio() {
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   $("#setMuted").text("Unmute Mic Track");
-  var x = document.getElementById("popup");
-  $("#popup").text(`Mic Track Muted`);
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  showPopup("Mic Track Muted");
 }
 
 async function unmuteAudio() {
@@ -319,36 +323,30 @@ async function unmuteAudio() {
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
   $("#setMuted").text("Mute Mic Track");
-  var x = document.getElementById("popup");
-  $("#popup").text(`Mic Track Unmuted`);
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  showPopup("Mic Track Unmuted");
 }
 
 async function disableAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
+
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
   $("#setEnabled").text("Enable Mic Track");
-  var x = document.getElementById("popup");
-  $("#popup").text(`Mic Track Disabled`);
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  $("#setMuted").attr("disabled", true);
+  showPopup("Mic Track Disabled");
 }
 
 async function enableAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setEnabled(true);
   localTrackState.audioTrackEnabled = true;
+  if (!localTrackState.audioTrackPublished) {
+    await client.publish(localTracks.audioTrack);
+    localTrackState.audioTrackPublished = true;
+  }
   $("#setEnabled").text("Disable Mic Track");
-  var x = document.getElementById("popup");
-  $("#popup").text(`Mic Track Enabled`);
-  x.className = "show";
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+  $("#setMuted").attr("disabled", false);
+  showPopup("Mic Track Enabled");
 }
 
 async function manualSub() {
@@ -357,6 +355,7 @@ async function manualSub() {
   let user = remoteUsers[id];
   await subscribe(user, "video");
   await subscribe(user, "audio");
+  showPopup(`Subscribing to ${id}`);
 }
 
 async function manualUnsub() {
@@ -365,6 +364,7 @@ async function manualUnsub() {
   let user = remoteUsers[id];
   await client.unsubscribe(user, "");
   $(`#player-wrapper-${id}`).remove();
+  showPopup(`Unsubscribing from ${id}`);
 }
 /*
  * Join a channel, then create local video and audio tracks and publish them to the channel.
@@ -388,12 +388,44 @@ async function join() {
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  [localTracks.audioTrack, localTracks.videoTrack ] = await 
-    AgoraRTC.createMicrophoneAndCameraTracks(
-{AEC: true,  AGC: false,  ANS: true, encoderConfig: 'standard_stereo' },
-{encoderConfig: {width: { max: 848, min: 640 }, height: { max: 480, min: 480 }, frameRate: 30, bitrateMax: 1000, bitrateMin:750,}}
-    );
-  
+  if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: "music_standard"
+    });
+    localTrackState.audioTrackCreated = true;
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = false;
+    localTrackState.audioTrackPublished = false;
+  } else {
+    localTrackState.audioTrackCreated = true;
+    if (localTracks.audioTrack.enabled = true) {
+      localTrackState.audioTrackEnabled = true;
+    } else {
+      localTrackState.audioTrackEnabled = false;
+    }
+    if (localTracks.audioTrack.muted = true) {
+      localTrackState.audioTrackMuted = true;
+    } else {
+      localTrackState.audioTrackMuted = false;
+    }
+  }
+
+  localTrackState.audioTrackPublished = false;
+
+  if (!localTracks.videoTrack) {
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: curVideoProfile.value
+    });
+  }
+
+  //[localTracks.audioTrack, localTracks.videoTrack ] = await 
+  //  AgoraRTC.createMicrophoneAndCameraTracks(
+//{AEC: true,  AGC: false,  ANS: true, encoderConfig: 'standard_stereo' },
+//{encoderConfig: {width: { max: 848, min: 640 }, height: { max: 480, min: 480 }, frameRate: 30, //bitrateMax: 1000, bitrateMin:750,}}
+ //   );
+
+
+  //mic track isn't publishe and starts disabled
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
   console.log("publish success");
@@ -403,9 +435,6 @@ async function join() {
   $("#local-player-name").text(`localVideo(${options.uid})`);
   $("#joined-setup").css("display", "flex");
 
-  localTrackState.audioTrackMuted = false;
-  localTrackState.audioTrackEnabled = true;
-  localTrackState.audioPublished = false;
 
   // Publish the local video and audio tracks to the channel.
   //await client.publish(Object.values(localTracks));
@@ -428,7 +457,7 @@ async function leave() {
   localTrackState = {
     audioTrackMuted: false,
     audioTrackEnabled: false,
-    audioPublished: false
+    audioTrackPublished: false
   };
 
   // Remove remote users and player views.
@@ -447,11 +476,9 @@ async function leave() {
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
-  $("#publishTrack").text("Publish Mic Track");
-  $("#publishTrack").attr("disabled", true);
   $("#setMuted").text("Mute Mic Track");
   $("#setMuted").attr("disabled", true);
-  $("#setEnabled").text("Disable Mic Track");
+  $("#setEnabled").text("Enable Mic Track");
   $("#setEnabled").attr("disabled", true);
   console.log("client leaves channel success");
 }
@@ -482,12 +509,7 @@ async function subscribe(user, mediaType) {
   }
 }
 
-/*
- * Add a user who has subscribed to the live channel to the local interface.
- *
- * @param  {IAgoraRTCRemoteUser} user - The {@link  https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/iagorartcremoteuser.html| remote user} to add.
- * @param {trackMediaType - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/itrack.html#trackmediatype | media type} to add.
- */
+
 function handleUserPublished(user, mediaType) {
   const id = user.uid;
   updateUIDs(id, "add");
@@ -507,7 +529,27 @@ function handleUserUnpublished(user, mediaType) {
     updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
+    showPopup(`UID ${id} unpublished video`);
   }
+  showPopup(`UID ${id} unpublished audio`);
+}
+
+function handleUserJoined(user) {
+  const id = user.uid;
+  updateUIDs(id, "add");
+  showPopup(`UID ${id} Joined as Host`);
+}
+
+function handleUserLeft(user) {
+  const id = user.uid;
+  removeItemOnce(remotesArray, id);
+  updateUIDs(id, "remove");
+  showPopup(`UID ${id} Offline`);
+}
+
+function handleUserInfoUpdated(uid, message) {
+  console.log(`User Info Updated for ${uid}, new state is: ${message}`);
+  showPopup(`UID ${uid} new state: ${message}`);
 }
 
 function reportStreamTypeChanged(uid, streamType) {
@@ -516,6 +558,7 @@ function reportStreamTypeChanged(uid, streamType) {
 
 function reportAutoFallback(proxyServer) {
 console.log(`AutoFallback proxy being used detected, server is: ${proxyServer}`);
+showPopup(`AutoFallback proxy being used detected, server is: ${proxyServer}`);
 }
 
 function reportProxyUsed(isProxyUsed) {
@@ -543,6 +586,20 @@ function getCodec() {
     }
   }
   return value;
+}
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  //$("#popup").text(`UID ${id} Offline`);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
 }
 
 function removeItemOnce(arr, value) {
