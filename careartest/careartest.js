@@ -322,7 +322,6 @@ async function join() {
 
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.on("connection-state-change", reportConnectionState);
   client.on("user-joined", handleUserJoined);
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
@@ -449,24 +448,6 @@ function handleUserUnpublished(user, mediaType) {
   showPopup(`UID ${id} unpublished ${mediaType}`);
 }
 
-function reportConnectionState(cur, prev, reason) {
-  if (cur == "DISCONNECTED") {
-    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
-    showPopup(`Connection State: ${cur}, Reason: ${reason}`)
-    if (reason == "FALLBACK") {
-      console.log(`Autofallback TCP Proxy being attempted.`);
-      showPopup(`Autofallback TCP Proxy Attempted`);
-    }
-  } else if (cur == "CONNECTED") {
-    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Connection State: ${cur}`);
-    connectionState.isJoined = true;
-  } else {
-    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Connection State: ${cur}`);
-    connectionState.isJoined = false;
-  }
-}
 
 function handleUserJoined(user) {
   const id = user.uid;
