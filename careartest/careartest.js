@@ -356,8 +356,8 @@ async function join() {
   await localTracks.videoTrack.setEnabled(false);
   localAudioTrackState.audioTrackEnabled = false;
   localAudioTrackState.audioPublished = true;
-  localVideoTrackState.audioTrackEnabled = false;
-  localVideoTrackState.audioPublished = true;
+  localVideoTrackState.videoTrackEnabled = false;
+  localVideoTrackState.videoPublished = true;
 }
 
 /*
