@@ -179,7 +179,7 @@ async function initDevices() {
       await localTracks.audioTrack.close();
       localTracks.audioTrack = undefined;
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+        encoderConfig: {"facingMode":"environment","width":1280,"height":720,"frameRate":15}
       });
       publishMic();
       $("#setMuted").attr("disabled", false);
