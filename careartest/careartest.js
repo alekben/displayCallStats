@@ -30,7 +30,7 @@ var options = {
 };
 
 //AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+//AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
 
 var videoProfiles = [{
@@ -93,7 +93,7 @@ AgoraRTC.onCameraChanged = async changedDevice => {
 async function initDevices() {
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: {"AEC": true, "ANS": true, "AGC": true}
+      encoderConfig: {"AEC": true, "ANS": true, "AGC": true, "googHighpassFilter":{"exact":true}}
     });
   }
   if (!localTracks.videoTrack) {
@@ -329,7 +329,7 @@ async function join() {
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: {"AEC": true, "ANS": true, "AGC": true}
+      encoderConfig: {"AEC": true, "ANS": true, "AGC": true, "googHighpassFilter":{"exact":true}}
     });
   }
   if (!localTracks.videoTrack) {
