@@ -352,7 +352,7 @@ async function join() {
 
   await client.unpublish();
   await client.publish(Object.values(localTracks));
-  Promise.all([localTracks.audioTrack.setEnabled(false), await localTracks.videoTrack.setEnabled(false)]).then(() => {
+  await Promise.all([localTracks.audioTrack.setEnabled(false), localTracks.videoTrack.setEnabled(false)]).then(() => {
     client.publish(Object.values(localTracks));
   })
   //await localTracks.audioTrack.setEnabled(false);
