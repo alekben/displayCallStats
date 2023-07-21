@@ -30,6 +30,8 @@ var localTracks = {
  */
 var remoteUsers = {};
 
+AgoraRTC.setArea("EUROPE");
+
 /*
  * On initiation. `client` is not attached to any project or channel for any specific user.
  */
