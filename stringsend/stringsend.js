@@ -504,6 +504,7 @@ async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
+  client.enableDualStream();
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
 
