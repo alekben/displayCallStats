@@ -10,7 +10,10 @@ var localTracks = {
 var localTrackState = {
   audioTrackMuted: false,
   audioTrackEnabled: false,
-  audioPublished: false
+  audioPublished: false,
+  videoTrackMuted: false,
+  videoTrackEnabled: false,
+  videoTrackPublished: false
 };
 
 
@@ -218,6 +221,8 @@ $("#join-form").submit(async function (e) {
   $("#unsubscribe").attr("disabled", false);
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
+  $("#setMutedCam").attr("disabled", false);
+  $("#setEnabledCam").attr("disabled", false);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
@@ -236,9 +241,16 @@ $("#join-form").submit(async function (e) {
     }
  
     await join();
+
+    if (options.host === "true") {
+      localTrackState.audioTrackEnabled = true;
+      localTrackState.videoTrackEnabled = true;
+      localTrackState.audioPublished = true;
+      localTrackState.videoPublished = true;
+    }
     localTrackState.audioTrackMuted = false;
-    localTrackState.audioTrackEnabled = true;
-    localTrackState.audioPublished = false;
+    localTrackState.videoTrackMuted = false;
+
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
     } else {
@@ -291,15 +303,83 @@ $("#setEnabled").click(function (e) {
     enableAudio();
   }
 });
+$("#setMutedCam").click(function (e) {
+  if (!localTrackState.videoTrackMuted) {
+    muteVideo();
+  } else {
+    unmuteVideo();
+  }
+});
+$("#setEnabledCam").click(function (e) {
+  if (localTrackState.videoTrackEnabled) {
+    disableVideo();
+  } else {
+    enableVideo();
+  }
+});
+$("#setRole").click(function (e) {
+  if (options.host === "true") {
+    setAudience();
+  } else {
+    setHost();
+  }
+});
 
+async function setHost() {
+  options.host = "true";
+  client.setClientRole("host");
+  if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: "music_standard"
+    });
+  }
+  if (!localTracks.videoTrack) {
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: curVideoProfile.value
+    });
+  }
 
+  localTracks.videoTrack.play("local-player");
+  $("#local-player-name").text(`localVideo(${options.uid})`);
+  $("#joined-setup").css("display", "flex");
+
+  localTrackState.audioTrackMuted = false;
+  localTrackState.audioTrackEnabled = true;
+  localTrackState.audioPublished = true;
+  localTrackState.videoTrackMuted = false;
+  localTrackState.videoTrackEnabled = true;
+  localTrackState.videoPublished = true;
+
+  await client.publish(Object.values(localTracks));
+  } 
+
+  async function setAudience() {
+    options.host = "true";
+    await client.unpublish();
+    await client.setClientRole("audience");
+
+    for (trackName in localTracks) {
+      var track = localTracks[trackName];
+      if (track) {
+        track.stop();
+        track.close();
+        localTracks[trackName] = undefined;
+      }
+    }
+  
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = false;
+    localTrackState.audioPublished = false;
+    localTrackState.videoTrackMuted = false;
+    localTrackState.videoTrackEnabled = false;
+    localTrackState.videoPublished = false;
+
+    $("#local-player-name").text("");
+    } 
 
 async function muteAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
+
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   $("#setMuted").text("Unmute Mic Track");
@@ -309,28 +389,73 @@ async function muteAudio() {
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
+
+async function muteAudio() {
+  if (!localTracks.audioTrack) return;
+
+  await localTracks.audioTrack.setMuted(true);
+  localTrackState.audioTrackMuted = true;
+  $("#setMuted").text("Unmute Mic Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Mic Track Muted`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function muteVideo() {
+  if (!localTracks.videoTrack) return;
+
+  await localTracks.videoTrack.setMuted(true);
+  localTrackState.videoTrackMuted = true;
+  $("#setMutedCam").text("Unmute Cam Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Cam Track Muted`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
 async function unmuteAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
-  $("#setMuted").text("Mute Mic Track");
+  $("#setMutedCam").text("Mute Mic Track");
   var x = document.getElementById("popup");
   $("#popup").text(`Mic Track Unmuted`);
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
 
+async function unmuteVideo() {
+  if (!localTracks.videoTrack) return;
+  await localTracks.videoTrack.setMuted(false);
+  localTrackState.videoTrackMuted = false;
+  $("#setMutedCam").text("Mute Cam Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Cam Track Unmuted`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
 async function disableAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
+
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
   $("#setEnabled").text("Enable Mic Track");
   var x = document.getElementById("popup");
   $("#popup").text(`Mic Track Disabled`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function disableVideo() {
+  if (!localTracks.videoTrack) return;
+
+  await localTracks.videoTrack.setEnabled(false);
+  localTrackState.videoTrackEnabled = false;
+  $("#setEnabledCam").text("Enable Cam Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Cam Track Disabled`);
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
@@ -342,6 +467,17 @@ async function enableAudio() {
   $("#setEnabled").text("Disable Mic Track");
   var x = document.getElementById("popup");
   $("#popup").text(`Mic Track Enabled`);
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+async function enableVideo() {
+  if (!localTracks.videoTrack) return;
+  await localTracks.videoTrack.setEnabled(true);
+  localTrackState.videoTrackEnabled = true;
+  $("#setEnabledCam").text("Disable Cam Track");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Cam Track Enabled`);
   x.className = "show";
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
@@ -369,30 +505,34 @@ async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   // Join the channel.
-  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: "music_standard"
-    });
+  options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
+
+  if (options.host === "true") {
+    if (!localTracks.audioTrack) {
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+        encoderConfig: "music_standard"
+      });
+    }
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: curVideoProfile.value
+      });
+    }
+
+    localTracks.videoTrack.play("local-player");
+    $("#local-player-name").text(`localVideo(${options.uid})`);
+    $("#joined-setup").css("display", "flex");
+  
+    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackEnabled = true;
+    localTrackState.audioPublished = true;
+    localTrackState.videoTrackMuted = false;
+    localTrackState.videoTrackEnabled = true;
+    localTrackState.videoPublished = true;
+
+    await client.publish(Object.values(localTracks));
   }
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: curVideoProfile.value
-    });
-  }
 
-  // Play the local video track to the local browser and update the UI with the user ID.
-  localTracks.videoTrack.play("local-player");
-  $("#local-player-name").text(`localVideo(${options.uid})`);
-  $("#joined-setup").css("display", "flex");
-
-  localTrackState.audioTrackMuted = false;
-  localTrackState.audioTrackEnabled = true;
-  localTrackState.audioPublished = false;
-
-  // Publish the local video and audio tracks to the channel.
-  //await client.publish(Object.values(localTracks));
-  //console.log("publish success");
 }
 
 /*
@@ -411,7 +551,10 @@ async function leave() {
   localTrackState = {
     audioTrackMuted: false,
     audioTrackEnabled: false,
-    audioPublished: false
+    audioPublished: false,
+    videoTrackMuted: false,
+    videoTrackEnabled: false,
+    videoTrackPublished: false
   };
 
   // Remove remote users and player views.
@@ -436,6 +579,10 @@ async function leave() {
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").text("Disable Mic Track");
   $("#setEnabled").attr("disabled", true);
+  $("#setMutedCam").text("Mute Cam Track");
+  $("#setMutedCam").attr("disabled", true);
+  $("#setEnabledCam").text("Disable Cam Track");
+  $("#setEnabledCam").attr("disabled", true);
   console.log("client leaves channel success");
 }
 
