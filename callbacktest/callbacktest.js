@@ -30,7 +30,7 @@ var options = {
 };
 
 //AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+//AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
 
 var videoProfiles = [{
