@@ -406,6 +406,7 @@ async function leave() {
   $("#setEnabledCam").text("Enable Cam Track");
   $("#setEnabledCam").attr("disabled", true);
   console.log("client leaves channel success");
+  showPopup(`Joined to channel ${options.channel}`);
 }
 
 
@@ -454,7 +455,7 @@ function handleUserUnpublished(user, mediaType) {
 function handleUserJoined(user) {
   const id = user.uid;
   updateUIDs(id, "add");
-  showPopup(`UID ${id} Joined as Host`);
+  showPopup(`UID ${id} user-joined`);
 
 }
 
@@ -462,7 +463,7 @@ function handleUserLeft(user) {
   const id = user.uid;
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
-  showPopup(`UID ${id} Offline`);
+  showPopup(`UID ${id} user-left`);
 
 }
 
