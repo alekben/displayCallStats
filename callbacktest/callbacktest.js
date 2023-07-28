@@ -354,8 +354,8 @@ async function join() {
 
   await client.publish(Object.values(localTracks));
   showPopup(`Joined to channel ${options.channel}`);
-  showPopup(`Pu8blishing camera`);
-  showPopup(`Pu8blishing microphone`);
+  showPopup(`Publishing camera`);
+  showPopup(`Publishing microphone`);
 
 
   //await localTracks.audioTrack.setEnabled(false);
@@ -450,7 +450,7 @@ function handleUserUnpublished(user, mediaType) {
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
     delete remoteUsers[id];
-    $(`#player-wrapper-${id}`).remove();
+    //$(`#player-wrapper-${id}`).remove();
   }
   showPopup(`UID ${id} unpublished ${mediaType}`);
 }
