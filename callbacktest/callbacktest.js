@@ -353,6 +353,10 @@ async function join() {
 
 
   await client.publish(Object.values(localTracks));
+  showPopup(`Joined to channel ${options.channel}`);
+  showPopup(`Pu8blishing camera`);
+  showPopup(`Pu8blishing microphone`);
+
 
   //await localTracks.audioTrack.setEnabled(false);
   //await localTracks.videoTrack.setEnabled(false);
@@ -406,7 +410,7 @@ async function leave() {
   $("#setEnabledCam").text("Enable Cam Track");
   $("#setEnabledCam").attr("disabled", true);
   console.log("client leaves channel success");
-  showPopup(`Joined to channel ${options.channel}`);
+  
 }
 
 
