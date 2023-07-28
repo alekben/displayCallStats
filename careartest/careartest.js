@@ -351,16 +351,14 @@ async function join() {
   localVideoTrackState.videoTrackEnabled = true;
   localVideoTrackState.videoPublished = false;
 
-  await client.unpublish();
+
   await client.publish(Object.values(localTracks));
-  await Promise.all([localTracks.audioTrack.setEnabled(false), localTracks.videoTrack.setEnabled(false)]).then(() => {
-    client.publish(Object.values(localTracks));
-  })
+
   //await localTracks.audioTrack.setEnabled(false);
   //await localTracks.videoTrack.setEnabled(false);
-  localAudioTrackState.audioTrackEnabled = false;
+  localAudioTrackState.audioTrackEnabled = true;
   localAudioTrackState.audioPublished = true;
-  localVideoTrackState.videoTrackEnabled = false;
+  localVideoTrackState.videoTrackEnabled = true;
   localVideoTrackState.videoPublished = true;
 }
 
