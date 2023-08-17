@@ -393,22 +393,22 @@ async function pickS() {
   if (slayer == 3) {
     $("#pickSLayer").text("S2");
     slayer = 2;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
   if (slayer == 2) {
     $("#pickSLayer").text("S1");
     slayer = 1;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
   if (slayer == 1) {
     $("#pickSLayer").text("S0");
     slayer = 0;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
   if (slayer == 0) {
     $("#pickSLayer").text("S3");
     slayer = 3;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
 
   //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
@@ -421,22 +421,22 @@ async function pickT() {
   if (tlayer == 3) {
     $("#pickTLayer").text("T2");
     tlayer = 2;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
   if (tlayer == 2) {
     $("#pickTLayer").text("T1");
     tlayer = 1;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
   if (tlayer == 1) {
     $("#pickTLayer").text("T0");
     tlayer = 0;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
   if (tlayer == 0) {
     $("#pickTLayer").text("T3");
     tlayer = 3;
-    client.pickSVCLayer(`"${id}", { spatialLayer: ${slayer}, temporalLayer: ${tlayer}}`);
+    client.pickSVCLayer(`"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`);
   }
 }
 
@@ -518,7 +518,7 @@ async function join() {
   //  });
   //}
   if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({ scalabilityMode: "3SL3TL"});
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfg: "1080p_3", scalabilityMode: "3SL3TL"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
