@@ -390,6 +390,23 @@ $("#pickTLayer").click(function (e) {
 async function pickS() {
   //get value of of uid-input
   const id = $(".uid-input").val();
+  if (slayer == 3) {
+    $("#pickSLayer").text("S2");
+    slayer = 2;
+  }
+  if (slayer == 2) {
+    $("#pickSLayer").text("S1");
+    slayer = 1;
+  }
+  if (slayer == 1) {
+    $("#pickSLayer").text("S0");
+    slayer = 0;
+  }
+  if (slayer == 0) {
+    $("#pickSLayer").text("S3");
+    slayer = 3;
+  }
+
   //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
 
 }
@@ -397,7 +414,22 @@ async function pickS() {
 async function pickT() {
   //get value of of uid-input
   const id = $(".uid-input").val();
-
+  if (tlayer == 3) {
+    $("#pickTLayer").text("T2");
+    tlayer = 2;
+  }
+  if (tlayer == 2) {
+    $("#pickTLayer").text("T1");
+    tlayer = 1;
+  }
+  if (tlayer == 1) {
+    $("#pickTLayer").text("T0");
+    tlayer = 0;
+  }
+  if (tlayer == 0) {
+    $("#pickTLayer").text("T3");
+    tlayer = 3;
+  }
 }
 
 async function toggleWebAudio() {
