@@ -1,72 +1,72 @@
 //MediaRecorder
 
 //let recording = document.getElementById("recording");
-let startButton = document.getElementById("record");
-let downloadButton = document.getElementById("download");
+//let startButton = document.getElementById("record");
+//let downloadButton = document.getElementById("download");
 let logElement = document.getElementById("log");
-let recordingTimeMS = 10000;
+//let recordingTimeMS = 10000;
 
 
 function log(msg) {
   logElement.innerHTML += msg + "\n";
 }
 
-function wait(delayInMS) {
-  return new Promise(resolve => setTimeout(resolve, delayInMS));
-}
+//function wait(delayInMS) {
+//  return new Promise(resolve => setTimeout(resolve, delayInMS));
+//}
 
-function stop(stream) {
-  stream.getTracks().forEach(track => track.stop());
-  $("#download").attr("hidden", false);
-  log("Done recording.");
-}
+//function stop(stream) {
+//  stream.getTracks().forEach(track => track.stop());
+//  $("#download").attr("hidden", false);
+//  log("Done recording.");
+//}
 
 //Handles startRecording being triggered by start button
-startButton.addEventListener("click", function() {
-      let astream = localTracks.audioTrack.getMediaStreamTrack();
-      const aastream = new MediaStream();
-      aastream.addTrack(astream);
-      //astream = "video_" + vstream;
-      //let vvstream = document.getElementById(`${vstream}`);
-      download.href = localTracks.audioTrack;
-      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-      startRecording(aastream, recordingTimeMS)
-      .then (recordedChunks => {
-      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
-      //vvstream.src = URL.createObjectURL(recordedBlob);
-      download.href = URL.createObjectURL(recordedBlob);
-      download.download = "RecordedMicTrack.ogg";
-      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-      $("#download").attr("hidden", false);
-      })
-});
+//startButton.addEventListener("click", function() {
+//      let astream = localTracks.audioTrack.getMediaStreamTrack();
+//      const aastream = new MediaStream();
+//      aastream.addTrack(astream);
+//      //astream = "video_" + vstream;
+//      //let vvstream = document.getElementById(`${vstream}`);
+//      download.href = localTracks.audioTrack;
+//      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
+//      startRecording(aastream, recordingTimeMS)
+//      .then (recordedChunks => {
+//      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
+//      //vvstream.src = URL.createObjectURL(recordedBlob);
+//      download.href = URL.createObjectURL(recordedBlob);
+//      download.download = "RecordedMicTrack.ogg";
+//      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
+//      $("#download").attr("hidden", false);
+//      })
+//});
 
 //creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
 
-function startRecording(stream, lengthInMS) {
-  $("#download").attr("hidden", true);
-  let recorder = new MediaRecorder(stream);
-  let data = [];
+//function startRecording(stream, lengthInMS) {
+//  $("#download").attr("hidden", true);
+//  let recorder = new MediaRecorder(stream);
+//  let data = [];
 
-  recorder.ondataavailable = event => data.push(event.data);
-  recorder.start();
-  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
+//  recorder.ondataavailable = event => data.push(event.data);
+//  recorder.start();
+//  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
 
-  let stopped = new Promise((resolve, reject) => {
-    recorder.onstop = resolve;
-    recorder.onerror = event => reject(event.name);
-  });
+//  let stopped = new Promise((resolve, reject) => {
+//    recorder.onstop = resolve;
+//    recorder.onerror = event => reject(event.name);
+//  });
 
-  let recorded = wait(lengthInMS).then(
-    () => recorder.state == "recording" && recorder.stop()
-  );
+//  let recorded = wait(lengthInMS).then(
+//    () => recorder.state == "recording" && recorder.stop()
+//  );
 
-  return Promise.all([
-    stopped,
-    recorded
-  ])
-  .then(() => data);
-}
+//  return Promise.all([
+//    stopped,
+//    recorded
+//  ])
+//  .then(() => data);
+//}
 
 
 
@@ -77,10 +77,10 @@ var client = AgoraRTC.createClient({
   codec: "vp9"
 });
 
-var loopback_client = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp9"
-});
+//var loopback_client = AgoraRTC.createClient({
+//  mode: "rtc",
+//  codec: "vp9"
+//});
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 console.log("Start with Web Audio OFF");
@@ -98,10 +98,10 @@ var localTrackState = {
 };
 
 var joined = false;
-var loopback = false;
+//var loopback = false;
 
 var remoteUsers = {};
-var remoteUsersLoopback = {};
+//var remoteUsersLoopback = {};
 var userCount = 0;
 
 // Agora client options
@@ -110,7 +110,7 @@ var options = {
   channel: null,
   uid: null,
   token: null,
-  uidLoopback: null
+  //uidLoopback: null
 };
 
 var audioProfiles = [{
@@ -269,10 +269,10 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
-    $("#record").attr("disabled", false);
+    //$("#record").attr("disabled", false);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
-    $("#startLoopback").attr("disabled", true);
+    //$("#startLoopback").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
     joined = true;
@@ -291,21 +291,21 @@ $("#createTrack").click(function (e) {
 $("#publishTrack").click(function (e) {
   publishMic();
   $("#publishTrack").attr("disabled", true);
-  $("#startLoopback").attr("disabled", false);
+  //$("#startLoopback").attr("disabled", false);
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
 });
 
-$("#startLoopback").click(function (e) {
-  if (!loopback) {
-    startLoopbackClient();
-    loopback = true;
-  } else {
-    stopLoopbackClient();
-    loopback = false;
-  }
-  
-});
+//$("#startLoopback").click(function (e) {
+//  if (!loopback) {
+//    startLoopbackClient();
+//    loopback = true;
+//  } else {
+//    stopLoopbackClient();
+//    loopback = false;
+//  }
+//  
+//});
 
 $("#setMuted").click(function (e) {
   if (!localTrackState.audioTrackMuted) {
@@ -448,11 +448,9 @@ async function leave() {
   $("#leave").attr("disabled", true);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);
-  $("#startLoopback").attr("disabled", true);
+  //$("#startLoopback").attr("disabled", true);
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
-  $("#record").attr("disabled", true);
-  $("#download").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
   if (loopback) {
@@ -460,21 +458,21 @@ async function leave() {
   }
 }
 
-async function startLoopbackClient() {
+//async function startLoopbackClient() {
   // add event listener to play remote tracks when remote user publishs.
-  loopback_client.on("user-published", handleUserPublishedLoopback);
-  loopback_client.on("user-unpublished", handleUserUnpublishedLoopback);
+//  loopback_client.on("user-published", handleUserPublishedLoopback);
+//  loopback_client.on("user-unpublished", handleUserUnpublishedLoopback);
 
   // join the channel
-  options.uidLoopback = await loopback_client.join(options.appid, options.channel, options.token || null, null);
-  $("#startLoopback").text("Stop Loopback");
-}
+//  options.uidLoopback = await loopback_client.join(options.appid, options.channel, options.token || null, null);
+//  $("#startLoopback").text("Stop Loopback");
+//}
 
-async function stopLoopbackClient() {
-  await loopback_client.leave();
-  remoteUsersLoopback = {};
-  $("#startLoopback").text("Start Loopback");
-}
+//async function stopLoopbackClient() {
+//  await loopback_client.leave();
+//  remoteUsersLoopback = {};
+//  $("#startLoopback").text("Start Loopback");
+//}
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
@@ -533,14 +531,14 @@ async function subscribe(user, mediaType) {
   }
 }
 
-async function subscribeLoopback(user, mediaType) {
-  console.log("Trying loopback subscription");
-  await loopback_client.subscribe(user, mediaType);
-  console.log("subscribe success");
-  if (mediaType === 'audio') {
-    user.audioTrack.play();
-  }
-}
+//async function subscribeLoopback(user, mediaType) {
+//  console.log("Trying loopback subscription");
+//  await loopback_client.subscribe(user, mediaType);
+//  console.log("subscribe success");
+//  if (mediaType === 'audio') {
+//    user.audioTrack.play();
+//  }
+//}
 
 function handleUserPublished(user, mediaType) {
   if (userCount >= 8 ) {
@@ -557,23 +555,23 @@ function handleUserPublished(user, mediaType) {
   }
 }
 
-function handleUserPublishedLoopback(user, mediaType) {
-    const id = user.uid;
-    if (id === options.uid) {
-      if (mediaType === "audio") {
-        remoteUsersLoopback[id] = user;
-        subscribeLoopback(user, mediaType);    
-      }
-    }
-}
+//function handleUserPublishedLoopback(user, mediaType) {
+//    const id = user.uid;
+//    if (id === options.uid) {
+//      if (mediaType === "audio") {
+//        remoteUsersLoopback[id] = user;
+//        subscribeLoopback(user, mediaType);    
+//      }
+//    }
+//}
 
-function handleUserUnpublishedLoopback(user, mediaType) {
-  if (mediaType === 'audio') {
-    if (options.uid = user.uid) {
-      delete remoteUsersLoopback[user.uid];
-    }    
-  }
-}
+//function handleUserUnpublishedLoopback(user, mediaType) {
+//  if (mediaType === 'audio') {
+//    if (options.uid = user.uid) {
+//      delete remoteUsersLoopback[user.uid];
+//    }    
+//  }
+//}
 
 function handleLowInput(event) {
   if (event == 2001) {
@@ -650,99 +648,96 @@ function flushStats() {
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
   `);
 
-  // get the local track stats message
-  const localStats = {
-    video: client.getLocalVideoStats(),
-    audio: client.getLocalAudioStats(),
-    audio2: localTracks.audioTrack.getMediaStreamTrackSettings()
+// get the local track stats message
+const localStats = {
+  video: client.getLocalVideoStats(),
+  //audio: client.getLocalAudioStats()
+};
+const localStatsList = [{
+  description: "Capture FPS",
+  value: localStats.video.captureFrameRate,
+  unit: ""
+  }, {
+  description: "Send FPS",
+  value: localStats.video.sendFrameRate,
+  unit: ""
+  }, {
+  description: "Video encode delay",
+  value: Number(localStats.video.encodeDelay).toFixed(2),
+  unit: "ms"
+  }, {
+  description: "Video send resolution height",
+  value: localStats.video.sendResolutionHeight,
+  unit: ""
+  }, {
+  description: "Video send resolution width",
+  value: localStats.video.sendResolutionWidth,
+  unit: ""
+  },  {
+  description: "Send video bit rate",
+  value: localStats.video.sendBitrate,
+  unit: "bps"
+  }, {
+  description: "Total video packets loss",
+  value: localStats.video.sendPacketsLost,
+  unit: ""
+  }, {
+  description: "Total video freeze time",
+  value: localStats.video.totalFreezeTime,
+  unit: "s"
+}];
+$("#local-stats").html(`
+  ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+`);
+Object.keys(remoteUsers).forEach(uid => {
+  // get the remote track stats message
+  const remoteTracksStats = {
+    video: client.getRemoteVideoStats()[uid],
+    //audio: client.getRemoteAudioStats()[uid]
   };
-  const localStatsList = [{
-    description: "Codec",
-    value: localStats.audio.codecType,
+  const remoteTracksStatsList = [{
+    description: "Receiving FPS",
+    value: remoteTracksStats.video.receiveFrameRate,
     unit: ""
-    }, {
-    description: "Packet Loss",
-    value: localStats.audio.currentPacketLossRate,
+  }, {
+    description: "Decoding FPS",
+    value: remoteTracksStats.video.decodeFrameRate,
     unit: ""
-    }, {
-    description: "Bitrate",
-    value: localStats.audio.sendBitrate,
+  }, {
+    description: "Render FPS",
+    value: remoteTracksStats.video.renderFrameRate,
+    unit: ""
+  }, {
+    description: "Video received height",
+    value: remoteTracksStats.video.receiveResolutionHeight,
+    unit: ""
+  }, {
+    description: "Video received width",
+    value: remoteTracksStats.video.receiveResolutionWidth,
+    unit: ""
+  }, {
+    description: "Receiving video bitrate",
+    value: remoteTracksStats.video.receiveBitrate,
     unit: "bps"
-    }, {
-    description: "send Packets Lost",
-    value: localStats.audio.sendPacketsLost,
-    unit: ""
-    }, {
-    description: "send Volume Level",
-    value: localStats.audio.sendVolumeLevel,
-    unit: ""
-    }, {
-    description: "channels",
-    value: localStats.audio2.channelCount,
-    unit: ""
-    }, {
-    description: "sampleRate",
-    value: localStats.audio2.sampleRate,
-    unit: ""
-    }, {
-    description: "encoderConfig",
-    value: localTracks.audioTrack._config.encoderConfig,
-    unit: ""
-    }, {
-    description: "encoder Sample Rate",
-    value: localTracks.audioTrack._encoderConfig.sampleRate,
-    unit: ""
-    }, {
-    description: "encoder stereo",
-    value: localTracks.audioTrack._encoderConfig.stereo,
-    unit: ""
-    }];
-  $("#local-stats").html(`
-    ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+  }, {
+    description: "Video receive delay",
+    value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
+    unit: "ms"
+  }, {
+    description: "Video packet lossrate",
+    value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
+    unit: "%"
+  }, {
+    description: "Total video freeze time",
+    value: remoteTracksStats.video.totalFreezeTime,
+    unit: "s"
+  }, {
+    description: "video freeze rate",
+    value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
+    unit: "%"
+  }];
+  $(`#player-wrapper-${uid} .track-stats`).html(`
+    ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
-  Object.keys(remoteUsers).forEach(uid => {
-    // get the remote track stats message
-    const remoteTracksStats = {
-      video: client.getRemoteVideoStats()[uid],
-      audio: client.getRemoteAudioStats()[uid],
-      audio2: remoteUsers[uid].audioTrack.getMediaStreamTrackSettings(),
-    };
-    const remoteTracksStatsList = [{
-      description: "Codec",
-      value: remoteTracksStats.audio.codecType,
-      unit: ""
-    }, {
-      description: "end2EndDelay",
-      value: remoteTracksStats.audio.end2EndDelay,
-      unit: ""
-    }, {
-      description: "receive Bitrate",
-      value: remoteTracksStats.audio.receiveBitrate,
-      unit: ""
-    }, {
-      description: "receive Delay",
-      value: remoteTracksStats.audio.receiveDelay,
-      unit: ""
-    }, {
-      description: "receive Level",
-      value: remoteTracksStats.audio.receiveLevel,
-      unit: ""
-    }, {
-      description: "transport Delay",
-      value: remoteTracksStats.audio.transportDelay,
-      unit: ""
-    }, {
-      description: "channels",
-      value: remoteTracksStats.audio2.channelCount,
-      unit: ""
-    }, {
-      description: "sampleRate",
-      value: remoteTracksStats.audio2.sampleRate,
-      unit: ""
-    }
-    ];
-    $(`#player-wrapper-${uid} .track-stats`).html(`
-      ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-    `);
-  });
+});
 }
