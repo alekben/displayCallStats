@@ -87,6 +87,7 @@ var client = AgoraRTC.createClient({
 //});
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+AgoraRTC.setParameter("SVC",["vp9"]);
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
 
@@ -466,7 +467,7 @@ async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("exception", handleLowInput);
-  client.setParameter("SVC",["vp9"]);
+
   //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
   // join the channel
