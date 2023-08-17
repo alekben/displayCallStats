@@ -696,12 +696,12 @@ Object.keys(remoteUsers).forEach(uid => {
     //audio: client.getRemoteAudioStats()[uid]
   };
   const remoteTracksStatsList = [{
-    description: "Receiving FPS",
-    value: remoteTracksStats.video.receiveFrameRate,
+    description: "Codec",
+    value: remoteTracksStats.video.codecType,
     unit: ""
   }, {
-    description: "Decoding FPS",
-    value: remoteTracksStats.video.decodeFrameRate,
+    description: "Receiving FPS",
+    value: remoteTracksStats.video.receiveFrameRate,
     unit: ""
   }, {
     description: "Render FPS",
