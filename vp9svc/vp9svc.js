@@ -393,11 +393,13 @@ async function pickS() {
   if (slayer == 3) {
     $("#pickSLayer").text("S2");
     slayer = 2;
-    let SVCString = `"${id}", {spatialLayer:Number${slayer},temporalLayer:${tlayer}}`;
+    let SVCString = `"${id}", {spatialLayer:${slayer},temporalLayer:${tlayer}}`;
     console.log(SVCString);
-    client.pickSVCLayer(
-      {uid: `${id}`, layerOptions: {spatialLayer: `${slayer}`, temporalLayer: `${tlayer}`}}
-      );
+    //client.pickSVCLayer(
+    //  {uid: `${id}`, layerOptions: {spatialLayer: `${slayer}`, temporalLayer: `${tlayer}`}}
+    //  );
+      client.pickSVCLayer(
+        `${SVCString}`);
   }
   else if (slayer == 2) {
     $("#pickSLayer").text("S1");
