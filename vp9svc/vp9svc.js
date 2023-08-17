@@ -309,7 +309,7 @@ $("#join-form").submit(async function (e) {
     $("#leave").attr("disabled", false);
     //$("#record").attr("disabled", false);
     $("#createTrack").attr("disabled", false);
-    $("#publishTrack").attr("disabled", ture);
+    $("#publishTrack").attr("disabled", true);
     //$("#startLoopback").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
