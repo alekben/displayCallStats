@@ -770,6 +770,10 @@ const localStats = {
   //audio: client.getLocalAudioStats()
 };
 const localStatsList = [{
+  description: "Codec",
+  value: localStats.video.codecType,
+  unit: ""
+  }, {
   description: "Capture FPS",
   value: localStats.video.captureFrameRate,
   unit: ""
