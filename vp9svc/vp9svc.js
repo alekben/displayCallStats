@@ -298,6 +298,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
+    AgoraRTC.setParameter("SVC",["vp9"]);
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
