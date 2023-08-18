@@ -395,22 +395,22 @@ async function pickS() {
   if (layers.spatialLayer == 3) {
     $("#pickSLayer").text("S2");
     layers.spatialLayer = 2;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.spatialLayer == 2) {
     $("#pickSLayer").text("S1");
     layers.spatialLayer = 1;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.spatialLayer == 1) {
     $("#pickSLayer").text("S0");
     layers.spatialLayer = 0;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.spatialLayer == 0) {
     $("#pickSLayer").text("S3");
     layers.spatialLayer = 3;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
 
   //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
@@ -423,22 +423,22 @@ async function pickT() {
   if (layers.temporalLayer == 3) {
     $("#pickTLayer").text("T2");
     layers.temporalLayer = 2;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.temporalLayer == 2) {
     $("#pickTLayer").text("T1");
     layers.temporalLayer = 1;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.temporalLayer == 1) {
     $("#pickTLayer").text("T0");
     layers.temporalLayer = 0;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.temporalLayer == 0) {
     $("#pickTLayer").text("T3");
     layers.temporalLayer = 3;
-    client.pickSVCLayer(id, {layers});
+    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
 }
 
