@@ -395,7 +395,7 @@ async function pickS() {
     slayer = 2;
     let SVCString = `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`;
     console.log(SVCString);
-    client.pickSVCLayer(id, slayer, tlayer);
+    client.pickSVCLayer(id, slayer);
     //client.pickSVCLayer(
     //    `SVCString`);
   }
