@@ -1,6 +1,6 @@
 //SVC stuff
 var layers = {
-  spacialLayer: 3, 
+  spatialLayer: 3, 
   temporalLayer: 3
 };
 
