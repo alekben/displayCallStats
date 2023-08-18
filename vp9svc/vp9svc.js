@@ -1,6 +1,8 @@
 //SVC stuff
-let slayer = 3;
-let tlayer = 3;
+var layers = {
+  spacialLayer: 3, 
+  temporalLayer: 3
+};
 
 //MediaRecorder
 
@@ -314,7 +316,7 @@ $("#join-form").submit(async function (e) {
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
     $("#pickSLayer").attr("disabled", false);
-    //$("#pickTLayer").attr("disabled", false);
+    $("#pickTLayer").attr("disabled", false);
     joined = true;
   }
 });
@@ -390,36 +392,25 @@ $("#pickTLayer").click(function (e) {
 async function pickS() {
   //get value of of uid-input
   const id = $(".uid-input").val();
-  if (slayer == 3) {
+  if (layers.spatialLayer == 3) {
     $("#pickSLayer").text("S2");
-    slayer = 2;
-    //let SVCString = `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`;
-    //console.log(SVCString);
-    client.pickSVCLayer(id, slayer);
-    //client.pickSVCLayer(
-    //    `SVCString`);
+    layers.spatialLayer = 2;
+    client.pickSVCLayer(id, {layers});
   }
-  else if (slayer == 2) {
+  else if (layers.spatialLayer == 2) {
     $("#pickSLayer").text("S1");
-    slayer = 1;
-    //let SVCString = `uid: "${id}", layerOptions: {spatialLayer:${slayer},temporalLayer:${tlayer}}`;
-    //console.log(SVCString);
-    //client.pickSVCLayer(
-    //  `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`
-    //  );
-    //  client.pickSVCLayer(
-    //    `SVCString`);
-    client.pickSVCLayer(id, slayer);
+    layers.spatialLayer = 1;
+    client.pickSVCLayer(id, {layers});
   }
-  else if (slayer == 1) {
+  else if (layers.spatialLayer == 1) {
     $("#pickSLayer").text("S0");
-    slayer = 0;
-    client.pickSVCLayer(id, slayer);
+    layers.spatialLayer = 0;
+    client.pickSVCLayer(id, {layers});
   }
-  else if (slayer == 0) {
+  else if (layers.spatialLayer == 0) {
     $("#pickSLayer").text("S3");
-    slayer = 3;
-    client.pickSVCLayer(id, slayer);
+    layers.spatialLayer = 3;
+    client.pickSVCLayer(id, {layers});
   }
 
   //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
@@ -429,49 +420,25 @@ async function pickS() {
 async function pickT() {
   //get value of of uid-input
   const id = $(".uid-input").val();
-  if (tlayer == 3) {
+  if (layers.temporalLayer == 3) {
     $("#pickTLayer").text("T2");
-    tlayer = 2;
-    let SVCString = `uid: "${id}", layerOptions: {spatialLayer:${slayer},temporalLayer:${tlayer}}`;
-    console.log(SVCString);
-    client.pickSVCLayer(
-      `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`
-      );
-      client.pickSVCLayer(
-        `SVCString`);
+    layers.temporalLayer = 2;
+    client.pickSVCLayer(id, {layers});
   }
-  else if (tlayer == 2) {
+  else if (layers.temporalLayer == 2) {
     $("#pickTLayer").text("T1");
-    tlayer = 1;
-    let SVCString = `uid: "${id}", layerOptions: {spatialLayer:${slayer},temporalLayer:${tlayer}}`;
-    console.log(SVCString);
-    client.pickSVCLayer(
-      `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`
-      );
-      client.pickSVCLayer(
-        `SVCString`);
+    layers.temporalLayer = 1;
+    client.pickSVCLayer(id, {layers});
   }
-  else if (tlayer == 1) {
+  else if (layers.temporalLayer == 1) {
     $("#pickTLayer").text("T0");
-    tlayer = 0;
-    let SVCString = `uid: "${id}", layerOptions: {spatialLayer:${slayer},temporalLayer:${tlayer}}`;
-    console.log(SVCString);
-    client.pickSVCLayer(
-      `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`
-      );
-      client.pickSVCLayer(
-        `SVCString`);
+    layers.temporalLayer = 0;
+    client.pickSVCLayer(id, {layers});
   }
-  else if (tlayer == 0) {
+  else if (layers.temporalLayer == 0) {
     $("#pickTLayer").text("T3");
-    tlayer = 3;
-    let SVCString = `uid: "${id}", layerOptions: {spatialLayer:${slayer},temporalLayer:${tlayer}}`;
-    console.log(SVCString);
-    client.pickSVCLayer(
-      `uid: "${id}", layerOptions: {"spatialLayer":${slayer},"temporalLayer":${tlayer}}`
-      );
-      client.pickSVCLayer(
-        `SVCString`);
+    layers.temporalLayer = 3;
+    client.pickSVCLayer(id, {layers});
   }
 }
 
@@ -609,9 +576,7 @@ async function leave() {
   slayer = 3;
   tlayer = 3;
   console.log("client leaves channel success");
-  if (loopback) {
-    stopLoopbackClient();
-  }
+
 }
 
 //async function startLoopbackClient() {
