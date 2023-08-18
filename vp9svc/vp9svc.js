@@ -423,22 +423,22 @@ async function pickT() {
   if (layers.temporalLayer == 3) {
     $("#pickTLayer").text("T2");
     layers.temporalLayer = 2;
-    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.temporalLayer == 2) {
     $("#pickTLayer").text("T1");
     layers.temporalLayer = 1;
-    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.temporalLayer == 1) {
     $("#pickTLayer").text("T0");
     layers.temporalLayer = 0;
-    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
   else if (layers.temporalLayer == 0) {
     $("#pickTLayer").text("T3");
     layers.temporalLayer = 3;
-    client.pickSVCLayer(id, {spacialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
   }
 }
 
