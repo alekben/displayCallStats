@@ -460,7 +460,6 @@ function handleUserJoined(user) {
   const id = user.uid;
   updateUIDs(id, "add");
   showPopup(`UID ${id} user-joined`);
-
 }
 
 function handleUserLeft(user) {
@@ -468,7 +467,6 @@ function handleUserLeft(user) {
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
   showPopup(`UID ${id} user-left`);
-
 }
 
 function handleUserInfoUpdated(uid, message) {

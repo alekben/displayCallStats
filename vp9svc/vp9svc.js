@@ -4,6 +4,9 @@ var layers = {
   temporalLayer: 3
 };
 
+//popup stuff
+var popups = 0;
+
 //MediaRecorder
 
 //let recording = document.getElementById("recording");
@@ -316,6 +319,8 @@ $("#join-form").submit(async function (e) {
     //$("#startLoopback").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
+    $("#subscribe").attr("disabled", false);
+    $("#unsubscribe").attr("disabled", false);
     $("#pickSLayer").attr("disabled", false);
     $("#pickTLayer").attr("disabled", false);
     joined = true;
@@ -371,6 +376,13 @@ $("#setEnabled").click(function (e) {
   }
 });
 
+$("#subscribe").click(function (e) {
+  manualSub();
+});
+$("#unsubscribe").click(function (e) {
+  manualUnsub();
+});
+
 $("#webAudio").click(function (e) {
   toggleWebAudio();
 });
@@ -397,21 +409,29 @@ async function pickS() {
     $("#pickSLayer").text("S2");
     layers.spatialLayer = 2;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
   else if (layers.spatialLayer == 2) {
     $("#pickSLayer").text("S1");
     layers.spatialLayer = 1;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
   else if (layers.spatialLayer == 1) {
     $("#pickSLayer").text("S0");
     layers.spatialLayer = 0;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
   else if (layers.spatialLayer == 0) {
     $("#pickSLayer").text("S3");
     layers.spatialLayer = 3;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
 
   //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
@@ -425,21 +445,29 @@ async function pickT() {
     $("#pickTLayer").text("T2");
     layers.temporalLayer = 2;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
   else if (layers.temporalLayer == 2) {
     $("#pickTLayer").text("T1");
     layers.temporalLayer = 1;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
   else if (layers.temporalLayer == 1) {
     $("#pickTLayer").text("T0");
     layers.temporalLayer = 0;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
   else if (layers.temporalLayer == 0) {
     $("#pickTLayer").text("T3");
     layers.temporalLayer = 3;
     client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
+    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
   }
 }
 
@@ -449,11 +477,13 @@ async function toggleWebAudio() {
     webAudioOff = false;
     AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
     $("#webAudio").text("Disable WebAudio");
+    showPopup("WebAudio Enabled");
   } else {
     console.log("Turning WebAudio OFF.");
     webAudioOff = true;
     AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
     $("#webAudio").text("Enable WebAudio");
+    showPopup("WebAudio Disabled");
   }
 }
 
@@ -465,6 +495,7 @@ async function publishMic() {
   }
     await client.publish(localTracks.audioTrack);
     console.log("Published mic track");
+    showPopup("Mic Track Published");
     localTrackState.audioTrackMuted = false;
     localTrackState.audioTrackEnabled = true;
 }
@@ -478,6 +509,7 @@ async function muteAudio() {
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   $("#setMuted").text("Unmute Mic Track");
+  showPopup("Mic Track Muted");
 }
 
 async function unmuteAudio() {
@@ -485,6 +517,7 @@ async function unmuteAudio() {
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
   $("#setMuted").text("Mute Mic Track");
+  showPopup("Mic Track Unmuted");
 }
 
 async function disableAudio() {
@@ -495,6 +528,7 @@ async function disableAudio() {
    */
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
+  showPopup("Mic Track Disabled");
   $("#setEnabled").text("Enable Mic Track");
 }
 
@@ -502,6 +536,7 @@ async function enableAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setEnabled(true);
   localTrackState.audioTrackEnabled = true;
+  showPopup("Mic Track Enabled");
   $("#setEnabled").text("Disable Mic Track");
 }
 
@@ -509,7 +544,9 @@ async function join() {
   // add event listener to play remote tracks when remote user publishs.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.on("exception", handleLowInput);
+  client.on("user-joined", handleUserJoined);
+  client.on("user-left", handleUserLeft);
+  client.on("user-info-updated", handleUserInfoUpdated);
 
   //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
@@ -530,6 +567,8 @@ async function join() {
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
   console.log("publish cam success");
+  showPopup("Cam Track Published");
+  showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
 }
 async function leave() {
@@ -561,6 +600,7 @@ async function leave() {
 
   // leave the channel
   await client.leave();
+  showPopup(`Left channel ${options.channel}`);
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
@@ -570,6 +610,8 @@ async function leave() {
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
+  $("#subscribe").attr("disabled", true);
+  $("#unsubscribe").attr("disabled", true);
   $("#pickSLayer").attr("disabled", true);
   $("#pickTLayer").attr("disabled", true);
   $("#pickSLayer").text("S3");
@@ -578,6 +620,24 @@ async function leave() {
   tlayer = 3;
   console.log("client leaves channel success");
 
+}
+
+async function manualSub() {
+  //get value of of uid-input
+  const id = $(".uid-input").val();
+  let user = remoteUsers[id];
+  await subscribe(user, "video");
+  await subscribe(user, "audio");
+  showPopup(`Manually subscribed from UID ${id}`);
+}
+
+async function manualUnsub() {
+  //get value of of uid-input
+  const id = $(".uid-input").val();
+  let user = remoteUsers[id];
+  await client.unsubscribe(user, "");
+  $(`#player-wrapper-${id}`).remove();
+  showPopup(`Manually unsubscribed from UID ${id}`);
 }
 
 //async function startLoopbackClient() {
@@ -651,6 +711,7 @@ async function subscribe(user, mediaType) {
   if (mediaType === 'audio') {
     user.audioTrack.play();
   }
+  showPopup(`Subscribing to ${mediaType} of UID ${id}`);
 }
 
 //async function subscribeLoopback(user, mediaType) {
@@ -675,6 +736,8 @@ function handleUserPublished(user, mediaType) {
       console.log(`Remote User Video Count now: ${userCount}`);
     }
     subscribe(user, mediaType);
+    showPopup(`UID ${id} published ${mediaType}`);
+    showPopup(`Remote User Count now: ${userCount}`);
   }
 }
 
@@ -696,14 +759,7 @@ function handleUserPublished(user, mediaType) {
 //  }
 //}
 
-function handleLowInput(event) {
-  if (event == 2001) {
-    console.log("audio input low trigger, reset track");
-    localTracks.audioTrack.setEnabled(false).then(() => {
-      localTracks.audioTrack.setEnabled(true);
-    });
-  }
-}
+
 
 function handleUserUnpublished(user, mediaType) {
   if (mediaType === 'video') {
@@ -715,7 +771,28 @@ function handleUserUnpublished(user, mediaType) {
   }
   userCount = getRemoteCount(remoteUsers);
   console.log(`Remote User Count now: ${userCount}`);
+  showPopup(`UID ${id} unpublished ${mediaType}`);
+  showPopup(`Remote User Count now: ${userCount}`);
 }
+
+function handleUserJoined(user) {
+  const id = user.uid;
+  updateUIDs(id, "add");
+  showPopup(`UID ${id} user-joined`);
+}
+
+function handleUserLeft(user) {
+  const id = user.uid;
+  removeItemOnce(remotesArray, id);
+  updateUIDs(id, "remove");
+  showPopup(`UID ${id} user-left`);
+}
+
+function handleUserInfoUpdated(uid, message) {
+  console.log(`User Info Updated for ${uid}, new state is: ${message}`);
+  showPopup(`UID ${uid} new state: ${message}`);
+}
+
 
 function getRemoteCount( object ) {
   var length = 0;
@@ -869,6 +946,19 @@ Object.keys(remoteUsers).forEach(uid => {
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
 });
+}
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
 }
 
 function removeItemOnce(arr, value) {
