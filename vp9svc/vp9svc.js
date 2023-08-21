@@ -987,11 +987,11 @@ function handleExpand() {
   if (bigRemote == id) {
     shrinkRemote(id);
     bigRemote = 0;
-  } else if (bigRemote != 0) {
-    shrinkRemote(bigRemote);
+  } else if (bigRemote == 0) {
     expandRemote(id);
     bigRemote = id;
   } else {
+    shrinkRemote(id);
     expandRemote(id);
     bigRemote = id;
   }
