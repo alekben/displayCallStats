@@ -7,6 +7,9 @@ var layers = {
 //popup stuff
 var popups = 0;
 
+//misc
+var bigRemote = 0;
+var remoteFocus = 0;
 //MediaRecorder
 
 //let recording = document.getElementById("recording");
@@ -236,6 +239,15 @@ async function changeMicProfile(label) {
 
 async function changeTargetUID(label) {
   $(".uid-input").val(`${label}`);
+  if (remoteFocus != 0) {
+    var x = document.getElementById(`player-${remoteFocus}`);
+    x.className = "remotePlayer";
+  }
+  var x = document.getElementById(`player-${label}`);
+  if (x) {
+    x.className = "remotePlayerSelected";
+    remoteFocus = Number(label);
+  }
 }
 
 
@@ -263,6 +275,11 @@ function updateUIDs(id, action) {
     j++;
   } 
   $(".uid-input").val(`${remotesArray[0]}`);
+  var x = document.getElementById(`player-${remotesArray[0]}`);
+  if (x) {
+    x.className = "remotePlayerSelected";
+    remoteFocus = remotesArray[0];
+  }
 }
 }
 
@@ -946,6 +963,18 @@ Object.keys(remoteUsers).forEach(uid => {
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
 });
+}
+
+function expandRemote(uid) {
+  var x = document.getElementById(`player-${uid}`);
+  x.className = "remotePlayerLarge";
+  bigRemote = uid;
+}
+
+function shrinkRemote(uid) {
+  var x = document.getElementById(`player-${uid}`);
+  x.className = "remotePlayer";
+  bigRemote = 0;
 }
 
 function showPopup(message) {

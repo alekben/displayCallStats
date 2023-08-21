@@ -112,6 +112,25 @@ input {
     height: 200px;
   }
 
+  .remotePlayerSelected {
+    width: 200px;
+    height: 200px;
+    border-style: solid;
+    border-color: red;
+  }
+
+  .remotePlayerLarge {
+    width: 960px;
+    height: 540px;
+  }
+
+  .remotePlayerLargeSelected {
+    width: 960px;
+    height: 540px;
+    border-style: solid;
+    border-color: red;
+  }
+
   .player-with-stats {
     display: block;
   }
