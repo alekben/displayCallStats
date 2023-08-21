@@ -10,6 +10,7 @@ var popups = 0;
 //misc
 var bigRemote = 0;
 var remoteFocus = 0;
+var dumbTempFix = "Selected";
 //MediaRecorder
 
 //let recording = document.getElementById("recording");
@@ -275,11 +276,11 @@ function updateUIDs(id, action) {
     j++;
   } 
   $(".uid-input").val(`${remotesArray[0]}`);
-  var x = document.getElementById(`player-${remotesArray[0]}`);
-  if (x) {
-    x.className = "remotePlayerSelected";
-    remoteFocus = remotesArray[0];
-  }
+  //var x = document.getElementById(`player-${remotesArray[0]}`);
+  //if (x) {
+  //  x.className = "remotePlayerSelected";
+  //  remoteFocus = remotesArray[0];
+ // }
 }
 }
 
@@ -417,6 +418,22 @@ $("#pickSLayer").click(function (e) {
 
 $("#pickTLayer").click(function (e) {
     pickT();
+});
+
+$(".remotePlayer").click(function (e) {
+  console.log("remotePlayer clicked");
+});
+
+$(".remotePlayerSelected").click(function (e) {
+  console.log("remotePlayerSelected clicked");
+});
+
+$(".remotePlayerLarge").click(function (e) {
+  console.log("remotePlayerLarge clicked");
+});
+
+$(".remotePlayerLargeSelected").click(function (e) {
+  console.log("remotePlayerLargeSelected clicked");
 });
 
 async function pickS() {
@@ -679,14 +696,17 @@ async function subscribe(user, mediaType) {
   await client.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === 'video') {
+    if (remoteFocus != 0) {
+      dumbTempFix = "";
+    } 
     const player = $(`
-        <div id="player-wrapper-${uid}">
-          <div class="player-with-stats">
-            <div id="player-${uid}" class="remotePlayer"></div>
-            <div class="track-stats remoteStats"></div>
-          </div>
+      <div id="player-wrapper-${uid}">
+        <div class="player-with-stats">
+          <div id="player-${uid}" class="remotePlayer${dumbTempFix}"></div>
+          <div class="track-stats remoteStats"></div>
         </div>
-    `);
+      </div>
+  `);
     switch (userCount) {
       case 1:
         $("#remote-playerlist-row1").append(player);
