@@ -341,6 +341,7 @@ $("#join-form").submit(async function (e) {
     $("#unsubscribe").attr("disabled", false);
     $("#pickSLayer").attr("disabled", false);
     $("#pickTLayer").attr("disabled", false);
+    $("#biggerView").attr("disabled", false);
     joined = true;
   }
 });
@@ -420,21 +421,11 @@ $("#pickTLayer").click(function (e) {
     pickT();
 });
 
-$(".remotePlayer").click(function (e) {
-  console.log("remotePlayer clicked");
+$("#biggerView").click(function (e) {
+  handleExpand();
 });
 
-$(".remotePlayerSelected").click(function (e) {
-  console.log("remotePlayerSelected clicked");
-});
 
-$(".remotePlayerLarge").click(function (e) {
-  console.log("remotePlayerLarge clicked");
-});
-
-$(".remotePlayerLargeSelected").click(function (e) {
-  console.log("remotePlayerLargeSelected clicked");
-});
 
 async function pickS() {
   //get value of of uid-input
@@ -650,6 +641,9 @@ async function leave() {
   $("#pickTLayer").attr("disabled", true);
   $("#pickSLayer").text("S3");
   $("#pickTLayer").text("T3");
+  $("#biggerView").attr("disabled", true);
+  remoteFocus = 0;
+  bigRemote = 0;
   slayer = 3;
   tlayer = 3;
   console.log("client leaves channel success");
@@ -698,7 +692,10 @@ async function subscribe(user, mediaType) {
   if (mediaType === 'video') {
     if (remoteFocus != 0) {
       dumbTempFix = "";
-    } 
+    } else {
+      dumbTempFix = "Selected";
+      remoteFocus = uid;
+    }
     const player = $(`
       <div id="player-wrapper-${uid}">
         <div class="player-with-stats">
@@ -984,6 +981,22 @@ Object.keys(remoteUsers).forEach(uid => {
   `);
 });
 }
+
+function handleExpand() {
+  const id = $(".uid-input").val();
+  if (bigRemote == id) {
+    shrinkRemote(id);
+    bigRemote = 0;
+  } else if (bigRemote != 0) {
+    shrinkRemote(bigRemote);
+    expandRemote(id);
+    bigRemote = id;
+  } else {
+    expandRemote(id);
+    bigRemote = id;
+  }
+}
+
 
 function expandRemote(uid) {
   var x = document.getElementById(`player-${uid}`);
