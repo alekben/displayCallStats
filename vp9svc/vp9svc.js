@@ -1,8 +1,5 @@
 //SVC stuff
-var layers = {
-  spatialLayer: 3, 
-  temporalLayer: 3
-};
+var layers = {};
 
 //popup stuff
 var popups = 0;
@@ -351,6 +348,7 @@ $("#leave").click(function (e) {
 
 $(".uid-list").delegate("a", "click", function (e) {
   changeTargetUID(this.getAttribute("label"));
+  updateLayersButtons();
 });
 
 
@@ -430,33 +428,33 @@ $("#biggerView").click(function (e) {
 async function pickS() {
   //get value of of uid-input
   const id = Number($(".uid-input").val());
-  if (layers.spatialLayer == 3) {
+  if (layers[id].spatialLayer == 3) {
     $("#pickSLayer").text("S2");
-    layers.spatialLayer = 2;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].spatialLayer = 2;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-  else if (layers.spatialLayer == 2) {
+  else if (layers[id].spatialLayer == 2) {
     $("#pickSLayer").text("S1");
-    layers.spatialLayer = 1;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].spatialLayer = 1;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-  else if (layers.spatialLayer == 1) {
+  else if (layers[id].spatialLayer == 1) {
     $("#pickSLayer").text("S0");
-    layers.spatialLayer = 0;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].spatialLayer = 0;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-  else if (layers.spatialLayer == 0) {
+  else if (layers[id].spatialLayer == 0) {
     $("#pickSLayer").text("S3");
-    layers.spatialLayer = 3;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].spatialLayer = 3;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
 
   //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
@@ -464,35 +462,37 @@ async function pickS() {
 }
 
 async function pickT() {
+  //$("#pickSLayer").text("S3");
+  //$("#pickTLayer").text("T3");
   //get value of of uid-input
   const id = Number($(".uid-input").val());
-  if (layers.temporalLayer == 3) {
+  if (layers[id].temporalLayer == 3) {
     $("#pickTLayer").text("T2");
-    layers.temporalLayer = 2;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].temporalLayer = 2;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-  else if (layers.temporalLayer == 2) {
+  else if (layers[id].temporalLayer == 2) {
     $("#pickTLayer").text("T1");
-    layers.temporalLayer = 1;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].temporalLayer = 1;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-  else if (layers.temporalLayer == 1) {
+  else if (layers[id].temporalLayer == 1) {
     $("#pickTLayer").text("T0");
-    layers.temporalLayer = 0;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].temporalLayer = 0;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-  else if (layers.temporalLayer == 0) {
+  else if (layers[id].temporalLayer == 0) {
     $("#pickTLayer").text("T3");
-    layers.temporalLayer = 3;
-    client.pickSVCLayer(id, {spatialLayer: layers.spatialLayer, temporalLayer: layers.temporalLayer});
-    showPopup(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers.spatialLayer} T${layers.temporalLayer} for UID ${id}`);
+    layers[id].temporalLayer = 3;
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
 }
 
@@ -609,7 +609,6 @@ async function leave() {
   joined = false;
 
   // remove remote users and player views
-  remoteUsers = {};
   $("#remote-playerlist-row1").html("");
   $("#remote-playerlist-row2").html("");
   $("#remote-playerlist-row3").html("");
@@ -617,6 +616,7 @@ async function leave() {
 
   // Remove remote users and player views.
   remoteUsers = {};
+  layers = {};
   $("#remote-playerlist").html("");
   
   remotesArray = [];
@@ -644,8 +644,6 @@ async function leave() {
   $("#biggerView").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
-  slayer = 3;
-  tlayer = 3;
   console.log("client leaves channel success");
 
 }
@@ -764,6 +762,7 @@ function handleUserPublished(user, mediaType) {
   } else {
     const id = user.uid;
     remoteUsers[id] = user;
+    layers[id] = {uid: id, spatialLayer: 3, temporalLayer: 3};
     updateUIDs(id, "add");
     if (mediaType === 'video') {
       userCount = getRemoteCount(remoteUsers);
@@ -800,7 +799,9 @@ function handleUserUnpublished(user, mediaType) {
   if (mediaType === 'video') {
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
+    updateLayersButtons();
     delete remoteUsers[id];
+    delete layers[id];
     $(`#player-wrapper-${id}`).remove();
   }
   userCount = getRemoteCount(remoteUsers);
@@ -819,6 +820,7 @@ function handleUserLeft(user) {
   const id = user.uid;
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
+  updateLayersButtons();
   showPopup(`UID ${id} user-left`);
 }
 
@@ -1019,6 +1021,14 @@ function shrinkRemote(uid) {
     x.className = "remotePlayer";
     bigRemote = 0;
   }
+}
+
+function updateLayersButtons() {
+  const id = $(".uid-input").val();
+  const sVal = layers[id].spatialLayer;
+  const tVal = layers[id].temporalLayer;
+  $("#pickSLayer").text(tVal);
+  $("#pickTLayer").text(sVal);
 }
 
 function showPopup(message) {
