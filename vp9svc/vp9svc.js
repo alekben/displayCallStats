@@ -626,9 +626,9 @@ async function manualSub() {
   //get value of of uid-input
   const id = $(".uid-input").val();
   let user = remoteUsers[id];
+  showPopup(`Manually subscribed to UID ${id}`);
   await subscribe(user, "video");
   await subscribe(user, "audio");
-  showPopup(`Manually subscribed from UID ${id}`);
 }
 
 async function manualUnsub() {
