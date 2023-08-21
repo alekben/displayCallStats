@@ -404,7 +404,7 @@ $("#pickTLayer").click(function (e) {
 
 async function pickS() {
   //get value of of uid-input
-  const id = $(".uid-input").val();
+  const id = Number($(".uid-input").val());
   if (layers.spatialLayer == 3) {
     $("#pickSLayer").text("S2");
     layers.spatialLayer = 2;
@@ -440,7 +440,7 @@ async function pickS() {
 
 async function pickT() {
   //get value of of uid-input
-  const id = $(".uid-input").val();
+  const id = Number($(".uid-input").val());
   if (layers.temporalLayer == 3) {
     $("#pickTLayer").text("T2");
     layers.temporalLayer = 2;
