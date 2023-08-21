@@ -1000,14 +1000,25 @@ function handleExpand() {
 
 function expandRemote(uid) {
   var x = document.getElementById(`player-${uid}`);
-  x.className = "remotePlayerLarge";
-  bigRemote = uid;
+  if (uid == remoteFocus) {
+    x.className = "remotePlayerLargeSelected";
+    bigRemote = uid;
+  } else {
+    x.className = "remotePlayerLarge";
+    bigRemote = uid;
+  }
+
 }
 
 function shrinkRemote(uid) {
   var x = document.getElementById(`player-${uid}`);
-  x.className = "remotePlayer";
-  bigRemote = 0;
+  if (uid == remoteFocus) {
+    x.className = "remotePlayerSelected";
+    bigRemote = 0;
+  } else {
+    x.className = "remotePlayer";
+    bigRemote = 0;
+  }
 }
 
 function showPopup(message) {
