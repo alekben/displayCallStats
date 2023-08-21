@@ -762,8 +762,8 @@ function handleUserPublished(user, mediaType) {
 
 
 function handleUserUnpublished(user, mediaType) {
+  const id = user.uid;
   if (mediaType === 'video') {
-    const id = user.uid;
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
     delete remoteUsers[id];
