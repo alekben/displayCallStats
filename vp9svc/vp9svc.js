@@ -1027,8 +1027,8 @@ function updateLayersButtons() {
   const id = $(".uid-input").val();
   const sVal = layers[id].spatialLayer;
   const tVal = layers[id].temporalLayer;
-  $("#pickSLayer").text(tVal);
-  $("#pickTLayer").text(sVal);
+  $("#pickSLayer").text(`S${sVal}`);
+  $("#pickTLayer").text(`T${tVal}`);
 }
 
 function showPopup(message) {
