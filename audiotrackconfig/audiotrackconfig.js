@@ -824,7 +824,7 @@ function flushStats() {
 
 // get the local track stats message
 
-  const localStats = {};
+  var localStats = {};
   if (localTracks.audioTrack) {
   localStats = {
     audioconfig: localTracks.audioTrack._config,
