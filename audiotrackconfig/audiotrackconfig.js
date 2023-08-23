@@ -108,7 +108,8 @@ var localTracks = {
 
 var localTrackState = {
   audioTrackMuted: false,
-  audioTrackEnabled: false
+  audioTrackEnabled: false,
+  published:  false
 };
 
 var joined = false;
@@ -181,7 +182,7 @@ AgoraRTC.onMicrophoneChanged = async changedDevice => {
 };
 
 async function initDevices() {
-  if (joined) {
+  if (localTrackState.published) {
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
         encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
@@ -196,6 +197,7 @@ async function initDevices() {
         encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
       , googHighpassFilter: {exact:audioTrackConfig.googFilter}});
       publishMic();
+      showPopup("Replacing, unmuting, and publishing new mic track")
       $("#setMuted").attr("disabled", false);
       $("#setEnabled").attr("disabled", false);
       $("#setMuted").text("Mute Mic Track");
@@ -444,12 +446,14 @@ async function toggleWebAudio() {
     AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
     $("#webAudio").text("Disable WebAudio");
     showPopup("WebAudio Enabled");
+    initDevices();
   } else {
     console.log("Turning WebAudio OFF.");
     audioTrackConfig.webaudio = false;
     AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
     $("#webAudio").text("Enable WebAudio");
     showPopup("WebAudio Disabled");
+    initDevices();
   }
 }
 
@@ -464,6 +468,7 @@ async function publishMic() {
     showPopup("Mic Track Published");
     localTrackState.audioTrackMuted = false;
     localTrackState.audioTrackEnabled = true;
+    localTrackState.published = true;
 }
 
 async function muteAudio() {
@@ -474,6 +479,7 @@ async function muteAudio() {
    */
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
+  localTrackState.published = false;
   $("#setMuted").text("Unmute Mic Track");
   showPopup("Mic Track Muted");
 }
@@ -482,6 +488,7 @@ async function unmuteAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
+  localTrackState.published = true;
   $("#setMuted").text("Mute Mic Track");
   showPopup("Mic Track Unmuted");
 }
@@ -494,6 +501,7 @@ async function disableAudio() {
    */
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
+  localTrackState.published = false;
   showPopup("Mic Track Disabled");
   $("#setEnabled").text("Enable Mic Track");
 }
@@ -502,6 +510,7 @@ async function enableAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setEnabled(true);
   localTrackState.audioTrackEnabled = true;
+  localTrackState.published = true;
   showPopup("Mic Track Enabled");
   $("#setEnabled").text("Disable Mic Track");
 }
@@ -587,6 +596,13 @@ async function leave() {
   bigRemote = 0;
   proxy = false;
   fallback = false;
+
+  localTrackState = {
+    audioTrackMuted: false,
+    audioTrackEnabled: false,
+    published:  false
+  };
+
   console.log("client leaves channel success");
 
 }
@@ -1002,9 +1018,11 @@ function handleAEC() {
  if (audioTrackConfig.aec) {
   audioTrackConfig.aec = false;
   showPopup("AEC false");
+  initDevices();
  } else {
   audioTrackConfig.aec = true;
   showPopup("AEC true");
+  initDevices();
  }
 }
 
@@ -1012,9 +1030,11 @@ function handleAGC() {
   if (audioTrackConfig.agc) {
     audioTrackConfig.agc = false;
     showPopup("AGC false");
+    initDevices();
    } else {
     audioTrackConfig.agc = true;
     showPopup("AGC true");
+    initDevices();
    }
 }
 
@@ -1022,9 +1042,11 @@ function handleANS() {
   if (audioTrackConfig.ans) {
     audioTrackConfig.ans = false;
     showPopup("ANS false");
+    initDevices();
    } else {
     audioTrackConfig.ans = true;
     showPopup("ANS true");
+    initDevices();
    }
 }
 
@@ -1032,9 +1054,11 @@ function handleGoogFilter() {
   if (audioTrackConfig.googFilter) {
     audioTrackConfig.googFilter = false;
     showPopup("googHighPass false");
+    initDevices();
    } else {
     audioTrackConfig.googFilter = true;
     showPopup("googHighPass true");
+    initDevices();
    }}
 
 
