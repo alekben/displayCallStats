@@ -935,7 +935,7 @@ function flushStats() {
 `);
   } else {
     $("#local-stats").html(`
-    Publish Mic Track First`);
+    Publish Mic Track For Stats`);
   }
 
 Object.keys(remoteUsers).forEach(uid => {
