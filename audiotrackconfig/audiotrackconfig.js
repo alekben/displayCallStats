@@ -858,7 +858,7 @@ function flushStats() {
     value: clientStats.RTT,
     unit: "ms"
   }, {
-    description: "TURN:",
+    description: "TURN",
     value: proxy,
     unit: ""
   }, {
@@ -915,15 +915,15 @@ const localStatsList = [{
   value: localStats.samplerate,
   unit: ""
   }, {
-  description: "AGC:",
+  description: "AGC",
   value: localStats.trackSettings.autoGainControl,
   unit: ""
   }, {
-  description: "AEC:",
+  description: "AEC",
   value: localStats.trackSettings.echoCancellation,
   unit: ""
   }, {
-  description: "ANS:",
+  description: "ANS",
   value: localStats.trackSettings.noiseSuppression,
   unit: ""
   }];
