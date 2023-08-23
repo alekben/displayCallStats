@@ -1026,10 +1026,12 @@ function handleAEC() {
  if (audioTrackConfig.aec) {
   audioTrackConfig.aec = false;
   showPopup("AEC false");
+  $("#aec").text("AEC Off");
   initDevices();
  } else {
   audioTrackConfig.aec = true;
   showPopup("AEC true");
+  $("#aec").text("AEC On");
   initDevices();
  }
 }
@@ -1038,10 +1040,12 @@ function handleAGC() {
   if (audioTrackConfig.agc) {
     audioTrackConfig.agc = false;
     showPopup("AGC false");
+    $("#agc").text("AGC Off");
     initDevices();
    } else {
     audioTrackConfig.agc = true;
     showPopup("AGC true");
+    $("#agc").text("AGC On");
     initDevices();
    }
 }
@@ -1050,10 +1054,12 @@ function handleANS() {
   if (audioTrackConfig.ans) {
     audioTrackConfig.ans = false;
     showPopup("ANS false");
+    $("#ans").text("ANS Off");
     initDevices();
    } else {
     audioTrackConfig.ans = true;
     showPopup("ANS true");
+    $("#ans").text("ANS On");
     initDevices();
    }
 }
@@ -1062,10 +1068,12 @@ function handleGoogFilter() {
   if (audioTrackConfig.googFilter) {
     audioTrackConfig.googFilter = false;
     showPopup("googHighPass false");
+    $("#googFilter").text("googHighPass Off");
     initDevices();
    } else {
     audioTrackConfig.googFilter = true;
     showPopup("googHighPass true");
+    $("#googFilter").text("googHighPass On");
     initDevices();
    }}
 
