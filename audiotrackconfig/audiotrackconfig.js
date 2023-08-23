@@ -888,7 +888,7 @@ function flushStats() {
 
   if (localTracks.audioTrack) {
   localStats = {
-    audioconfig: localTracks.audioTrack._config,
+    audioconfig: localTracks.audioTrack._config.encoderConfig,
     samplerate: localTracks.audioTrack._constraints.sampleRate,
     trackSettings: localTracks.audioTrack.getMediaStreamTrackSettings(),
     audio: client.getLocalAudioStats()
