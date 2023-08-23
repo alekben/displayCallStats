@@ -796,11 +796,13 @@ function handleUserInfoUpdated(uid, message) {
 }
 
 function handleCloudProxy(turn) {
-  if (!proxy) {
-    console.log(`TURN or Cloud Proxy Used!!!`);
-    showPopup(`TURN or Cloud Proxy Used!!!`);
-    proxy = turn;
-  }
+  if (turn) {
+    if (!proxy) {
+      console.log(`TURN or Cloud Proxy Used!!!`);
+      showPopup(`TURN or Cloud Proxy Used!!!`);
+      proxy = turn;
+    }
+  }  
 }
 
 function handleFallback(server) {
