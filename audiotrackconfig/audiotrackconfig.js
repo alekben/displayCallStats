@@ -205,6 +205,13 @@ async function initDevices() {
       localTrackState.audioTrackEnabled = true;
       localTrackState.audioTrackMuted = false;
       }
+    } else {
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
+      , googHighpassFilter: {exact:audioTrackConfig.googFilter}});
+      localTrackState.audioTrackEnabled = true;
+      localTrackState.audioTrackMuted = false;
+      showPopup("Mic Track Created");
     }
 
   // get mics
