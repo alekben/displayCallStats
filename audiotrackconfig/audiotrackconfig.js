@@ -916,15 +916,15 @@ const localStatsList = [{
   unit: ""
   }, {
   description: "AGC:",
-  value: trackSettings.autoGainControl,
+  value: localStats.trackSettings.autoGainControl,
   unit: ""
   }, {
   description: "AEC:",
-  value: trackSettings.echoCancellation,
+  value: localStats.trackSettings.echoCancellation,
   unit: ""
   }, {
   description: "ANS:",
-  value: trackSettings.noiseSuppression,
+  value: localStats.trackSettings.noiseSuppression,
   unit: ""
   }];
 $("#local-stats").html(`
