@@ -6,6 +6,9 @@ var popups = 0;
 var audioTrackConfig = {agc: true, aec: true, ans: true, webaudio: false, googFilter: true};
 
 //misc
+var proxy = false;
+var fallback = false;
+var proxyServer = ""
 var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
@@ -510,6 +513,8 @@ async function join() {
   client.on("user-joined", handleUserJoined);
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
+  client.on("is-using-cloud-proxy", handleCloudProxy);
+  client.on("join-fallback-to-proxy", handleFallback);
 
   //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
@@ -580,6 +585,8 @@ async function leave() {
   $("#googFilter").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
+  proxy = false;
+  fallback = false;
   console.log("client leaves channel success");
 
 }
@@ -765,6 +772,23 @@ function handleUserInfoUpdated(uid, message) {
   showPopup(`UID ${uid} new state: ${message}`);
 }
 
+function handleCloudProxy(turn) {
+  if (!proxy) {
+    console.log(`TURN or Cloud Proxy Used!!!`);
+    showPopup(`TURN or Cloud Proxy Used!!!`);
+    proxy = turn;
+  }
+}
+
+function handleFallback(server) {
+  if (!fallback) {
+    console.log(`Fallback Proxy Triggered!!!`);
+    showPopup(`Fallback Proxy Triggered!!!`);
+    fallback = true;
+    proxyServer = server;
+  }
+}
+
 
 function getRemoteCount( object ) {
   var length = 0;
@@ -817,6 +841,18 @@ function flushStats() {
     description: "RTT to SD-RTN Edge",
     value: clientStats.RTT,
     unit: "ms"
+  }, {
+    description: "TURN:",
+    value: proxy,
+    unit: ""
+  }, {
+    description: "Fallback Proxy",
+    value: fallback,
+    unit: ""
+  }, {
+    description: "Proxy Server",
+    value: proxyServer,
+    unit: ""
   }];
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
