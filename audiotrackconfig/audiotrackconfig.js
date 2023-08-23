@@ -877,6 +877,8 @@ function flushStats() {
 // get the local track stats message
 
   var localStats = {};
+  var localStatsList = [];
+
   if (localTracks.audioTrack) {
   localStats = {
     audioconfig: localTracks.audioTrack._config,
@@ -884,52 +886,51 @@ function flushStats() {
     trackSettings: localTracks.audioTrack.getMediaStreamTrackSettings(),
     audio: client.getLocalAudioStats()
   };
-  } else {
-    localStats = {
-    audio: client.getLocalAudioStats()
-    }
-  }
-
-const localStatsList = [{
-  description: "Codec",
-  value: localStats.audio.codecType,
-  unit: ""
-  }, {
-  description: "Send Bitrate",
-  value: localStats.audio.sendBitrate,
-  unit: ""
-  }, {
-  description: "sendPacketsLost",
-  value: localStats.audio.sendPacketsLost,
-  unit: ""
-  }, {
-  description: "Send Volume Level",
-  value: localStats.audio.sendVolumeLevel,
-  unit: ""
-  }, {
-  description: "Audio Config",
-  value: localStats.audioconfig,
-  unit: ""
-  },  {
-  description: "Sample Rate",
-  value: localStats.samplerate,
-  unit: ""
-  }, {
-  description: "AGC",
-  value: localStats.trackSettings.autoGainControl,
-  unit: ""
-  }, {
-  description: "AEC",
-  value: localStats.trackSettings.echoCancellation,
-  unit: ""
-  }, {
-  description: "ANS",
-  value: localStats.trackSettings.noiseSuppression,
-  unit: ""
-  }];
-$("#local-stats").html(`
+  localStatsList = [{
+    description: "Codec",
+    value: localStats.audio.codecType,
+    unit: ""
+    }, {
+    description: "Send Bitrate",
+    value: localStats.audio.sendBitrate,
+    unit: ""
+    }, {
+    description: "sendPacketsLost",
+    value: localStats.audio.sendPacketsLost,
+    unit: ""
+    }, {
+    description: "Send Volume Level",
+    value: localStats.audio.sendVolumeLevel,
+    unit: ""
+    }, {
+    description: "Audio Config",
+    value: localStats.audioconfig,
+    unit: ""
+    },  {
+    description: "Sample Rate",
+    value: localStats.samplerate,
+    unit: ""
+    }, {
+    description: "AGC",
+    value: localStats.trackSettings.autoGainControl,
+    unit: ""
+    }, {
+    description: "AEC",
+    value: localStats.trackSettings.echoCancellation,
+    unit: ""
+    }, {
+    description: "ANS",
+    value: localStats.trackSettings.noiseSuppression,
+    unit: ""
+    }];
+    $("#local-stats").html(`
   ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
 `);
+  } else {
+    $("#local-stats").html(`
+    Publish Mic Track First`);
+  }
+
 Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {
