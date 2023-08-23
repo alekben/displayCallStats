@@ -999,8 +999,8 @@ function handleGoogFilter() {
    } else {
     audioTrackConfig.googFilter = true;
     showPopup("googHighPass true");
-   }
-}
+   }}
+
 
 function showPopup(message) {
   const newPopup = popups + 1;
