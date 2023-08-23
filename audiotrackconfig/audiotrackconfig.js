@@ -185,7 +185,7 @@ async function initDevices() {
   if (localTrackState.published) {
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
+        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc
       , googHighpassFilter: {exact:audioTrackConfig.googFilter}});
     } else {
       console.log("mic track already exists, replacing.");
@@ -194,7 +194,7 @@ async function initDevices() {
       await localTracks.audioTrack.close();
       localTracks.audioTrack = undefined;
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
+        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc
       , googHighpassFilter: {exact:audioTrackConfig.googFilter}});
       publishMic();
       showPopup("Replacing, unmuting, and publishing new mic track")
@@ -207,7 +207,7 @@ async function initDevices() {
       }
     } else {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
+        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc
       , googHighpassFilter: {exact:audioTrackConfig.googFilter}});
       localTrackState.audioTrackEnabled = true;
       localTrackState.audioTrackMuted = false;
@@ -466,7 +466,7 @@ async function toggleWebAudio() {
 async function publishMic() {
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AEC": audioTrackConfig.aec
+      encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc
     , googHighpassFilter: {exact:audioTrackConfig.googFilter}});
   }
     await client.publish(localTracks.audioTrack);
