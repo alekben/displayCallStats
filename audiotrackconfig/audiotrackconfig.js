@@ -1125,12 +1125,12 @@ $("#enableAiDenosier").click(async e => {
       console.log("overload!!!");
       try {
         await processor.disable();
-        $("#enableAiDenosier").val("Disable AIDenoiser");
+        $("#enableAiDenosier").text("Disable AIDenoiser");
         processorEnable = true;
       } catch (error) {
         console.error("disable AIDenoiser failure");
       } finally {
-        $("#enableAiDenosier").disable = false;
+        $("#enableAiDenosier").attr("disabled", false);
       }
     };
     return processor;
@@ -1140,24 +1140,24 @@ $("#enableAiDenosier").click(async e => {
   if (processorEnable) {
     try {
       await processor.enable();
-      $("#enableAiDenosier").val("Disable AIDenoiser");
+      $("#enableAiDenosier").text("Disable AIDenoiser");
       showPopup("AINS enabled");
       processorEnable = false;
     } catch (e) {
       console.error("enable AIDenoiser failure");
     } finally {
-      $("#enableAiDenosier").disable = false;
+      $("#enableAiDenosier").attr("disabled", false);
     }
   } else {
     try {
       await processor.disable();
-      $("#enableAiDenosier").val("Enable AIDenoiser");
+      $("#enableAiDenosier").text("Enable AIDenoiser");
       processorEnable = true;
       showPopup("AINS disabled");
     } catch (e) {
       console.error("disable AIDenoiser failure");
     } finally {
-      $("#enableAiDenosier").disable = false;
+      $("#enableAiDenosier").attr("disabled", false);
     }
   }
 });
