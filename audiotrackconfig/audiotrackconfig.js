@@ -367,6 +367,7 @@ $("#createTrack").click(function (e) {
   initDevices();
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", false);
+  $("#enableAiDenosier").disable = false;
 });
 
 $("#publishTrack").click(function (e) {
@@ -598,6 +599,7 @@ async function leave() {
   $("#aec").attr("disabled", true);
   $("#ans").attr("disabled", true);
   $("#googFilter").attr("disabled", true);
+  $("#enableAiDenosier").disable = true;
   remoteFocus = 0;
   bigRemote = 0;
   proxy = false;
@@ -1088,3 +1090,66 @@ function removeItemOnce(arr, value) {
   }
   return arr;
 }
+
+//AINS
+let denoiser = null;
+let processor = null;
+let processorEnable = true;
+const pipeAIDenosier = (audioTrack, processor) => {
+  audioTrack.pipe(processor).pipe(audioTrack.processorDestination);
+};
+$("#enableAiDenosier").click(async e => {
+  e.preventDefault();
+  denoiser = denoiser || (() => {
+    let denoiser = new AIDenoiser.AIDenoiserExtension({
+      assetsPath: './aiDenoiserExtension/external'
+    });
+    AgoraRTC.registerExtensions([denoiser]);
+    denoiser.onloaderror = e => {
+      console.error(e);
+      processor = null;
+    };
+    return denoiser;
+  })();
+  processor = processor || (() => {
+    let processor = denoiser.createProcessor();
+    processor.onoverload = async () => {
+      console.log("overload!!!");
+      try {
+        await processor.disable();
+        $("#enableAiDenosier").val("Disable AIDenoiser");
+        processorEnable = true;
+      } catch (error) {
+        console.error("disable AIDenoiser failure");
+      } finally {
+        $("#enableAiDenosier").disable = false;
+      }
+    };
+    return processor;
+  })();
+  pipeAIDenosier(localTracks.audioTrack, processor);
+
+  if (processorEnable) {
+    try {
+      await processor.enable();
+      $("#enableAiDenosier").val("Disable AIDenoiser");
+      showPopup("AINS enabled");
+      processorEnable = false;
+    } catch (e) {
+      console.error("enable AIDenoiser failure");
+    } finally {
+      $("#enableAiDenosier").disable = false;
+    }
+  } else {
+    try {
+      await processor.disable();
+      $("#enableAiDenosier").val("Enable AIDenoiser");
+      processorEnable = true;
+      showPopup("AINS disabled");
+    } catch (e) {
+      console.error("disable AIDenoiser failure");
+    } finally {
+      $("#enableAiDenosier").disable = false;
+    }
+  }
+});
