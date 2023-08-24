@@ -3,7 +3,7 @@
 var popups = 0;
 
 //audio stuff
-var audioTrackConfig = {agc: true, aec: true, ans: true, webaudio: false, googFilter: true};
+var audioTrackConfig = {agc: true, aec: true, ans: true, webaudio: true, googFilter: true};
 
 //misc
 var proxy = false;
@@ -96,8 +96,8 @@ var client = AgoraRTC.createClient({
 //  codec: "vp9"
 //});
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-console.log("Start with Web Audio OFF");
+AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
+console.log("Start with Web Audio ON");
 
 
 AgoraRTC.enableLogUpload();
@@ -367,7 +367,9 @@ $("#createTrack").click(function (e) {
   initDevices();
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", false);
-  $("#enableAiDenosier").attr("disabled", false);
+  if (audioTrackConfig.webaudio = true) {
+    $("#enableAiDenosier").attr("disabled", false);
+  }
 });
 
 $("#publishTrack").click(function (e) {
@@ -459,6 +461,7 @@ async function toggleWebAudio() {
     audioTrackConfig.webaudio = false;
     AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
     $("#webAudio").text("Enable WebAudio");
+    $("#enableAiDenosier").attr("disabled", true);
     showPopup("WebAudio Disabled");
     initDevices();
   }
@@ -1100,6 +1103,11 @@ const pipeAIDenosier = (audioTrack, processor) => {
 };
 $("#enableAiDenosier").click(async e => {
   e.preventDefault();
+  $("#agc").attr("disabled", true);
+  $("#aec").attr("disabled", true);
+  $("#ans").attr("disabled", true);
+  $("#googFilter").attr("disabled", true);
+  $("#webAudio").attr("disabled", true);
   denoiser = denoiser || (() => {
     let denoiser = new AIDenoiser.AIDenoiserExtension({
       assetsPath: './aiDenoiserExtension/external'
