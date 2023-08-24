@@ -367,7 +367,7 @@ $("#createTrack").click(function (e) {
   initDevices();
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", false);
-  $("#enableAiDenosier").disable = false;
+  $("#enableAiDenosier").attr("disabled", false);
 });
 
 $("#publishTrack").click(function (e) {
@@ -599,7 +599,7 @@ async function leave() {
   $("#aec").attr("disabled", true);
   $("#ans").attr("disabled", true);
   $("#googFilter").attr("disabled", true);
-  $("#enableAiDenosier").disable = true;
+  $("#enableAiDenosier").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
   proxy = false;
