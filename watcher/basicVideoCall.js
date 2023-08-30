@@ -43,6 +43,20 @@ function updateUIDs(id, action) {
 }
 }
 
+$(() => {
+  var urlParams = new URL(location.href).searchParams;
+  options.appid = urlParams.get("appid");
+  options.channel = urlParams.get("channel");
+  options.token = urlParams.get("token");
+  options.uid = urlParams.get("uid");
+  if (options.appid && options.channel) {
+    $("#uid").val(options.uid);
+    $("#appid").val(options.appid);
+    $("#token").val(options.token);
+    $("#channel").val(options.channel);
+    $("#join-form").submit();
+  }
+});
 
 $("#join-form").submit(async function (e) {
   e.preventDefault();
