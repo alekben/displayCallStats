@@ -163,9 +163,6 @@ async function subscribe(user, mediaType) {
     $("#remote-playerlist").append(player);
     user.videoTrack.play(`player-${uid}`);
   }
-  if (mediaType === "audio") {
-    user.audioTrack.play();
-  }
 }
 
 function handleUserPublished(user, mediaType) {
