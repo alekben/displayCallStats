@@ -177,10 +177,10 @@ function handleUserUnpublished(user, mediaType) {
     delete remoteUsers[id];
     delete layers[id];
     $(`#player-wrapper-${id}`).remove();
+  } else {
+    client.unsubscribe(user, "audio");
   }
-  console.log(`Remote User Count now: ${userCount}`);
   showPopup(`UID ${id} unpublished ${mediaType}`);
-  showPopup(`Remote User Count now: ${userCount}`);
 }
 function handleUserInfoUpdated(uid, message) {
   console.log(`User Info Updated for ${uid}, new state is: ${message}`);
