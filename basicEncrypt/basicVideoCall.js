@@ -322,6 +322,17 @@ function hex2ascii(hexx)
   return str;
 }
 
+function getCharCodes(s){
+  let charCodeArr = [];
+  
+  for(let i = 0; i < s.length; i++){
+      let code = s.charCodeAt(i);
+      charCodeArr.push(code);
+  }
+  
+  return charCodeArr;
+}
+
 function base64ToUint8Array(base64Str)
 {
   const raw = window.atob(base64Str);
@@ -335,8 +346,11 @@ function base64ToUint8Array(base64Str)
 
 async function setEncryption() {
   // Get the channel name and use it as the key
-  let encryptKey = hex2ascii("1ADC6C3881845E42B3F36124A9183300003318A92461F3B3425E8481386CDC1A");
-  let encryptSalt = base64ToUint8Array("ADMYqSRh87NCXoSBOGzcGhrcbDiBhF5Cs/NhJKkYMwA=");
+  //let encryptKey = hex2ascii("GAcORA4HGEFMRUtTRVk=");
+  let encryptKey = getCharCodes("GAcORA4HGEFMRUtTRVk=");
+  //let encryptKey = "GAcORA4HGEFMRUtTRVk=";
+  console.log(`secret is ${encryptKey}`);
+  let encryptSalt = base64ToUint8Array("X5w9T+50kzxVOnkJKiY/lUk82/bES2kATOt3vBuGEDw=");
   let encryptionMode = "aes-256-gcm2";
   // Start channel encryption, set before every join
   client.setEncryptionConfig(encryptionMode, encryptKey, encryptSalt);
