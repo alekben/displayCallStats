@@ -2,6 +2,121 @@ var popups = 0;
 
 AgoraRTC.enableLogUpload();
 
+// you can find all the agora preset video profiles here https://docs.agora.io/en/Voice/API%20Reference/web_ng/globals.html#videoencoderconfigurationpreset
+var videoProfiles = [{
+  label: "360p_7",
+  detail: "480×360, 15fps, 320Kbps",
+  value: "360p_7"
+}, {
+  label: "360p_8",
+  detail: "480×360, 30fps, 490Kbps",
+  value: "360p_8"
+}, {
+  label: "480p_1",
+  detail: "640×480, 15fps, 500Kbps",
+  value: "480p_1"
+}, {
+  label: "480p_2",
+  detail: "640×480, 30fps, 1000Kbps",
+  value: "480p_2"
+}, {
+  label: "720p_1",
+  detail: "1280×720, 15fps, 1130Kbps",
+  value: "720p_1"
+}, {
+  label: "720p_2",
+  detail: "1280×720, 30fps, 2000Kbps",
+  value: "720p_2"
+}, {
+  label: "1080p_1",
+  detail: "1920×1080, 15fps, 2080Kbps",
+  value: "1080p_1"
+}, {
+  label: "1080p_2",
+  detail: "1920×1080, 30fps, 3000Kbps",
+  value: "1080p_2"
+}];
+var curVideoProfile;
+AgoraRTC.onAutoplayFailed = () => {
+  alert("click to start autoplay!");
+};
+AgoraRTC.onMicrophoneChanged = async changedDevice => {
+  // When plugging in a device, switch to a device that is newly plugged in.
+  if (changedDevice.state === "ACTIVE") {
+    localTracks.audioTrack.setDevice(changedDevice.device.deviceId);
+    // Switch to an existing device when the current device is unplugged.
+  } else if (changedDevice.device.label === localTracks.audioTrack.getTrackLabel()) {
+    const oldMicrophones = await AgoraRTC.getMicrophones();
+    oldMicrophones[0] && localTracks.audioTrack.setDevice(oldMicrophones[0].deviceId);
+  }
+};
+AgoraRTC.onCameraChanged = async changedDevice => {
+  // When plugging in a device, switch to a device that is newly plugged in.
+  if (changedDevice.state === "ACTIVE") {
+    localTracks.videoTrack.setDevice(changedDevice.device.deviceId);
+    // Switch to an existing device when the current device is unplugged.
+  } else if (changedDevice.device.label === localTracks.videoTrack.getTrackLabel()) {
+    const oldCameras = await AgoraRTC.getCameras();
+    oldCameras[0] && localTracks.videoTrack.setDevice(oldCameras[0].deviceId);
+  }
+};
+async function initDevices() {
+  if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: "music_standard"
+    });
+  }
+  if (!localTracks.videoTrack) {
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: curVideoProfile.value
+    });
+  }
+  // get mics
+  mics = await AgoraRTC.getMicrophones();
+  const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
+  currentMic = mics.find(item => item.label === audioTrackLabel);
+  $(".mic-input").val(currentMic.label);
+  $(".mic-list").empty();
+  mics.forEach(mic => {
+    $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
+  });
+
+  // get cameras
+  cams = await AgoraRTC.getCameras();
+  const videoTrackLabel = localTracks.videoTrack.getTrackLabel();
+  currentCam = cams.find(item => item.label === videoTrackLabel);
+  $(".cam-input").val(currentCam.label);
+  $(".cam-list").empty();
+  cams.forEach(cam => {
+    $(".cam-list").append(`<a class="dropdown-item" href="#">${cam.label}</a>`);
+  });
+}
+async function switchCamera(label) {
+  currentCam = cams.find(cam => cam.label === label);
+  $(".cam-input").val(currentCam.label);
+  // switch device of local video track.
+  await localTracks.videoTrack.setDevice(currentCam.deviceId);
+}
+async function switchMicrophone(label) {
+  currentMic = mics.find(mic => mic.label === label);
+  $(".mic-input").val(currentMic.label);
+  // switch device of local audio track.
+  await localTracks.audioTrack.setDevice(currentMic.deviceId);
+}
+function initVideoProfiles() {
+  videoProfiles.forEach(profile => {
+    $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
+  });
+  curVideoProfile = videoProfiles.find(item => item.label == '480p_1');
+  $(".profile-input").val(`${curVideoProfile.detail}`);
+}
+async function changeVideoProfile(label) {
+  curVideoProfile = videoProfiles.find(profile => profile.label === label);
+  $(".profile-input").val(`${curVideoProfile.detail}`);
+  // change the local video track`s encoder configuration
+  localTracks.videoTrack && (await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value));
+}
+
 
 // create Agora client
 var client = AgoraRTC.createClient({
@@ -27,6 +142,10 @@ var options = {
 
 // the demo can auto join channel with params in url
 $(() => {
+  initVideoProfiles();
+  $(".profile-list").delegate("a", "click", function (e) {
+    changeVideoProfile(this.getAttribute("label"));
+  });
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
@@ -63,6 +182,15 @@ $("#join-form").submit(async function (e) {
 });
 $("#leave").click(function (e) {
   leave();
+});
+$('#agora-collapse').on('show.bs.collapse	', function () {
+  initDevices();
+});
+$(".cam-list").delegate("a", "click", function (e) {
+  switchCamera(this.text);
+});
+$(".mic-list").delegate("a", "click", function (e) {
+  switchMicrophone(this.text);
 });
 $("#mute-audio").click(function (e) {
   if (!localTrackState.audioTrackMuted) {
