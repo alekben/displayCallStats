@@ -347,7 +347,6 @@ $("#leave").click(function (e) {
 
 $(".uid-list").delegate("a", "click", function (e) {
   changeTargetUID(this.getAttribute("label"));
-  updateLayersButtons();
 });
 
 
@@ -539,7 +538,6 @@ async function leave() {
 
   // Remove remote users and player views.
   remoteUsers = {};
-  layers = {};
   $("#remote-playerlist").html("");
   
   remotesArray = [];
@@ -681,7 +679,6 @@ function handleUserPublished(user, mediaType) {
   } else {
     const id = user.uid;
     remoteUsers[id] = user;
-    layers[id] = {uid: id, spatialLayer: 3, temporalLayer: 3};
     updateUIDs(id, "add");
     if (mediaType === 'video') {
       userCount = getRemoteCount(remoteUsers);
@@ -718,9 +715,7 @@ function handleUserUnpublished(user, mediaType) {
   if (mediaType === 'video') {
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
-    updateLayersButtons();
     delete remoteUsers[id];
-    delete layers[id];
     $(`#player-wrapper-${id}`).remove();
   }
   userCount = getRemoteCount(remoteUsers);
@@ -739,7 +734,6 @@ function handleUserLeft(user) {
   const id = user.uid;
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
-  updateLayersButtons();
   showPopup(`UID ${id} user-left`);
 }
 
