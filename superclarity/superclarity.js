@@ -324,7 +324,7 @@ async function handleUserPublished(user, mediaType) {
     });
     context.track.pipe(context.processor).pipe(context.track.processorDestination);
     await context.processor.enable();
-    user.videoTrack.play(`player-${id}`);
+    context.track.play(`player-${id}`);
     //subscribe(user, mediaType);
     showPopup(`UID ${id} published ${mediaType}`);
     showPopup(`Remote User Count now: ${userCount}`);
