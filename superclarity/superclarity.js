@@ -309,7 +309,7 @@ async function handleUserPublished(user, mediaType) {
     if (mediaType === 'video') {
       userCount = getRemoteCount(remoteUsers);
       console.log(`Remote User Video Count now: ${userCount}`);
-    }
+    
     context.uid = user.uid;
     context.track = await client.subscribe(user, mediaType);
     context.processor = extension.createProcessor();
@@ -326,6 +326,9 @@ async function handleUserPublished(user, mediaType) {
     await context.processor.enable();
     context.track.play(`player-${id}`);
     //subscribe(user, mediaType);
+    } else {
+      subscribe(user, mediaType);
+    }
     showPopup(`UID ${id} published ${mediaType}`);
     showPopup(`Remote User Count now: ${userCount}`);
   }
