@@ -337,7 +337,7 @@ async function handleUserPublished(user, mediaType) {
       console.log(`Remote User Video Count now: ${userCount}`);
     }
     context.uid = user.uid;
-    context.track = await context.client.subscribe(user, mediaType);
+    context.track = await client.subscribe(user, mediaType);
     context.processor = extension.createProcessor();
     context.processor.on("first-video-frame", (stats) => {
       console.log("plugin have first video frame, stats:", stats);
