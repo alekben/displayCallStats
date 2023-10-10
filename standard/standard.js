@@ -1,5 +1,4 @@
 
-
 //popup stuff
 var popups = 0;
 
@@ -7,78 +6,13 @@ var popups = 0;
 var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
-//MediaRecorder
 
-//let recording = document.getElementById("recording");
-//let startButton = document.getElementById("record");
-//let downloadButton = document.getElementById("download");
 let logElement = document.getElementById("log");
-//let recordingTimeMS = 10000;
 
 
 function log(msg) {
   logElement.innerHTML += msg + "\n";
 }
-
-//function wait(delayInMS) {
-//  return new Promise(resolve => setTimeout(resolve, delayInMS));
-//}
-
-//function stop(stream) {
-//  stream.getTracks().forEach(track => track.stop());
-//  $("#download").attr("hidden", false);
-//  log("Done recording.");
-//}
-
-//Handles startRecording being triggered by start button
-//startButton.addEventListener("click", function() {
-//      let astream = localTracks.audioTrack.getMediaStreamTrack();
-//      const aastream = new MediaStream();
-//      aastream.addTrack(astream);
-//      //astream = "video_" + vstream;
-//      //let vvstream = document.getElementById(`${vstream}`);
-//      download.href = localTracks.audioTrack;
-//      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-//      startRecording(aastream, recordingTimeMS)
-//      .then (recordedChunks => {
-//      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
-//      //vvstream.src = URL.createObjectURL(recordedBlob);
-//      download.href = URL.createObjectURL(recordedBlob);
-//      download.download = "RecordedMicTrack.ogg";
-//      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-//      $("#download").attr("hidden", false);
-//      })
-//});
-
-//creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
-
-//function startRecording(stream, lengthInMS) {
-//  $("#download").attr("hidden", true);
-//  let recorder = new MediaRecorder(stream);
-//  let data = [];
-
-//  recorder.ondataavailable = event => data.push(event.data);
-//  recorder.start();
-//  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
-
-//  let stopped = new Promise((resolve, reject) => {
-//    recorder.onstop = resolve;
-//    recorder.onerror = event => reject(event.name);
-//  });
-
-//  let recorded = wait(lengthInMS).then(
-//    () => recorder.state == "recording" && recorder.stop()
-//  );
-
-//  return Promise.all([
-//    stopped,
-//    recorded
-//  ])
-//  .then(() => data);
-//}
-
-
-
 
 // create Agora client
 var client = AgoraRTC.createClient({
@@ -86,29 +20,14 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
-//var loopback_client = AgoraRTC.createClient({
-//  mode: "rtc",
-//  codec: "vp9"
-//});
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-//AgoraRTC.setParameter("SVC",["vp9"]);
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
 
 AgoraRTC.enableLogUpload();
-var localTracks = {
-  videoTrack: null,
-  audioTrack: null
-};
-
-var localTrackState = {
-  audioTrackMuted: false,
-  audioTrackEnabled: false
-};
 
 var joined = false;
-//var loopback = false;
 
 
 var remoteUsers = {};
@@ -121,118 +40,11 @@ var options = {
   channel: null,
   uid: null,
   token: null,
-  //uidLoopback: null
 };
-
-var audioProfiles = [{
-  label: "speech_low_quality",
-  detail: "16 Khz, mono, 24Kbps",
-  value: "speech_low_quality"
-}, {
-  label: "speech_standard",
-  detail: "32 Khz, mono, 24Kbps",
-  value: "speech_standard"
-}, {
-  label: "music_standard",
-  detail: "48 Khz, mono, 40 Kbps",
-  value: "music_standard"
-}, {
-  label: "standard_stereo",
-  detail: "48 Khz, stereo, 64 Kbps",
-  value: "standard_stereo"
-}, {
-  label: "high_quality",
-  detail: "48 Khz, mono, 129 Kbps",
-  value: "high_quality"
-}, {
-  label: "high_quality_stereo",
-  detail: "48 Khz, stereo, 192 Kbps",
-  value: "high_quality_stereo"
-}, {
-  label: "320_high",
-  detail: "48 Khz, stereo, 320 Kbps",
-  value: {
-    bitrate: 320,
-    sampleRate: 48000,
-    sampleSize: 16,
-    stereo: true
-  }
-}];
-var curMicProfile;
 
 AgoraRTC.onAutoplayFailed = () => {
   alert("click to start autoplay!");
 };
-
-AgoraRTC.onMicrophoneChanged = async changedDevice => {
-  // When plugging in a device, switch to a device that is newly plugged in.
-  console.log("OnMicrophoneChanged triggered");
-  if (changedDevice.state === "ACTIVE") {
-    localTracks.audioTrack.setDevice(changedDevice.device.deviceId);
-    // Switch to an existing device when the current device is unplugged.
-  } else if (changedDevice.device.label === localTracks.audioTrack.getTrackLabel()) {
-    const oldMicrophones = await AgoraRTC.getMicrophones();
-    oldMicrophones[0] && localTracks.audioTrack.setDevice(oldMicrophones[0].deviceId);
-  }
-};
-
-async function initDevices() {
-  if (joined) {
-    if (!localTracks.audioTrack) {
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-      });
-    } else {
-      console.log("mic track already exists, replacing.");
-      await client.unpublish(localTracks.audioTrack);
-      await localTracks.audioTrack.stop();
-      await localTracks.audioTrack.close();
-      localTracks.audioTrack = undefined;
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-      });
-      publishMic();
-      $("#setMuted").attr("disabled", false);
-      $("#setEnabled").attr("disabled", false);
-      $("#setMuted").text("Mute Mic Track");
-      $("#setEnabled").text("Disable Mic Track");
-      localTrackState.audioTrackEnabled = true;
-      localTrackState.audioTrackMuted = false;
-      }
-    }
-
-  // get mics
-  mics = await AgoraRTC.getMicrophones();
-  const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
-  currentMic = mics.find(item => item.label === audioTrackLabel);
-  $(".mic-input").val(currentMic.label);
-  $(".mic-list").empty();
-  mics.forEach(mic => {
-    $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
-  });
-}
-
-async function switchMicrophone(label) {
-  currentMic = mics.find(mic => mic.label === label);
-  $(".mic-input").val(currentMic.label);
-  // switch device of local audio track.
-  await localTracks.audioTrack.setDevice(currentMic.deviceId);
-}
-
-function initMicProfiles() {
-  audioProfiles.forEach(profile => {
-    $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
-  });
-  curMicProfile = audioProfiles.find(item => item.label == 'speech_low_quality');
-  $(".profile-input").val(`${curMicProfile.detail}`);
-}
-
-async function changeMicProfile(label) {
-  curMicProfile = audioProfiles.find(profile => profile.label === label);
-  $(".profile-input").val(`${curMicProfile.detail}`);
-  // change the local audio track`s encoder configuration
-  initDevices();
-}
 
 async function changeTargetUID(label) {
   $(".uid-input").val(`${label}`);
@@ -246,7 +58,6 @@ async function changeTargetUID(label) {
     remoteFocus = Number(label);
   }
 }
-
 
 function updateUIDs(id, action) {
   if (remotesArray.length == 0 && action == "remove") {
@@ -272,22 +83,13 @@ function updateUIDs(id, action) {
     j++;
   } 
   $(".uid-input").val(`${remotesArray[0]}`);
-  //var x = document.getElementById(`player-${remotesArray[0]}`);
-  //if (x) {
-  //  x.className = "remotePlayerSelected";
-  //  remoteFocus = remotesArray[0];
- // }
-}
+  }
 }
 
 let statsInterval;
 
 // the demo can auto join channel with params in url
 $(() => {
-  initMicProfiles();
-  $(".profile-list").delegate("a", "click", function (e) {
-    changeMicProfile(this.getAttribute("label"));
-  });
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
@@ -315,7 +117,6 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    //AgoraRTC.setParameter("SVC",["vp9"]);
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -327,16 +128,8 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
-    //$("#record").attr("disabled", false);
-    $("#createTrack").attr("disabled", false);
-    $("#publishTrack").attr("disabled", true);
-    //$("#startLoopback").attr("disabled", true);
-    $("#setMuted").attr("disabled", true);
-    $("#setEnabled").attr("disabled", true);
     $("#subscribe").attr("disabled", false);
     $("#unsubscribe").attr("disabled", false);
-    //$("#pickSLayer").attr("disabled", false);
-    //$("#pickTLayer").attr("disabled", false);
     $("#biggerView").attr("disabled", false);
     joined = true;
   }
@@ -349,48 +142,6 @@ $(".uid-list").delegate("a", "click", function (e) {
   changeTargetUID(this.getAttribute("label"));
 });
 
-
-$("#createTrack").click(function (e) {
-  initDevices();
-  $("#createTrack").attr("disabled", true);
-  $("#publishTrack").attr("disabled", false);
-});
-
-$("#publishTrack").click(function (e) {
-  publishMic();
-  $("#publishTrack").attr("disabled", true);
-  //$("#startLoopback").attr("disabled", false);
-  $("#setMuted").attr("disabled", false);
-  $("#setEnabled").attr("disabled", false);
-});
-
-//$("#startLoopback").click(function (e) {
-//  if (!loopback) {
-//    startLoopbackClient();
-//    loopback = true;
-//  } else {
-//    stopLoopbackClient();
-//    loopback = false;
-//  }
-//  
-//});
-
-$("#setMuted").click(function (e) {
-  if (!localTrackState.audioTrackMuted) {
-    muteAudio();
-  } else {
-    unmuteAudio();
-  }
-});
-
-$("#setEnabled").click(function (e) {
-  if (localTrackState.audioTrackEnabled) {
-    disableAudio();
-  } else {
-    enableAudio();
-  }
-});
-
 $("#subscribe").click(function (e) {
   manualSub();
 });
@@ -400,13 +151,6 @@ $("#unsubscribe").click(function (e) {
 
 $("#webAudio").click(function (e) {
   toggleWebAudio();
-});
-
-$('#agora-collapse').on('show.bs.collapse	', function () {
-  initDevices();
-});
-$(".mic-list").delegate("a", "click", function (e) {
-  switchMicrophone(this.text);
 });
 
 
@@ -432,59 +176,6 @@ async function toggleWebAudio() {
   }
 }
 
-async function publishMic() {
-  if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-    });
-  }
-    await client.publish(localTracks.audioTrack);
-    console.log("Published mic track");
-    showPopup("Mic Track Published");
-    localTrackState.audioTrackMuted = false;
-    localTrackState.audioTrackEnabled = true;
-}
-
-async function muteAudio() {
-  if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
-  await localTracks.audioTrack.setMuted(true);
-  localTrackState.audioTrackMuted = true;
-  $("#setMuted").text("Unmute Mic Track");
-  showPopup("Mic Track Muted");
-}
-
-async function unmuteAudio() {
-  if (!localTracks.audioTrack) return;
-  await localTracks.audioTrack.setMuted(false);
-  localTrackState.audioTrackMuted = false;
-  $("#setMuted").text("Mute Mic Track");
-  showPopup("Mic Track Unmuted");
-}
-
-async function disableAudio() {
-  if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
-  await localTracks.audioTrack.setEnabled(false);
-  localTrackState.audioTrackEnabled = false;
-  showPopup("Mic Track Disabled");
-  $("#setEnabled").text("Enable Mic Track");
-}
-
-async function enableAudio() {
-  if (!localTracks.audioTrack) return;
-  await localTracks.audioTrack.setEnabled(true);
-  localTrackState.audioTrackEnabled = true;
-  showPopup("Mic Track Enabled");
-  $("#setEnabled").text("Disable Mic Track");
-}
-
 async function join() {
   // add event listener to play remote tracks when remote user publishs.
   client.on("user-published", handleUserPublished);
@@ -493,40 +184,18 @@ async function join() {
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
 
-  client.setClientRole("host");
-
-  //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+  client.setClientRole("audience");
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  //if (!localTracks.audioTrack) {
-  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-  //    encoderConfig: "speech_low_quality"
-  //  });
-  //}
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
-  }
-  // play local video track
-  localTracks.videoTrack.play("local-player");
+
   $("#joined-setup").css("display", "flex");
 
-  // publish local tracks to channel
-  await client.publish(localTracks.videoTrack);
-  console.log("publish cam success");
-  showPopup("Cam Track Published");
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
 }
 async function leave() {
-  for (trackName in localTracks) {
-    var track = localTracks[trackName];
-    if (track) {
-      track.stop();
-      track.close();
-      localTracks[trackName] = undefined;
-    }
-  }
+
   destructStats();
   joined = false;
 
@@ -547,14 +216,8 @@ async function leave() {
   // leave the channel
   await client.leave();
   showPopup(`Left channel ${options.channel}`);
-  $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
-  $("#createTrack").attr("disabled", true);
-  $("#publishTrack").attr("disabled", true);
-  //$("#startLoopback").attr("disabled", true);
-  $("#setMuted").attr("disabled", true);
-  $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
@@ -562,7 +225,6 @@ async function leave() {
   remoteFocus = 0;
   bigRemote = 0;
   console.log("client leaves channel success");
-
 }
 
 async function manualSub() {
@@ -583,21 +245,6 @@ async function manualUnsub() {
   showPopup(`Manually unsubscribed from UID ${id}`);
 }
 
-//async function startLoopbackClient() {
-  // add event listener to play remote tracks when remote user publishs.
-//  loopback_client.on("user-published", handleUserPublishedLoopback);
-//  loopback_client.on("user-unpublished", handleUserUnpublishedLoopback);
-
-  // join the channel
-//  options.uidLoopback = await loopback_client.join(options.appid, options.channel, options.token || null, null);
-//  $("#startLoopback").text("Stop Loopback");
-//}
-
-//async function stopLoopbackClient() {
-//  await loopback_client.leave();
-//  remoteUsersLoopback = {};
-//  $("#startLoopback").text("Start Loopback");
-//}
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
@@ -663,14 +310,6 @@ async function subscribe(user, mediaType) {
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
 }
 
-//async function subscribeLoopback(user, mediaType) {
-//  console.log("Trying loopback subscription");
-//  await loopback_client.subscribe(user, mediaType);
-//  console.log("subscribe success");
-//  if (mediaType === 'audio') {
-//    user.audioTrack.play();
-//  }
-//}
 
 function handleUserPublished(user, mediaType) {
   if (userCount >= 8 ) {
@@ -689,26 +328,6 @@ function handleUserPublished(user, mediaType) {
     showPopup(`Remote User Count now: ${userCount}`);
   }
 }
-
-//function handleUserPublishedLoopback(user, mediaType) {
-//    const id = user.uid;
-//    if (id === options.uid) {
-//      if (mediaType === "audio") {
-//        remoteUsersLoopback[id] = user;
-//        subscribeLoopback(user, mediaType);    
-//      }
-//    }
-//}
-
-//function handleUserUnpublishedLoopback(user, mediaType) {
-//  if (mediaType === 'audio') {
-//    if (options.uid = user.uid) {
-//      delete remoteUsersLoopback[user.uid];
-//    }    
-//  }
-//}
-
-
 
 function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
@@ -761,89 +380,15 @@ function initStats() {
 // stop collect and show stats information
 function destructStats() {
   clearInterval(statsInterval);
-  $("#session-stats").html("");
-  $("#transport-stats").html("");
-  $("#local-stats").html("");
 }
 
 // flush stats views
 function flushStats() {
   // get the client stats message
-  const clientStats = client.getRTCStats();
-  const clientStatsList = [{
-    description: "Host Count",
-    value: clientStats.UserCount,
-    unit: ""
-  }, {
-    description: "Joined Duration",
-    value: clientStats.Duration,
-    unit: "s"
-  }, {
-    description: "Bitrate receive",
-    value: clientStats.RecvBitrate,
-    unit: "bps"
-  }, {
-    description: "Bitrate sent",
-    value: clientStats.SendBitrate,
-    unit: "bps"
-  }, {
-    description: "Outgoing B/W",
-    value: clientStats.OutgoingAvailableBandwidth.toFixed(3),
-    unit: "kbps"
-  }, {
-    description: "RTT to SD-RTN Edge",
-    value: clientStats.RTT,
-    unit: "ms"
-  }];
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
   `);
 
-// get the local track stats message
-const localStats = {
-  video: client.getLocalVideoStats(),
-  //audio: client.getLocalAudioStats()
-};
-const localStatsList = [{
-  description: "Codec",
-  value: localStats.video.codecType,
-  unit: ""
-  }, {
-  description: "Capture FPS",
-  value: localStats.video.captureFrameRate,
-  unit: ""
-  }, {
-  description: "Send FPS",
-  value: localStats.video.sendFrameRate,
-  unit: ""
-  }, {
-  description: "Video encode delay",
-  value: Number(localStats.video.encodeDelay).toFixed(2),
-  unit: "ms"
-  }, {
-  description: "Video send resolution height",
-  value: localStats.video.sendResolutionHeight,
-  unit: ""
-  }, {
-  description: "Video send resolution width",
-  value: localStats.video.sendResolutionWidth,
-  unit: ""
-  },  {
-  description: "Send video bit rate",
-  value: localStats.video.sendBitrate,
-  unit: "bps"
-  }, {
-  description: "Total video packets loss",
-  value: localStats.video.sendPacketsLost,
-  unit: ""
-  }, {
-  description: "Total video freeze time",
-  value: localStats.video.totalFreezeTime,
-  unit: "s"
-}];
-$("#local-stats").html(`
-  ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-`);
 Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {

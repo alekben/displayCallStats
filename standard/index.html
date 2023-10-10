@@ -83,14 +83,7 @@
       <div class="button-group" style="display:inline-block">
         <button id="join" type="submit" class="btn btn-primary btn-sm" style="height: 30px;">Join</button>
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
-        <button id="createTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Create Mic Track</button>
-        <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
-        <!--<button id="startLoopback" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Start Loopback</button>-->
-        <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>
-        <button id="setEnabled" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Disable Mic Track</button>
         <button id="webAudio" type="button" class="btn btn-primary btn-sm" style="height: 30px;">Enable Web Audio</button>
-        <!--<button id="record" type="button" class="btn btn-primary btn-sm" disabled>Record</button>
-        <a id="download" type="button" class="btn btn-primary btn-sm" hidden>Download</a>-->
         <button id="subscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Subscribe</button>
         <button id="unsubscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Unsubscribe</button>
         <button id="biggerView" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Expand Video</button>
@@ -101,49 +94,10 @@
     <input type="text" class="uid-input form-control" aria-label="Text input with dropdown button"
       readonly>
 
-        <div class="collapse-wrapper" style="height: 30px;">
-          <div class="collapse-content">
-            <button class="btn btn-primary btn-sm collapse-btn" type="button" data-toggle="collapse"
-              data-target="#agora-collapse" aria-expanded="false" aria-controls="agora-collapse">
-              ADVANCED SETTINGS
-            </button>
-            <!-- collapse -->
-            <div class="collapse" id="agora-collapse" style="width: 100%;z-index: 9999;">
-              <div class="card card-body">
-                <!-- Microphone -->
-                <h6 class="device-name">Microphone</h6>
-                <div class="input-group mb-3">
-                  <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">Mics</button>
-                    <div class="mic-list dropdown-menu"></div>
-                  </div>
-                  <input type="text" class="mic-input form-control" aria-label="Text input with dropdown button"
-                    readonly>
-                </div>
- 
-                <!-- profile -->
-                <h6 class="device-name">Mic Profiles</h6>
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">Profiles</button>
-                    <div class="profile-list dropdown-menu"></div>
-                  </div>
-                  <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button"
-                    readonly>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
     </form>
     <br>
-    <div class="row video-group">
-      <div id="local-player"class="player"></div>
-      <div id="local-stats" class="stream-stats stats"></div>
+    <div class="row video-group">>
       <div id="client-stats" class="stream-stats stats2"></div>
     </div> 
     <br>
