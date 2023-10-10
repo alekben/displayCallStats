@@ -34,10 +34,6 @@ var client = AgoraRTC.createClient({
 });
 
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-console.log("Start with Web Audio OFF");
-var webAudioOff = true;
-
 AgoraRTC.enableLogUpload();
 
 var joined = false;
@@ -162,32 +158,10 @@ $("#unsubscribe").click(function (e) {
   manualUnsub();
 });
 
-$("#webAudio").click(function (e) {
-  toggleWebAudio();
-});
-
-
 $("#biggerView").click(function (e) {
   handleExpand();
 });
 
-
-
-async function toggleWebAudio() {
-  if (webAudioOff) {
-    console.log("Turning WebAudio back ON.");
-    webAudioOff = false;
-    AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
-    $("#webAudio").text("Disable WebAudio");
-    showPopup("WebAudio Enabled");
-  } else {
-    console.log("Turning WebAudio OFF.");
-    webAudioOff = true;
-    AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-    $("#webAudio").text("Enable WebAudio");
-    showPopup("WebAudio Disabled");
-  }
-}
 
 async function join() {
   // add event listener to play remote tracks when remote user publishs.
@@ -425,7 +399,7 @@ Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {
     video: client.getRemoteVideoStats()[uid],
-    //audio: client.getRemoteAudioStats()[uid]
+    audio: client.getRemoteAudioStats()[uid]
   };
   const remoteTracksStatsList = [{
     description: "Codec",
@@ -467,6 +441,30 @@ Object.keys(remoteUsers).forEach(uid => {
     description: "video freeze rate",
     value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
     unit: "%"
+  }, {
+    description: "Codec",
+    value: remoteTracksStats.audio.codecType,
+    unit: ""
+  }, {
+    description: "end2EndDelay",
+    value: remoteTracksStats.audio.end2EndDelay,
+    unit: ""
+  }, {
+    description: "receive Bitrate",
+    value: remoteTracksStats.audio.receiveBitrate,
+    unit: ""
+  }, {
+    description: "receive Delay",
+    value: remoteTracksStats.audio.receiveDelay,
+    unit: ""
+  }, {
+    description: "receive Level",
+    value: remoteTracksStats.audio.receiveLevel,
+    unit: ""
+  }, {
+    description: "transport Delay",
+    value: remoteTracksStats.audio.transportDelay,
+    unit: ""
   }];
   $(`#player-wrapper-${uid} .track-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
