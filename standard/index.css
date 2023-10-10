@@ -65,8 +65,8 @@ input {
 }
 
 .remotePlayerLarge {
-  width: 960px;
-  height: 540px;
+  width: 1920px;
+  height: 1080px;
 }
 
 .remotePlayerLargeSelected {
@@ -139,8 +139,8 @@ input {
   }
 
   .remotePlayerLarge {
-    width: 960px;
-    height: 540px;
+    width: 1920px;
+    height: 1080px;
   }
 
   .remotePlayerLargeSelected {
