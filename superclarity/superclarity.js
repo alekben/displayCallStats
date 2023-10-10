@@ -236,7 +236,7 @@ async function manualUnsub() {
 async function subscribe(user, mediaType) {
   const uid = user.uid;
   // subscribe to a remote user
-  await client.subscribe(user, mediaType);
+  //await client.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === 'video') {
     if (remoteFocus != 0) {
@@ -245,6 +245,7 @@ async function subscribe(user, mediaType) {
       dumbTempFix = "Selected";
       remoteFocus = uid;
     }
+    context.track = await client.subscribe(user, mediaType);
     const player = $(`
       <div id="player-wrapper-${uid}">
         <div class="player-with-stats">
@@ -311,7 +312,7 @@ async function handleUserPublished(user, mediaType) {
       console.log(`Remote User Video Count now: ${userCount}`);
     
     context.uid = user.uid;
-    context.track = await client.subscribe(user, mediaType);
+    await subscribe(user, mediaType);
     context.processor = extension.createProcessor();
     context.processor.on("first-video-frame", (stats) => {
       console.log("plugin have first video frame, stats:", stats);
@@ -345,7 +346,7 @@ async function handleUserUnpublished(user, mediaType) {
     await context.processor.release();
     context.processor = undefined;
     context.track.stop();
-    user.videoTrack.stop(`player-${id}`)
+    //user.videoTrack.stop(`player-${id}`)
     context.track = undefined;
     $(`#player-wrapper-${id}`).remove();
   }
