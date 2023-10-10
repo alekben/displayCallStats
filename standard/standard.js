@@ -384,10 +384,7 @@ function destructStats() {
 
 // flush stats views
 function flushStats() {
-  // get the client stats message
-  $("#client-stats").html(`
-    ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
-  `);
+
 
 Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
