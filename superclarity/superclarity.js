@@ -427,8 +427,8 @@ Object.keys(remoteUsers).forEach(uid => {
     unit: ""
   }, {
     description: "Receiving video bitrate",
-    value: remoteTracksStats.video.receiveBitrate,
-    unit: "bps"
+    value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Video receive delay",
     value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
