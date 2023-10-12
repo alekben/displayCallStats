@@ -236,6 +236,9 @@ $("#join-form").submit(async function (e) {
     }
     options.channel = $("#channel").val();
     options.uid = String($("#uid").val());
+    if (options.uid == "") {
+      options.uid = "TEST"
+    }
     options.appid = $("#appid").val();
     options.token = $("#token").val();
     if (options.host === "true") {
