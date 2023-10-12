@@ -200,6 +200,10 @@ $(() => {
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
   options.host = urlParams.get("host");
+  if (!options.host) {
+    options.host = "true";
+  }
+
   if (options.appid && options.channel) {
     $("#uid").val(options.uid);
     $("#appid").val(options.appid);
