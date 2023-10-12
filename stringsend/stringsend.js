@@ -248,7 +248,7 @@ $("#join-form").submit(async function (e) {
       client.setClientRole("audience");
     }
  
-    options.intUid = await join();
+    await join();
 
     
     if (options.host === "true") {
@@ -521,6 +521,7 @@ async function join() {
   client.enableDualStream();
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
+  options.intUid = client._joinInfo.apResponse.uid;
 
   if (options.host === "true") {
     if (!localTracks.audioTrack) {
