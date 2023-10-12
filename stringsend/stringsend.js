@@ -263,7 +263,8 @@ $("#join-form").submit(async function (e) {
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
     } else {
-      $("#success-alert a").attr("href", `index.html?appid=${options.appid}&channel=${options.channel}&token=${options.token}&uid=${options.uid}&host=${options.host}`);
+      let r = (Math.random() + 1).toString(36).substring(2, 5);
+      $("#success-alert a").attr("href", `index.html?appid=${options.appid}&channel=${options.channel}&token=${options.token}&uid=${r}&host=${options.host}`);
       $("#success-alert").css("display", "block");
     }
   } catch (error) {
