@@ -347,7 +347,8 @@ function base64ToUint8Array(base64Str)
 async function setEncryption() {
   // Get the channel name and use it as the key
   //let encryptKey = hex2ascii("GAcORA4HGEFMRUtTRVk=");
-  let encryptKey = getCharCodes("GAcORA4HGEFMRUtTRVk=");
+  //let encryptKey = getCharCodes("test");
+  let encryptKey = "test";
   //let encryptKey = "GAcORA4HGEFMRUtTRVk=";
   console.log(`secret is ${encryptKey}`);
   let encryptSalt = base64ToUint8Array("X5w9T+50kzxVOnkJKiY/lUk82/bES2kATOt3vBuGEDw=");
