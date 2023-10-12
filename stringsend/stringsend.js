@@ -25,6 +25,7 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
+  intUid : 0,
   token: null,
   host: "true"
 };
@@ -247,8 +248,9 @@ $("#join-form").submit(async function (e) {
       client.setClientRole("audience");
     }
  
-    await join();
+    options.intUid = await join();
 
+    
     if (options.host === "true") {
       localTrackState.audioTrackEnabled = true;
       localTrackState.videoTrackEnabled = true;
@@ -347,7 +349,7 @@ async function setHost() {
   }
 
   localTracks.videoTrack.play("local-player");
-  $("#local-player-name").text(`localVideo(${options.uid})`);
+  $("#local-player-name").text(`localVideo(${options.intUid} ${options.uid})`);
   $("#setRole").text("Set Role As Audience");
   var x = document.getElementById("popup");
   $("#popup").text(`Role Set to Host`);
@@ -533,7 +535,7 @@ async function join() {
     }
 
     localTracks.videoTrack.play("local-player");
-    $("#local-player-name").text(`localVideo(${options.uid})`);
+    $("#local-player-name").text(`localVideo(${options.intUid} ${options.uid})`);
     $("#joined-setup").css("display", "flex");
   
     localTrackState.audioTrackMuted = false;
