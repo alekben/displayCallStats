@@ -348,7 +348,9 @@ async function setHost() {
 
   localTracks.videoTrack.play("local-player");
   $("#local-player-name").text(`localVideo(${options.uid})`);
-  $("#joined-setup").css("display", "flex");
+  $("#setRole").text("Set Role As Audience");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Role Set to Host`);
 
   localTrackState.audioTrackMuted = false;
   localTrackState.audioTrackEnabled = true;
@@ -361,7 +363,7 @@ async function setHost() {
   } 
 
   async function setAudience() {
-    options.host = "true";
+    options.host = "false";
     await client.unpublish();
     await client.setClientRole("audience");
 
@@ -382,6 +384,9 @@ async function setHost() {
     localTrackState.videoPublished = false;
 
     $("#local-player-name").text("");
+    $("#setRole").text("Set Role As Host");
+    var x = document.getElementById("popup");
+    $("#popup").text(`Role Set to Audience`);
     } 
 
 async function muteAudio() {
