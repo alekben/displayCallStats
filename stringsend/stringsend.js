@@ -611,7 +611,7 @@ async function leave() {
  */
 async function subscribe(user, mediaType) {
   const uid = user.uid;
-  const intUid = user._uintuid;
+  const intUid = user._uintid;
   // subscribe to a remote user
   await client.subscribe(user, mediaType);
   console.log("subscribe success");
