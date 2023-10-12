@@ -5,6 +5,7 @@ let options = {
 }
 
 var client;
+var channel;
 
 // Your app ID
 let appID = ""
@@ -24,7 +25,7 @@ function setupListners () {
     document.getElementById("log").appendChild(document.createElement('div')).append("State changed To: " + state + " Reason: " + reason)
     })
 
-    let channel = client.createChannel("demoChannel")
+    channel = client.createChannel("demoChannel")
 
     channel.on('ChannelMessage', function (message, memberId) {
     document.getElementById("log").appendChild(document.createElement('div')).append("Message received from: " + memberId + " Message: " + message)
