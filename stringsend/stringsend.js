@@ -238,7 +238,7 @@ $("#join-form").submit(async function (e) {
     options.channel = $("#channel").val();
     options.uid = String($("#uid").val());
     if (options.uid == "") {
-      options.uid = "TEST"
+      options.uid = (Math.random() + 1).toString(36).substring(2, 5);
     }
     options.appid = $("#appid").val();
     options.token = $("#token").val();
