@@ -124,7 +124,7 @@ async function startAudioMixing(file) {
   if (file) {
     options.source = file;
   } else {
-    options.source = "HeroicAdventure.mp3";
+    options.source = "aleksey_speech_test.mp3";
   }
   try {
     audioMixing.state = "LOADING";
