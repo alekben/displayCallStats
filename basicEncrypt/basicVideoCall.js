@@ -281,10 +281,12 @@ $("#unsubscribe").click(function (e) {
 $("#setEncryption").click(function (e) {
   if (!encryption) {
     setEncryption();
-    encryption = true;  
+    encryption = true; 
+    $("#setEncryption").text("Disable Encryption"); 
   } else {
     encryption = false;
     client.setEncryptionConfig("", "");
+    $("#setEncryption").text("Enable Encryption"); 
   }
 });
 
