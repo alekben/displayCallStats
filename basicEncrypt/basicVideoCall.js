@@ -235,7 +235,7 @@ $("#join-form").submit(async function (e) {
         codec: "vp8"
       });
     }
-    client.setClient("host");
+    client.setClientRole("host");
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
