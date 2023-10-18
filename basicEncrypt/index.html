@@ -200,6 +200,20 @@
     </div>
   </div>
 
+      <!-- trans -->
+      <div class="title">After start the transcription, Please say something, you wil see the text here</div>
+      <section class="row">
+        <div class="col-sm" id="stt-transcribe" style="display:none">
+          <div class="content">
+          </div>
+        </div>
+        <div class="col-sm" id="stt-translate" style="display:none">
+          <div class="content">
+          </div>
+        </div>
+      </section>
+    </div>
+
   <!--
   Import the Agora Video Call SDK for Web and local calls to it.
 -->
@@ -208,6 +222,8 @@
   <script src="../bootstrap.bundle.min.js"></script>
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
   <script src="./basicVideoCall.js"></script>
+  <script src="./proto/protobuf.min.js"></script>
+  <script src="./proto/index.js"></script>
 </body>
 
 </html>

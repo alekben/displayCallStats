@@ -289,6 +289,7 @@ async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
+  client.on("stream-message", handleStreammessage);
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   if (!localTracks.audioTrack) {
@@ -355,6 +356,69 @@ async function setEncryption() {
   let encryptionMode = "aes-256-gcm";
   // Start channel encryption, set before every join
   client.setEncryptionConfig(encryptionMode, encryptKey);
+}
+
+function handleStreammessage(msgUid, data) {
+  // use protobuf decode data
+  const msg = $protobufRoot.lookup("Text").decode(data) || {};
+  console.log("handleStreammessage", msg);
+  const {
+    words,
+    data_type,
+    trans = [],
+    duration_ms,
+    uid
+  } = msg;
+  if (data_type == "transcribe") {
+    if (words.length) {
+      let isFinal = false;
+      let text = "";
+      words.forEach(item => {
+        if (item.isFinal) {
+          isFinal = true;
+        }
+        text += item?.text;
+      });
+      addTranscribeItem(uid, text);
+      if (isFinal) {
+        transcribeIndex++;
+      }
+    }
+  } else if (data_type == "translate") {
+    if (trans.length) {
+      trans.forEach(item => {
+        let text = "";
+        item?.texts.forEach(v => text += v);
+        addTranslateItem(uid, text);
+        if (item.isFinal) {
+          translateIndex++;
+        }
+      });
+    }
+  }
+}
+
+function addTranscribeItem(uid, msg) {
+  if ($(`#transcribe-${transcribeIndex}`)[0]) {
+    $(`#transcribe-${transcribeIndex} .msg`).html(msg);
+  } else {
+    const $item = $(`<div class="item" id="transcribe-${transcribeIndex}">
+    <span class="uid">${uid}</span>:
+    <span class="msg">${msg}</span>
+  </div>`);
+    $("#stt-transcribe .content").append($item);
+  }
+}
+function addTranslateItem(uid, msg) {
+  if ($(`#translate-${translateIndex}`)[0]) {
+    $(`#translate-${translateIndex} .msg`).html(msg);
+  } else {
+    const $item = $(`<div class="item" id="translate-${translateIndex}">
+    <span class="uid">${uid}</span>:
+    <span class="msg">${msg}</span>
+  </div>`);
+    $("#stt-translate .content").append($item);
+  }
 }
 
 
