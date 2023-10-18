@@ -35,6 +35,9 @@ var options = {
   token: null
 };
 
+let transcribeIndex = 0;
+let translateIndex = 0;
+
 
 // you can find all the agora preset video profiles here https://docs.agora.io/en/Voice/API%20Reference/web_ng/globals.html#videoencoderconfigurationpreset
 var videoProfiles = [{
