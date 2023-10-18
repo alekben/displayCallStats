@@ -217,6 +217,7 @@ $(() => {
 $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
+  $("#join2").attr("disabled", true);
   $("#subscribe").attr("disabled", false);
   $("#unsubscribe").attr("disabled", false);
   try {
@@ -230,7 +231,6 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    await setEncryption();
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -289,6 +289,36 @@ async function manualUnsub() {
  * Join a channel, then create local video and audio tracks and publish them to the channel.
  */
 async function join() {
+  // Add an event listener to play remote tracks when remote user publishes.
+  await setEncryption();
+  client.on("user-published", handleUserPublished);
+  client.on("user-unpublished", handleUserUnpublished);
+  client.on("stream-message", handleStreammessage);
+  // Join the channel.
+  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+  if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: "music_standard"
+    });
+  }
+  if (!localTracks.videoTrack) {
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: curVideoProfile.value
+    });
+  }
+
+
+  // Play the local video track to the local browser and update the UI with the user ID.
+  localTracks.videoTrack.play("local-player");
+  $("#local-player-name").text(`localVideo(${options.uid})`);
+  $("#joined-setup").css("display", "flex");
+
+  // Publish the local video and audio tracks to the channel.
+  await client.publish(Object.values(localTracks));
+  console.log("publish success");
+}
+
+async function join2() {
   // Add an event listener to play remote tracks when remote user publishes.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
@@ -450,6 +480,7 @@ async function leave() {
   await client.leave();
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
+  $("#join2").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
