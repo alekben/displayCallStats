@@ -26,6 +26,13 @@ var localTracks = {
 var remoteUsers = {};
 var remotesArray = [];
 
+if (!client) {
+  client = AgoraRTC.createClient({
+    mode: "live",
+    codec: "vp8"
+  });
+}
+
 /*
  * On initiation. `client` is not attached to any project or channel for any specific user.
  */
@@ -225,7 +232,7 @@ $("#join-form").submit(async function (e) {
     if (!client) {
       client = AgoraRTC.createClient({
         mode: "live",
-        codec: getCodec()
+        codec: "vp8"
       });
     }
     client.setClient("host");
@@ -524,16 +531,6 @@ function handleUserUnpublished(user, mediaType) {
   }
 }
 
-function getCodec() {
-  var radios = document.getElementsByName("radios");
-  var value;
-  for (var i = 0; i < radios.length; i++) {
-    if (radios[i].checked) {
-      value = radios[i].value;
-    }
-  }
-  return value;
-}
 
 function removeItemOnce(arr, value) {
   var index = arr.indexOf(value);
