@@ -285,7 +285,7 @@ $("#setEncryption").click(function (e) {
     $("#setEncryption").text("Disable Encryption"); 
   } else {
     encryption = false;
-    client.setEncryptionConfig("none", "");
+    client.setEncryptionConfig("none", "test");
     $("#setEncryption").text("Enable Encryption"); 
   }
 });
