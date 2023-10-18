@@ -1,3 +1,29 @@
+#stt-transcribe {
+  display: inline-block;
+  position: relative;
+  width: 50vw;
+}
+
+#stt-transcribe .content {
+  max-height: 500px;
+  overflow: auto;
+  margin: 10px 0;
+}
+
+
+#stt-translate {
+  display: inline-block;
+  position: relative;
+  width: 50vw;
+}
+
+
+#stt-translate .content {
+  max-height: 500px;
+  overflow: auto;
+  margin: 10px 0;
+}
+
 .sso-hidden {
   display: block;
 }
