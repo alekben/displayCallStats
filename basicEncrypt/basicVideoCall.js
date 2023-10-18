@@ -351,10 +351,10 @@ async function setEncryption() {
   let encryptKey = "test";
   //let encryptKey = "GAcORA4HGEFMRUtTRVk=";
   console.log(`secret is ${encryptKey}`);
-  let encryptSalt = base64ToUint8Array("X5w9T+50kzxVOnkJKiY/lUk82/bES2kATOt3vBuGEDw=");
-  let encryptionMode = "aes-256-gcm2";
+  //let encryptSalt = base64ToUint8Array("X5w9T+50kzxVOnkJKiY/lUk82/bES2kATOt3vBuGEDw=");
+  let encryptionMode = "aes-256-gcm";
   // Start channel encryption, set before every join
-  client.setEncryptionConfig(encryptionMode, encryptKey, encryptSalt);
+  client.setEncryptionConfig(encryptionMode, encryptKey);
 }
 
 
