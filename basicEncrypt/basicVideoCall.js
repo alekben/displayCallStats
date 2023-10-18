@@ -308,7 +308,7 @@ async function manualUnsub() {
  */
 async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
-  await setEncryption();
+  //await setEncryption();
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("stream-message", handleStreammessage);
