@@ -409,6 +409,7 @@ async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
+  client.on("connection-state-change", reportConnectionState);
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   if (!localTracks.audioTrack) {
@@ -518,6 +519,25 @@ function handleUserPublished(user, mediaType) {
   remoteUsers[id] = user;
   subscribe(user, mediaType);
 }
+
+function reportConnectionState(cur, prev, reason) {
+  if (cur == "DISCONNECTED") {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+    showPopup(`Connection State: ${cur}, Reason: ${reason}`)
+    if (reason == "FALLBACK") {
+      console.log(`Autofallback TCP Proxy being attempted.`);
+      showPopup(`Autofallback TCP Proxy Attempted`);
+    }
+  } else if (cur == "CONNECTED") {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Connection State: ${cur}`);
+    connectionState.isJoined = true;
+  } else {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Connection State: ${cur}`);
+    connectionState.isJoined = false;
+  }
+  }
 
 /*
  * Remove the user specified from the channel in the local interface.
