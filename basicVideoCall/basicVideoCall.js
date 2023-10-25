@@ -531,7 +531,7 @@ function reportConnectionState(cur, prev, reason) {
   } else if (cur == "CONNECTED") {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
     //showPopup(`Connection State: ${cur}`);
-    connectionState.isJoined = true;
+    //connectionState.isJoined = true;
   } else {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
     //showPopup(`Connection State: ${cur}`);
