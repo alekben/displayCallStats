@@ -523,18 +523,18 @@ function handleUserPublished(user, mediaType) {
 function reportConnectionState(cur, prev, reason) {
   if (cur == "DISCONNECTED") {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
-    showPopup(`Connection State: ${cur}, Reason: ${reason}`)
+    //showPopup(`Connection State: ${cur}, Reason: ${reason}`)
     if (reason == "FALLBACK") {
       console.log(`Autofallback TCP Proxy being attempted.`);
-      showPopup(`Autofallback TCP Proxy Attempted`);
+      //showPopup(`Autofallback TCP Proxy Attempted`);
     }
   } else if (cur == "CONNECTED") {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Connection State: ${cur}`);
+    //showPopup(`Connection State: ${cur}`);
     connectionState.isJoined = true;
   } else {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Connection State: ${cur}`);
+    //showPopup(`Connection State: ${cur}`);
     connectionState.isJoined = false;
   }
   }
