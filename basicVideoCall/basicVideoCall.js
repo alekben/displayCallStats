@@ -9,6 +9,9 @@
  * @param {string} mode - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#mode| streaming algorithm} used by Agora SDK.
  * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
+
+var popups = 0;
+
 var client;
 AgoraRTC.enableLogUpload();
 
@@ -410,8 +413,14 @@ async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("connection-state-change", reportConnectionState);
+  client.on("user-joined", handleUserJoined);
+  client.on("user-left", handleUserLeft);
+  client.on("user-info-updated", handleUserInfoUpdated);
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+
+  showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       encoderConfig: "music_standard"
@@ -505,6 +514,7 @@ async function subscribe(user, mediaType) {
   if (mediaType === "audio") {
     user.audioTrack.play();
   }
+  showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
 }
 
 /*
@@ -518,6 +528,7 @@ function handleUserPublished(user, mediaType) {
   updateUIDs(id, "add");
   remoteUsers[id] = user;
   subscribe(user, mediaType);
+  showPopup(`UID ${id} published ${mediaType}`);
 }
 
 function reportConnectionState(cur, prev, reason) {
@@ -552,6 +563,25 @@ function handleUserUnpublished(user, mediaType) {
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
+  showPopup(`UID ${id} unpublished ${mediaType}`);
+}
+
+function handleUserJoined(user) {
+  const id = user.uid;
+  remoteUsers[id] = user;
+  showPopup(`UID ${id} user-joined`);
+}
+
+function handleUserLeft(user) {
+  const id = user.uid;
+  delete remoteUsers[id];
+  $(`#player-wrapper-${id}`).remove();
+  showPopup(`UID ${id} user-left`);
+}
+
+function handleUserInfoUpdated(uid, message) {
+  console.log(`User Info Updated for ${uid}, new state is: ${message}`);
+  showPopup(`UID ${uid} new state: ${message}`);
 }
 
 function getCodec() {
@@ -571,4 +601,17 @@ function removeItemOnce(arr, value) {
     arr.splice(index, 1);
   }
   return arr;
+}
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
 }
