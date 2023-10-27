@@ -303,10 +303,10 @@ $("#startVideo").click(function (e) {
     videoPlaying = false;
     $("#startVideo").text("Start Video");
     var videoFromDiv = document.getElementById("sample-video");
-    videoFromDiv.stop();
+    videoFromDiv.pause();
   } else {
     videoPlaying = true;
-    $("#startVideo").text("Stop Video");
+    $("#startVideo").text("Pause Video");
     var videoFromDiv = document.getElementById("sample-video");
     videoFromDiv.play();
   }
