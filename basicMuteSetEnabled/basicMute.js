@@ -308,6 +308,7 @@ function handleUserUnpublished(user, mediaType) {
     $(`#player-wrapper-${id}`).remove();
   } else {
     client.unsubscribe(user, "audio");
+    showPopup(`Unsubscribing from ${mediaType} for UID ${uid}`);
   }
   showPopup(`UID ${id} unpublished ${mediaType}`);
 }
