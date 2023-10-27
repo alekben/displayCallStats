@@ -296,6 +296,7 @@ function handleUserLeft(user) {
   showPopup(`UID ${id} user-left`);
 }
 function handleUserPublished(user, mediaType) {
+  const id = user.uid;
   subscribe(user, mediaType);
   showPopup(`UID ${id} published ${mediaType}`);
 }
