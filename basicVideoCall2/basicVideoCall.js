@@ -297,6 +297,18 @@ $("#setEnabled").click(function (e) {
     enableAudio();
   }
 });
+$("#startvideo").click(function (e) {
+  if (videoPlaying) {
+    videoPlaying = false;
+    $("#startVideo").text("Start Video");
+    var videoFromDiv = document.getElementById("sample-video");
+    videoFromDiv.play();
+  } else {
+    videoPlaying = true;
+    $("#startVideo").text("Stop Video");
+    videoFromDiv.stop();
+  }
+});
 
 
 async function publishMic() {
@@ -420,10 +432,12 @@ async function join() {
   
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
+  //await client.publish(localTracks.audioTrack);
   console.log("publish success");
 
   // Play the local video track to the local browser and update the UI with the user ID.
   localTracks.videoTrack.play("local-player");
+
   $("#local-player-name").text(`localVideo(${options.uid})`);
   $("#joined-setup").css("display", "flex");
 
