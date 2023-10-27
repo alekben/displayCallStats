@@ -297,7 +297,7 @@ $("#setEnabled").click(function (e) {
     enableAudio();
   }
 });
-$("#startvideo").click(function (e) {
+$("#startVideo").click(function (e) {
   if (videoPlaying) {
     videoPlaying = false;
     $("#startVideo").text("Start Video");
