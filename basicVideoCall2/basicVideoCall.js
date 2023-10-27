@@ -10,6 +10,7 @@
  * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
 var client;
+var videoPlaying = false;
 AgoraRTC.enableLogUpload();
 
 /*
