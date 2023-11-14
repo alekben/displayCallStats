@@ -1,10 +1,10 @@
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "live",
+  mode: "rtc",
   codec: "vp8"
 });
 
-client.setClientRole("host");
+//client.setClientRole("host");
 
 var localTracks = {
   videoTrack: null,
@@ -124,7 +124,7 @@ async function startAudioMixing(file) {
   if (file) {
     options.source = file;
   } else {
-    options.source = "aleksey_speech_test.mp3";
+    options.source = "HeroicAdventure.mp3";
   }
   try {
     audioMixing.state = "LOADING";
@@ -205,13 +205,11 @@ async function join() {
   client.on("user-unpublished", handleUserUnpublished);
 
   // join a channel and create local tracks, we can use Promise.all to run them concurrently
-  [options.uid, localTracks.audioTrack, localTracks.videoTrack] = await Promise.all([
+  [options.uid, localTracks.videoTrack] = await Promise.all([
   // join the channel
   client.join(options.appid, options.channel, options.token || null, options.uid || null),
   // create local tracks, using microphone and camera
-  AgoraRTC.createMicrophoneAudioTrack({
-    encoderConfig: "music_standard"
-  }), AgoraRTC.createCameraVideoTrack()]);
+  AgoraRTC.createCameraVideoTrack()]);
   // play local video track
   localTracks.videoTrack.play("local-player");
   $("#local-player-name").text(`localVideo(${options.uid})`);
