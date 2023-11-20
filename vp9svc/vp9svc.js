@@ -720,6 +720,11 @@ async function subscribe(user, mediaType) {
   const uid = user.uid;
   // subscribe to a remote user
   await client.subscribe(user, mediaType);
+  if (mediaType == "video") {
+    user.videoTrack.on("first-frame-decoded", (track) => {
+      console.log(`remote track for ${uid} has decoded`);
+    });
+  }
   console.log("subscribe success");
   if (mediaType === 'video') {
     if (remoteFocus != 0) {
@@ -772,6 +777,7 @@ async function subscribe(user, mediaType) {
       default:
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
+
     user.videoTrack.play(`player-${uid}`);
     await setS(uid, "min");
     await setT(uid, "min");
