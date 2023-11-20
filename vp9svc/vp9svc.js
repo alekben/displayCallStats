@@ -1024,13 +1024,13 @@ function handleExpand() {
   const id = $(".uid-input").val();
   if (bigRemote == id) {
     shrinkRemote(id);
-    setS(uid, "min");
-    setT(uid, "min");
+    setS(id, "min");
+    setT(id, "min");
     bigRemote = 0;
   } else if (bigRemote == 0) {
     expandRemote(id);
-    setS(uid, "max");
-    setT(uid, "max");
+    setS(id, "max");
+    setT(id, "max");
     bigRemote = id;
   } else {
     shrinkRemote(id);
