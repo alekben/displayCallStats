@@ -479,19 +479,6 @@ async function switchCamScreen() {
       localTracks.screenVideoTrack = screenTrack;
     }
   }
-    screenTrack = 
-      AgoraRTC.createScreenVideoTrack({
-        encoderConfig: "1080p"
-      }, "enable");
-
-      if (screenTrack instanceof Array) {
-        localTracks.screenVideoTrack = screenTrack[0];
-        localTracks.screenAudioTrack = screenTrack[1];
-        client.publish(localTracks.screenAudioTrack);
-      } else {
-        localTracks.screenVideoTrack = screenTrack;
-      }
-
     const newTrack = localTracks.screenTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
     localTrackState.camPublished = false;
