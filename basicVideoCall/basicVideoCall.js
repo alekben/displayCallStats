@@ -574,7 +574,7 @@ function handleUserJoined(user) {
 
 function handleUserLeft(user) {
   const id = user.uid;
-  delete remoteUsers[id];
+  //delete remoteUsers[id];
   $(`#player-wrapper-${id}`).remove();
   showPopup(`UID ${id} user-left`);
 }
