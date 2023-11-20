@@ -560,7 +560,7 @@ function handleUserUnpublished(user, mediaType) {
     const id = user.uid;
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
-    delete remoteUsers[id];
+    //delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
   showPopup(`UID ${id} unpublished ${mediaType}`);

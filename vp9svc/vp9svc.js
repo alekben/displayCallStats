@@ -427,36 +427,22 @@ $("#biggerView").click(function (e) {
 
 
 
-async function setS(uid, setting) {
-  if (setting == "max") {
+function setSTMin(uid) {
     //$("#pickSLayer").text("S3");
-    layers[uid].spatialLayer = 3;
-    client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
-    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-  } else {
-    //$("#pickSLayer").text("S1");
     layers[uid].spatialLayer = 1;
-    client.pickSVCLayer(uid, {spatialLayer: 1, temporalLayer: 1});
-    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-  }
-}
-
-async function setT(uid, setting) {
-  if (setting == "max") {
-    $("#pickTLayer").text("T3");
-    layers[uid].temporalLayer = 3;
-    client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
-    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-  } else {
-    $("#pickTLayer").text("T1");
     layers[uid].temporalLayer = 1;
     client.pickSVCLayer(uid, {spatialLayer: 1, temporalLayer: 1});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
-  }
+}
+
+function setSTMax(uid) {
+    //$("#pickTLayer").text("T3");
+    layers[uid].spatialLayer = 3;
+    layers[uid].temporalLayer = 3;
+    client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
+    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
 }
 
 async function pickS() {
@@ -685,8 +671,7 @@ async function manualSub() {
   let user = remoteUsers[id];
   showPopup(`Manually subscribed to UID ${id}`);
   await subscribe(user, "video");
-  await setS(id, "min");
-  await setT(id, "min");
+  await setSTMin(id);
   updateLayersButtons();
   await subscribe(user, "audio");
 }
@@ -778,14 +763,23 @@ async function subscribe(user, mediaType) {
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
     user.videoTrack.play(`player-${uid}`);
+    setTimeout(handleMin, 2000, uid);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
   }
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
-  await setS(uid, "min");
-  await setT(uid, "min");
 }
+
+function handleMin(uid) {
+  console.log(`Min Interval fired`);
+  setSTMin(uid);
+  }
+
+  function handleMax(uid) {
+  console.log(`Max Interval fired`);
+  setSTMax(uid);
+  }
 
 //async function subscribeLoopback(user, mediaType) {
 //  console.log("Trying loopback subscription");
@@ -871,6 +865,8 @@ function handleUserInfoUpdated(uid, message) {
 }
 
 
+
+
 function getRemoteCount( object ) {
   var length = 0;
   for( var key in object ) {
@@ -898,7 +894,13 @@ function destructStats() {
 function flushStats() {
   // get the client stats message
   const clientStats = client.getRTCStats();
-  const clientStatsList = [{
+  const clientStatsList = [
+    {
+      description: "Local UID",
+      value: options.uid,
+      unit: ""
+    },
+  {
     description: "Host Count",
     value: clientStats.UserCount,
     unit: ""
@@ -908,16 +910,16 @@ function flushStats() {
     unit: "s"
   }, {
     description: "Bitrate receive",
-    value: clientStats.RecvBitrate,
-    unit: "bps"
+    value: (Number(clientStats.RecvBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Bitrate sent",
-    value: clientStats.SendBitrate,
-    unit: "bps"
+    value: (Number(clientStats.SendBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Outgoing B/W",
-    value: clientStats.OutgoingAvailableBandwidth.toFixed(3),
-    unit: "kbps"
+    value: (Number(clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "RTT to SD-RTN Edge",
     value: clientStats.RTT,
@@ -958,16 +960,12 @@ const localStatsList = [{
   unit: ""
   },  {
   description: "Send video bit rate",
-  value: localStats.video.sendBitrate,
-  unit: "bps"
+  value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
+  unit: "Mbps"
   }, {
   description: "Total video packets loss",
   value: localStats.video.sendPacketsLost,
   unit: ""
-  }, {
-  description: "Total video freeze time",
-  value: localStats.video.totalFreezeTime,
-  unit: "s"
 }];
 $("#local-stats").html(`
   ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
@@ -978,7 +976,13 @@ Object.keys(remoteUsers).forEach(uid => {
     video: client.getRemoteVideoStats()[uid],
     //audio: client.getRemoteAudioStats()[uid]
   };
-  const remoteTracksStatsList = [{
+  const remoteTracksStatsList = [
+    {
+      description: "UID",
+      value: uid,
+      unit: ""
+    },
+    {
     description: "Codec",
     value: remoteTracksStats.video.codecType,
     unit: ""
@@ -999,9 +1003,9 @@ Object.keys(remoteUsers).forEach(uid => {
     value: remoteTracksStats.video.receiveResolutionWidth,
     unit: ""
   }, {
-    description: "Receiving video bitrate",
-    value: remoteTracksStats.video.receiveBitrate,
-    unit: "bps"
+    description: "Recv video bitrate",
+    value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Video receive delay",
     value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
@@ -1014,10 +1018,6 @@ Object.keys(remoteUsers).forEach(uid => {
     description: "Total video freeze time",
     value: remoteTracksStats.video.totalFreezeTime,
     unit: "s"
-  }, {
-    description: "video freeze rate",
-    value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
-    unit: "%"
   }];
   $(`#player-wrapper-${uid} .track-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
@@ -1025,21 +1025,22 @@ Object.keys(remoteUsers).forEach(uid => {
 });
 }
 
-async function handleExpand() {
+function handleExpand() {
   const id = $(".uid-input").val();
   if (bigRemote == id) {
     shrinkRemote(id);
-    await setS(id, "min");
-    await setT(id, "min");
+    setTimeout(handleMin, 1000, id);
     bigRemote = 0;
+    console.log("shrinking");
   } else if (bigRemote == 0) {
     expandRemote(id);
-    await setS(id, "max");
-    await setT(id, "max");
+    setTimeout(handleMax, 3000, id);
     bigRemote = id;
+    console.log("expanding");
   } else {
     shrinkRemote(id);
     expandRemote(id);
+    setTimeout(handleMax, 1000, id);
     bigRemote = id;
   }
 }
