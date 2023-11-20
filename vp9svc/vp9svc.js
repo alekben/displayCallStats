@@ -431,13 +431,13 @@ async function setS(uid, setting) {
   if (setting == "max") {
     $("#pickSLayer").text("S3");
     layers[uid].spatialLayer = 3;
-    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
   } else {
     $("#pickSLayer").text("S1");
     layers[uid].spatialLayer = 1;
-    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    client.pickSVCLayer(uid, {spatialLayer: 1, temporalLayer: 1});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
   }
@@ -447,13 +447,13 @@ async function setT(uid, setting) {
   if (setting == "max") {
     $("#pickTLayer").text("T3");
     layers[uid].temporalLayer = 3;
-    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
   } else {
     $("#pickTLayer").text("T1");
     layers[uid].temporalLayer = 1;
-    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    client.pickSVCLayer(uid, {spatialLayer: 1, temporalLayer: 1});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
   }
@@ -772,9 +772,9 @@ async function subscribe(user, mediaType) {
       default:
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
+    user.videoTrack.play(`player-${uid}`);
     await setS(uid, "min");
     await setT(uid, "min");
-    user.videoTrack.play(`player-${uid}`);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
@@ -798,7 +798,7 @@ function handleUserPublished(user, mediaType) {
   } else {
     const id = user.uid;
     remoteUsers[id] = user;
-    layers[id] = {uid: id, spatialLayer: 3, temporalLayer: 3};
+    layers[id] = {uid: id, spatialLayer: 1, temporalLayer: 1};
     updateUIDs(id, "add");
     if (mediaType === 'video') {
       userCount = getRemoteCount(remoteUsers);
