@@ -453,7 +453,7 @@ async function switchCamScreen() {
   //method 1 - create new track, extract stream, replace currently published track
   if (localTrackState.camPublished) {
     console.log("cam is currently published, switching to screenshare.");
-    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack();
+    [localTracks.screenTrack, localTracks.screenAudioTrack] = await AgoraRTC.createScreenVideoTrack({withAudio: "enable"});
     const newTrack = localTracks.screenTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
     localTrackState.camPublished = false;
