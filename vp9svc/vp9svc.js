@@ -1020,17 +1020,17 @@ Object.keys(remoteUsers).forEach(uid => {
 });
 }
 
-function handleExpand() {
+async function handleExpand() {
   const id = $(".uid-input").val();
   if (bigRemote == id) {
     shrinkRemote(id);
-    setS(id, "min");
-    setT(id, "min");
+    await setS(id, "min");
+    await setT(id, "min");
     bigRemote = 0;
   } else if (bigRemote == 0) {
     expandRemote(id);
-    setS(id, "max");
-    setT(id, "max");
+    await setS(id, "max");
+    await setT(id, "max");
     bigRemote = id;
   } else {
     shrinkRemote(id);
