@@ -429,13 +429,13 @@ $("#biggerView").click(function (e) {
 
 async function setS(uid, setting) {
   if (setting == "max") {
-    $("#pickSLayer").text("S3");
+    //$("#pickSLayer").text("S3");
     layers[uid].spatialLayer = 3;
     client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
   } else {
-    $("#pickSLayer").text("S1");
+    //$("#pickSLayer").text("S1");
     layers[uid].spatialLayer = 1;
     client.pickSVCLayer(uid, {spatialLayer: 1, temporalLayer: 1});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
@@ -777,15 +777,14 @@ async function subscribe(user, mediaType) {
       default:
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
-
     user.videoTrack.play(`player-${uid}`);
-    await setS(uid, "min");
-    await setT(uid, "min");
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
   }
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
+  await setS(uid, "min");
+  await setT(uid, "min");
 }
 
 //async function subscribeLoopback(user, mediaType) {
