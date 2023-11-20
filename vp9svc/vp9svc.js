@@ -425,6 +425,40 @@ $("#biggerView").click(function (e) {
 
 
 
+
+
+async function setS(uid, setting) {
+  if (setting == "max") {
+    $("#pickSLayer").text("S3");
+    layers[uid].spatialLayer = 3;
+    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+  } else {
+    $("#pickSLayer").text("S1");
+    layers[uid].spatialLayer = 1;
+    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+  }
+}
+
+async function setT(uid, setting) {
+  if (setting == "max") {
+    $("#pickTLayer").text("T3");
+    layers[uid].temporalLayer = 3;
+    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+  } else {
+    $("#pickTLayer").text("T1");
+    layers[uid].temporalLayer = 1;
+    client.pickSVCLayer(uid, {spatialLayer: layers[uid].spatialLayer, temporalLayer: layers[uid].temporalLayer});
+    showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+  }
+}
+
 async function pickS() {
   //get value of of uid-input
   const id = Number($(".uid-input").val());
@@ -456,9 +490,6 @@ async function pickS() {
     showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
     console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
   }
-
-  //client.pickSVCLayer({uid: `${id}`, layerOptions: { spatialLayer: `${slayer}`; temporalLayer: `${tlayer}`}});
-
 }
 
 async function pickT() {
@@ -654,6 +685,9 @@ async function manualSub() {
   let user = remoteUsers[id];
   showPopup(`Manually subscribed to UID ${id}`);
   await subscribe(user, "video");
+  await setS(id, "min");
+  await setT(id, "min");
+  updateLayersButtons();
   await subscribe(user, "audio");
 }
 
@@ -738,6 +772,8 @@ async function subscribe(user, mediaType) {
       default:
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
+    await setS(uid, "min");
+    await setT(uid, "min");
     user.videoTrack.play(`player-${uid}`);
   }
   if (mediaType === 'audio') {
@@ -988,9 +1024,13 @@ function handleExpand() {
   const id = $(".uid-input").val();
   if (bigRemote == id) {
     shrinkRemote(id);
+    setS(uid, "min");
+    setT(uid, "min");
     bigRemote = 0;
   } else if (bigRemote == 0) {
     expandRemote(id);
+    setS(uid, "max");
+    setT(uid, "max");
     bigRemote = id;
   } else {
     shrinkRemote(id);
