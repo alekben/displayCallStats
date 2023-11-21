@@ -9,6 +9,8 @@
  * @param {string} mode - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#mode| streaming algorithm} used by Agora SDK.
  * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
+
+const storeUA = window.navigator.userAgent;
 var client;
 AgoraRTC.enableLogUpload();
 
@@ -455,28 +457,34 @@ async function switchCamScreen() {
     console.log("cam is currently published, switching to screenshare.");
 
     if (/\bCrOS\b/.test(navigator.userAgent)) {
-      screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "enable");
-        if (screenTrack instanceof Array) {
-          localTracks.screenVideoTrack = screenTrack[0];
-          localTracks.screenAudioTrack = screenTrack[1];
-          client.publish(localTracks.screenAudioTrack);
-        } else {
-          localTracks.screenVideoTrack = screenTrack;
-        }
-      } else {
-        screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "auto");
-        if (screenTrack instanceof Array) {
-          localTracks.screenVideoTrack = screenTrack[0];
-          localTracks.screenAudioTrack = screenTrack[1];
-          client.publish(localTracks.screenAudioTrack);
-        } else {
-          localTracks.screenVideoTrack = screenTrack;
-        }
+      makePropertyWritable(window, "navigator", "userAgent");
+      window.navigator.userAgent = "Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
+      console.log(window.navigator.userAgent);
+      //screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "enable");
+      //  if (screenTrack instanceof Array) {
+      //    localTracks.screenVideoTrack = screenTrack[0];
+      //    localTracks.screenAudioTrack = screenTrack[1];
+      //    client.publish(localTracks.screenAudioTrack);
+      //  } else {
+      //    localTracks.screenVideoTrack = screenTrack;
+      //  }
       }
+      screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "auto");
+        if (screenTrack instanceof Array) {
+          localTracks.screenVideoTrack = screenTrack[0];
+          localTracks.screenAudioTrack = screenTrack[1];
+          client.publish(localTracks.screenAudioTrack);
+        } else {
+          localTracks.screenVideoTrack = screenTrack;
+        }
     const newTrack = localTracks.screenVideoTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
+    trackId = localTracks.videoTrack.getTrackId();
+    $(`#video_${trackId}`).css("object-fit", "");
+    $(`#video_${trackId}`).css("transform", "");
     localTrackState.camPublished = false;
     localTrackState.screenPublished = true;
+    window.navigator.userAgent = storeUA;
     $("#screenOrCam").text("Switch to Camera");
   } else {
     console.log("cam is currently published, switching to screenshare.");
@@ -484,6 +492,8 @@ async function switchCamScreen() {
     localTracks.screenTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: curVideoProfile.value});
     const newTrack = localTracks.screenTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
+    $(`#video_${trackId}`).css("object-fit", "cover");
+    $(`#video_${trackId}`).css("transform", "rotateY(180)");
     localTrackState.camPublished = true;
     localTrackState.screenPublished = false;
     }
@@ -628,3 +638,29 @@ function removeItemOnce(arr, value) {
   }
   return arr;
 }
+
+function makePropertyWritable(objBase, objScopeName, propName, initValue) {
+  var newProp,
+      initObj;
+
+  if (objBase && objScopeName in objBase && propName in objBase[objScopeName]) {
+      if(typeof initValue === "undefined") {
+          initValue = objBase[objScopeName][propName];
+      }
+
+      newProp = createProperty(initValue);
+
+      try {
+          Object.defineProperty(objBase[objScopeName], propName, newProp);
+      } catch (e) {
+          initObj = {};
+          initObj[propName] = newProp;
+          try {
+              objBase[objScopeName] = Object.create(objBase[objScopeName], initObj);
+          } catch(e) {
+              // Workaround, but necessary to overwrite native host objects
+          }
+      }
+  }
+};
+
