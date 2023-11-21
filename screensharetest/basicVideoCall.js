@@ -473,7 +473,7 @@ async function switchCamScreen() {
           localTracks.screenVideoTrack = screenTrack;
         }
       }
-    const newTrack = localTracks.screenTrack.getMediaStreamTrack();
+    const newTrack = localTracks.screenVideoTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
     localTrackState.camPublished = false;
     localTrackState.screenPublished = true;
