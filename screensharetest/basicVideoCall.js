@@ -458,7 +458,7 @@ async function switchCamScreen() {
 
     if (/\bCrOS\b/.test(navigator.userAgent)) {
       makePropertyWritable(window, "navigator", "userAgent");
-      window.navigator.userAgent = "Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
+      window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
       console.log(window.navigator.userAgent);
       //screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "enable");
       //  if (screenTrack instanceof Array) {
@@ -662,5 +662,22 @@ function makePropertyWritable(objBase, objScopeName, propName, initValue) {
           }
       }
   }
+};
+
+function createProperty(value) {
+  var _value = value;
+
+  function _get() {
+      return _value;
+  }
+
+  function _set(v) {
+      _value = v;
+  }
+
+  return {
+      "get": _get,
+      "set": _set
+  };
 };
 
