@@ -13,6 +13,12 @@ var client;
 var videoPlaying = false;
 AgoraRTC.enableLogUpload();
 
+[localTracks.audioTrack, localTracks.videoTrack ] = await 
+AgoraRTC.createMicrophoneAndCameraTracks(
+{bypassWebAudio: false},
+{encoderConfig: "480p_2"}
+);
+
 /*
  * Clear the video and audio tracks used by `client` on initiation.
  */
@@ -426,11 +432,6 @@ async function join() {
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  [localTracks.audioTrack, localTracks.videoTrack ] = await 
-    AgoraRTC.createMicrophoneAndCameraTracks(
-{AEC: true,  AGC: false,  ANS: true, encoderConfig: 'standard_stereo' },
-{encoderConfig: {width: { max: 848, min: 640 }, height: { max: 480, min: 480 }, frameRate: 30, bitrateMax: 1000, bitrateMin:750,}}
-    );
   
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
