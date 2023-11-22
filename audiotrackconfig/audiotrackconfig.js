@@ -108,10 +108,7 @@ localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:fal
 
 
 AgoraRTC.enableLogUpload();
-var localTracks = {
-  videoTrack: null,
-  audioTrack: null
-};
+
 
 var localTrackState = {
   audioTrackMuted: false,
