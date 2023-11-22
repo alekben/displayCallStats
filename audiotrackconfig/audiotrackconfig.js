@@ -91,13 +91,16 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+
+localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+
 //var loopback_client = AgoraRTC.createClient({
 //  mode: "rtc",
 //  codec: "vp9"
 //});
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
-console.log("Start with Web Audio ON");
+//AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
+//console.log("Start with Web Audio ON");
 
 
 AgoraRTC.enableLogUpload();
