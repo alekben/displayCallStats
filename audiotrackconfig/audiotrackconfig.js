@@ -91,6 +91,10 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+var localTracks = {
+  videoTrack: null,
+  audioTrack: null
+};
 
 localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
 
