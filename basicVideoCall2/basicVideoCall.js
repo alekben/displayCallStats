@@ -10,8 +10,19 @@
  * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
 var client;
+var client2;
 var videoPlaying = false;
 AgoraRTC.enableLogUpload();
+
+client = AgoraRTC.createClient({
+  mode: "rtc",
+  codec: "vp8"
+});
+
+client2 = AgoraRTC.createClient({
+  mode: "rtc",
+  codec: "vp8"
+});
 
 [localTracks.audioTrack, localTracks.videoTrack ] = AgoraRTC.createMicrophoneAndCameraTracks(
 {bypassWebAudio: false},
