@@ -13,8 +13,7 @@ var client;
 var videoPlaying = false;
 AgoraRTC.enableLogUpload();
 
-[localTracks.audioTrack, localTracks.videoTrack ] = await 
-AgoraRTC.createMicrophoneAndCameraTracks(
+[localTracks.audioTrack, localTracks.videoTrack ] = AgoraRTC.createMicrophoneAndCameraTracks(
 {bypassWebAudio: false},
 {encoderConfig: "480p_2"}
 );
