@@ -96,7 +96,7 @@ var localTracks = {
   audioTrack: null
 };
 
-localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+//localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
 
 //var loopback_client = AgoraRTC.createClient({
 //  mode: "rtc",
@@ -302,7 +302,7 @@ let statsInterval;
 // the demo can auto join channel with params in url
 $(() => {
   initMicProfiles();
-  localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+  
   $(".profile-list").delegate("a", "click", function (e) {
     changeMicProfile(this.getAttribute("label"));
   });
@@ -1099,6 +1099,10 @@ function removeItemOnce(arr, value) {
   return arr;
 }
 
+async function createMicTrack() {
+  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+}
+
 //AINS
 let denoiser = null;
 let processor = null;
@@ -1108,6 +1112,7 @@ const pipeAIDenosier = (audioTrack, processor) => {
 };
 $("#enableAiDenosier").click(async e => {
   e.preventDefault();
+  createMicTrack();
   $("#agc").attr("disabled", true);
   $("#aec").attr("disabled", true);
   $("#ans").attr("disabled", true);
