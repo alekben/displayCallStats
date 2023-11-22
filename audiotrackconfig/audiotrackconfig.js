@@ -1112,7 +1112,7 @@ const pipeAIDenosier = (audioTrack, processor) => {
 };
 $("#enableAiDenosier").click(async e => {
   e.preventDefault();
-  createMicTrack();
+  await createMicTrack();
   $("#agc").attr("disabled", true);
   $("#aec").attr("disabled", true);
   $("#ans").attr("disabled", true);
