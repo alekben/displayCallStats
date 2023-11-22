@@ -96,7 +96,7 @@ var localTracks = {
   audioTrack: null
 };
 
-localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
 
 //var loopback_client = AgoraRTC.createClient({
 //  mode: "rtc",
@@ -302,6 +302,7 @@ let statsInterval;
 // the demo can auto join channel with params in url
 $(() => {
   initMicProfiles();
+  localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
   $(".profile-list").delegate("a", "click", function (e) {
     changeMicProfile(this.getAttribute("label"));
   });
