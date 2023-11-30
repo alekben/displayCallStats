@@ -136,11 +136,6 @@ function updateUIDs(id, action) {
     j++;
   } 
   $(".uid-input").val(`${remotesArray[0]}`);
-  //var x = document.getElementById(`player-${remotesArray[0]}`);
-  //if (x) {
-  //  x.className = "remotePlayerSelected";
-  //  remoteFocus = remotesArray[0];
- // }
 }
 }
 
@@ -176,12 +171,6 @@ $("#join-form").submit(async function (e) {
     options.appid = $("#appid").val();
     options.token = $("#token").val();
     await join();
-    if (options.token) {
-      $("#success-alert-with-token").css("display", "block");
-    } else {
-      $("#success-alert a").attr("href", `index.html?appid=${options.appid}&channel=${options.channel}&token=${options.token}`);
-      $("#success-alert").css("display", "block");
-    }
   } catch (error) {
     console.error(error);
   } finally {
