@@ -8,77 +8,6 @@ var popups = 0;
 var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
-//MediaRecorder
-
-//let recording = document.getElementById("recording");
-//let startButton = document.getElementById("record");
-//let downloadButton = document.getElementById("download");
-let logElement = document.getElementById("log");
-//let recordingTimeMS = 10000;
-
-
-function log(msg) {
-  logElement.innerHTML += msg + "\n";
-}
-
-//function wait(delayInMS) {
-//  return new Promise(resolve => setTimeout(resolve, delayInMS));
-//}
-
-//function stop(stream) {
-//  stream.getTracks().forEach(track => track.stop());
-//  $("#download").attr("hidden", false);
-//  log("Done recording.");
-//}
-
-//Handles startRecording being triggered by start button
-//startButton.addEventListener("click", function() {
-//      let astream = localTracks.audioTrack.getMediaStreamTrack();
-//      const aastream = new MediaStream();
-//      aastream.addTrack(astream);
-//      //astream = "video_" + vstream;
-//      //let vvstream = document.getElementById(`${vstream}`);
-//      download.href = localTracks.audioTrack;
-//      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-//      startRecording(aastream, recordingTimeMS)
-//      .then (recordedChunks => {
-//      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
-//      //vvstream.src = URL.createObjectURL(recordedBlob);
-//      download.href = URL.createObjectURL(recordedBlob);
-//      download.download = "RecordedMicTrack.ogg";
-//      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-//      $("#download").attr("hidden", false);
-//      })
-//});
-
-//creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
-
-//function startRecording(stream, lengthInMS) {
-//  $("#download").attr("hidden", true);
-//  let recorder = new MediaRecorder(stream);
-//  let data = [];
-
-//  recorder.ondataavailable = event => data.push(event.data);
-//  recorder.start();
-//  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
-
-//  let stopped = new Promise((resolve, reject) => {
-//    recorder.onstop = resolve;
-//    recorder.onerror = event => reject(event.name);
-//  });
-
-//  let recorded = wait(lengthInMS).then(
-//    () => recorder.state == "recording" && recorder.stop()
-//  );
-
-//  return Promise.all([
-//    stopped,
-//    recorded
-//  ])
-//  .then(() => data);
-//}
-
-
 
 
 // create Agora client
@@ -87,10 +16,6 @@ var client = AgoraRTC.createClient({
   codec: "vp9"
 });
 
-//var loopback_client = AgoraRTC.createClient({
-//  mode: "rtc",
-//  codec: "vp9"
-//});
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 AgoraRTC.setParameter("SVC",["vp9"]);
@@ -109,7 +34,7 @@ var localTrackState = {
 };
 
 var joined = false;
-//var loopback = false;
+
 
 
 var remoteUsers = {};
@@ -122,7 +47,7 @@ var options = {
   channel: null,
   uid: null,
   token: null,
-  //uidLoopback: null
+
 };
 
 var audioProfiles = [{
@@ -273,11 +198,6 @@ function updateUIDs(id, action) {
     j++;
   } 
   $(".uid-input").val(`${remotesArray[0]}`);
-  //var x = document.getElementById(`player-${remotesArray[0]}`);
-  //if (x) {
-  //  x.className = "remotePlayerSelected";
-  //  remoteFocus = remotesArray[0];
- // }
 }
 }
 
@@ -328,10 +248,8 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
-    //$("#record").attr("disabled", false);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
-    //$("#startLoopback").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
     $("#subscribe").attr("disabled", false);
@@ -361,21 +279,10 @@ $("#createTrack").click(function (e) {
 $("#publishTrack").click(function (e) {
   publishMic();
   $("#publishTrack").attr("disabled", true);
-  //$("#startLoopback").attr("disabled", false);
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
 });
 
-//$("#startLoopback").click(function (e) {
-//  if (!loopback) {
-//    startLoopbackClient();
-//    loopback = true;
-//  } else {
-//    stopLoopbackClient();
-//    loopback = false;
-//  }
-//  
-//});
 
 $("#setMuted").click(function (e) {
   if (!localTrackState.audioTrackMuted) {
@@ -424,25 +331,22 @@ $("#biggerView").click(function (e) {
 });
 
 
-
-
-
 function setSTMin(uid) {
-    //$("#pickSLayer").text("S3");
     layers[uid].spatialLayer = 1;
     layers[uid].temporalLayer = 1;
-    client.pickSVCLayer(uid, {spatialLayer: 1, temporalLayer: 1});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    const id = Number(uid);
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
 }
 
 function setSTMax(uid) {
-    //$("#pickTLayer").text("T3");
     layers[uid].spatialLayer = 3;
     layers[uid].temporalLayer = 3;
-    client.pickSVCLayer(uid, {spatialLayer: 3, temporalLayer: 3});
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+    const id = Number(uid);
+    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
 }
 
 async function pickS() {
@@ -479,8 +383,6 @@ async function pickS() {
 }
 
 async function pickT() {
-  //$("#pickSLayer").text("S3");
-  //$("#pickTLayer").text("T3");
   //get value of of uid-input
   const id = Number($(".uid-input").val());
   if (layers[id].temporalLayer == 3) {
@@ -590,15 +492,9 @@ async function join() {
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
 
-  //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
-
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  //if (!localTracks.audioTrack) {
-  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-  //    encoderConfig: "speech_low_quality"
-  //  });
-  //}
+
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
   }
@@ -648,7 +544,6 @@ async function leave() {
   $("#leave").attr("disabled", true);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);
-  //$("#startLoopback").attr("disabled", true);
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
@@ -685,21 +580,6 @@ async function manualUnsub() {
   showPopup(`Manually unsubscribed from UID ${id}`);
 }
 
-//async function startLoopbackClient() {
-  // add event listener to play remote tracks when remote user publishs.
-//  loopback_client.on("user-published", handleUserPublishedLoopback);
-//  loopback_client.on("user-unpublished", handleUserUnpublishedLoopback);
-
-  // join the channel
-//  options.uidLoopback = await loopback_client.join(options.appid, options.channel, options.token || null, null);
-//  $("#startLoopback").text("Stop Loopback");
-//}
-
-//async function stopLoopbackClient() {
-//  await loopback_client.leave();
-//  remoteUsersLoopback = {};
-//  $("#startLoopback").text("Start Loopback");
-//}
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
@@ -763,7 +643,7 @@ async function subscribe(user, mediaType) {
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
     user.videoTrack.play(`player-${uid}`);
-    setTimeout(handleMin, 2000, uid);
+    setTimeout(handleMin, 500, uid);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
@@ -778,17 +658,10 @@ function handleMin(uid) {
 
   function handleMax(uid) {
   console.log(`Max Interval fired`);
-  setSTMax(uid);
+  setSTMax(Number(uid));
   }
 
-//async function subscribeLoopback(user, mediaType) {
-//  console.log("Trying loopback subscription");
-//  await loopback_client.subscribe(user, mediaType);
-//  console.log("subscribe success");
-//  if (mediaType === 'audio') {
-//    user.audioTrack.play();
-//  }
-//}
+
 
 function handleUserPublished(user, mediaType) {
   if (userCount >= 8 ) {
@@ -808,24 +681,6 @@ function handleUserPublished(user, mediaType) {
     showPopup(`Remote User Count now: ${userCount}`);
   }
 }
-
-//function handleUserPublishedLoopback(user, mediaType) {
-//    const id = user.uid;
-//    if (id === options.uid) {
-//      if (mediaType === "audio") {
-//        remoteUsersLoopback[id] = user;
-//        subscribeLoopback(user, mediaType);    
-//      }
-//    }
-//}
-
-//function handleUserUnpublishedLoopback(user, mediaType) {
-//  if (mediaType === 'audio') {
-//    if (options.uid = user.uid) {
-//      delete remoteUsersLoopback[user.uid];
-//    }    
-//  }
-//}
 
 
 
@@ -1029,18 +884,18 @@ function handleExpand() {
   const id = $(".uid-input").val();
   if (bigRemote == id) {
     shrinkRemote(id);
-    setTimeout(handleMin, 1000, id);
     bigRemote = 0;
     console.log("shrinking");
+    setTimeout(handleMin, 500, id);
   } else if (bigRemote == 0) {
     expandRemote(id);
-    setTimeout(handleMax, 3000, id);
     bigRemote = id;
     console.log("expanding");
+    setTimeout(handleMax, 500, id);
   } else {
     shrinkRemote(id);
     expandRemote(id);
-    setTimeout(handleMax, 1000, id);
+    setTimeout(handleMax, 500, id);
     bigRemote = id;
   }
 }
