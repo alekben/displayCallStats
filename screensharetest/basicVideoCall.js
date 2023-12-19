@@ -307,6 +307,8 @@ $("#setEnabled").click(function (e) {
     enableAudio();
   }
 });
+$("#resize").click(() => handleVideoContainerResize(uid))
+$("#resizelocal").click(() => handleVideoContainerResizeLocal())
 
 
 async function publishMic() {
@@ -456,19 +458,6 @@ async function switchCamScreen() {
   if (localTrackState.camPublished) {
     console.log("cam is currently published, switching to screenshare.");
 
-    if (/\bCrOS\b/.test(navigator.userAgent)) {
-      makePropertyWritable(window, "navigator", "userAgent");
-      window.navigator.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36";
-      console.log(window.navigator.userAgent);
-      //screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "enable");
-      //  if (screenTrack instanceof Array) {
-      //    localTracks.screenVideoTrack = screenTrack[0];
-      //    localTracks.screenAudioTrack = screenTrack[1];
-      //    client.publish(localTracks.screenAudioTrack);
-      //  } else {
-      //    localTracks.screenVideoTrack = screenTrack;
-      //  }
-      }
       screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "auto");
         if (screenTrack instanceof Array) {
           localTracks.screenVideoTrack = screenTrack[0];
@@ -579,10 +568,13 @@ async function subscribe(user, mediaType) {
   console.log("subscribe success");
   if (mediaType === "video") {
     const player = $(`
-      <div id="player-wrapper-${uid}">
-        <p class="player-name">remoteUser(${uid})</p>
-        <div id="player-${uid}" class="player"></div>
-      </div>
+    <div id="player-wrapper-${uid}">
+    <div class="container-controls">
+      <p class="player-name">remoteUser(${uid})</p>
+      <button id="resize" type="button" class="btn btn-primary btn-sm">Resize video container (div element)</button>
+    </div> 
+    <div id="player-${uid}" data-size-variant="sm" class="player"></div>
+  </div>
     `);
     $("#remote-playerlist").append(player);
     user.videoTrack.play(`player-${uid}`);
@@ -639,45 +631,40 @@ function removeItemOnce(arr, value) {
   return arr;
 }
 
-function makePropertyWritable(objBase, objScopeName, propName, initValue) {
-  var newProp,
-      initObj;
+function handleVideoContainerResize(uid) {
+  const videoContainer = $(`#player-${uid}`);
+  const sizeVariant = videoContainer.attr('data-size-variant');
 
-  if (objBase && objScopeName in objBase && propName in objBase[objScopeName]) {
-      if(typeof initValue === "undefined") {
-          initValue = objBase[objScopeName][propName];
-      }
+  if (sizeVariant === "sm") {
+      const sizes = videoContainerSizes["lg"];
 
-      newProp = createProperty(initValue);
+      videoContainer.css('width', sizes.width);
+      videoContainer.css('height', sizes.height);
+      videoContainer.attr('data-size-variant', 'lg');
+  } else {
+      const sizes = videoContainerSizes["sm"];
 
-      try {
-          Object.defineProperty(objBase[objScopeName], propName, newProp);
-      } catch (e) {
-          initObj = {};
-          initObj[propName] = newProp;
-          try {
-              objBase[objScopeName] = Object.create(objBase[objScopeName], initObj);
-          } catch(e) {
-              // Workaround, but necessary to overwrite native host objects
-          }
-      }
+      videoContainer.css('width', sizes.width);
+      videoContainer.css('height', sizes.height);
+      videoContainer.attr('data-size-variant', 'sm');
   }
-};
+}
 
-function createProperty(value) {
-  var _value = value;
+function handleVideoContainerResizeLocal() {
+  const videoContainer = $(`#local-player`);
+  const sizeVariant = videoContainer.attr('data-size-variant');
 
-  function _get() {
-      return _value;
+  if (sizeVariant === "sm") {
+      const sizes = videoContainerSizes["lg"];
+
+      videoContainer.css('width', sizes.width);
+      videoContainer.css('height', sizes.height);
+      videoContainer.attr('data-size-variant', 'lg');
+  } else {
+      const sizes = videoContainerSizes["sm"];
+
+      videoContainer.css('width', sizes.width);
+      videoContainer.css('height', sizes.height);
+      videoContainer.attr('data-size-variant', 'sm');
   }
-
-  function _set(v) {
-      _value = v;
-  }
-
-  return {
-      "get": _get,
-      "set": _set
-  };
-};
-
+}
