@@ -14,6 +14,17 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+var videoContainerSizes = {
+  "sm": {
+    height: 320,
+    width: 480
+  },
+  "lg": {
+    height: 480,
+    width: 720
+  }
+};
+
 /*
  * Clear the video and audio tracks used by `client` on initiation.
  */
@@ -91,6 +102,8 @@ $("#leave").click(function (e) {
   leave();
 });
 
+$("#resizelocal").click(() => handleVideoContainerResizeLocal())
+
 /*
  * Join a channel, then create local video and audio tracks and publish them to the channel.
  */
@@ -103,10 +116,11 @@ async function join() {
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
   // Create video track to custom canvas element.
-  const canvasVideoTrack = getCanvasCustomVideoTrack();
+  localTracks.videoTrack = await getCanvasCustomVideoTrack();
+  localTracks.videoTrack.play("local-player");
 
   // Publish the local video and audio tracks to the channel.
-  await client.publish(canvasVideoTrack);
+  await client.publish(localTracks.videoTrack);
   console.log("publish success");
 }
 
@@ -216,5 +230,24 @@ function handleUserUnpublished(user, mediaType) {
     const id = user.uid;
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
+  }
+}
+
+function handleVideoContainerResizeLocal() {
+  const videoContainer = $(`#local-player`);
+  const sizeVariant = videoContainer.attr('data-size-variant');
+
+  if (sizeVariant === "sm") {
+      const sizes = videoContainerSizes["lg"];
+
+      videoContainer.css('width', sizes.width);
+      videoContainer.css('height', sizes.height);
+      videoContainer.attr('data-size-variant', 'lg');
+  } else {
+      const sizes = videoContainerSizes["sm"];
+
+      videoContainer.css('width', sizes.width);
+      videoContainer.css('height', sizes.height);
+      videoContainer.attr('data-size-variant', 'sm');
   }
 }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Video Self-Capturing -- Agora</title>
-  <link rel="stylesheet" href="../assets/bootstrap.min.css">
+  <link rel="stylesheet" href="../bootstrap.min.css">
   <link rel="stylesheet" href="./index.css">
 </head>
 <body>
@@ -103,7 +103,7 @@
     </div>
   </form>
   <div class="canvas-area">
-    <canvas id="customCanvasElement" style="width: 1280px; height: 720px;" >Your Browser doesn't support this Feature</canvas>
+    <canvas id="customCanvasElement" style="width: 720px; height: 480px;" >Your Browser doesn't support this Feature</canvas>
   </div>
   <!--
     This local media splayer is enabled when the user has successfully joined a Video Call channel.
@@ -111,6 +111,7 @@
   <div class="row video-group">
     <div class="col">
       <p id="local-player-name" class="player-name"></p>
+      <button id="resizelocal" type="button" class="btn btn-primary btn-sm">Resize video container (div element)</button>
       <div id="local-player" class="player"></div>
     </div>
     <div class="w-100"></div>
@@ -125,8 +126,8 @@
 -->
 
 
-<script src="./jquery-3.4.1.min.js"></script>
-<script src="./bootstrap.bundle.min.js"></script>
+<script src="../jquery-3.4.1.min.js"></script>
+<script src="../bootstrap.bundle.min.js"></script>
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <script src="./index.js"></script>
 
