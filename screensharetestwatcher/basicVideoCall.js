@@ -14,6 +14,17 @@
 var client;
 AgoraRTC.enableLogUpload();
 
+var videoContainerSizes = {
+  "sm": {
+    height: 320,
+    width: 480
+  },
+  "lg": {
+    height: 480,
+    width: 720
+  }
+};
+
 /*
  * Clear the video and audio tracks used by `client` on initiation.
  */
