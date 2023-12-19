@@ -243,7 +243,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    client.setClientRole("host");  
+    client.setClientRole("audience");  
     await join();
     localTrackState.audioTrackMuted = false;
     localTrackState.audioTrackEnabled = true;
@@ -424,25 +424,7 @@ async function join() {
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: "music_standard"
-    });
-  }
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: curVideoProfile.value
-    });
-  }
   
-  // publish local tracks to channel
-  await client.publish(localTracks.videoTrack);
-  console.log("publish success");
-
-  // Play the local video track to the local browser and update the UI with the user ID.
-  localTracks.videoTrack.play("local-player");
-  $("#local-player-name").text(`localVideo(${options.uid})`);
-  $("#joined-setup").css("display", "flex");
 
   localTrackState.audioTrackMuted = false;
   localTrackState.audioTrackEnabled = true;
