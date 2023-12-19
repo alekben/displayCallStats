@@ -318,7 +318,6 @@ $("#setEnabled").click(function (e) {
     enableAudio();
   }
 });
-$("#resize").click(() => handleVideoContainerResize(uid))
 $("#resizelocal").click(() => handleVideoContainerResizeLocal())
 
 
@@ -571,6 +570,8 @@ async function subscribe(user, mediaType) {
     `);
     $("#remote-playerlist").append(player);
     user.videoTrack.play(`player-${uid}`);
+
+    $("#resize").click(() => handleVideoContainerResize(uid))
   }
   if (mediaType === "audio") {
     user.audioTrack.play();
