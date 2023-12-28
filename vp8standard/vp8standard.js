@@ -630,6 +630,7 @@ function destructStats() {
 // flush stats views
 function flushStats() {
   // get the client stats message
+  const status = navigator.onLine;
   const clientStats = client.getRTCStats();
   const clientStatsList = [
     {
@@ -668,6 +669,10 @@ function flushStats() {
   }, {
     description: "Downlink Stat",
     value: localNetQuality.downlink,
+    unit: ""
+  }, {
+    description: "Link Status",
+    value: status,
     unit: ""
   }];
   $("#client-stats").html(`
