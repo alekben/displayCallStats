@@ -719,6 +719,7 @@ Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {
     video: client.getRemoteVideoStats()[uid],
+    net: client.getRemoteNetworkQuality()[uid]
     //audio: client.getRemoteAudioStats()[uid]
   };
   const remoteTracksStatsList = [
@@ -752,17 +753,17 @@ Object.keys(remoteUsers).forEach(uid => {
     value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
     unit: "Mbps"
   }, {
-    description: "Video receive delay",
-    value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
-    unit: "ms"
-  }, {
-    description: "Video packet lossrate",
-    value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
-    unit: "%"
-  }, {
     description: "Total video freeze time",
     value: remoteTracksStats.video.totalFreezeTime,
     unit: "s"
+  }, {
+    description: "Remote Uplink",
+    value: remoteTracksStats.net.uplinkNetworkQuality,
+    unit: ""
+  }, {
+    description: "Remote Downlink",
+    value: remoteTracksStats.net.downlinkNetworkQuality,
+    unit: ""
   }];
   $(`#player-wrapper-${uid} .track-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
