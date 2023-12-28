@@ -667,7 +667,7 @@ function flushStats() {
     unit: ""
   }, {
     description: "Downlink Stat",
-    value: localNetworkQuality.downlink,
+    value: localNetQuality.downlink,
     unit: ""
   }];
   $("#client-stats").html(`
