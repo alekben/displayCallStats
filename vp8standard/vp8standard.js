@@ -1,5 +1,5 @@
 
-
+var host = true;
 //popup stuff
 var popups = 0;
 
@@ -232,7 +232,11 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    AgoraRTC.setClientRole("host");
+    if (host) {
+      client.setClientRole("host");
+    } else {
+      client.setClientRole("audience");
+    }
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -311,6 +315,16 @@ $("#biggerView").click(function (e) {
   handleExpand();
 });
 
+$("#role").click(function (e) {
+  if (host) {
+    host = false;
+    $("#role").text("Role: Audience");
+  } else {
+    host = true;
+    $("#role").text("Role: Host");
+  }
+});
+
 
 async function publishMic() {
   if (!localTracks.audioTrack) {
@@ -377,17 +391,21 @@ async function join() {
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3"});
-  }
-  // play local video track
-  localTracks.videoTrack.play("local-player");
-  $("#joined-setup").css("display", "flex");
+  if (host) {
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3"});
+    }
+    // play local video track
+    localTracks.videoTrack.play("local-player");
+    $("#joined-setup").css("display", "flex");
 
-  // publish local tracks to channel
-  await client.publish(localTracks.videoTrack);
-  console.log("publish cam success");
-  showPopup("Cam Track Published");
+    // publish local tracks to channel
+    await client.publish(localTracks.videoTrack);
+    console.log("publish cam success");
+    showPopup("Cam Track Published");
+  } else {
+    $("#joined-setup").css("display", "flex");
+  }
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
 }
