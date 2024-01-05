@@ -735,7 +735,7 @@ const localStatsList = [{
   unit: ""
   }, {
     description: "Aspect Ratio",
-    value: Number(localStats.video.width / localStats.video.height).toFixed(4),
+    value: Number(localStats.video.sendResolutionWidth / localStats.video.sendResolutionHeight).toFixed(4),
     unit: ""
   },  {
   description: "Send video bit rate",
@@ -781,6 +781,10 @@ Object.keys(remoteUsers).forEach(uid => {
   }, {
     description: "Video received width",
     value: remoteTracksStats.video.receiveResolutionWidth,
+    unit: ""
+  }, {
+    description: "Aspect Ratio",
+    value: Number(remoteTracksStats.video.receiveResolutionWidth / remoteTracksStats.video.receiveResolutionHeight).toFixed(4),
     unit: ""
   }, {
     description: "Recv video bitrate",
