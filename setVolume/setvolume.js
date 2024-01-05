@@ -176,7 +176,7 @@ async function changeTargetUID(label) {
 
 async function setVolume(label) {
   if (joined) {
-  $(".scale-volume").val(`${label}`);
+  $(".scale-input").val(`${label}`);
   if (remotesArray.length == 0) {
     console.log("No remotes");
   } else {
