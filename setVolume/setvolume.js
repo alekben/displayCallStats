@@ -1,5 +1,7 @@
 
 var host = true;
+
+var report = 0;
 //popup stuff
 var popups = 0;
 
@@ -182,7 +184,10 @@ async function setVolume(label) {
   } else {
     remotesArray.forEach(k => {
       remoteUsers[k].audioTrack.setVolume(label);
-    });
+      client.sendCustomReportMessage({
+        reportId: report, category: "volume", event: "volumechange", label: k, value: label});
+        report++;
+          });
   }
   } else {
     showPopup("Join first");
