@@ -183,9 +183,9 @@ async function setVolume(label) {
     console.log("No remotes");
   } else {
     remotesArray.forEach(k => {
-      remoteUsers[k].audioTrack.setVolume(label);
+      remoteUsers[k].audioTrack?.setVolume(label);
       client.sendCustomReportMessage({
-        reportId: report, category: "volume", event: "volumechange", label: k, value: label});
+        reportId: "50", category: "volume", event: "volumechange", label: '${k}', value: '${label}'});
         report++;
           });
   }
