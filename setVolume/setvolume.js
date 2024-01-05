@@ -1,7 +1,6 @@
 
 var host = true;
 
-var report = 0;
 //popup stuff
 var popups = 0;
 
@@ -185,8 +184,7 @@ async function setVolume(label) {
     remotesArray.forEach(k => {
       remoteUsers[k].audioTrack?.setVolume(label);
       client.sendCustomReportMessage({
-        reportId: "50", category: "volume", event: "volumechange", label: '${k}', value: '${label}'});
-        report++;
+        reportId: "50", category: "volume", event: "volumechange", label: String(k), value: String(label)});
           });
   }
   } else {
