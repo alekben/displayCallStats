@@ -733,6 +733,10 @@ const localStatsList = [{
   description: "Video send resolution width",
   value: localStats.video.sendResolutionWidth,
   unit: ""
+  }, {
+    description: "Aspect Ratio",
+    value: Number(localStats.video.width / localStats.video.height).toFixed(4),
+    unit: ""
   },  {
   description: "Send video bit rate",
   value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
