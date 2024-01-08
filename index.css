@@ -148,3 +148,22 @@ input {
     padding-right: 4.5rem
   }
 }
+
+
+/* styles webdemo */
+
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+user agent stylesheet
+div {
+  display: block;
+}
