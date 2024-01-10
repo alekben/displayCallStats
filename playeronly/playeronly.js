@@ -68,7 +68,7 @@ async function subscribe(user, mediaType) {
     const player = $(`
       <div id="player-wrapper-${uid}">
         <div class="player-with-stats">
-          <div id="player-${uid}" class="remotePlayer${dumbTempFix}"></div>
+          <div id="player-${uid}" class="remotePlayerLarge"></div>
           <div class="track-stats remoteStats"></div>
         </div>
       </div>
