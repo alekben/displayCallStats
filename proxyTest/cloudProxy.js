@@ -220,7 +220,7 @@ async function subscribe(user, mediaType) {
   }
 }
 
-async function subscribe(user, mediaType) {
+async function subscribe2(user, mediaType) {
   const uid = user.uid;
   // subscribe to a remote user
   await client2.subscribe(user, mediaType);
