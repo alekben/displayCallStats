@@ -147,7 +147,7 @@ async function join() {
   }
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  options.uid2 = await client2.join(options.appid, options.channel, options.token || null, options.uid || null);
+  options.uid2 = await client2.join(options.appid, options.channel, options.token || null, null);
   // Create tracks to the local microphone and camera.
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
@@ -233,14 +233,14 @@ function handleUserPublished(user, mediaType) {
 }
 
 function handleUserPublished2(user, mediaType) {
-  if (loopback) {
-    console.log('Already looping back local')
-  } else {
+  if (user.uid = options.uid) {
     if (mediaType === 'video') {
       const id = user.uid;
       remoteUsers[id] = user;
       subscribe(user, mediaType);
       loopback = true;
+    } else {
+      console.log('some other user ignoring')
     }
   }
 }
