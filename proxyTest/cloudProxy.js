@@ -17,6 +17,11 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+var client2 = AgoraRTC.createClient({
+  mode: "rtc",
+  codec: "vp8"
+});
+
 /*
  * Clear the video and audio tracks used by `client` on initiation.
  */
@@ -30,7 +35,9 @@ var localTracks = {
  */
 var remoteUsers = {};
 
-AgoraRTC.setArea("EUROPE");
+let loopback = false;
+
+//AgoraRTC.setArea("EUROPE");
 
 /*
  * On initiation. `client` is not attached to any project or channel for any specific user.
@@ -39,6 +46,7 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
+  uid2: null,
   token: null
 };
 var modes = [{
@@ -124,17 +132,22 @@ async function join() {
   client.on("is-using-cloud-proxy", reportProxyUsed);
   client.on("join-fallback-to-proxy", reportAutoFallback);
   client.on("stream-type-changed", reportStreamTypeChanged)
+  client2.on("user-published", handleUserPublished2);
+  client2.on("user-unpublished", handleUserUnpublished2);
 
   // Enable Cloud Proxy according to setting
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
-    client.startProxyServer(value);
+    client.startProxyServer(3);
+    client2.startProxyServer(3);
   }
   if (value === 0) {
     client.stopProxyServer();
+    client2.stopProxyServer();
   }
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+  options.uid2 = await client2.join(options.appid, options.channel, options.token || null, options.uid || null);
   // Create tracks to the local microphone and camera.
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
@@ -172,6 +185,8 @@ async function leave() {
 
   // leave the channel
   await client.leave();
+  await client2.leave();
+  loopback = false;
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
@@ -217,6 +232,19 @@ function handleUserPublished(user, mediaType) {
   subscribe(user, mediaType);
 }
 
+function handleUserPublished2(user, mediaType) {
+  if (loopback) {
+    console.log('Already looping back local')
+  } else {
+    if (mediaType === 'video') {
+      const id = user.uid;
+      remoteUsers[id] = user;
+      subscribe(user, mediaType);
+      loopback = true;
+    }
+  }
+}
+
 function reportStreamTypeChanged(uid, streamType) {
     console.log(`Receive Stream for remote UID ${uid} changed to ${streamType}`);
 }
@@ -240,6 +268,15 @@ function handleUserUnpublished(user, mediaType) {
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
+}
+
+function handleUserUnpublished2(user, mediaType) {
+  if (mediaType === 'video') {
+    const id = user.uid;
+    delete remoteUsers[id];
+    $(`#player-wrapper-${id}`).remove();
+  }
+  loopback = false;
 }
 async function changeModes(label) {
   mode = modes.find(profile => profile.label === label);
