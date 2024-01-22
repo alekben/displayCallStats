@@ -142,8 +142,8 @@ async function join() {
     client2.startProxyServer(3);
   }
   if (value === 0) {
-    client.stopProxyServer();
-    client2.stopProxyServer();
+    client.startProxyServer(3);
+    client2.startProxyServer(3);
   }
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
