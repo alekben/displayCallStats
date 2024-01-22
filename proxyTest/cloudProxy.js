@@ -152,9 +152,9 @@ async function join() {
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
   }
-  if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  }
+  //if (!localTracks.audioTrack) {
+  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+  //}
 
   // Play the local video track to the local browser and update the UI with the user ID.
   localTracks.videoTrack.play("local-player");
@@ -162,7 +162,7 @@ async function join() {
   $("#joined-setup").css("display", "flex");
 
   // Publish the local video and audio tracks to the channel.
-  await client.publish(Object.values(localTracks));
+  await client.publish(localTracks.videoTrack);
   console.log("publish success");
 }
 
