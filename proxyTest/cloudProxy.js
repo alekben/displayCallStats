@@ -220,6 +220,26 @@ async function subscribe(user, mediaType) {
   }
 }
 
+async function subscribe(user, mediaType) {
+  const uid = user.uid;
+  // subscribe to a remote user
+  await client2.subscribe(user, mediaType);
+  console.log("subscribe success");
+  if (mediaType === 'video') {
+    const player = $(`
+      <div id="player-wrapper-${uid}">
+        <p class="player-name">remoteUser(${uid})</p>
+        <div id="player-${uid}" class="player"></div>
+      </div>
+    `);
+    $("#remote-playerlist").append(player);
+    user.videoTrack.play(`player-${uid}`);
+  }
+  if (mediaType === 'audio') {
+    user.audioTrack.play();
+  }
+}
+
 /*
  * Add a user who has subscribed to the live channel to the local interface.
  *
@@ -237,7 +257,7 @@ function handleUserPublished2(user, mediaType) {
     if (mediaType === 'video') {
       const id = user.uid;
       remoteUsers[id] = user;
-      subscribe(user, mediaType);
+      subscribe2(user, mediaType);
       loopback = true;
     } else {
       console.log('some other user ignoring')
