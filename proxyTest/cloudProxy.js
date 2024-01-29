@@ -138,12 +138,12 @@ async function join() {
   // Enable Cloud Proxy according to setting
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
-    client.startProxyServer(3);
-    client2.startProxyServer(3);
+    client.startProxyServer(value);
+    client2.startProxyServer(value);
   }
   if (value === 0) {
-    client.startProxyServer(3);
-    client2.startProxyServer(3);
+    client.stopProxyServer();
+    client2.stopProxyServer();
   }
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
