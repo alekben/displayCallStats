@@ -140,6 +140,20 @@ async function join() {
     }
     //specify mozCaptureStream for Firefox.
     videoStream = navigator.userAgent.indexOf("Firefox") > -1 ? videoFromDiv.mozCaptureStream() : videoFromDiv.captureStream();
+    
+    const tracks = videoStream.getVideoTracks();
+    tracks.forEach((track) => {
+      if ("contentHint" in track) {
+        track.contentHint = "ptz";
+        if (track.contentHint !== "ptz") {
+          console.error(`Invalid video track contentHint: "ptz"`);
+        }
+      } else {
+        console.error("MediaStreamTrack contentHint attribute not supported");
+      }
+    });
+
+
     [options.uid, localTracks.videoTrack] = await Promise.all([
     // Join the channel.
     client.join(options.appid, options.channel, options.token || null, options.uid || null),
