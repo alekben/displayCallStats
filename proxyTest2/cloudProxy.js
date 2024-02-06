@@ -154,7 +154,6 @@ async function join() {
   }
 
   await localTracks.videoTrack.setEncoderConfiguration("720p_2");
-  
   //if (!localTracks.audioTrack) {
   //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
   //}

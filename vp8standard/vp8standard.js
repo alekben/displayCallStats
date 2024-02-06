@@ -395,6 +395,8 @@ async function join() {
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3"});
     }
+
+    localTracks.videoTrack.contentHint = "ptz";
     // play local video track
     localTracks.videoTrack.play("local-player");
     $("#joined-setup").css("display", "flex");

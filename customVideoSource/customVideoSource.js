@@ -6,24 +6,20 @@
 /*
  *  Create an {@link https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html|AgoraRTCClient} instance.
  *
- * @param {string} mode - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#mode| streaming algorithm} used by Agora SDK.
- * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
+ *  @param {string} mode - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#mode| streaming algorithm} used by Agora SDK.
+ *  @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
 
-AgoraRTC.enableLogUpload();
+var videoStream;
 
 var client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp8"
 });
-
-var client2 = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp8"
-});
+AgoraRTC.enableLogUpload();
 
 /*
- * Clear the video and audio tracks used by `client` on initiation.
+ *  Clear the video and audio tracks used by `client` on initiation.
  */
 var localTracks = {
   videoTrack: null,
@@ -31,53 +27,32 @@ var localTracks = {
 };
 
 /*
- * On initiation no users are connected.
+ *  On initiation no users are connected.
  */
 var remoteUsers = {};
 
-let loopback = false;
-
-//AgoraRTC.setArea("EUROPE");
-
 /*
- * On initiation. `client` is not attached to any project or channel for any specific user.
+ *  On initiation. `client` is not attached to any project or channel for any specific user.
  */
 var options = {
   appid: null,
   channel: null,
   uid: null,
-  uid2: null,
   token: null
 };
-var modes = [{
-  label: "Close",
-  detail: "Disable Cloud Proxy",
-  value: "0"
-}, {
-  label: "UDP Mode",
-  detail: "Enable Cloud Proxy via UDP protocol",
-  value: "3"
-}, {
-  label: "TCP Mode",
-  detail: "Enable Cloud Proxy via TCP/TLS port 443",
-  value: "5"
-}];
-var mode;
+var currentStream = null;
 
 /*
  * When this page is called with parameters in the URL, this procedure
  * attempts to join a Video Call channel using those parameters.
  */
 $(() => {
-  initModes();
-  $(".proxy-list").delegate("a", "click", function (e) {
-    changeModes(this.getAttribute("label"));
-  });
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
+  currentStream = urlParams.get("stream-source");
   if (options.appid && options.channel) {
     $("#uid").val(options.uid);
     $("#appid").val(options.appid);
@@ -96,6 +71,8 @@ $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
   try {
+    currentStream = $("#stream-source").val();
+    console.log(currentStream);
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
@@ -111,6 +88,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
+    $("#switch-channel").attr("disabled", false);
   }
 });
 
@@ -122,57 +100,80 @@ $("#leave").click(function (e) {
 });
 
 /*
+ * Called when a user clicks Switch button to switch input stream.
+ */
+$("#switch-channel").click(function (e) {
+  switchChannel();
+});
+
+/*
  * Join a channel, then create local video and audio tracks and publish them to the channel.
  */
 async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
-  //client.enableLogUpload();
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.on("is-using-cloud-proxy", reportProxyUsed);
-  client.on("join-fallback-to-proxy", reportAutoFallback);
-  client.on("stream-type-changed", reportStreamTypeChanged)
-  client2.on("user-published", handleUserPublished2);
-  client2.on("user-unpublished", handleUserUnpublished2);
 
-  // Enable Cloud Proxy according to setting
-  const value = Number(mode.value);
-  if ([3, 5].includes(value)) {
-    client.startProxyServer(value);
-    client2.startProxyServer(value);
-  }
-  if (value === 0) {
-    client.stopProxyServer();
-    client2.stopProxyServer();
-  }
-  // Join the channel.
-  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  options.uid2 = await client2.join(options.appid, options.channel, options.token || null, null);
-  // Create tracks to the local microphone and camera.
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-  }
+  // Default publish local microphone audio track to both options.
+  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+    encoderConfig: "music_standard"
+  });
+  if (currentStream == "camera") {
+    // Join a channel and create local tracks. Best practice is to use Promise.all and run them concurrently.
+    [options.uid, localTracks.videoTrack] = await Promise.all([
+    // Join the channel.
+    client.join(options.appid, options.channel, options.token || null, options.uid || null),
+    // Create tracks to the localcamera.
+    AgoraRTC.createCameraVideoTrack()]);
 
-  await localTracks.videoTrack.setEncoderConfiguration("720p_2");
-  
-  //if (!localTracks.audioTrack) {
-  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  //}
+    // Publish the local video and audio tracks to the channel.
 
+    $("#joined-setup").css("display", "flex");
+  } else {
+    var videoFromDiv = document.getElementById("sample-video");
+    // https://developers.google.com/web/updates/2016/10/capture-stream - captureStream() 
+    // can only be called after the video element is able to play video;
+    try {
+      videoFromDiv.play();
+    } catch (e) {
+      console.log(error);
+    }
+    //specify mozCaptureStream for Firefox.
+    videoStream = navigator.userAgent.indexOf("Firefox") > -1 ? videoFromDiv.mozCaptureStream() : videoFromDiv.captureStream();
+    
+    const tracks = videoStream.getVideoTracks();
+    tracks.forEach((track) => {
+      if ("contentHint" in track) {
+        track.contentHint = "ptz";
+        if (track.contentHint !== "ptz") {
+          console.error(`Invalid video track contentHint: "ptz"`);
+        }
+      } else {
+        console.error("MediaStreamTrack contentHint attribute not supported");
+      }
+    });
+
+
+    [options.uid, localTracks.videoTrack] = await Promise.all([
+    // Join the channel.
+    client.join(options.appid, options.channel, options.token || null, options.uid || null),
+    // Create tracks to the customized video source.
+    AgoraRTC.createCustomVideoTrack({
+      mediaStreamTrack: videoStream.getVideoTracks()[0]
+    })]);
+  }
+  await client.publish(Object.values(localTracks));
   // Play the local video track to the local browser and update the UI with the user ID.
   localTracks.videoTrack.play("local-player");
   $("#local-player-name").text(`localVideo(${options.uid})`);
-  $("#joined-setup").css("display", "flex");
-
-  // Publish the local video and audio tracks to the channel.
-  await client.publish(localTracks.videoTrack);
   console.log("publish success");
 }
 
 /*
  * Stop all local and remote tracks then leave the channel.
  */
-async function leave() {
+
+async function stopCurrentChannel() {
   for (trackName in localTracks) {
     var track = localTracks[trackName];
     if (track) {
@@ -185,16 +186,35 @@ async function leave() {
   // Remove remote users and player views.
   remoteUsers = {};
   $("#remote-playerlist").html("");
+  $("#local-player-name").text("");
 
   // leave the channel
   await client.leave();
-  await client2.leave();
-  loopback = false;
-  $("#local-player-name").text("");
+  console.log("client leaves channel success");
+}
+async function leave() {
+  await stopCurrentChannel();
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
+  $("#switch-channel").attr("disabled", true);
   $("#joined-setup").css("display", "none");
-  console.log("client leaves channel success");
+}
+
+/*
+ *
+ */
+async function switchChannel() {
+  console.log("switchChannel entered");
+  let prev = currentStream;
+  currentStream = $("#stream-source").val();
+  if (currentStream == prev) {
+    console.log("no change from " + prev + " to" + currentStream);
+  } else if (currentStream != prev) {
+    console.log("channel is switched from " + prev + " to" + currentStream);
+    await stopCurrentChannel().then(join());
+    //await join();
+    //TO-DO
+  }
 }
 
 /*
@@ -223,26 +243,6 @@ async function subscribe(user, mediaType) {
   }
 }
 
-async function subscribe2(user, mediaType) {
-  const uid = user.uid;
-  // subscribe to a remote user
-  await client2.subscribe(user, mediaType);
-  console.log("subscribe success");
-  if (mediaType === 'video') {
-    const player = $(`
-      <div id="player-wrapper-${uid}">
-        <p class="player-name">remoteUser(${uid})</p>
-        <div id="player-${uid}" class="player"></div>
-      </div>
-    `);
-    $("#remote-playerlist").append(player);
-    user.videoTrack.play(`player-${uid}`);
-  }
-  if (mediaType === 'audio') {
-    user.audioTrack.play();
-  }
-}
-
 /*
  * Add a user who has subscribed to the live channel to the local interface.
  *
@@ -253,31 +253,6 @@ function handleUserPublished(user, mediaType) {
   const id = user.uid;
   remoteUsers[id] = user;
   subscribe(user, mediaType);
-}
-
-function handleUserPublished2(user, mediaType) {
-  if (user.uid = options.uid) {
-    if (mediaType === 'video') {
-      const id = user.uid;
-      remoteUsers[id] = user;
-      subscribe2(user, mediaType);
-      loopback = true;
-    } else {
-      console.log('some other user ignoring')
-    }
-  }
-}
-
-function reportStreamTypeChanged(uid, streamType) {
-    console.log(`Receive Stream for remote UID ${uid} changed to ${streamType}`);
-}
-
-function reportAutoFallback(proxyServer) {
-  console.log(`AutoFallback proxy being used detected, server is: ${proxyServer}`);
-}
-
-function reportProxyUsed(isProxyUsed) {
-  console.log(`is-cloud-proxy-used reports: ${isProxyUsed}`);
 }
 
 /*
@@ -291,24 +266,4 @@ function handleUserUnpublished(user, mediaType) {
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
-}
-
-function handleUserUnpublished2(user, mediaType) {
-  if (mediaType === 'video') {
-    const id = user.uid;
-    delete remoteUsers[id];
-    $(`#player-wrapper-${id}`).remove();
-  }
-  loopback = false;
-}
-async function changeModes(label) {
-  mode = modes.find(profile => profile.label === label);
-  $(".proxy-input").val(`${mode.detail}`);
-}
-function initModes() {
-  modes.forEach(profile => {
-    $(".proxy-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
-  });
-  mode = modes[0];
-  $(".proxy-input").val(`${mode.detail}`);
 }
