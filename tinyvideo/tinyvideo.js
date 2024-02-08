@@ -14,6 +14,7 @@ var options = {
 };
 
 var videoTrack;
+var muted = false;
 
 
 $(() => {
@@ -23,13 +24,24 @@ $(() => {
   joinChannel();
 });
 
+$("#local").click(function (e) {
+  if (muted) {
+    videoTrack.setEnabled(true); 
+    $("#local_video").css("display", "block"); 
+    muted = false} 
+    else 
+    {videoTrack.setEnabled(false); 
+    muted = true;
+    $("#local_video").css("display", "none");}
+});
+
 async function joinChannel() {
     client.on("user-published", handleUserPublished);
     client.on("user-unpublished", handleUserUnpublished);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await client.join(options.appid, options.channel, null, null);
     $("#local").css("display", "block");
-    videoTrack.play("local");
+    videoTrack.play("local_video");
     $("#local_id").text(`Local ID: ${options.uid}`);
     $("#local_id").css("display", "block");
     await client.publish(videoTrack);
