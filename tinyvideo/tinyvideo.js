@@ -28,8 +28,10 @@ async function joinChannel() {
     client.on("user-unpublished", handleUserUnpublished);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await client.join(options.appid, options.channel, null, null);
+    $("#local").css("display", "block");
     videoTrack.play("local");
     $("#local_id").text(`Local ID: ${options.uid}`);
+    $("#local_id").css("display", "block");
     await client.publish(videoTrack);
 
 };
