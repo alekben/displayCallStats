@@ -38,7 +38,7 @@ async function handleUserPublished(user, mediaType) {
   if (mediaType === 'video') {
       await client.subscribe(user, mediaType);
       user.videoTrack.play(`remote`);
-      $("#remote_id").text(`Local ID: ${user.uid}`);
+      $("#remote_id").text(`Remote ID: ${user.uid}`);
       //$("#remote_id").text($("#remote_id").text().replace(`Remote ID: ${user.uid}`));
       subscribe(user, mediaType);
   }
