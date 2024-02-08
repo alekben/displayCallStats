@@ -29,7 +29,6 @@ async function joinChannel() {
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await client.join(options.appid, options.channel, null, null);
     videoTrack.play("local");
-    //$("#local_id").text($("#local_id").text().replace(`Local ID: ${options.uid}`));
     $("#local_id").text(`Local ID: ${options.uid}`);
     await client.publish(videoTrack);
 
@@ -40,8 +39,7 @@ async function handleUserPublished(user, mediaType) {
       await client.subscribe(user, mediaType);
       user.videoTrack.play(`remote`);
       $("#remote_id").text(`Remote ID: ${user.uid}`);
-      //$("#remote_id").text($("#remote_id").text().replace(`Remote ID: ${user.uid}`));
-      subscribe(user, mediaType);
+      $("#remote_id").css("display", "block");
   }
 }
 
@@ -51,5 +49,6 @@ async function handleUserUnpublished(user, mediaType) {
     videoTrack.close();
     await client.leave();
     $(`#remote`).remove();
+    $("#ended").css("display", "block");
   }
 }
