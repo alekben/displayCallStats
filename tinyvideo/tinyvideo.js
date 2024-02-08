@@ -15,6 +15,7 @@ var options = {
 
 var videoTrack;
 var muted = false;
+var remote_joined = false;
 
 
 $(() => {
@@ -38,6 +39,7 @@ $("#local").click(function (e) {
 async function joinChannel() {
     client.on("user-published", handleUserPublished);
     client.on("user-unpublished", handleUserUnpublished);
+    client.on("user-left", handleUserLeft);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await client.join(options.appid, options.channel, null, null);
     $("#local").css("display", "block");
@@ -49,20 +51,21 @@ async function joinChannel() {
 };
 
 async function handleUserPublished(user, mediaType) {
-  if (mediaType === 'video') {
       await client.subscribe(user, mediaType);
       user.videoTrack.play(`remote`);
       $("#remote_id").text(`Remote ID: ${user.uid}`);
       $("#remote_id").css("display", "block");
-  }
+      remote_joined = true;
 }
 
 async function handleUserUnpublished(user, mediaType) {
-  if (mediaType === 'video') {
-    videoTrack.stop();
-    videoTrack.close();
-    await client.leave();
-    $(`#remote`).remove();
-    $("#ended").css("display", "block");
-  }
+  $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
+}
+
+async function handleUserLeft(user) {
+  videoTrack.stop();
+  videoTrack.close();
+  await client.leave();
+  $(`#remote`).remove();
+  $("#ended").css("display", "block");
 }
