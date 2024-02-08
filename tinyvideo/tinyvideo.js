@@ -31,6 +31,7 @@ async function joinChannel() {
     videoTrack.play("local");
     //$("#local_id").text($("#local_id").text().replace(`Local ID: ${options.uid}`));
     $("#local_id").text(`Local ID: ${options.uid}`);
+    await client.publish(videoTrack);
 
 };
 
