@@ -1,3 +1,4 @@
+AgoraRTC.setLogLevel(4);
 var client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp9"
