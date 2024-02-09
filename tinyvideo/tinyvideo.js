@@ -10,7 +10,7 @@ AgoraRTC.onAutoplayFailed = () => {
 var options = {
   appid: null,
   channel: null,
-  uid: null
+  uid: 0
 };
 
 var videoTrack;
@@ -22,6 +22,7 @@ $(() => {
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
+  options.uid = urlParams.get("uid");
   joinChannel();
 });
 
@@ -41,7 +42,7 @@ async function joinChannel() {
     client.on("user-unpublished", handleUserUnpublished);
     client.on("user-left", handleUserLeft);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
-    options.uid = await client.join(options.appid, options.channel, null, null);
+    options.uid = await client.join(options.appid, options.channel, null, options.uid);
     $("#local").css("display", "block");
     videoTrack.play("local_video");
     $("#local_id").text(`Local ID: ${options.uid}`);
