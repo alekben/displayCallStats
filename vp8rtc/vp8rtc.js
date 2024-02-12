@@ -779,7 +779,6 @@ function handleExpand() {
   } else {
     shrinkRemote(id);
     expandRemote(id);
-    setTimeout(handleMax, 500, id);
     bigRemote = id;
   }
 }
