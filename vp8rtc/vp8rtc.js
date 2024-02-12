@@ -584,6 +584,9 @@ function handleUserInfoUpdated(uid, message) {
 function handleNetworkQuality(stats) {
   localNetQuality.uplink = stats.uplinkNetworkQuality;
   localNetQuality.downlink = stats.downlinkNetworkQuality;
+  const d = new Date();
+  let time = d.getTime();
+  console.log(`${time} - ${localNetQuality.uplink} - ${localNetQuality.downlink}`);
 }
 
 
