@@ -586,7 +586,7 @@ function handleNetworkQuality(stats) {
   localNetQuality.downlink = stats.downlinkNetworkQuality;
   const d = new Date();
   let time = d.getTime();
-  console.log(`${time} - ${localNetQuality.uplink} - ${localNetQuality.downlink}`);
+  console.log(`${time} - ${localNetQuality.uplink}u - ${localNetQuality.downlink}d`);
 }
 
 
