@@ -770,12 +770,11 @@ function handleExpand() {
     shrinkRemote(id);
     bigRemote = 0;
     console.log("shrinking");
-    setTimeout(handleMin, 500, id);
+
   } else if (bigRemote == 0) {
     expandRemote(id);
     bigRemote = id;
     console.log("expanding");
-    setTimeout(handleMax, 500, id);
   } else {
     shrinkRemote(id);
     expandRemote(id);
