@@ -301,6 +301,7 @@ function handleUserUnpublished2(user, mediaType) {
   }
   loopback = false;
 }
+
 async function changeModes(label) {
   mode = modes.find(profile => profile.label === label);
   $(".proxy-input").val(`${mode.detail}`);

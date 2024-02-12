@@ -30,10 +30,12 @@ class Queue {
     this.full = false
   }
   average() {
-
   }
 }
 
+
+
+let loopback = false;
 //popup stuff
 var popups = 0;
 
@@ -51,6 +53,10 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+var client2 = AgoraRTC.createClient({
+  mode: "rtc",
+  codec: "vp8"
+});
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -76,6 +82,7 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
+  uid2: null,
   token: null,
 
 };
@@ -408,9 +415,12 @@ async function join() {
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
   client.on("network-quality", handleNetworkQuality);
+  client2.on("user-published", handleUserPublished2);
+  client2.on("user-unpublished", handleUserUnpublished2);
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+  options.uid2 = await client2.join(options.appid, options.channel, options.token || null, null);
 
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "480p_1"});
@@ -439,6 +449,7 @@ async function leave() {
   }
   destructStats();
   joined = false;
+  loopbback = false;
 
   // remove remote users and player views
   $("#remote-playerlist-row1").html("");
@@ -456,6 +467,7 @@ async function leave() {
 
   // leave the channel
   await client.leave();
+  await client2.leave();
   showPopup(`Left channel ${options.channel}`);
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
@@ -562,6 +574,75 @@ async function subscribe(user, mediaType) {
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
 }
 
+async function subscribe2(user, mediaType) {
+  const uid = user.uid;
+  // subscribe to a remote user
+  await client2.subscribe(user, mediaType);
+  if (mediaType == "video") {
+    user.videoTrack.on("first-frame-decoded", (track) => {
+      console.log(`remote track for ${uid} has decoded`);
+    });
+  }
+  console.log("subscribe success");
+  if (mediaType === 'video') {
+    if (remoteFocus != 0) {
+      dumbTempFix = "";
+    } else {
+      dumbTempFix = "Selected";
+      remoteFocus = uid;
+    }
+    const player = $(`
+      <div id="player-wrapper-${uid}">
+        <div class="player-with-stats">
+          <div id="player-${uid}" class="remotePlayer${dumbTempFix}"></div>
+          <div class="track-stats remoteStats"></div>
+        </div>
+      </div>
+  `);
+    switch (userCount) {
+      case 1:
+        $("#remote-playerlist-row1").append(player);
+        console.log(`Adding remote to row 1 - User Count: ${userCount}`);
+        break;
+      case 2:
+        $("#remote-playerlist-row1").append(player);
+        console.log(`Adding remote to row 1 - User Count: ${userCount}`);
+        break;
+      case 3:
+        $("#remote-playerlist-row2").append(player);
+        console.log(`Adding remote to row 2 - User Count: ${userCount}`);
+        break;
+      case 4:
+        $("#remote-playerlist-row2").append(player);
+        console.log(`Adding remote to row 2 - User Count: ${userCount}`);
+        break;
+      case 5:
+        $("#remote-playerlist-row3").append(player);
+        console.log(`Adding remote to row 3 - User Count: ${userCount}`);
+        break;
+      case 6:
+        $("#remote-playerlist-row3").append(player);
+        console.log(`Adding remote to row 3 - User Count: ${userCount}`);
+        break;
+      case 7:
+        $("#remote-playerlist-row4").append(player);
+        console.log(`Adding remote to row 4 - User Count: ${userCount}`);
+        break;
+      case 8:
+        $("#remote-playerlist-row4").append(player);
+        console.log(`Adding remote to row 4 - User Count: ${userCount}`);
+        break;
+      default:
+        console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
+    }
+    user.videoTrack.play(`player-${uid}`);
+  }
+  if (mediaType === 'audio') {
+    user.audioTrack.play();
+  }
+  showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
+}
+
 
 function handleUserPublished(user, mediaType) {
   if (userCount >= 8 ) {
@@ -583,6 +664,31 @@ function handleUserPublished(user, mediaType) {
 
 
 
+function handleUserPublished2(user, mediaType) {
+  if (userCount >= 8 ) {
+    console.log("8 remotes already publishing, not supporting more right now.");
+    $("#room-full-alert").css("display", "block");
+  } else {
+    if (user.uid = options.uid) {
+      const id = user.uid;
+      remoteUsers[id] = user;
+      updateUIDs(id, "add");
+      if (mediaType === 'video') {
+        userCount = getRemoteCount(remoteUsers);
+        console.log(`Remote User Video Count now: ${userCount}`);
+      }
+      subscribe2(user, mediaType);
+      showPopup(`UID ${id} published ${mediaType}`);
+      showPopup(`Remote User Count now: ${userCount}`);
+      loopback = true;
+    } else {
+      console.log('some other user ignoring')
+    }
+  }
+}
+
+
+
 function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
   if (mediaType === 'video') {
@@ -595,6 +701,23 @@ function handleUserUnpublished(user, mediaType) {
   console.log(`Remote User Count now: ${userCount}`);
   showPopup(`UID ${id} unpublished ${mediaType}`);
   showPopup(`Remote User Count now: ${userCount}`);
+}
+
+function handleUserUnpublished2(user, mediaType) {
+  if (user.uid = options.uid) {
+    const id = user.uid;
+    if (mediaType === 'video') {
+      removeItemOnce(remotesArray, id);
+      updateUIDs(id, "remove");
+      delete remoteUsers[id];
+      $(`#player-wrapper-${id}`).remove();
+    }
+    userCount = getRemoteCount(remoteUsers);
+    console.log(`Remote User Count now: ${userCount}`);
+    showPopup(`UID ${id} unpublished ${mediaType}`);
+    showPopup(`Remote User Count now: ${userCount}`);
+    loopback = false;
+  }
 }
 
 function handleUserJoined(user) {
