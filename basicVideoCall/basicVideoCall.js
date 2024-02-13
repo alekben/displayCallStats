@@ -233,7 +233,7 @@ $("#join-form").submit(async function (e) {
     if (!client) {
       client = AgoraRTC.createClient({
         mode: "live",
-        codec: getCodec()
+        codec: "h264"
       });
     }
     options.channel = $("#channel").val();
