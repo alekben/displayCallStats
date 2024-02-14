@@ -14,7 +14,7 @@ var dumbTempFix = "Selected";
 // create Agora client
 var client = AgoraRTC.createClient({
   mode: "live",
-  codec: "h264"
+  codec: "vp8"
 });
 
 
