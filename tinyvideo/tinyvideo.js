@@ -56,7 +56,7 @@ async function joinChannel() {
     rtcClient.on("user-left", handleUserLeft);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await rtcClient.join(options.appid, options.channel, null, options.uid);
-    showPopup(`Joined to RTC Channel ${options.channel} as UID ${options.uid}`);
+    showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
     $("#local").css("display", "block");
     videoTrack.play("local_video");
     $("#local_id").text(`Local ID: ${options.uid}`);
