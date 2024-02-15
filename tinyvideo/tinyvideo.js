@@ -109,11 +109,11 @@ function showPopup(message) {
 //Agora RTM functions
 
 async function loginRtm() {
-  var rtmClient = await AgoraRTM.createInstance(options.appID);
+  var rtmClient = await AgoraRTM.createInstance(options.appid);
   await rtmClient.login(options.uid)
 }
 
-async function setupListners () {
+async function setupListnersAndChannel() {
   // Client Event listeners
   // Display connection state changes
   rtmClient.on('ConnectionStateChanged', function (state, reason) {
