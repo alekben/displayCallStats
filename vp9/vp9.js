@@ -411,7 +411,8 @@ async function join() {
   //  });
   //}
   if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack("1080p_2");
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+      encoderConfig: "1080p_2"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
