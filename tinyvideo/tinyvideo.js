@@ -1,23 +1,29 @@
-AgoraRTC.setLogLevel(4);
-var client = AgoraRTC.createClient({
+
+
+//create RTC and RTM clients on script load
+var rtcClient = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp9"
 });
 
-AgoraRTC.onAutoplayFailed = () => {
-  alert("click to start autoplay!");
-};
+var rtmClient = AgoraRTM.createInstance(options.appID);
 
+
+//Options shared by RTC and RTM TODO add Token Support
 var options = {
   appid: null,
   channel: null,
   uid: 0
 };
 
+//Agora WebSDK RTC functions
+AgoraRTC.setLogLevel(4);
+
 var videoTrack;
 var muted = false;
 var remote_joined = false;
 
+//Pull URL parameters to join
 
 $(() => {
   var urlParams = new URL(location.href).searchParams;
@@ -25,49 +31,129 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.uid = urlParams.get("uid");
   joinChannel();
+  loginRtm();
+  setupListnersAndChannel();
 });
 
 $("#local").click(function (e) {
   if (muted) {
     videoTrack.setEnabled(true); 
     $("#local_video").css("display", "block"); 
-    muted = false} 
+    muted = false;
+    showPopup(`Local Camera Unmuted`);
+    sendMessageOnMute();} 
     else 
     {videoTrack.setEnabled(false); 
     muted = true;
-    $("#local_video").css("display", "none");}
+    $("#local_video").css("display", "none");
+    showPopup(`Local Camera Muted`);
+    sendMessageOnMute();}
 });
 
 async function joinChannel() {
-    client.on("user-published", handleUserPublished);
-    client.on("user-unpublished", handleUserUnpublished);
-    client.on("user-left", handleUserLeft);
+    rtcClient.on("user-published", handleUserPublished);
+    rtcClient.on("user-unpublished", handleUserUnpublished);
+    rtcClient.on("user-left", handleUserLeft);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
-    options.uid = await client.join(options.appid, options.channel, null, options.uid);
+    options.uid = await rtcClient.join(options.appid, options.channel, null, options.uid);
+    showPopup(`Joined to RTC Channel ${options.channel} as UID ${options.uid}`);
     $("#local").css("display", "block");
     videoTrack.play("local_video");
     $("#local_id").text(`Local ID: ${options.uid}`);
     $("#local_id").css("display", "block");
-    await client.publish(videoTrack);
+    await rtcClient.publish(videoTrack);
+    showPopup(`Published local camera`);
 
 };
 
 async function handleUserPublished(user, mediaType) {
-      await client.subscribe(user, mediaType);
+      await rtcClient.subscribe(user, mediaType);
       user.videoTrack.play(`remote`);
       $("#remote_id").text(`Remote ID: ${user.uid}`);
       $("#remote_id").css("display", "block");
       remote_joined = true;
+      showPopup(`Remote User ${user.uid} has joined`);
 }
 
 async function handleUserUnpublished(user, mediaType) {
   $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
+  showPopup(`Remote User ${user.uid} left, ending meeting`);
 }
 
 async function handleUserLeft(user) {
   videoTrack.stop();
   videoTrack.close();
-  await client.leave();
+  await rtcClient.leave();
+  await channel.leave();
+  await rtmClient.logout()
   $(`#remote`).remove();
   $("#ended").css("display", "block");
+  showPopup(`Remote User ${user.uid} left, ending meeting`);
 }
+
+//Popup functions
+
+var popups = 0;
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+}
+
+//Agora RTM functions
+
+async function loginRtm() {
+  await rtmClient.login(options.uid)
+}
+
+async function setupListners () {
+  // Client Event listeners
+  // Display connection state changes
+  rtmClient.on('ConnectionStateChanged', function (state, reason) {
+  showPopup(`State changed To: + ${state} + Reason:  + ${reason}`)
+  })
+
+  channel = await rtmClient.createChannel(`${options.channel}`);
+  await channel.join().then (() => {
+    showPopup(`Joined to Signaling channel " + ${options.channelId} as UID ${options.uid}`)
+  })
+  channel.on('ChannelMessage', function (message, memberId) {
+  showPopup(`Message received from: + ${memberId} + Message: + ${message}`)
+  })
+  // Display channel member stats
+  channel.on('MemberJoined', function (memberId) {
+  showPopup(`${memberId} + joined the channel`)
+  })
+  // Display channel member stats
+  channel.on('MemberLeft', function (memberId) {
+  showPopup(`${memberId} + left the channel`)
+  })
+}
+
+      
+  async function sendMessageOnMute (message) {
+      if (!message) {
+        if (channel != null) {
+          const channelMessage = "";
+          if (muted) {channelMessage = "Remote User Muted their Camera"}
+          else {channelMessage = "Remote User Unmuted their Camera"}
+          await channel.sendMessage({ text: channelMessage }).then(() => {
+            showPopup(`Channel message: + ${channelMessage} sent to channel ${channel.channelId}`)
+          })
+      } else {
+        if (channel != null) {
+          await channel.sendMessage({ text: message }).then(() => {
+            showPopup(`Channel message: + ${message} sent to channel ${channel.channelId}`)
+          })
+      }
+      }
+      }
+  }
