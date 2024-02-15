@@ -32,7 +32,7 @@ $(() => {
   options.uid = urlParams.get("uid");
   options.token = urlParams.get("token");
   if (options.token != null) {
-  options.tokens = options.token.replace(/ /g,'+');
+  options.token = options.token.replace(/ /g,'+');
   }
   joinChannel();
   loginRtm();
