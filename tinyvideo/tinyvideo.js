@@ -11,7 +11,8 @@ var rtmClient;
 var options = {
   appid: null,
   channel: null,
-  uid: 0
+  uid: 0,
+  token: null
 };
 
 //Agora WebSDK RTC functions
@@ -29,6 +30,7 @@ $(() => {
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
   options.uid = urlParams.get("uid");
+  options.token = urlParams.get("token");
   joinChannel();
   loginRtm();
 });
@@ -55,7 +57,7 @@ async function joinChannel() {
     rtcClient.on("user-joined", handleUserJoined);
     rtcClient.on("user-left", handleUserLeft);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
-    options.uid = await rtcClient.join(options.appid, options.channel, null, options.uid);
+    options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
     showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
     $("#local").css("display", "block");
     videoTrack.play("local_video");
@@ -99,7 +101,7 @@ async function handleUserLeft(user) {
 
 async function loginRtm() {
   rtmClient = await AgoraRTM.createInstance(options.appid, { enableLogUpload: true, logFilter: AgoraRTM.LOG_FILTER_OFF});
-  const rtmOptions = {uid: options.uid, token: ""};
+  const rtmOptions = {uid: options.uid, token: options.token};
   await rtmClient.login(rtmOptions);
     // Client Event listeners
   // Display connection state changes
