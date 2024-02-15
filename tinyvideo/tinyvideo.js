@@ -16,6 +16,7 @@ var options = {
 
 //Agora WebSDK RTC functions
 AgoraRTC.setLogLevel(4);
+AgoraRTC.enableLogUpload();
 
 var videoTrack;
 var muted = false;
@@ -30,7 +31,6 @@ $(() => {
   options.uid = urlParams.get("uid");
   joinChannel();
   loginRtm();
-  setupListnersAndChannel();
 });
 
 $("#local").click(function (e) {
@@ -39,18 +39,20 @@ $("#local").click(function (e) {
     $("#local_video").css("display", "block"); 
     muted = false;
     showPopup(`Local Camera Unmuted`);
-    sendMessageOnMute();} 
-    else 
-    {videoTrack.setEnabled(false); 
+    sendMessageOnMute();
+  } else {
+    videoTrack.setEnabled(false); 
     muted = true;
     $("#local_video").css("display", "none");
     showPopup(`Local Camera Muted`);
-    sendMessageOnMute();}
+    sendMessageOnMute();
+  }
 });
 
 async function joinChannel() {
     rtcClient.on("user-published", handleUserPublished);
     rtcClient.on("user-unpublished", handleUserUnpublished);
+    rtcClient.on("user-joined", handleUserJoined);
     rtcClient.on("user-left", handleUserLeft);
     videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await rtcClient.join(options.appid, options.channel, null, options.uid);
@@ -70,12 +72,16 @@ async function handleUserPublished(user, mediaType) {
       $("#remote_id").text(`Remote ID: ${user.uid}`);
       $("#remote_id").css("display", "block");
       remote_joined = true;
-      showPopup(`Remote User ${user.uid} has joined`);
+      showPopup(`Remote User ${user.uid} has published ${mediaType}`);
 }
 
 async function handleUserUnpublished(user, mediaType) {
   $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
-  showPopup(`Remote User ${user.uid} left, ending meeting`);
+  showPopup(`Remote User ${user.uid} unpublished ${mediaType}, meeting still active`);
+}
+
+async function handleUserJoined(user) {
+  showPopup(`Remote User ${user.uid} has joined, starting meeting`);
 }
 
 async function handleUserLeft(user) {
@@ -87,6 +93,52 @@ async function handleUserLeft(user) {
   $(`#remote`).remove();
   $("#ended").css("display", "block");
   showPopup(`Remote User ${user.uid} left, ending meeting`);
+}
+
+//Agora RTM functions
+
+async function loginRtm() {
+  rtmClient = await AgoraRTM.createInstance(options.appid, { enableLogUpload: true, logFilter: AgoraRTM.LOG_FILTER_OFF});
+  const rtmOptions = {uid: options.uid, token: ""};
+  await rtmClient.login(rtmOptions);
+    // Client Event listeners
+  // Display connection state changes
+  rtmClient.on('ConnectionStateChanged', function (state, reason) {
+    showPopup(`RTM State changed To: ${state} Reason: ${reason}`)
+    })
+  
+    channel = await rtmClient.createChannel(`${options.channel}`);
+    await channel.join().then (() => {
+      showPopup(`Joined to RTM channel ${options.channel} as UID ${options.uid}`)
+    })
+    channel.on('ChannelMessage', function (message, memberId) {
+    showPopup(`RTM Message received from: ${memberId}: "${message.text}"`)
+    })
+    // Display channel member stats
+    channel.on('MemberJoined', function (memberId) {
+    showPopup(`${memberId} joined the RTM channel`)
+    })
+    // Display channel member stats
+    channel.on('MemberLeft', function (memberId) {
+    showPopup(`${memberId} left the RTM channel`)
+    })
+}
+  
+async function sendMessageOnMute (message) {
+    if (!message) {
+      if (channel != null) {
+        let channelMessage = "";
+        if (muted) {channelMessage = "Remote User Muted their Camera"}
+        else {channelMessage = "Remote User Unmuted their Camera"}
+        await channel.sendMessage({ text: channelMessage }).then(() => {
+          showPopup(`RTM Channel message sent: "${channelMessage}"`)
+        })
+    } else {
+      if (channel != null) {
+        await channel.sendMessage({ text: message }).then(() => {
+          showPopup(`RTM Channel message sent : "${message}"`)
+        })
+    }}}
 }
 
 //Popup functions
@@ -105,54 +157,3 @@ function showPopup(message) {
   popups++;
   setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
 }
-
-//Agora RTM functions
-
-async function loginRtm() {
-  rtmClient = await AgoraRTM.createInstance(options.appid);
-  await rtmClient.login(toString(options.uid))
-}
-
-async function setupListnersAndChannel() {
-  // Client Event listeners
-  // Display connection state changes
-  rtmClient.on('ConnectionStateChanged', function (state, reason) {
-  showPopup(`State changed To: + ${state} + Reason:  + ${reason}`)
-  })
-
-  channel = await rtmClient.createChannel(`${options.channel}`);
-  await channel.join().then (() => {
-    showPopup(`Joined to Signaling channel " + ${options.channelId} as UID ${options.uid}`)
-  })
-  channel.on('ChannelMessage', function (message, memberId) {
-  showPopup(`Message received from: + ${memberId} + Message: + ${message}`)
-  })
-  // Display channel member stats
-  channel.on('MemberJoined', function (memberId) {
-  showPopup(`${memberId} + joined the channel`)
-  })
-  // Display channel member stats
-  channel.on('MemberLeft', function (memberId) {
-  showPopup(`${memberId} + left the channel`)
-  })
-}
-
-      
-  async function sendMessageOnMute (message) {
-      if (!message) {
-        if (channel != null) {
-          const channelMessage = "";
-          if (muted) {channelMessage = "Remote User Muted their Camera"}
-          else {channelMessage = "Remote User Unmuted their Camera"}
-          await channel.sendMessage({ text: channelMessage }).then(() => {
-            showPopup(`Channel message: + ${channelMessage} sent to channel ${channel.channelId}`)
-          })
-      } else {
-        if (channel != null) {
-          await channel.sendMessage({ text: message }).then(() => {
-            showPopup(`Channel message: + ${message} sent to channel ${channel.channelId}`)
-          })
-      }
-      }
-      }
-  }
