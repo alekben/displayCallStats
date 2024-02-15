@@ -1,12 +1,10 @@
 
 
-//create RTC and RTM clients on script load
+//create RTC on script load
 var rtcClient = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp9"
 });
-
-var rtmClient = AgoraRTM.createInstance(options.appID);
 
 
 //Options shared by RTC and RTM TODO add Token Support
@@ -111,6 +109,7 @@ function showPopup(message) {
 //Agora RTM functions
 
 async function loginRtm() {
+  var rtmClient = await AgoraRTM.createInstance(options.appID);
   await rtmClient.login(options.uid)
 }
 
