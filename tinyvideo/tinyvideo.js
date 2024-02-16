@@ -22,6 +22,8 @@ AgoraRTC.enableLogUpload();
 var videoTrack;
 var muted = false;
 var remote_joined = false;
+var remote_published = false;
+var remote_name = "";
 
 //Pull URL parameters to join
 
@@ -44,13 +46,13 @@ $("#local").click(function (e) {
     $("#local_video").css("display", "block"); 
     muted = false;
     showPopup(`Local Camera Unmuted`);
-    sendMessageOnMute();
+    sendLocalMuteMessage();
   } else {
     videoTrack.setEnabled(false); 
     muted = true;
     $("#local_video").css("display", "none");
     showPopup(`Local Camera Muted`);
-    sendMessageOnMute();
+    sendLocalMuteMessage();
   }
 });
 
@@ -68,7 +70,50 @@ async function joinChannel() {
     $("#local_id").css("display", "block");
     await rtcClient.publish(videoTrack);
     showPopup(`Published local camera`);
+    //add keystroke listeners
+    window.addEventListener("keydown", function (event) {
+      if (event.defaultPrevented) {
+        return; // Do nothing if the event was already processed
+      }
+      switch (event.key) {
+        case "m":
+          // mute remote camera.
+          event.preventDefault();
+          if (remote_joined && remote_published) {
+            showPopup(`Toggle mute for ${remote_name}'s camera`);
+            sendMessageOnMute("m")
+          }
+          break;
+        case "s":
+          // show stats.
+          event.preventDefault();
+          if (remote_joined && remote_published) {
+            showPopup(`Pressed s`);
+            sendMessage("s")
+          }
+          break;
+        case "c":
+          // start mouse cursor capture.
+          event.preventDefault();
+          if (remote_joined && remote_published) {
+            showPopup(`Pressed c`);
+            sendMessageOnMute("c")
+          }
+          break;
+        case "e":
+          // end meeting.
+          event.preventDefault();
+          if (remote_joined && remote_published) {
+            showPopup(`Pressed e`);
+            sendMessageOnMute("e")
+          }
+          break;
+        default:
+          return; // Quit when this doesn't handle the key event.
+      }
 
+      console.log(`Key "${event.key}" pressed`);
+    }, true);
 };
 
 async function handleUserPublished(user, mediaType) {
@@ -78,15 +123,18 @@ async function handleUserPublished(user, mediaType) {
       $("#remote_id").css("display", "block");
       remote_joined = true;
       showPopup(`Remote User ${user.uid} has published ${mediaType}`);
+      remote_published = true;
 }
 
 async function handleUserUnpublished(user, mediaType) {
-  $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
-  showPopup(`Remote User ${user.uid} unpublished ${mediaType}, meeting still active`);
+      $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
+      showPopup(`Remote User ${user.uid} unpublished ${mediaType}, meeting still active`);
+      remote_published = false;
 }
 
 async function handleUserJoined(user) {
   showPopup(`Remote User ${user.uid} has joined, starting meeting`);
+  remote_name = user.uid;
 }
 
 async function handleUserLeft(user) {
@@ -98,6 +146,7 @@ async function handleUserLeft(user) {
   $(`#remote`).remove();
   $("#ended").css("display", "block");
   showPopup(`Remote User ${user.uid} left, ending meeting`);
+  remote_name = "";
 }
 
 //Agora RTM functions
@@ -117,7 +166,21 @@ async function loginRtm() {
       showPopup(`Joined to RTM channel ${options.channel} as UID ${options.uid}`)
     })
     channel.on('ChannelMessage', function (message, memberId) {
-    showPopup(`RTM Message received from: ${memberId}: "${message.text}"`)
+    showPopup(`RTM Message received from: ${memberId}: "${message.text}"`);
+    if (message.text == "m") {
+      showPopup(`Mute state toggeled by ${memberId}`);
+      if (muted) {
+        videoTrack.setEnabled(true); 
+        $("#local_video").css("display", "block"); 
+        showPopup(`Local Camera Unmuted`);
+        muted = false;
+      } else {
+        videoTrack.setEnabled(false); 
+        muted = true;
+        $("#local_video").css("display", "none");
+        showPopup(`Local Camera Muted`);
+      }
+    }
     })
     // Display channel member stats
     channel.on('MemberJoined', function (memberId) {
@@ -129,21 +192,29 @@ async function loginRtm() {
     })
 }
   
-async function sendMessageOnMute (message) {
-    if (!message) {
+async function sendLocalMuteMessage () {
       if (channel != null) {
         let channelMessage = "";
         if (muted) {channelMessage = "Remote User Muted their Camera"}
         else {channelMessage = "Remote User Unmuted their Camera"}
         await channel.sendMessage({ text: channelMessage }).then(() => {
-          showPopup(`RTM Channel message sent: "${channelMessage}"`)
+          showPopup(`RTM Local Cam Mute Message Sent`)
         })
-    } else {
-      if (channel != null) {
-        await channel.sendMessage({ text: message }).then(() => {
-          showPopup(`RTM Channel message sent : "${message}"`)
-        })
-    }}}
+      } else {
+        showPopup(`Not connected to RTM"`);
+      }
+  }
+
+async function sendMessage (message) {
+  if (!message) {
+      showPopup(`No message passed to send`);
+  }
+  else {
+    if (channel != null) {
+      let channelMessage = message;
+      await channel.sendMessage({ text: channelMessage }).then(() => {
+        showPopup(`RTM Channel message sent: "${channelMessage}"`)
+  })} else {showPopup(`Not connected to a channel`)}}  
 }
 
 //Popup functions
