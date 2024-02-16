@@ -81,7 +81,7 @@ async function joinChannel() {
           event.preventDefault();
           if (remote_joined && remote_published) {
             showPopup(`Toggle mute for ${remote_name}'s camera`);
-            sendMessageOnMute("m")
+            sendMessage("m")
           }
           break;
         case "s":
@@ -97,7 +97,7 @@ async function joinChannel() {
           event.preventDefault();
           if (remote_joined && remote_published) {
             showPopup(`Pressed c`);
-            sendMessageOnMute("c")
+            sendMessage("c")
           }
           break;
         case "e":
@@ -105,7 +105,7 @@ async function joinChannel() {
           event.preventDefault();
           if (remote_joined && remote_published) {
             showPopup(`Pressed e`);
-            sendMessageOnMute("e")
+            sendMessage("e")
           }
           break;
         default:
