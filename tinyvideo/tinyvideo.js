@@ -79,10 +79,12 @@ async function joinChannel() {
         case "m":
           // mute remote camera.
           event.preventDefault();
-          if (remote_joined && remote_published) {
-            showPopup(`Toggle mute for ${remote_name}'s camera`);
-            sendMessage("m")
-          }
+          if (remote_joined) {
+              showPopup(`Toggle mute for ${remote_name}'s camera`);
+              sendMessage("m")
+            } else {
+              showPopup(`Remote not joined`);
+            }
           break;
         case "s":
           // show stats.
