@@ -24,6 +24,7 @@ var muted = false;
 var remote_joined = false;
 var remote_published = false;
 var remote_name = "";
+var ready = true;
 
 //Pull URL parameters to join
 
@@ -36,8 +37,13 @@ $(() => {
   if (options.token != null) {
   options.token = options.token.replace(/ /g,'+');
   }
-  joinChannel();
-  loginRtm();
+  if (options.appid == null ) {showPopup(`appid missing in URL`); ready = false;}
+  if (options.channel == null ) {showPopup(`channel missing in URL`); ready = false}
+  if (options.uid == null ) {showPopup(`uid missing in URL`); ready = false}
+  if (ready) {
+    joinChannel();
+    loginRtm();
+  }
 });
 
 $("#local").click(function (e) {
@@ -97,7 +103,7 @@ async function joinChannel() {
         case "c":
           // start mouse cursor capture.
           event.preventDefault();
-          if (remote_joined && remote_published) {
+          if (remote_joined) {
             showPopup(`Pressed c`);
             sendMessage("c")
           }
@@ -105,10 +111,9 @@ async function joinChannel() {
         case "e":
           // end meeting.
           event.preventDefault();
-          if (remote_joined && remote_published) {
-            showPopup(`Pressed e`);
-            sendMessage("e")
-          }
+          showPopup(`Pressed e`);
+          sendMessage("e");
+          leaveChannel();
           break;
         default:
           return; // Quit when this doesn't handle the key event.
@@ -117,6 +122,18 @@ async function joinChannel() {
       console.log(`Key "${event.key}" pressed`);
     }, true);
 };
+
+async function leaveChannel() {
+  videoTrack.stop();
+  videoTrack.close();
+  await rtcClient.leave();
+  await channel.leave();
+  await rtmClient.logout()
+  $(`#remote`).remove();
+  $("#ended").css("display", "block");
+  showPopup(`Ending meeting.`);
+  remote_name = "";
+}
 
 async function handleUserPublished(user, mediaType) {
       await rtcClient.subscribe(user, mediaType);
