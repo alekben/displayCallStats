@@ -1,0 +1,21 @@
+{
+  "name": "agora-extension-super-clarity",
+  "version": "1.0.0",
+  "description": "Agora Video Super Clarity for Agora Web SDK",
+  "keywords": [
+    "agora",
+    "video"
+  ],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "agora",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "declaration": true,
+  "declarationMap": true,
+  "devDependencies": {
+    "agora-rte-extension": "^1.2.3"
+  },
+  "peerDependencies": {
+    "agora-rtc-sdk-ng": ">=4.16.1"
+  }
+}
