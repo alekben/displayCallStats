@@ -1,6 +1,5 @@
 body {
-  background-image: url("https://cdn.theatlantic.com/thumbor/viW9N1IQLbCrJ0HMtPRvXPXShkU=/0x131:2555x1568/976x549/media/img/mt/2017/06/shutterstock_319985324/original.jpg");
-  background-color: #cccccc;
+  background-color: #000000;
  }
 
 .sso-hidden {
@@ -70,8 +69,8 @@ input {
 }
 
 .remotePlayerLarge {
-  width: 1920px;
-  height: 1080px;
+  width: 1280px;
+  height: 720px;
 }
 
 .remotePlayerLargeSelected {
