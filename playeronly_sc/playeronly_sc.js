@@ -10,7 +10,7 @@ const context = {
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "live",
+  mode: "rtc",
   codec: "vp8"
 });
 
