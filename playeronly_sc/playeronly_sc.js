@@ -46,11 +46,10 @@ async function joinChannel() {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "live",
+        mode: "rtc",
         codec: "vp8"
       });
     }
-    client.setClientRole("audience");
     await join();
   } catch (error) {
     console.error(error);
