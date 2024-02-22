@@ -75,20 +75,25 @@ async function subscribe(user, mediaType) {
   `);
   $("#remote-playerlist-row1").append(player);
     user.videoTrack.play(`player-${uid}`);
+  } else {
+    user.audioTrack.play();
   }
 }
 
 
 function handleUserPublished(user, mediaType) {
+  const id = user.uid;
   if (mediaType === 'video') {
     if (remoteJoined) {
       console.log("Remote user already here.");
     } else {
-      const id = user.uid;
       remoteUsers[id] = user;
       subscribe(user, mediaType);
       remoteJoined = true;
     }
+  } else {
+    remoteUsers[id] = user;
+    subscribe(user, mediaType);
   }
 }
 
