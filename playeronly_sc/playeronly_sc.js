@@ -69,9 +69,8 @@ async function join() {
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
-  await client.subscribe(user, mediaType);
-  console.log("subscribe success");
   if (mediaType === 'video') {
+    context.track = await client.subscribe(user, mediaType);
     const player = $(`
       <div id="player-wrapper-${uid}">
         <div class="player-with-stats">
@@ -83,6 +82,7 @@ async function subscribe(user, mediaType) {
   $("#remote-playerlist-row1").append(player);
     user.videoTrack.play(`player-${uid}`);
   } else {
+    await client.subscribe(user, mediaType);
     user.audioTrack.play();
   }
 }
