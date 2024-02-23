@@ -603,6 +603,9 @@ function handleUserInfoUpdated(uid, message) {
 function handleNetworkQuality(stats) {
   localNetQuality.uplink = stats.uplinkNetworkQuality;
   localNetQuality.downlink = stats.downlinkNetworkQuality;
+  const d = new Date();
+  let time = d.getTime();
+  console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
   client.sendCustomReportMessage({
     reportId: "50", category: "netstats", event: "netstats", label: String(s), value: String(`${localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
 }
