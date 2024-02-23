@@ -1,5 +1,5 @@
 
-var host = true;
+//var host = true;
 //popup stuff
 var popups = 0;
 
@@ -15,7 +15,7 @@ AgoraRTC.setParameter("AG_DEGRADATION_PREFERENCE", 1);
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "live",
+  mode: "rtc",
   codec: "vp8"
 });
 
@@ -226,7 +226,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "live",
+        mode: "rtc",
         codec: "vp8"
       });
     }
@@ -234,11 +234,11 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    if (host) {
-      client.setClientRole("host");
-    } else {
-      client.setClientRole("audience");
-    }
+    //if (host) {
+    //  client.setClientRole("host");
+    //} else {
+    //  client.setClientRole("audience");
+    //}
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -317,15 +317,15 @@ $("#biggerView").click(function (e) {
   handleExpand();
 });
 
-$("#role").click(function (e) {
-  if (host) {
-    host = false;
-    $("#role").text("Role: Audience");
-  } else {
-    host = true;
-    $("#role").text("Role: Host");
-  }
-});
+///$("#role").click(function (e) {
+//  if (host) {
+//    host = false;
+//    $("#role").text("Role: Audience");
+//  } else {
+//    host = true;
+//    $("#role").text("Role: Host");
+//  }
+//});
 
 
 async function publishMic() {
@@ -398,7 +398,7 @@ async function join() {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "480p_1", optimizationMode: "motion"});
     }
 
-    localTracks.videoTrack.contentHint = "ptz";
+    //localTracks.videoTrack.contentHint = "ptz";
     // play local video track
     localTracks.videoTrack.play("local-player");
     $("#joined-setup").css("display", "flex");
@@ -603,6 +603,8 @@ function handleUserInfoUpdated(uid, message) {
 function handleNetworkQuality(stats) {
   localNetQuality.uplink = stats.uplinkNetworkQuality;
   localNetQuality.downlink = stats.downlinkNetworkQuality;
+  client.sendCustomReportMessage({
+    reportId: "50", category: "netstats", event: "netstats", label: String(s), value: String(`${localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
 }
 
 
