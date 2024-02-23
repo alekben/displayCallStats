@@ -112,7 +112,7 @@ async function initDevices() {
   }
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: {width:424, height:240, bitrateMax:220, bitrateMin:110, framerate:15 }
+      encoderConfig: {width:424, height:240, bitrateMax:220, bitrateMin:110, frameRate:15}
     });
   }
 
@@ -430,7 +430,7 @@ async function join() {
   }
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: {width:424, height:240, bitrateMax:220, bitrateMin:110, framerate:15 }
+      encoderConfig: {width:424, height:240, bitrateMax:220, bitrateMin:110, frameRate:15}
     });
   }
 
