@@ -607,7 +607,7 @@ function handleNetworkQuality(stats) {
   let time = d.getTime();
   console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
   client.sendCustomReportMessage({
-    reportId: "50", category: "netstats", event: "netstats", label: String(s), value: String(`${localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
+    reportId: "50", category: "netstats", event: "netstats", label: String("stats"), value: String(`${localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
 }
 
 
