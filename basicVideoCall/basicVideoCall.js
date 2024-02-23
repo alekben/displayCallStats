@@ -112,9 +112,11 @@ async function initDevices() {
   }
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: curVideoProfile.value
+      encoderConfig: {width:424, height:240, bitrateMax:220, bitrateMin:110, framerate:15 }
     });
   }
+
+
   // get mics
   mics = await AgoraRTC.getMicrophones();
   const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
@@ -233,7 +235,7 @@ $("#join-form").submit(async function (e) {
     if (!client) {
       client = AgoraRTC.createClient({
         mode: "live",
-        codec: "vp8"
+        codec: "vp9"
       });
     }
     options.channel = $("#channel").val();
