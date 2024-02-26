@@ -28,6 +28,7 @@ var options = {
   appid: null,
   channel: null,
   uid: 0,
+  name: null,
   token: null,
   host: false
 };
@@ -54,10 +55,14 @@ $(() => {
   options.uid = urlParams.get("uid");
   options.token = urlParams.get("token");
   options.host = urlParams.get("host");
+  options.name = urlParams.get("name");
   if (options.host == null) {
     options.host = false;
   } else {
     options.host = true;
+  }
+  if (options.name == null) {
+    options.name = options.uid.toString();
   }
   if (options.token != null) {
   options.token = options.token.replace(/ /g,'+');
@@ -96,7 +101,7 @@ async function startCamera() {
   videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
   $("#local").css("display", "block");
   videoTrack.play("local_video");
-  $("#local_id").text(`Local ID: ${options.uid}`);
+  $("#local_id").text(`Local ID: ${options.name}`);
   $("#local_id").css("display", "block");
 }
 
@@ -162,7 +167,7 @@ async function joinChannelAsHost() {
   videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
   $("#local").css("display", "block");
   videoTrack.play("local_video");
-  $("#local_id").text(`Local ID: ${options.uid}`);
+  $("#local_id").text(`Local ID: ${options.name}`);
   $("#local_id").css("display", "block");
   rtcClient.on("user-published", handleUserPublished);
   rtcClient.on("user-unpublished", handleUserUnpublished);
@@ -236,22 +241,23 @@ async function leaveChannel() {
 async function handleUserPublished(user, mediaType) {
       await rtcClient.subscribe(user, mediaType);
       user.videoTrack.play(`remote`);
-      $("#remote_id").text(`Remote ID: ${user.uid}`);
+      remote_name = localAttributesMapping[user.uid].value;
+      $("#remote_id").text(`Remote ID: ${remote_name}`);
       $("#remote_id").css("display", "block");
       remote_joined = true;
-      showPopup(`Remote User ${user.uid} has published ${mediaType}`);
+      showPopup(`Remote User ${remote_name} has published ${mediaType}`);
       remote_published = true;
 }
 
 async function handleUserUnpublished(user, mediaType) {
       $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
-      showPopup(`Remote User ${user.uid} unpublished ${mediaType}, meeting still active`);
+      showPopup(`Remote User ${remote_name} unpublished ${mediaType}, meeting still active`);
       remote_published = false;
 }
 
 async function handleUserJoined(user) {
-  showPopup(`Remote User ${user.uid} has joined, starting meeting`);
-  remote_name = user.uid;
+  remote_name = localAttributesMapping[user.uid].value;
+  showPopup(`Remote User ${remote_name} has joined, starting meeting`);
 }
 
 async function handleUserLeft(user) {
@@ -286,16 +292,16 @@ async function loginRtm() {
     })
     let attributeMapping = {};
     const myUid = options.uid;
-    let role = options.host ? "host" : "guest";
+    let role = options.host ? "Host" : "Guest";
     if (options.host) {
       attributeMapping = {
         hostIn: "true",
         hostID: myUid,
-        [myUid]: role
+        [myUid]: `${options.name} (${role})`
       }
     } else {
       attributeMapping = {
-        [myUid]: role
+        [myUid]: `${options.name} (${role})`
       }
     }
     await rtmClient.addOrUpdateChannelAttributes(options.channel, attributeMapping, {enableNotificationToChannelMembers: true}).then (() => {
