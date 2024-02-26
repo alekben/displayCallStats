@@ -1,4 +1,20 @@
+//modal stuff
 
+const modal = document.querySelector("[data-modal]")
+const approveButton = document.querySelector("[data-approve-modal]")
+const denyButton = document.querySelector("[data-deny-modal]")
+
+approveButton.addEventListener("click", () => {
+  const sendId = $('#guestID')[0].outerText;
+  sendPeerMessage("approve join", sendId);
+  modal.close();
+})
+
+denyButton.addEventListener("click", () => {
+  const sendId = document.querySelector("guestId");
+  sendPeerMessage(`Denied joining by ${options.uid}`, sendId);
+  modal.close();
+})
 
 //create RTC and RTM client variables on script load
 var rtcClient = AgoraRTC.createClient({
@@ -12,8 +28,11 @@ var options = {
   appid: null,
   channel: null,
   uid: 0,
-  token: null
+  token: null,
+  host: false
 };
+
+var localAttributesMapping = {};
 
 //Agora WebSDK RTC functions
 AgoraRTC.setLogLevel(4);
@@ -34,6 +53,12 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.uid = urlParams.get("uid");
   options.token = urlParams.get("token");
+  options.host = urlParams.get("host");
+  if (options.host == null) {
+    options.host = false;
+  } else {
+    options.host = true;
+  }
   if (options.token != null) {
   options.token = options.token.replace(/ /g,'+');
   }
@@ -41,8 +66,11 @@ $(() => {
   if (options.channel == null ) {showPopup(`channel missing in URL`); ready = false}
   if (options.uid == null ) {showPopup(`uid missing in URL`); ready = false}
   if (ready) {
-    joinChannel();
+    startCamera();
     loginRtm();
+    if (options.host) {
+      joinChannel();
+    }
   }
 });
 
@@ -62,19 +90,25 @@ $("#local").click(function (e) {
   }
 });
 
+async function startCamera() {
+  videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
+  $("#local").css("display", "block");
+  videoTrack.play("local_video");
+  $("#local_id").text(`Local ID: ${options.uid}`);
+  $("#local_id").css("display", "block");
+}
+
+
 async function joinChannel() {
     rtcClient.on("user-published", handleUserPublished);
     rtcClient.on("user-unpublished", handleUserUnpublished);
     rtcClient.on("user-joined", handleUserJoined);
     rtcClient.on("user-left", handleUserLeft);
-    videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
     options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
     showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
-    $("#local").css("display", "block");
-    videoTrack.play("local_video");
-    $("#local_id").text(`Local ID: ${options.uid}`);
-    $("#local_id").css("display", "block");
-    await rtcClient.publish(videoTrack);
+    setTimeout(function(){
+      rtcClient.publish(videoTrack);
+    }, 500);
     showPopup(`Published local camera`);
     //add keystroke listeners
     window.addEventListener("keydown", function (event) {
@@ -127,6 +161,8 @@ async function leaveChannel() {
   videoTrack.stop();
   videoTrack.close();
   await rtcClient.leave();
+  await rtmClient.clearChannelAttributes(options.channel);
+  localAttributesMapping = {};
   await channel.leave();
   await rtmClient.logout()
   $(`#remote`).remove();
@@ -160,6 +196,8 @@ async function handleUserLeft(user) {
   videoTrack.stop();
   videoTrack.close();
   await rtcClient.leave();
+  await rtmClient.clearChannelAttributes(options.channel);
+  localAttributesMapping = {};
   await channel.leave();
   await rtmClient.logout()
   $(`#remote`).remove();
@@ -184,6 +222,24 @@ async function loginRtm() {
     await channel.join().then (() => {
       showPopup(`Joined to RTM channel ${options.channel} as UID ${options.uid}`)
     })
+    let attributeMapping = {};
+    const myUid = options.uid;
+    let role = options.host ? "host" : "guest";
+    if (options.host) {
+      attributeMapping = {
+        hostIn: "true",
+        hostID: myUid,
+        [myUid]: role
+      }
+    } else {
+      attributeMapping = {
+        [myUid]: role
+      }
+    }
+    await rtmClient.addOrUpdateChannelAttributes(options.channel, attributeMapping, {enableNotificationToChannelMembers: true}).then (() => {
+      showPopup(`Setting Channel Attribute as ${role} for UID ${options.uid}`);
+    })
+
     channel.on('ChannelMessage', function (message, memberId) {
     showPopup(`RTM Message received from: ${memberId}: "${message.text}"`);
     if (message.text == "m") {
@@ -200,7 +256,24 @@ async function loginRtm() {
         showPopup(`Local Camera Muted`);
       }
     }
+    if (message.text == `${myUID} can join`) {
+      showPopup(`${memberId} has approved joining`);
+      joinChannel();
+    }
     })
+
+    rtmClient.on('MessageFromPeer', function (message, memberId, props) {
+      showPopup(`RTM Peer Message received from: ${memberId}: "${message.text}"`);
+      if (message.text == "req join") {
+        showPopup(`${memberId} requesting to join`);
+        $("#guestID span").text(`${memberId}`);
+        modal.showModal();
+      }
+      if (message.text == `approve join`) {
+        showPopup(`${memberId} has approved joining`);
+        joinChannel();
+      }
+      })
     // Display channel member stats
     channel.on('MemberJoined', function (memberId) {
     showPopup(`${memberId} joined the RTM channel`)
@@ -208,6 +281,17 @@ async function loginRtm() {
     // Display channel member stats
     channel.on('MemberLeft', function (memberId) {
     showPopup(`${memberId} left the RTM channel`)
+    })
+    // Report and Update on Channel Attributes to local object
+    channel.on('AttributesUpdated', function (attributes) {
+    const attributesReceived = JSON.stringify(attributes);
+    localAttributesMapping = attributes;
+    showPopup(`Channel Attributes Updated: ${attributesReceived}`);
+    if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
+      hostID = localAttributesMapping["hostID"].value;
+      showPopup(`Host ${hostID} in channel, requesting to join`);
+      sendPeerMessage("req join", hostID);
+    }
     })
 }
   
@@ -234,6 +318,17 @@ async function sendMessage (message) {
       await channel.sendMessage({ text: channelMessage }).then(() => {
         showPopup(`RTM Channel message sent: "${channelMessage}"`)
   })} else {showPopup(`Not connected to a channel`)}}  
+}
+
+async function sendPeerMessage (message, peerId) {
+  if (!message) {
+      showPopup(`No message passed to peer send`);
+  } else {
+    if (peerId != null) {
+      let peerMessage = message;
+      await rtmClient.sendMessageToPeer({ text: peerMessage }, peerId.toString()).then(() => {
+        showPopup(`RTM Peer message sent to ${peerId}: "${peerMessage}"`)
+  })} else {showPopup(`No peerId passed`)}}  
 }
 
 //Popup functions
