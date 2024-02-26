@@ -35,7 +35,7 @@ var options = {
 var localAttributesMapping = {};
 
 //Agora WebSDK RTC functions
-AgoraRTC.setLogLevel(4);
+//AgoraRTC.setLogLevel(4);
 AgoraRTC.enableLogUpload();
 
 var videoTrack;
@@ -65,11 +65,12 @@ $(() => {
   if (options.appid == null ) {showPopup(`appid missing in URL`); ready = false;}
   if (options.channel == null ) {showPopup(`channel missing in URL`); ready = false}
   if (options.uid == null ) {showPopup(`uid missing in URL`); ready = false}
-  if (ready) {
-    startCamera();
+  if (ready) {  
     loginRtm();
     if (options.host) {
-      joinChannel();
+      joinChannelAsHost();
+    } else {
+      startCamera();
     }
   }
 });
@@ -90,6 +91,7 @@ $("#local").click(function (e) {
   }
 });
 
+
 async function startCamera() {
   videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
   $("#local").css("display", "block");
@@ -99,62 +101,122 @@ async function startCamera() {
 }
 
 
-async function joinChannel() {
-    rtcClient.on("user-published", handleUserPublished);
-    rtcClient.on("user-unpublished", handleUserUnpublished);
-    rtcClient.on("user-joined", handleUserJoined);
-    rtcClient.on("user-left", handleUserLeft);
-    options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
-    showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
-    setTimeout(function(){
-      rtcClient.publish(videoTrack);
-    }, 500);
-    showPopup(`Published local camera`);
-    //add keystroke listeners
-    window.addEventListener("keydown", function (event) {
-      if (event.defaultPrevented) {
-        return; // Do nothing if the event was already processed
-      }
-      switch (event.key) {
-        case "m":
-          // mute remote camera.
-          event.preventDefault();
-          if (remote_joined) {
-              showPopup(`Toggle mute for ${remote_name}'s camera`);
-              sendMessage("m")
-            } else {
-              showPopup(`Remote not joined`);
-            }
-          break;
-        case "s":
-          // show stats.
-          event.preventDefault();
-          if (remote_joined && remote_published) {
-            showPopup(`Pressed s`);
-            sendMessage("s")
-          }
-          break;
-        case "c":
-          // start mouse cursor capture.
-          event.preventDefault();
-          if (remote_joined) {
-            showPopup(`Pressed c`);
-            sendMessage("c")
-          }
-          break;
-        case "e":
-          // end meeting.
-          event.preventDefault();
-          showPopup(`Pressed e`);
-          sendMessage("e");
-          leaveChannel();
-          break;
-        default:
-          return; // Quit when this doesn't handle the key event.
-      }
 
-      console.log(`Key "${event.key}" pressed`);
-    }, true);
+async function joinChannel() {
+  rtcClient.on("user-published", handleUserPublished);
+  rtcClient.on("user-unpublished", handleUserUnpublished);
+  rtcClient.on("user-joined", handleUserJoined);
+  rtcClient.on("user-left", handleUserLeft);
+  options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
+  showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
+  await rtcClient.publish(videoTrack);
+  showPopup(`Published local camera`);
+  //add keystroke listeners
+  window.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented) {
+      return; // Do nothing if the event was already processed
+    }
+    switch (event.key) {
+      case "m":
+        // mute remote camera.
+        event.preventDefault();
+        if (remote_joined) {
+            showPopup(`Toggle mute for ${remote_name}'s camera`);
+            sendMessage("m")
+          } else {
+            showPopup(`Remote not joined`);
+          }
+        break;
+      case "s":
+        // show stats.
+        event.preventDefault();
+        if (remote_joined && remote_published) {
+          showPopup(`Pressed s`);
+          sendMessage("s")
+        }
+        break;
+      case "c":
+        // start mouse cursor capture.
+        event.preventDefault();
+        if (remote_joined) {
+          showPopup(`Pressed c`);
+          sendMessage("c")
+        }
+        break;
+      case "e":
+        // end meeting.
+        event.preventDefault();
+        showPopup(`Pressed e`);
+        sendMessage("e");
+        leaveChannel();
+        break;
+      default:
+        return; // Quit when this doesn't handle the key event.
+    }
+
+    console.log(`Key "${event.key}" pressed`);
+  }, true);
+};
+
+async function joinChannelAsHost() {
+  videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2"});
+  $("#local").css("display", "block");
+  videoTrack.play("local_video");
+  $("#local_id").text(`Local ID: ${options.uid}`);
+  $("#local_id").css("display", "block");
+  rtcClient.on("user-published", handleUserPublished);
+  rtcClient.on("user-unpublished", handleUserUnpublished);
+  rtcClient.on("user-joined", handleUserJoined);
+  rtcClient.on("user-left", handleUserLeft);
+  options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
+  showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
+  await rtcClient.publish(videoTrack);
+  showPopup(`Published local camera`);
+  //add keystroke listeners
+  window.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented) {
+      return; // Do nothing if the event was already processed
+    }
+    switch (event.key) {
+      case "m":
+        // mute remote camera.
+        event.preventDefault();
+        if (remote_joined) {
+            showPopup(`Toggle mute for ${remote_name}'s camera`);
+            sendMessage("m")
+          } else {
+            showPopup(`Remote not joined`);
+          }
+        break;
+      case "s":
+        // show stats.
+        event.preventDefault();
+        if (remote_joined && remote_published) {
+          showPopup(`Pressed s`);
+          sendMessage("s")
+        }
+        break;
+      case "c":
+        // start mouse cursor capture.
+        event.preventDefault();
+        if (remote_joined) {
+          showPopup(`Pressed c`);
+          sendMessage("c")
+        }
+        break;
+      case "e":
+        // end meeting.
+        event.preventDefault();
+        showPopup(`Pressed e`);
+        sendMessage("e");
+        leaveChannel();
+        break;
+      default:
+        return; // Quit when this doesn't handle the key event.
+    }
+
+    console.log(`Key "${event.key}" pressed`);
+  }, true);
 };
 
 async function leaveChannel() {
@@ -255,10 +317,6 @@ async function loginRtm() {
         $("#local_video").css("display", "none");
         showPopup(`Local Camera Muted`);
       }
-    }
-    if (message.text == `${myUID} can join`) {
-      showPopup(`${memberId} has approved joining`);
-      joinChannel();
     }
     })
 
