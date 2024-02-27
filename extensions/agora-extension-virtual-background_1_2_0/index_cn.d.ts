@@ -1,15 +1,12 @@
-
-import { EventEmitter } from 'events';
 import { Extension } from 'agora-rte-extension';
 import type { IBaseProcessor } from 'agora-rte-extension';
 import type { IExtension } from 'agora-rte-extension';
-import { IProcessorContext } from 'agora-rte-extension';
 import { VideoProcessor } from 'agora-rte-extension';
 
 export declare type IVirtualBackgroundExtension = IExtension<IVirtualBackgroundProcessor>;
 
 export declare interface IVirtualBackgroundProcessor extends IBaseProcessor {
-    init(wasmDir: string): Promise<void>;
+    init(wasmDir?: string): Promise<void>;
     release(): Promise<void>;
     setOptions(options: VirtualBackgroundEffectOptions): void;
     onoverload?: () => void;
@@ -69,26 +66,12 @@ export default VirtualBackgroundExtension;
 
 declare class VirtualBackgroundProcessor extends VideoProcessor implements IVirtualBackgroundProcessor {
     name: string;
-    private segWorker;
-    private processed_track;
-    eventBus: EventEmitter;
-    private analyzer;
     onoverload?: () => void;
-    private initialized;
-    private piped;
-    private forceEnable;
-    private avgCost;
-    private stats;
     constructor();
-    init(wasmDir: string): Promise<void>;
+    init(wasmDir?: string): Promise<void>;
     setOptions(options: VirtualBackgroundEffectOptions): void;
     getProcessedTrack(): Promise<MediaStreamTrack | null>;
-    protected onEnableChange(enabled: boolean): Promise<void>;
-    private getStats;
-    protected onTrack(inputTrack: MediaStreamTrack, context: IProcessorContext): Promise<void>;
     release(): Promise<void>;
-    protected onPiped(context: IProcessorContext): void;
-    protected onUnpiped(): void;
 }
 
 export { }
