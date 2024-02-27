@@ -395,7 +395,9 @@ async function join() {
 
   //if (host) {
     if (!localTracks.videoTrack) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "480p_1", optimizationMode: "motion"});
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: {width:320, height:240, bitrateMax:100, bitrateMin:50, frameRate:8}
+      });
     }
 
     //localTracks.videoTrack.contentHint = "ptz";
