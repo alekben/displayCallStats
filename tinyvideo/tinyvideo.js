@@ -330,11 +330,13 @@ async function loginRtm() {
       showPopup(`RTM Peer Message received from: ${memberId}: "${message.text}"`);
       if (message.text == "req join") {
         showPopup(`${memberId} requesting to join`);
-        $("#guestID span").text(`${memberId}`);
+        remote_name = localAttributesMapping[user.uid].value;
+        $("#guestID span").text(`${remote_name}`);
         modal.showModal();
       }
       if (message.text == `approve join`) {
-        showPopup(`${memberId} has approved joining`);
+        const host_name = localAttributesMapping["hostID"].value;
+        showPopup(`${host_name} has approved joining`);
         joinChannel();
       }
       })
