@@ -8,14 +8,14 @@ const sendButton = document.querySelector("[data-send-modal]")
 const cancelButton = document.querySelector("[data-cancel-modal]")
 
 approveButton.addEventListener("click", () => {
-  const sendId = $('#guestID')[0].outerText;
-  sendPeerMessage("approve join", sendId);
+  //const sendId = $('#guestID')[0].outerText;
+  sendPeerMessage("approve join", remote_uid);
   modal.close();
 })
 
 denyButton.addEventListener("click", () => {
-  const sendId = document.querySelector("guestId");
-  sendPeerMessage(`Denied joining by ${options.uid}`, sendId);
+  //const sendId = document.querySelector("guestId");
+  sendPeerMessage(`Denied joining by ${options.uid}`, remote_uid);
   modal.close();
 })
 
@@ -48,6 +48,7 @@ var remote_joined = false;
 var remote_published = false;
 var remote_name = "";
 var ready = true;
+var remote_uid = 0;
 
 //Pull URL parameters to join
 
@@ -239,6 +240,7 @@ async function leaveChannel() {
   $("#ended").css("display", "block");
   showPopup(`Ending meeting.`);
   remote_name = "";
+  remote_uid = 0;
 }
 
 async function handleUserPublished(user, mediaType) {
@@ -275,6 +277,7 @@ async function handleUserLeft(user) {
   $("#ended").css("display", "block");
   showPopup(`Remote User ${user.uid} left, ending meeting`);
   remote_name = "";
+  remote_uid = 0;
 }
 
 //Agora RTM functions
@@ -345,7 +348,8 @@ async function loginRtm() {
       })
     // Display channel member stats
     channel.on('MemberJoined', function (memberId) {
-    showPopup(`${memberId} joined the RTM channel`)
+    showPopup(`${memberId} joined the RTM channel`);
+    remote_uid = memberId;
     })
     // Display channel member stats
     channel.on('MemberLeft', function (memberId) {
