@@ -1,8 +1,11 @@
 //modal stuff
 
 const modal = document.querySelector("[data-modal]")
+const modalMesssage = document.querySelector("[data-modal-chat]")
 const approveButton = document.querySelector("[data-approve-modal]")
 const denyButton = document.querySelector("[data-deny-modal]")
+const sendButton = document.querySelector("[data-send-modal]")
+const cancelButton = document.querySelector("[data-cancel-modal]")
 
 approveButton.addEventListener("click", () => {
   const sendId = $('#guestID')[0].outerText;
@@ -330,7 +333,7 @@ async function loginRtm() {
       showPopup(`RTM Peer Message received from: ${memberId}: "${message.text}"`);
       if (message.text == "req join") {
         showPopup(`${memberId} requesting to join`);
-        remote_name = localAttributesMapping[user.uid].value;
+        remote_name = localAttributesMapping[memberId].value;
         $("#guestID span").text(`${remote_name}`);
         modal.showModal();
       }
