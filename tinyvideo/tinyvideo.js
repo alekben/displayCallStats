@@ -224,28 +224,24 @@ async function joinChannelAsHost() {
         event.preventDefault();
         showPopup(`Pan remote camera left`);
         sendMessage("Pan camera left");
-        leaveChannel();
         break;
       case "ArrowRight":
         // end meeting.
         event.preventDefault();
         showPopup(`Pan remote camera right`);
         sendMessage("Pan camera right");
-        leaveChannel();
         break;
       case "ArrowUp":
         // end meeting.
         event.preventDefault();
         showPopup(`Pan remote camera up`);
         sendMessage("Pan camera up");
-        leaveChannel();
         break;
       case "ArrowDown":
         // end meeting.
         event.preventDefault();
         showPopup(`Pan remote camera down`);
         sendMessage("Pan camera down");
-        leaveChannel();
         break;
       default:
         return; // Quit when this doesn't handle the key event.
