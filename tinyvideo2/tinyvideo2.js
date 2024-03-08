@@ -90,9 +90,14 @@ $(() => {
   if (options.name == null) {
     options.name = options.uid.toString();
   }
-  if (options.token != null) {
-  options.token = options.token.replace(/ /g,'+');
+  if (options.rtcToken != null) {
+  options.rtcToken = options.rtcToken.replace(/ /g,'+');
   }
+  if (options.rtmToken != null) {
+    options.rtmToken = options.rtmToken.replace(/ /g,'+');
+    rtmConfig.token = options.rtmToken;
+  }
+
   if (options.appid == null ) {showPopup(`appid missing in URL`); ready = false;}
   if (options.channel == null ) {showPopup(`channel missing in URL`); ready = false}
   if (options.uid == null ) {showPopup(`uid missing in URL`); ready = false}
