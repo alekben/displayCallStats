@@ -424,7 +424,7 @@ async function loginRtm() {
       withMetadata: true,
       withLock: false,
     };
-    const localInbox = "inbox_ +" + options.uid;
+    const localInbox = "inbox_" + options.uid;
     try {
       const result = await rtmClient.subscribe(localInbox, subscribeOptions);
       console.log(`local inbox sub result: ${result}`);
