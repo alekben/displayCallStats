@@ -647,7 +647,9 @@ function handleRtmPresenceEvent(event) {
   if (channelType == "MESSAGE") {
     switch (action) {
       case "SNAPSHOT":
-        console.log(`CHANNEL: ${action} for ${publisher}`);
+        console.log(`CHANNEL: ${action} received`);
+        showPopup(`CHANNEL: Snapshot received for ${channelName}`);
+        remote_uid = snapshot[0].userId;
         break;
       case "INTERVAL":
         console.log(`CHANNEL: ${action} for ${publisher}`);
