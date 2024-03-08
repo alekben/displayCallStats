@@ -620,11 +620,11 @@ function handleRtmStorageEvent(event) {
   const action = event.eventType; // The action. Should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
   const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET")) {
-    const attributesReceived = JSON.stringify(data);
-    localAttributesMapping = attributesReceived;
+    const attributesReceived = data;
+    //localAttributesMapping = attributesReceived;
     showPopup(`Channel Attributes ${action}: ${attributesReceived}`);
-    if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
-      hostID = localAttributesMapping["hostID"].value;
+    if (attributesReceived["hostIn"].value = "true" && !options.host) {
+      hostID = attributesReceived["hostID"].value;
       showPopup(`Host ${hostID} in channel, requesting to join`);
      sendPeerMessage("req join", hostID);
     }
