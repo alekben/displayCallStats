@@ -430,16 +430,14 @@ async function loginRtm() {
   }
 
     //RTM 2 setup of local inbox for emulated peer-to-peer messaging
-
-    const subscribeOptions = {
-      withMessage: true,
-      withPresence: true, 
-      withMetadata: true,
-      withLock: false,
-    };
     localInbox = "inbox_" + options.uid;
     try {
-      const result = await rtmClient.subscribe(localInbox, subscribeOptions);
+      const result = await rtmClient.subscribe(localInbox, {
+        withMessage: true,
+        withPresence: false, 
+        withMetadata: true,
+        withLock: false,
+      });
       console.log(`local inbox sub result: ${result}`);
       showPopup(`local inbox sub result: ${result}`)
     } catch (status) {
@@ -447,10 +445,13 @@ async function loginRtm() {
     }
 
     //RTM 2 setup of shared channel
-
-    const rtmChannel = options.channel;
     try {
-      const result = await rtmClient.subscribe(rtmChannel, subscribeOptions);
+      const result = await rtmClient.subscribe(options.channel, {
+        withMessage: true,
+        withPresence: true, 
+        withMetadata: true,
+        withLock: false,
+      });
       console.log(`rtm channel sub result: ${result}`);
       showPopup(`rtm channel sub result: ${result}`)
     } catch (status) {
