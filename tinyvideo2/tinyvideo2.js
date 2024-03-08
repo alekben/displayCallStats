@@ -384,34 +384,17 @@ async function loginRtm() {
     console.log(status); 
   }
 
+  // Message
   rtmClient.addEventListener("message", event => {
     handleRtmChannelMessage(event);
   });
-    // Presence
+  // Presence
   rtmClient.addEventListener("presence", event => {
     handleRtmPresenceEvent(event);
-  });
-  // Topic
-  rtmClient.addEventListener("topic", event => {
-    const action = event.eventType; // The action. Should be one of 'SNAPSHOT'、'JOIN'、'LEAVE'.
-    const channelName = event.channelName; // The channel this event came from
-    const publisher = event.userId; // Who triggered this event
-    const topicInfos = event.topicInfos; // Topic information payload
-    const totalTopics = event.totalTopics; // How many topics
   });
   // Storage
   rtmClient.addEventListener("storage", event => {
     handleRtmStorageEvent(event);
-  });
-  // Lock
-  rtmClient.addEventListener("lock", event => {
-    const channelType = event.channelType; // The channel type. Should be "STREAM" or "MESSAGE" .
-    const channelName = event.channelName; // The channel this event came from
-    const publisher = event.publisher; // Who triggered this event
-    const action = event.evenType; // The action. Should be one of 'SET'、'REMOVED'、'ACQUIRED'、'RELEASED'、'EXPIRED'、'SNAPSHOT'
-    const lockName = event.lockName; // Which lock it affected
-    const ttl = event.ttl; // The ttl of this lock
-    const snapshot = event.snapshot; // Snapshot payload
   });
   // Connection State Change
   rtmClient.addEventListener("status", event => {
