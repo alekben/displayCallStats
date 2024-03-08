@@ -55,7 +55,8 @@ var options = {
   name: null,
   rtcToken: null,
   rtmToken: null,
-  host: false
+  host: false,
+  debug: 0
 };
 
 var localAttributesMapping = {};
@@ -84,6 +85,7 @@ $(() => {
   options.rtmToken = urlParams.get("rtmToken");
   options.host = urlParams.get("host");
   options.name = urlParams.get("name");
+  options.debug = urlParams.get("debug");
   if (options.host == null) {
     options.host = false;
   } else {
@@ -100,9 +102,9 @@ $(() => {
     rtmConfig.token = options.rtmToken;
   }
 
-  if (options.appid == null ) {showPopup(`appid missing in URL`); ready = false;}
-  if (options.channel == null ) {showPopup(`channel missing in URL`); ready = false}
-  if (options.uid == null ) {showPopup(`uid missing in URL`); ready = false}
+  if (options.appid == null ) {showPopup(`URL: =&appid param missing in URL!`, false); ready = false;}
+  if (options.channel == null ) {showPopup(`URL: =&channel param missing in URL!`, false); ready = false}
+  if (options.uid == null ) {showPopup(`URL: =&uid missing in URL!`, false); ready = false}
   if (ready) {  
     getTokens();
     loginRtm();
@@ -119,13 +121,13 @@ $("#local").click(function (e) {
     videoTrack.setEnabled(true); 
     $("#local_video").css("display", "block"); 
     muted = false;
-    showPopup(`Local Camera Unmuted`);
+    showPopup(`RTC: Local Camera Unmuted`, false);
     sendLocalMuteMessage();
   } else {
     videoTrack.setEnabled(false); 
     muted = true;
     $("#local_video").css("display", "none");
-    showPopup(`Local Camera Muted`);
+    showPopup(`RTC: Local Camera Muted`, false);
     sendLocalMuteMessage();
   }
 });
@@ -147,9 +149,14 @@ async function joinChannel() {
   rtcClient.on("user-joined", handleUserJoined);
   rtcClient.on("user-left", handleUserLeft);
   options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, Number(options.uid));
-  showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
+  showPopup(`RTC: Joined to ${options.channel} as ${options.uid}`, false);
   await rtcClient.publish(videoTrack);
-  showPopup(`Published local camera`);
+  showPopup(`RTC: Published local camera`, true);
+
+  window.addEventListener("unload", function () {
+    leaveChannel();
+  });
+
   //add keystroke listeners
   window.addEventListener("keydown", function (event) {
     if (event.defaultPrevented) {
@@ -160,17 +167,17 @@ async function joinChannel() {
         // mute remote camera.
         event.preventDefault();
         if (remote_joined) {
-            showPopup(`Toggle mute for ${remote_name}'s camera`);
+            showPopup(`KEYPRESS: Toggle mute for ${remote_name}'s camera`, true);
             sendMessage("m")
           } else {
-            showPopup(`Remote not joined`);
+            showPopup(`KEYPRESS: Remote not joined`, true);
           }
         break;
       case "s":
         // show stats.
         event.preventDefault();
         if (remote_joined && remote_published) {
-          showPopup(`Pressed s`);
+          showPopup(`KEYPRESS: Pressed s`, true);
           sendMessage("s")
         }
         break;
@@ -178,7 +185,7 @@ async function joinChannel() {
         // start mouse cursor capture.
         event.preventDefault();
         if (remote_joined) {
-          showPopup(`Pressed c`);
+          showPopup(`KEYPRESS: Pressed c`, true);
           sendMessage("c")
         }
         break;
@@ -190,25 +197,25 @@ async function joinChannel() {
       case "ArrowLeft":
           // end meeting.
           event.preventDefault();
-          showPopup(`Pan remote camera left`);
+          showPopup(`KEYPRESS: Pan remote camera left`, true);
           sendMessage("Pan camera left");
           break;
       case "ArrowRight":
           // end meeting.
           event.preventDefault();
-          showPopup(`Pan remote camera right`);
+          showPopup(`KEYPRESS: Pan remote camera right`, true);
           sendMessage("Pan camera right");
           break;
       case "ArrowUp":
           // end meeting.
           event.preventDefault();
-          showPopup(`Pan remote camera up`);
+          showPopup(`KEYPRESS: Pan remote camera up`, true);
           sendMessage("Pan camera up");
           break;
       case "ArrowDown":
           // end meeting.
           event.preventDefault();
-          showPopup(`Pan remote camera down`);
+          showPopup(`KEYPRESS: Pan remote camera down`, true);
           sendMessage("Pan camera down");
           break;
       default:
@@ -230,9 +237,14 @@ async function joinChannelAsHost() {
   rtcClient.on("user-joined", handleUserJoined);
   rtcClient.on("user-left", handleUserLeft);
   options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, Number(options.uid));
-  showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
+  showPopup(`RTC: Joined to ${options.channel} as ${options.uid}`, false);
   await rtcClient.publish(videoTrack);
-  showPopup(`Published local camera`);
+  showPopup(`RTC: Published local camera`, true);
+
+  window.addEventListener("unload", function () {
+    leaveChannel();
+  });
+
   //add keystroke listeners
   window.addEventListener("keydown", function (event) {
     if (event.defaultPrevented) {
@@ -243,17 +255,17 @@ async function joinChannelAsHost() {
         // mute remote camera.
         event.preventDefault();
         if (remote_joined) {
-            showPopup(`Toggle mute for ${remote_name}'s camera`);
+            showPopup(`KEYPRESS: Toggle mute for ${remote_name}'s camera`, true);
             sendMessage("m")
           } else {
-            showPopup(`Remote not joined`);
+            showPopup(`KEYPRESS: Remote not joined`, true);
           }
         break;
       case "s":
         // show stats.
         event.preventDefault();
         if (remote_joined && remote_published) {
-          showPopup(`Pressed s`);
+          showPopup(`KEYPRESS: Pressed s`, true);
           sendMessage("s")
         }
         break;
@@ -261,38 +273,38 @@ async function joinChannelAsHost() {
         // start mouse cursor capture.
         event.preventDefault();
         if (remote_joined) {
-          showPopup(`Pressed c`);
+          showPopup(`KEYPRESS: Pressed c`, true);
           sendMessage("c")
         }
         break;
       case "e":
         // end meeting.
         event.preventDefault();
-        showPopup(`Pressed e`);
+        showPopup(`KEYPRESS: Pressed e`, true);
         remote_joined ? sendMessage("e") : leaveChannel();
         break;
       case "ArrowLeft":
         // end meeting.
         event.preventDefault();
-        showPopup(`Pan remote camera left`);
+        showPopup(`KEYPRESS: Pan remote camera left`, true);
         sendMessage("Pan camera left");
         break;
       case "ArrowRight":
         // end meeting.
         event.preventDefault();
-        showPopup(`Pan remote camera right`);
+        showPopup(`KEYPRESS: Pan remote camera right`, true);
         sendMessage("Pan camera right");
         break;
       case "ArrowUp":
         // end meeting.
         event.preventDefault();
-        showPopup(`Pan remote camera up`);
+        showPopup(`KEYPRESS: Pan remote camera up`, true);
         sendMessage("Pan camera up");
         break;
       case "ArrowDown":
         // end meeting.
         event.preventDefault();
-        showPopup(`Pan remote camera down`);
+        showPopup(`KEYPRESS: Pan remote camera down`, true);
         sendMessage("Pan camera down");
         break;
       default:
@@ -331,7 +343,7 @@ async function leaveChannel() {
   await rtmClient.logout();
   $(`#remote`).remove();
   $("#ended").css("display", "block");
-  showPopup(`Ending meeting.`);
+  showPopup(`Ending meeting!`, false);
   remote_name = "";
   remote_uid = 0;
 }
@@ -343,19 +355,19 @@ async function handleUserPublished(user, mediaType) {
       $("#remote_id").text(`Remote ID: ${remote_name}`);
       $("#remote_id").css("display", "block");
       remote_joined = true;
-      showPopup(`Remote User ${remote_name} has published ${mediaType}`);
+      showPopup(`RTC: Remote User ${remote_name} has published ${mediaType}`, true);
       remote_published = true;
 }
 
 async function handleUserUnpublished(user, mediaType) {
       $("#remote").css({"background-image":"url(mute.jpg)", "background-size":"cover"});
-      showPopup(`Remote User ${remote_name} unpublished ${mediaType}, meeting still active`);
+      showPopup(`RTC: Remote User ${remote_name} unpublished ${mediaType}, meeting still active`, true);
       remote_published = false;
 }
 
 async function handleUserJoined(user) {
   remote_name = localAttributesMapping[user.uid].value;
-  showPopup(`Remote User ${remote_name} has joined, starting meeting`);
+  showPopup(`RTC: Remote User ${remote_name} has joined, starting meeting!`, false);
 }
 
 async function handleUserLeft(user) {
@@ -368,7 +380,7 @@ async function handleUserLeft(user) {
   await rtmClient.logout();
   $(`#remote`).remove();
   $("#ended").css("display", "block");
-  showPopup(`Remote User ${user.uid} left, ending meeting`);
+  showPopup(`RTC: Remote User ${user.uid} left, ending meeting!`, false );
   remote_name = "";
   remote_uid = 0;
 }
@@ -396,11 +408,11 @@ async function loginRtm() {
   });
   // Connection State Change
   rtmClient.addEventListener("status", event => {
-    showPopup(`RTM State changed To: ${event.state} Reason: ${event.reason}`)
+    showPopup(`SIGNALING: State changed To: ${event.state} Reason: ${event.reason}`, true)
   });
   // Token Privilege Will Expire
   rtmClient.addEventListener("tokenPrivilegeWillExpire", (channelName) => {
-    showPopup(`Token will expire for ${channelName}`);
+    showPopup(`SIGNALING: Token will expire for ${channelName}`, false);
   });
 
   try {
@@ -419,8 +431,8 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log("local inbox sub result: ",result.channelName);
-      showPopup(`local inbox sub result: ${result.channelName}`)
+      console.log("SIGNALING: Local inbox sub result: ",result.channelName);
+      showPopup(`SIGNALING: Local inbox sub result: ${result.channelName}`, false)
     } catch (status) {
       console.log(status);
     }
@@ -433,8 +445,8 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log("rtm channel sub result: ",result.channelName);
-      showPopup(`rtm channel sub result: ${result.channelName}`)
+      console.log("SIGNALING: rtm channel sub result: ",result.channelName);
+      showPopup(`SIGNALING: Shared Channel sub result: ${result.channelName}`, false)
     } catch (status) {
       console.log(status);
     }
@@ -477,11 +489,11 @@ async function loginRtm() {
 
     try {
       const result = await rtmClient.storage.setChannelMetadata(options.channel, "MESSAGE", attributeMapping, channelMetadataOptions);
-      console.log("rtm channel metadata result:",result.channelName);
-      showPopup(`rtm channel metadata result: ${result.channelName}`);
+      console.log("SIGNALING: rtm channel metadata result:",result.channelName);
+      showPopup(`SIGNALING: Shared Cannel metadata result: ${result.channelName}`, true);
     } catch (status) {
-      showPopup("Error setting channel metadata:",status.reason);
-      console.log(`Error setting channel metadata: ${status.reason}`);
+      console.log("SIGNALING: Error setting channel metadata:", status.reason);
+      showPopup(`SIGNALING ERROR: Error setting channel metadata: ${status.reason}`, false);
     }
 }
 
@@ -493,18 +505,18 @@ async function sendLocalMuteMessage () {
         try {
           const result = await rtmClient.publish(options.channel, channelMessage);
           console.log(result);
-          showPopup(`RTM Local Cam Mute Message Sent`)
+          showPopup(`SIGNALING: Local Cam Mute Message Sent`, true)
         } catch (status) {
           console.log(status);
         }
       } else {
-        showPopup(`No RTM client"`);
+        showPopup(`SIGNALING ERROR: No RTM client!"`, false);
       }
 }
 
 async function sendMessage (message) {
   if (!message) {
-      showPopup(`No message passed to send`);
+      showPopup(`SIGNALING ERROR: No message passed to send`, false);
   }
   else {
     if (rtmClient != null) {
@@ -512,32 +524,31 @@ async function sendMessage (message) {
       try {
         const result = await rtmClient.publish(options.channel, channelMessage);
         console.log(result);
-        showPopup(`RTM Channel message sent: "${channelMessage}"`)
+        showPopup(`SIGNALING: Sending to ${options.channel}: "${channelMessage}"`, true)
       } catch (status) {
         console.log(status);
       }
     } else {
-      showPopup(`No RTM client`)};
+      showPopup(`SIGNALING ERROR: No RTM client!`, false)};
   }  
 }
 
 async function sendPeerMessage (message, peerId) {
   if (!message) {
-      showPopup(`No message passed to peer send`);
-  } else {
+      showPopup(`SIGNALING ERROR: No message passed to peer send`, false);
+  } else { 
     if (peerId != null) {
       let peerMessage = message;
       let peerInbox = "inbox_" + peerId;
       try {
         const result = await rtmClient.publish(peerInbox, peerMessage);
         console.log(result);
-        showPopup(`RTM Peer message sent to ${peerId}: "${peerMessage}"`)
+        showPopup(`SIGNALING: Peer message sent to ${peerId}: "${peerMessage}"`, true)
       } catch (status) {
         console.log(status);
       }
-      showPopup(`RTM Peer message sent to ${peerId}: "${peerMessage}"`)
   } else {
-    showPopup(`no peerid passed`);
+    showPopup(`SIGNALING ERROR: No peerid passed`, false);
   }
 }  
 }
@@ -552,17 +563,17 @@ function handleRtmStorageEvent(event) {
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET" || action == "SNAPSHOT")) {
     if (data.totalCount != 0) {
       localAttributesMapping = data.metadata;
-      showPopup(`Channel Attributes ${action}: ${JSON.stringify(localAttributesMapping)}`);
+      showPopup(`SIGNALING: Channel Attributes ${action} for ${options.channel}`, true);
       if (localAttributesMapping["hostIn"].value == "true" && !options.host) {
         hostID = localAttributesMapping["hostID"].value;
-        showPopup(`Host ${hostID} in channel, requesting to join`);
+        showPopup(`SIGNALING: Host ${hostID} in channel, sending join request`, false);
         sendPeerMessage("req join", hostID);
       }
       } else {
-        console.log(`ERROR - Channel metadata empty`);
+        console.log(`SIGNALING ERROR - Channel metadata empty`);
       }
     } else {
-    showPopup(`${channelType} ${channelName} ${storageType} by ${publisher}`);
+    showPopup(`${channelType} ${channelName} ${storageType} by ${publisher}`, true);
   }
 }
 //RTM2 event handling functions
@@ -579,7 +590,7 @@ function handleRtmPresenceEvent(event) {
     switch (action) {
       case "SNAPSHOT":
         console.log(`CHANNEL: ${action} received`);
-        showPopup(`CHANNEL: Snapshot received for ${channelName}`);
+        showPopup(`SIGNALING: Snapshot received for ${channelName}`, true);
         for (var i = 0; i < snapshot.length; i++) {
           if (snapshot[i].userId != options.uid) {
             remote_uid = snapshot[i].userId;
@@ -591,7 +602,7 @@ function handleRtmPresenceEvent(event) {
         break;
       case "JOIN":
         console.log(`CHANNEL: ${action} for ${publisher}`);
-        showPopup(`${publisher} joined RTM channel ${channelName}`);
+        showPopup(`SIGNALING: ${publisher} joined channel ${channelName}`, true);
         if (publisher == options.uid) {
           console.log("ignoring");
         } else {
@@ -600,7 +611,7 @@ function handleRtmPresenceEvent(event) {
         break;
       case "LEAVE":
         console.log(`CHANNEL: ${action} for ${publisher}`);
-        showPopup(`CHANNEL: ${publisher} left the RTM channel ${channelName}`);
+        showPopup(`SIGNALING: ${publisher} left channel ${channelName}`, true);
         break;
       case "TIMEOUT":
         console.log(`CHANNEL: ${action} for ${publisher}`);
@@ -624,12 +635,12 @@ function handleRtmPresenceEvent(event) {
         break;
       case "JOIN":
         console.log(`STREAM: ${action} for ${publisher}`);
-        showPopup(`STREAM: ${publisher} joined RTM Stream channel ${channelName}`);
+        showPopup(`SIGNALING: ${publisher} joined Stream channel ${channelName}`, true);
         //remote_uid = publisher;
         break;
       case "LEAVE":
         console.log(`STREAM: ${action} for ${publisher}`);
-        showPopup(`STREAM: ${publisher} left the RTM channel ${channelName}`);
+        showPopup(`SIGNALING: ${publisher} left the RTM channel ${channelName}`, true);
         break;
       case "TIMEOUT":
         console.log(`STREAM: ${action} for ${publisher}`);
@@ -656,9 +667,9 @@ function handleRtmChannelMessage(event) {
   const pubTime = event.publishTime; // Message publisher timestamp
   if (channelType == "MESSAGE") {
     if (channelName == localInbox) {
-      showPopup(`RTM Peer Message received from: ${publisher}: "${message}"`);
+      showPopup(`SIGNALING: Peer Message received from: ${publisher}: "${message}"`, true);
       if (message == "req join") {
-        showPopup(`${publisher} requesting to join`);
+        showPopup(`SIGNALING: ${publisher} requesting to join`, false);
         remote_name = localAttributesMapping[publisher]?.value;
         remote_uid = publisher;
         $("#guestID span").text(`${remote_name}`);
@@ -666,32 +677,32 @@ function handleRtmChannelMessage(event) {
       }
       if (message == `approve join`) {
         const host_name = localAttributesMapping["hostID"].value;
-        showPopup(`${host_name} has approved joining`);
+        showPopup(`SIGNALING: ${host_name} has approved joining`, false);
         joinChannel();
       }
     } else {
-      showPopup(`RTM Channel Message received from: ${publisher}: "${message}"`);
+      showPopup(`SIGNALING: Channel Message received from: ${publisher}: "${message}"`, true);
       if (message == "m") {
-        showPopup(`Mute state toggeled by ${publisher}`);
+        showPopup(`SIGNALING: Mute state toggeled by ${publisher}`, false);
         if (muted) {
           videoTrack.setEnabled(true); 
           $("#local_video").css("display", "block"); 
-          showPopup(`Local Camera Unmuted`);
+          showPopup(`RTC: Local Camera Unmuted`, true);
           muted = false;
         } else {
           videoTrack.setEnabled(false); 
           muted = true;
           $("#local_video").css("display", "none");
-          showPopup(`Local Camera Muted`);
+          showPopup(`RTC: Local Camera Muted`, true);
         }
       }
       if (message == "e") {
-        showPopup(`Meeting ended by ${publisher}`);
+        showPopup(`SIGNALING: Meeting ended by ${publisher}`, false);
         leaveChannel();
       }
     }
   } else {
-    showPopup(`RTM Stream Channel Message received from: ${publisher}: "${message}"`);
+    showPopup(`SIGNALING: Stream Channel Message received from: ${publisher}: "${message}"`, true);
   }
 };
 
@@ -700,7 +711,8 @@ function handleRtmChannelMessage(event) {
 
 var popups = 0;
 
-function showPopup(message) {
+function showPopup(message, debug) {
+if (debug == true && options.debug == 1) {
   const newPopup = popups + 1;
   console.log(`Popup count: ${newPopup}`);
   const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
@@ -711,6 +723,20 @@ function showPopup(message) {
   $(`#popup-${newPopup}`).css("left", `${z}%`);
   popups++;
   setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+} else if (debug == true && options.debug == 0) {
+  return;
+} else {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+}
 }
 
 //Token getters
