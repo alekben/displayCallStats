@@ -39,9 +39,9 @@ var rtmClient;
 
 var rtmConfig = {
   token : null,
-  presenceTimeout : 300,
+  presenceTimeout : 30,
   logUpload : false,
-  logLevel : "debug",
+  logLevel : "info",
   cloudProxy : false,
   useStringUserId : false
 };
