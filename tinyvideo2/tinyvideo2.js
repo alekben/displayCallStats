@@ -10,13 +10,13 @@ const cancelButton = document.querySelector("[data-cancel-modal]")
 approveButton.addEventListener("click", () => {
   //const sendId = $('#guestID')[0].outerText;
 
-  sendPeerMessage("approve join", `inbox_${remote_uid}`);
+  sendPeerMessage("approve join", remote_uid);
   modal.close();
 })
 
 denyButton.addEventListener("click", () => {
   //const sendId = document.querySelector("guestId");
-  sendPeerMessage(`Denied joining by ${options.uid}`, `inbox_${remote_uid}`);
+  sendPeerMessage(`Denied joining by ${options.uid}`, remote_uid);
   modal.close();
 })
 
