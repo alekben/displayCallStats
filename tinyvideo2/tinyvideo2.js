@@ -70,6 +70,7 @@ var remote_published = false;
 var remote_name = "";
 var ready = true;
 var remote_uid = 0;
+var localInbox = "";
 
 //Pull URL parameters to join
 
@@ -424,7 +425,7 @@ async function loginRtm() {
       withMetadata: true,
       withLock: false,
     };
-    const localInbox = "inbox_" + options.uid;
+    localInbox = "inbox_" + options.uid;
     try {
       const result = await rtmClient.subscribe(localInbox, subscribeOptions);
       console.log(`local inbox sub result: ${result}`);
