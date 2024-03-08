@@ -620,7 +620,7 @@ function handleRtmStorageEvent(event) {
   const action = event.eventType; // The action. Should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
   const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET")) {
-    const attributesReceived = data;
+    const attributesReceived = data.metadata;
     //localAttributesMapping = attributesReceived;
     showPopup(`Channel Attributes ${action}: ${attributesReceived}`);
     if (attributesReceived["hostIn"].value = "true" && !options.host) {
