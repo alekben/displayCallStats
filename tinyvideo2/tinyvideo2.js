@@ -624,7 +624,7 @@ function handleRtmStorageEvent(event) {
     localAttributesMapping = attributesReceived;
     showPopup(`Channel Attributes ${action}: ${attributesReceived}`);
     if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
-      hostID = localAttributesMappingd["hostID"].value;
+      hostID = localAttributesMapping["hostID"].value;
       showPopup(`Host ${hostID} in channel, requesting to join`);
      sendPeerMessage("req join", hostID);
     }
