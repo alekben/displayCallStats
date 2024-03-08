@@ -621,7 +621,7 @@ function handleRtmStorageEvent(event) {
   const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET")) {
     const attributesReceived = JSON.stringify(data);
-    localAttributesMapping = attributes;
+    localAttributesMapping = attributesReceived;
     showPopup(`Channel Attributes ${action}: ${attributesReceived}`);
     if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
       hostID = localAttributesMapping["hostID"].value;
