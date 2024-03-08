@@ -486,7 +486,7 @@ async function loginRtm() {
     }
 
     try {
-      const result = await rtmClient.storage.setChannelMetadata(options.channel, "Updated to Channel Attr", attributeMapping, channelMetadataOptions);
+      const result = await rtmClient.storage.setChannelMetadata(options.channel, "MESSAGE", attributeMapping, channelMetadataOptions);
       console.log(`rtm channel metadata result: ${result}`);
       showPopup(`rtm channel metadata result: ${result}`);
     } catch (status) {
