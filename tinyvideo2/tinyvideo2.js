@@ -657,7 +657,11 @@ function handleRtmPresenceEvent(event) {
       case "JOIN":
         console.log(`CHANNEL: ${action} for ${publisher}`);
         showPopup(`${publisher} joined RTM channel ${channelName}`);
-        remote_uid = publisher;
+        if (publisher == options.uid) {
+          console.log("ignoring");
+        } else {
+          remote_uid = publisher;
+        }
         break;
       case "LEAVE":
         console.log(`CHANNEL: ${action} for ${publisher}`);
