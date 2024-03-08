@@ -558,13 +558,12 @@ function handleRtmStorageEvent(event) {
       if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
         hostID = localAttributesMapping["hostID"].value;
         showPopup(`Host ${hostID} in channel, requesting to join`);
-       sendPeerMessage("req join", hostID);
+        sendPeerMessage("req join", hostID);
+      }
       } else {
         console.log(`ERROR - Channel metadata empty`);
       }
-    }
-
-  } else {
+    } else {
     showPopup(`${channelType} ${channelName} ${storageType} by ${publisher}`);
   }
 }
