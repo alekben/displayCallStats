@@ -185,9 +185,7 @@ async function joinChannel() {
       case "e":
         // end meeting.
         event.preventDefault();
-        showPopup(`Pressed e`);
-        sendMessage("e");
-        leaveChannel();
+        remote_joined ? sendMessage("e") : leaveChannel();
         break;
       case "ArrowLeft":
           // end meeting.
@@ -271,7 +269,7 @@ async function joinChannelAsHost() {
         // end meeting.
         event.preventDefault();
         showPopup(`Pressed e`);
-        sendMessage("e");
+        remote_joined ? sendMessage("e") : leaveChannel();
         break;
       case "ArrowLeft":
         // end meeting.
@@ -661,7 +659,7 @@ function handleRtmChannelMessage(event) {
       showPopup(`RTM Peer Message received from: ${publisher}: "${message}"`);
       if (message == "req join") {
         showPopup(`${publisher} requesting to join`);
-        remote_name = localAttributesMapping[publisher].value;
+        remote_name = localAttributesMapping[publisher]?.value;
         $("#guestID span").text(`${remote_name}`);
         modal.showModal();
       }
