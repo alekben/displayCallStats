@@ -660,6 +660,7 @@ function handleRtmChannelMessage(event) {
       if (message == "req join") {
         showPopup(`${publisher} requesting to join`);
         remote_name = localAttributesMapping[publisher]?.value;
+        remote_uid = publisher;
         $("#guestID span").text(`${remote_name}`);
         modal.showModal();
       }
