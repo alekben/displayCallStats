@@ -601,7 +601,7 @@ function handleRtmPresenceEvent(event) {
       case "STATE_CHANGED":
         console.log(`CHANNEL: ${action} for ${publisher}`);
         break;
-      case "OUT_OF_SERVICE":
+      case "ERROR_OUT_OF_SERVICE":
         console.log(`CHANNEL: ${action} for ${publisher}`);
         break;
       default:
