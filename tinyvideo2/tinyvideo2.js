@@ -441,10 +441,8 @@ async function loginRtm() {
       console.log(status);
     }
   
-
-
     const channelMetadataOptions = {
-      majorRevision: -1, // Use this field to enable version number verification of the entire set of channel attributes.
+      majorRevision: -1,
       addTimeStamp: true,
       addUserId: true,
     };
@@ -638,7 +636,7 @@ function handleRtmPresenceEvent(event) {
       case "STATE_CHANGED":
         console.log(`STREAM: ${action} for ${publisher}`);
         break;
-      case "OUT_OF_SERVICE":
+      case "ERROR_OUT_OF_SERVICE":
         console.log(`STREAM: ${action} for ${publisher}`);
         break;
       default:
