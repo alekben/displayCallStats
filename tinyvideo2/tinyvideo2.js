@@ -764,7 +764,7 @@ function showPopup(message) {
 async function getTokens() {
   try {
     const res = await fetch(
-      localTokenUrls.host + localTokenUrls.endpoint, {
+      localTokenUrls.host + "/" + localTokenUrls.endpoint, {
         method: "POST",
         headers: {
             "X-Requested-With": "XMLHttpRequest",
@@ -787,7 +787,7 @@ async function getTokens() {
 
   try {
     const res = await fetch(
-      localTokenUrls.host + localTokenUrls.endpoint, {
+      localTokenUrls.host + "/" + localTokenUrls.endpoint, {
         method: "POST",
         headers: {
             "X-Requested-With": "XMLHttpRequest",
