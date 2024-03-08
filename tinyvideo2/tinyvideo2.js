@@ -551,7 +551,7 @@ function handleRtmStorageEvent(event) {
   const storageType = event.storageType; // Which category the event is, should be 'USER'、'CHANNEL'
   const action = event.eventType; // The action. Should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
   const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
-  if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET")) {
+  if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET" || action == "SNAPSHOT")) {
     if (data.metadata) {
       localAttributesMapping = data.metadata;
       showPopup(`Channel Attributes ${action}: ${JSON.parse(JSON.stringify(localAttributesMapping))}`);
@@ -565,7 +565,7 @@ function handleRtmStorageEvent(event) {
     }
 
   } else {
-    showPopup(`${channelType} ${channelName} ${storageType} ${publisher}`);
+    showPopup(`${channelType} ${channelName} ${storageType} by ${publisher}`);
   }
 }
 //RTM2 event handling functions
