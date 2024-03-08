@@ -421,7 +421,7 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log("local inbox sub result: ", result.channelName);
+      console.log("local inbox sub result: ",result.channelName);
       showPopup(`local inbox sub result: ${result.channelName}`)
     } catch (status) {
       console.log(status);
@@ -435,7 +435,7 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log("rtm channel sub result: ", result.channelName);
+      console.log("rtm channel sub result: ",result.channelName);
       showPopup(`rtm channel sub result: ${result.channelName}`)
     } catch (status) {
       console.log(status);
@@ -479,10 +479,10 @@ async function loginRtm() {
 
     try {
       const result = await rtmClient.storage.setChannelMetadata(options.channel, "MESSAGE", attributeMapping, channelMetadataOptions);
-      console.log(`rtm channel metadata result: ${result}`);
-      showPopup(`rtm channel metadata result: ${result}`);
+      console.log("rtm channel metadata result:",result.channelName);
+      showPopup(`rtm channel metadata result: ${result.channelName}`);
     } catch (status) {
-      showPopup(`Error setting channel metadata: ${status.reason}`);
+      showPopup("Error setting channel metadata:",status.reason);
       console.log(`Error setting channel metadata: ${status.reason}`);
     }
 }
@@ -555,7 +555,7 @@ function handleRtmStorageEvent(event) {
     if (data.totalCount != 0) {
       localAttributesMapping = data.metadata;
       showPopup(`Channel Attributes ${action}: ${JSON.stringify(localAttributesMapping)}`);
-      if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
+      if (localAttributesMapping["hostIn"].value == "true" && !options.host) {
         hostID = localAttributesMapping["hostID"].value;
         showPopup(`Host ${hostID} in channel, requesting to join`);
         sendPeerMessage("req join", hostID);
