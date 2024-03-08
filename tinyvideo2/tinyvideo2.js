@@ -392,8 +392,7 @@ async function loginRtm() {
   });
   // Token Privilege Will Expire
   rtmClient.addEventListener("tokenPrivilegeWillExpire", (channelName) => {
-    const channelName = channelName; // The Channel for which the token will expire
-    showPopup(`Token will expire`);
+    showPopup(`Token will expire for ${channelName}`);
   });
 
   try {
