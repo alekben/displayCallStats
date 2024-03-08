@@ -409,15 +409,6 @@ async function loginRtm() {
     console.log(status);
   }
 
-  //rtmClient = AgoraRTM.createInstance(options.appid, { enableLogUpload: true, logFilter: AgoraRTM.LOG_FILTER_OFF});
-  //const rtmOptions = {uid: options.uid, token: options.token};
-  //await rtmClient.login(rtmOptions);
-  // Client Event listeners
-  // Display connection state changes
-  // rtmClient.on('ConnectionStateChanged', function (state, reason) {
-  //  showPopup(`RTM State changed To: ${state} Reason: ${reason}`)
-  //  })
-
     //RTM 2 setup of local inbox for emulated peer-to-peer messaging
 
     const subscribeOptions = {
@@ -446,10 +437,7 @@ async function loginRtm() {
       console.log(status);
     }
   
-    //channel = await rtmClient.createChannel(`${options.channel}`);
-    //await channel.join().then (() => {
-    //  showPopup(`Joined to RTM channel ${options.channel} as UID ${options.uid}`)
-    //})
+
 
     const channelMetadataOptions = {
       majorRevision: -1, // Use this field to enable version number verification of the entire set of channel attributes.
@@ -495,68 +483,8 @@ async function loginRtm() {
       showPopup(`Error setting channel metadata: ${status.reason}`);
       console.log(`Error setting channel metadata: ${status.reason}`);
     }
-
-    //await rtmClient.addOrUpdateChannelAttributes(options.channel, attributeMapping, //{enableNotificationToChannelMembers: true}).then (() => {
-    //  showPopup(`Setting Channel Attribute as ${role} for UID ${options.uid}`);
-    //})
-
-    //channel.on('ChannelMessage', function (message, memberId) {
-    //showPopup(`RTM Message received from: ${memberId}: "${message.text}"`);
-    //if (message.text == "m") {
-    //  showPopup(`Mute state toggeled by ${memberId}`);
-    //  if (muted) {
-    //    videoTrack.setEnabled(true); 
-    //    $("#local_video").css("display", "block"); 
-    //    showPopup(`Local Camera Unmuted`);
-    //    muted = false;
-    //  } else {
-    //    videoTrack.setEnabled(false); 
-    //    muted = true;
-    //    $("#local_video").css("display", "none");
-    //    showPopup(`Local Camera Muted`);
-    //  }
-    //}
-    //})
-
-    //rtmClient.on('MessageFromPeer', function (message, memberId, props) {
-    //  showPopup(`RTM Peer Message received from: ${memberId}: "${message.text}"`);
-    //  if (message.text == "req join") {
-    //    showPopup(`${memberId} requesting to join`);
-    //    remote_name = localAttributesMapping[memberId].value;
-    //    $("#guestID span").text(`${remote_name}`);
-    //    modal.showModal();
-    //  }
-    //  if (message.text == `approve join`) {
-    //    const host_name = localAttributesMapping["hostID"].value;
-    //    showPopup(`${host_name} has approved joining`);
-    //    joinChannel();
-    //  }
-    //  })
-
-    // Display channel member stats
-    //channel.on('MemberJoined', function (memberId) {
-    //showPopup(`${memberId} joined the RTM channel`);
-    //remote_uid = memberId;
-    //})
-    // Display channel member stats
-    //channel.on('MemberLeft', function (memberId) {
-    //showPopup(`${memberId} left the RTM channel`)
-    //})
-
-    /* Report and Update on Channel Attributes to local object
-    channel.on('AttributesUpdated', function (attributes) {
-    const attributesReceived = JSON.stringify(attributes);
-    localAttributesMapping = attributes;
-    showPopup(`Channel Attributes Updated: ${attributesReceived}`);
-    if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
-      hostID = localAttributesMapping["hostID"].value;
-      showPopup(`Host ${hostID} in channel, requesting to join`);
-     sendPeerMessage("req join", hostID);
-    }
-   })
-   */
 }
-  
+
 async function sendLocalMuteMessage () {
       if (rtmClient != null) {
         let channelMessage = "";
@@ -644,7 +572,7 @@ function handleRtmPresenceEvent(event) {
   const states = event.stateChanged; // User state payload
   const interval = event.interval; // Interval payload
   const snapshot = event.snapshot; // Snapshot payload
-  if (channelType == "MESSAGE") {
+  if (channelType == "MESSAGE" && channelName != localInbox) {
     switch (action) {
       case "SNAPSHOT":
         console.log(`CHANNEL: ${action} received`);
