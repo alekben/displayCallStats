@@ -462,7 +462,7 @@ async function loginRtm() {
       attributeMapping = [
         {
           key: "hostIn",
-          value: true,
+          value: "true",
           revision: -1
         },
         {
