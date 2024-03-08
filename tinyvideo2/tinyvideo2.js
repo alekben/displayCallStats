@@ -421,8 +421,8 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log(`local inbox sub result: ${result}`);
-      showPopup(`local inbox sub result: ${result}`)
+      console.log(`local inbox sub result: ${JSON.parse(JSON.stringify(result))}`);
+      showPopup(`local inbox sub result: ${JSON.parse(JSON.stringify(result))}`)
     } catch (status) {
       console.log(status);
     }
@@ -583,9 +583,10 @@ function handleRtmPresenceEvent(event) {
       case "SNAPSHOT":
         console.log(`CHANNEL: ${action} received`);
         showPopup(`CHANNEL: Snapshot received for ${channelName}`);
-        remote_uid = snapshot[0].userId;
-        if (remote_uid == options.uid) {
-          remote_uid = snapshot[1].userId;
+        for (var i = 0; i < snapshot.length; i++) {
+          if (snapshot[i].userId != options.uid) {
+            remote_uid = snapshot[i].userId;
+          }
         }
         break;
       case "INTERVAL":
