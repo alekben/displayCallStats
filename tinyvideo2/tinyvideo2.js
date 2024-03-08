@@ -146,7 +146,7 @@ async function joinChannel() {
   rtcClient.on("user-unpublished", handleUserUnpublished);
   rtcClient.on("user-joined", handleUserJoined);
   rtcClient.on("user-left", handleUserLeft);
-  options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, options.uid);
+  options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, Number(options.uid));
   showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
   await rtcClient.publish(videoTrack);
   showPopup(`Published local camera`);
@@ -189,6 +189,30 @@ async function joinChannel() {
         sendMessage("e");
         leaveChannel();
         break;
+      case "ArrowLeft":
+          // end meeting.
+          event.preventDefault();
+          showPopup(`Pan remote camera left`);
+          sendMessage("Pan camera left");
+          break;
+      case "ArrowRight":
+          // end meeting.
+          event.preventDefault();
+          showPopup(`Pan remote camera right`);
+          sendMessage("Pan camera right");
+          break;
+      case "ArrowUp":
+          // end meeting.
+          event.preventDefault();
+          showPopup(`Pan remote camera up`);
+          sendMessage("Pan camera up");
+          break;
+      case "ArrowDown":
+          // end meeting.
+          event.preventDefault();
+          showPopup(`Pan remote camera down`);
+          sendMessage("Pan camera down");
+          break;
       default:
         return; // Quit when this doesn't handle the key event.
     }
@@ -207,7 +231,7 @@ async function joinChannelAsHost() {
   rtcClient.on("user-unpublished", handleUserUnpublished);
   rtcClient.on("user-joined", handleUserJoined);
   rtcClient.on("user-left", handleUserLeft);
-  options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, options.uid);
+  options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, Number(options.uid));
   showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
   await rtcClient.publish(videoTrack);
   showPopup(`Published local camera`);
@@ -292,7 +316,7 @@ async function unsubChannel(channel) {
 
 async function clearMetadata(channel) {
   try {
-    const result = await rtmClient.storage.removeChannelMetadata(channel, "CLEARMETADATA");
+    const result = await rtmClient.storage.removeChannelMetadata(channel, "MESSAGE");
     console.log(result);
 } catch (status) {
     console.log(status);
@@ -303,11 +327,9 @@ async function leaveChannel() {
   videoTrack.stop();
   videoTrack.close();
   await rtcClient.leave();
-  await unsubChannel(options.channel);
   await clearMetadata(options.channel);
-  //await rtmClient.clearChannelAttributes(options.channel);
+  await unsubChannel(options.channel);
   localAttributesMapping = {};
-  //await channel.leave();
   await rtmClient.logout();
   $(`#remote`).remove();
   $("#ended").css("display", "block");
@@ -342,11 +364,9 @@ async function handleUserLeft(user) {
   videoTrack.stop();
   videoTrack.close();
   await rtcClient.leave();  
-  await unsubChannel(options.channel);
   await clearMetadata(options.channel);
-  //await rtmClient.clearChannelAttributes(options.channel);
+  await unsubChannel(options.channel);
   localAttributesMapping = {};
-  //await channel.leave();
   await rtmClient.logout();
   $(`#remote`).remove();
   $("#ended").css("display", "block");
@@ -550,14 +570,18 @@ function handleRtmStorageEvent(event) {
   const action = event.eventType; // The action. Should be one of "SNAPSHOT"、"SET"、"REMOVE"、"UPDATE" or "NONE"
   const data = event.data; // 'USER_METADATA' or 'CHANNEL_METADATA' payload
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET")) {
-    const attributesReceived = data.metadata;
-    localAttributesMapping = attributesReceived;
-    showPopup(`Channel Attributes ${action}: ${attributesReceived}`);
-    if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
-      hostID = localAttributesMapping["hostID"].value;
-      showPopup(`Host ${hostID} in channel, requesting to join`);
-     sendPeerMessage("req join", hostID);
+    if (data.metadata) {
+      localAttributesMapping = data.metadata;
+      showPopup(`Channel Attributes ${action}: ${JSON.parse(JSON.stringify(attributesReceived))}`);
+      if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
+        hostID = localAttributesMapping["hostID"].value;
+        showPopup(`Host ${hostID} in channel, requesting to join`);
+       sendPeerMessage("req join", hostID);
+      } else {
+        console.log(`ERROR - Channel metadata empty`);
+      }
     }
+
   } else {
     showPopup(`${channelType} ${channelName} ${storageType} ${publisher}`);
   }
@@ -676,6 +700,10 @@ function handleRtmChannelMessage(event) {
           $("#local_video").css("display", "none");
           showPopup(`Local Camera Muted`);
         }
+      }
+      if (message == "e") {
+        showPopup(`Meeting ended by ${publisher}`);
+        leaveChannel();
       }
     }
   } else {
