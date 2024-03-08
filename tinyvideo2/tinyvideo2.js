@@ -490,7 +490,7 @@ async function loginRtm() {
       console.log(`rtm channel metadata result: ${result}`);
       showPopup(`rtm channel metadata result: ${result}`);
     } catch (status) {
-      showPop(`Error setting channel metadata: ${status.reason}`);
+      showPopup(`Error setting channel metadata: ${status.reason}`);
       console.log(`Error setting channel metadata: ${status.reason}`);
     }
 
