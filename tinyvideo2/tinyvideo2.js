@@ -554,7 +554,7 @@ function handleRtmStorageEvent(event) {
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET")) {
     if (data.metadata) {
       localAttributesMapping = data.metadata;
-      showPopup(`Channel Attributes ${action}: ${JSON.parse(JSON.stringify(attributesReceived))}`);
+      showPopup(`Channel Attributes ${action}: ${JSON.parse(JSON.stringify(localAttributesMapping))}`);
       if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
         hostID = localAttributesMapping["hostID"].value;
         showPopup(`Host ${hostID} in channel, requesting to join`);
