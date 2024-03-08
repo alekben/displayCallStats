@@ -144,7 +144,7 @@ async function joinChannel() {
   rtcClient.on("user-unpublished", handleUserUnpublished);
   rtcClient.on("user-joined", handleUserJoined);
   rtcClient.on("user-left", handleUserLeft);
-  options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
+  options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, options.uid);
   showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
   await rtcClient.publish(videoTrack);
   showPopup(`Published local camera`);
@@ -205,7 +205,7 @@ async function joinChannelAsHost() {
   rtcClient.on("user-unpublished", handleUserUnpublished);
   rtcClient.on("user-joined", handleUserJoined);
   rtcClient.on("user-left", handleUserLeft);
-  options.uid = await rtcClient.join(options.appid, options.channel, options.token || null, options.uid);
+  options.uid = await rtcClient.join(options.appid, options.channel, options.rtcToken || null, options.uid);
   showPopup(`Joined to RTC Channel ${options.channel} as ${options.uid}`);
   await rtcClient.publish(videoTrack);
   showPopup(`Published local camera`);
