@@ -421,8 +421,8 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log(`local inbox sub result: ${JSON.parse(JSON.stringify(result))}`);
-      showPopup(`local inbox sub result: ${JSON.parse(JSON.stringify(result))}`)
+      console.log("local inbox sub result: ", result.channelName);
+      showPopup(`local inbox sub result: ${result.channelName}`)
     } catch (status) {
       console.log(status);
     }
@@ -435,8 +435,8 @@ async function loginRtm() {
         withMetadata: true,
         withLock: false,
       });
-      console.log(`rtm channel sub result: ${result}`);
-      showPopup(`rtm channel sub result: ${result}`)
+      console.log("rtm channel sub result: ", result.channelName);
+      showPopup(`rtm channel sub result: ${result.channelName}`)
     } catch (status) {
       console.log(status);
     }
@@ -554,7 +554,7 @@ function handleRtmStorageEvent(event) {
   if (channelType == "MESSAGE" && storageType == "CHANNEL" && (action == "UPDATE" || action == "SET" || action == "SNAPSHOT")) {
     if (data.totalCount != 0) {
       localAttributesMapping = data.metadata;
-      showPopup(`Channel Attributes ${action}: ${JSON.parse(JSON.stringify(localAttributesMapping))}`);
+      showPopup(`Channel Attributes ${action}: ${JSON.stringify(localAttributesMapping)}`);
       if (localAttributesMapping["hostIn"].value = "true" && !options.host) {
         hostID = localAttributesMapping["hostID"].value;
         showPopup(`Host ${hostID} in channel, requesting to join`);
