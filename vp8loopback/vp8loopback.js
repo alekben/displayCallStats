@@ -746,9 +746,6 @@ function handleNetworkQuality(stats) {
   console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
 }
 
-
-
-
 function getRemoteCount( object ) {
   var length = 0;
   for( var key in object ) {

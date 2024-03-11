@@ -107,6 +107,17 @@
             <!-- collapse -->
             <div class="collapse" id="agora-collapse" style="width: 100%;z-index: 9999;">
               <div class="card card-body">
+                <!-- Camera -->
+                <h6 class="device-name">Camera</h6>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">Cams</button>
+                    <div class="cam-list dropdown-menu"></div>
+                  </div>
+                  <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button"
+                    readonly>
+                </div>
                 <!-- Microphone -->
                 <h6 class="device-name">Microphone</h6>
                 <div class="input-group mb-3">
@@ -118,14 +129,22 @@
                   <input type="text" class="mic-input form-control" aria-label="Text input with dropdown button"
                     readonly>
                 </div>
- 
+                <!-- profile -->
+                <h6 class="device-name">Video Profiles</h6>
+                <div class="input-group">
+                <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Profiles</button>
+                <div class="profile-cam-list dropdown-menu"></div>
+                </div>
+                <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
+                </div>
                 <!-- profile -->
                 <h6 class="device-name">Mic Profiles</h6>
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
                       aria-haspopup="true" aria-expanded="false">Profiles</button>
-                    <div class="profile-list dropdown-menu"></div>
+                    <div class="profile-mic-list dropdown-menu"></div>
                   </div>
                   <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button"
                     readonly>
