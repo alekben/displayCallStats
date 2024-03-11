@@ -347,12 +347,12 @@ async function switchCaptions() {
   rttClientJoined = false;
   rttClient.leave();
   $("#remoteCaptions").css("display", "block");
-  $("#remoteCaptions").text(`Show Captions`);
+  $("#captions").text(`Show Captions`);
  } else {
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
   rttClientJoined = true;
   showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
   $("#remoteCaptions").css("display", "none");
-  $("#remoteCaptions").text(`Hide Captions`);
+  $("#captions").text(`Hide Captions`);
  }
 };
