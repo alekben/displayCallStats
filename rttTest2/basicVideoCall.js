@@ -1,4 +1,20 @@
 
+//popup stuff
+var popups = 0;
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+}
+
 var client;
 var rttClient;
 
@@ -221,9 +237,18 @@ $("#join-form").submit(async function (e) {
         codec: "vp8"
       });
     }
+
+    if (!rttClient) {
+      rttClient = AgoraRTC.createClient({
+        mode: "live",
+        codec: "vp8",
+        role: "audience"
+      });
+    }
+
+    //main RTT client starts as audience, can be set whenever
     client.setClientRole("host");
     options.channel = $("#channel").val();
-
     options.uid = $("#uid").val();
     if (isNaN(options.uid)) {
       console.log('uid is string');
@@ -294,7 +319,9 @@ async function join() {
   rttClient.on("stream-message", handleStreammessage);
 
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+  showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
+  showPopup(`RTT stream message client joined to ${options.channel} as ${options.uid}`);
 
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
