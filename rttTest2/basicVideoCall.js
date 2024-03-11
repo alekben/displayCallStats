@@ -321,7 +321,7 @@ async function join() {
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
-  showPopup(`RTT stream message client joined to ${options.channel} as ${options.uid}`);
+  showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
 
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
@@ -335,7 +335,8 @@ async function join() {
   }
 
   localTracks.videoTrack.play("local-player");
-  $("#local-player-name").text(`localVideo(${options.uid})`);
+  localIntUid = client._joinInfo.uid;
+  $("#local-player-name").text(`localVideo(String: ${options.uid}, Int: ${localIntUid})`);
   $("#joined-setup").css("display", "flex");
 
   await client.publish(Object.values(localTracks));
@@ -429,7 +430,6 @@ async function leave() {
   await rttClient.leave();
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
-  $("#setEncryption").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
