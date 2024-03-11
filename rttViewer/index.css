@@ -76,12 +76,16 @@
   position: relative;
 }
 
+.title {
+  margin-left: 30%;
+}
+
 .remoteCaptions {
   color: rgb(255, 255, 255);
   margin-left: 10px;
   position: absolute;
   font-size: xx-large;
-  margin-left: 50%;
+  margin-left: 30%;
   bottom: 10px;
 }
 
