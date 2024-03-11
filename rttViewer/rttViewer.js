@@ -257,7 +257,7 @@ function addTranscribeItem(uid, msg) {
     <span class="uid">${uid}</span>:
     <span class="msg">${msg}</span>
   </div>`);
-    $("#stt-transcribe .content").append($item);
+    $("#stt-transcribe .content").prepend($item);
   }
 }
 function addTranslateItem(uid, msg) {
