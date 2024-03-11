@@ -303,8 +303,8 @@ async function subscribe(user, mediaType) {
       <div id="player-wrapper-${uid}">
         <div class="player-with-rtt">
           <div id="player-${uid}" class="player"></div>
-          <div class="remoteCaptions">
-          <p>Remote: ${uid}</p><br>
+          <div id="remoteCaptions" class="remoteCaptions">
+          <p>Remote: ${uid}</p>
           <p id="subtitles"></p></div>
       </div>
       </div>
@@ -347,10 +347,12 @@ async function switchCaptions() {
   rttClientJoined = false;
   rttClient.leave();
   $("#remoteCaptions").css("display", "block");
+  $("#remoteCaptions").text(`Show Captions`);
  } else {
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
   rttClientJoined = true;
   showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
   $("#remoteCaptions").css("display", "none");
+  $("#remoteCaptions").text(`Hide Captions`);
  }
 };
