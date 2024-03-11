@@ -313,12 +313,8 @@ async function join() {
   //await setEncryption();
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.on('stream-message', (msgUid, event) => {
-  console.log("stream-message", msgUid);
-  console.log("stream-message-data", event);
-  });
+  client.on("stream-message", handleStreammessage);
 
-  //client.on("stream-message", handleStreammessage2);
   // Join the channel.
   options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
   if (!localTracks.audioTrack) {
@@ -426,13 +422,6 @@ function handleStreammessage(msgUid, data) {
     }
   }
 }
-
-
-//function handleStreammessage2(msgUid, data) {
-//  // use protobuf decode data
-//  console.log("handleStreammessage", msgUid);
-//  console.log("handleStreammessage", data);
-//}
 
 function addTranscribeItem(uid, msg) {
   if ($(`#transcribe-${transcribeIndex}`)[0]) {
