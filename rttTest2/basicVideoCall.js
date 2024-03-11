@@ -10,6 +10,7 @@
  * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
  */
 var client;
+var rttClient;
 var encryption = false;
 
 /*
@@ -33,6 +34,14 @@ if (!client) {
   });
 }
 
+if (!rttClient) {
+  rttClient = AgoraRTC.createClient({
+    mode: "live",
+    codec: "vp8",
+    role: "audience"
+  });
+}
+
 /*
  * On initiation. `client` is not attached to any project or channel for any specific user.
  */
@@ -40,6 +49,7 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
+  rttUid: null,
   token: null
 };
 
@@ -237,7 +247,15 @@ $("#join-form").submit(async function (e) {
     }
     client.setClientRole("host");
     options.channel = $("#channel").val();
-    options.uid = Number($("#uid").val());
+
+    options.uid = $("#uid").val();
+    if (isNaN(options.uid)) {
+      console.log('uid is string');
+      options.uid = String(options.uid);
+    } else {
+      console.log('uid is int');
+      options.uid = Number(options.uid);
+    }
     options.appid = $("#appid").val();
     options.token = $("#token").val();
     await join();
@@ -313,10 +331,12 @@ async function join() {
   //await setEncryption();
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.on("stream-message", handleStreammessage);
+  rttClient.on("stream-message", handleStreammessage);
 
   // Join the channel.
-  options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
+  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+  options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
+
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       encoderConfig: "music_standard"
@@ -470,6 +490,7 @@ async function leave() {
 
   // leave the channel
   await client.leave();
+  await rttClient.leave();
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#setEncryption").attr("disabled", false);
@@ -542,3 +563,4 @@ function removeItemOnce(arr, value) {
   }
   return arr;
 }
+
