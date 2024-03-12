@@ -22,7 +22,17 @@ var rttClientJoined = false;
 var remoteUsers = {};
 var remotesArray = [];
 
+//modal stuff
 
+const modal = document.querySelector("[data-modal]")
+const approveButton = document.querySelector("[data-approve-modal]")
+
+approveButton.addEventListener("click", () => {
+  modal.close();
+  $("#modal").css("display", "none");
+  $('#agora-collapse').collapse('toggle');
+  // open the Advanced Settings button
+})
 
 // RTC client for host/audience
 if (!client) {
@@ -185,11 +195,12 @@ $("#start-trans").click(async function (e) {
   }
   try {
     await startTranscription()
-    /* .then(response => response.json())
+    then(response => response.json())
     .then(json => {
       console.log(json);
     }
-  ) If I log the output of the start to the console, the button changes below don't work */;
+  )
+  //If I log the output of the start to the console, the button changes below don't work;
     $("#start-trans").attr("disabled", true);
     $("#query-trans").attr("disabled", false);
     $("#stop-trans").attr("disabled", false);
@@ -405,10 +416,14 @@ function GetAuthorization() {
   const customerKey = $("#key").val();
   const customerSecret = $("#secret").val();
   if (!customerKey || !customerSecret) {
+    console.log("empty auth info");
+    $("#modalMessage span").text(`FILL IN THE CUSTOMERID AND SECRET IN THE ADVANCED SETTINGS, FOOL!`);
+    $("#modal").css("display", "block");
+    modal.showModal();
     return "";
   }
   const authorization = `Basic ` + btoa(`${customerKey}:${customerSecret}`);
-  console.log("Got authorization")
+  console.log("got auth info")
   return authorization;
 }
 
@@ -499,6 +514,7 @@ async function startTranscription() {
   });
   res = await res.json();
   taskId = res.taskId;
+  return res;
 }
 async function queryTranscription() {
   if (!taskId) {
