@@ -30,6 +30,7 @@ const approveButton = document.querySelector("[data-approve-modal]")
 approveButton.addEventListener("click", () => {
   modal.close();
   $("#modal").css("display", "none");
+  $('#agora-collapse').collapse('toggle');
   // open the Advanced Settings button
 })
 
@@ -194,11 +195,12 @@ $("#start-trans").click(async function (e) {
   }
   try {
     await startTranscription()
-    /* .then(response => response.json())
+    then(response => response.json())
     .then(json => {
       console.log(json);
     }
-  ) If I log the output of the start to the console, the button changes below don't work */;
+  )
+  //If I log the output of the start to the console, the button changes below don't work;
     $("#start-trans").attr("disabled", true);
     $("#query-trans").attr("disabled", false);
     $("#stop-trans").attr("disabled", false);
@@ -512,6 +514,7 @@ async function startTranscription() {
   });
   res = await res.json();
   taskId = res.taskId;
+  return res;
 }
 async function queryTranscription() {
   if (!taskId) {
