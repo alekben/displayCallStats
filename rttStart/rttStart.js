@@ -414,14 +414,14 @@ function GetAuthorization() {
   const customerKey = $("#key").val();
   const customerSecret = $("#secret").val();
   if (!customerKey || !customerSecret) {
-    console.log("empty auth");
+    console.log("empty auth info");
     $("#modalMessage span").text(`FILL IN THE CUSTOMERID AND SECRET IN THE ADVANCED SETTINGS, FOOL!`);
     $("#modal").css("display", "block");
     modal.showModal();
     return "";
   }
   const authorization = `Basic ` + btoa(`${customerKey}:${customerSecret}`);
-  console.log("Got authorization")
+  console.log("got auth info")
   return authorization;
 }
 
