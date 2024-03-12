@@ -38,7 +38,6 @@
     </a>
   </div>
 
-  <!-- FRANKFRANKFRANK -->
   <!--
   When a user tries to join a Video Call without supplying an AccessToken, this button
   calls #success-alert in cloudProxy.js. #success-alert refreshes this page with the
@@ -113,16 +112,55 @@
         <div class="row join-info-group">
           <div class="col-sm">
             <div class="join-info-key">key</div>
-            <input id="key" type="text" placeholder="enter the key">
+            <input id="key" type="text" placeholder="Enter the customer ID">
             <p class="tips">The restful API security
-              You find your key and secret in the <a href="https://console.agora.io/">Agora Console</a>
+              You find your customer ID and secret in the <a href="https://console.agora.io/">Agora Console</a>
             </p>
           </div>
           <div class="col-sm">
             <div class="join-info-secret">secret</div>
-            <input id="secret" type="text" placeholder="enter the secret">
+            <input id="secret" type="text" placeholder="Enter the secret">
           </div>
         </div>
+        <!-- stt -->
+        <form id="stt-form" name="stt-form">
+          <div class="row join-info-group">
+            <div class="col-sm">
+              <p class="join-info-text">Bot pull UID</p>
+              <input id="puller-uid" type="text" placeholder="enter the int uid" value="666666"
+                onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
+            </div>
+            <div class="col-sm">
+              <p class="join-info-text">Bot Pull Token(optional)</p>
+              <input id="puller-token" type="text" placeholder="token of the puller">
+            </div>
+            <div class="col-sm">
+              <p class="join-info-text">Bot pusher UID</p>
+              <input id="pusher-uid" type="text" placeholder="enter the int uid" value="666"
+                onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
+            </div>
+            <div class="col-sm">
+              <p class="join-info-text">Bot Push Token(optional)</p>
+              <input id="pusher-token" type="text" placeholder="token of the pusher">
+            </div>
+          </div>
+
+          <!-- language -->
+          <div class="row">
+            <div class="col-sm">
+              <p class="join-info-text">Speaking Language</p>
+              <input id="speaking-language" type="text" placeholder="language code" value="en-US">
+              <p class="tips">input the language code, such as en-US, zh-CN</p>
+            </div>
+            <div class="col-sm">
+              <p class="join-info-text">Translation Language(optional)</p>
+              <input id="translation-language" type="text" placeholder="language code" value="zh-CN">
+              <p class="tips">input the language code, such as en-US, zh-CN</p>
+            </div>
+          </div>
+        </form>
 
       <!--
       Join or leave a Video Call channel.
@@ -134,6 +172,10 @@
         <button id="subscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Subscribe</button>
         <button id="unsubscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Unsubscribe</button>
         <button id="captions" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Hide Captions</button>
+        <!-- Add STT buttons-->
+        <button id="start-trans" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Start RTT</button>
+        <button id="query-trans" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Query RTT</button>
+        <button id="stop-trans" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Stop RTT</button>
 
 
 

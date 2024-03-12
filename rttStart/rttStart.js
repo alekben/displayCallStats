@@ -169,6 +169,44 @@ $("#unsubscribe").click(function (e) {
 $("#captions").click(function (e) {
   switchCaptions();
 });
+//transcription buttons
+$("#start-trans").click(async function (e) {
+  e.preventDefault();
+  const appId = options.appid;
+  const channel = options.channel;
+  if (!appId || !channel) {
+    $("#rtc-alert").show();
+    throw new Error("appid or channel is empty");
+  }
+  try {
+    await startTranscription();
+    $("#start-trans").attr("disabled", true);
+    $("#query-trans").attr("disabled", false);
+    $("#stop-trans").attr("disabled", false);
+    $("#stt-transcribe").css("display", "block");
+    $("#stt-translate").css("display", "block");
+  } catch (err) {
+    $("#parameters-alert").show();
+  }
+});
+$("#query-trans").click(function (e) {
+  e.preventDefault();
+  queryTranscription();
+  $("#start-trans").attr("disabled", false);
+  $("#query-trans").attr("disabled", true);
+  $("#stop-trans").attr("disabled", false);
+  $("#stt-trans").css("display", "none");
+  $("#stt-trans .content").html("");
+});
+$("#stop-trans").click(function (e) {
+  e.preventDefault();
+  stopTranscription();
+  $("#start-trans").attr("disabled", false);
+  $("#query-trans").attr("disabled", false);
+  $("#stop-trans").attr("disabled", true);
+  $("#stt-trans").css("display", "none");
+  $("#stt-trans .content").html("");
+});
 
 async function manualSub() {
   //get value of of uid-input
@@ -356,3 +394,129 @@ async function switchCaptions() {
   $("#captions").text(`Hide Captions`);
  }
 };
+
+function GetAuthorization() {
+  const customerKey = $("#key").val();
+  const customerSecret = $("#secret").val();
+  if (!customerKey || !customerSecret) {
+    return "";
+  }
+  const authorization = `Basic ` + btoa(`${customerKey}:${customerSecret}`);
+  return authorization;
+}
+
+async function acquireToken() {
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/builderTokens`;
+  const data = {
+    instanceId: options.channel
+  };
+  let res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    },
+    body: JSON.stringify(data)
+  });
+  if (res.status == 200) {
+    res = await res.json();
+    return res;
+  } else {
+    // status: 504
+    // please enable the realtime transcription service for this appid
+    console.error(res.status, res);
+    throw new Error(res);
+  }
+}
+async function startTranscription() {
+  const authorization = GetAuthorization();
+  if (!authorization) {
+    throw new Error("key or secret is empty");
+  }
+  const data = await acquireToken();
+  tokenName = data.tokenName;
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks?builderToken=${tokenName}`;
+  const pullUid = $("#puller-uid").val();
+  const pullToken = $("#puller-token").val();
+  const pushUid = $("#pusher-uid").val();
+  const pushToken = $("#pusher-token").val();
+  const speakingLanguage = $("#speaking-language").val();
+  const translationLanguage = $("#translation-language").val();
+  let body = {
+    "audio": {
+      "subscribeSource": "AGORARTC",
+      "agoraRtcConfig": {
+        "channelName": options.channel,
+        "uid": pullUid,
+        "token": pullToken,
+        "channelType": "LIVE_TYPE",
+        "subscribeConfig": {
+          "subscribeMode": "CHANNEL_MODE"
+        },
+        "maxIdleTime": 60
+      }
+    },
+    "config": {
+      "features": ["RECOGNIZE"],
+      "recognizeConfig": {
+        "language": speakingLanguage,
+        "model": "Model",
+        "connectionTimeout": 60,
+        "output": {
+          "destinations": ["AgoraRTCDataStream"],
+          "agoraRTCDataStream": {
+            "channelName": options.channel,
+            "uid": pushUid,
+            "token": pushToken
+          }
+        }
+      }
+    }
+  };
+  if (translationLanguage) {
+    body.config.translateConfig = {
+      "languages": [{
+        "source": speakingLanguage,
+        "target": [translationLanguage]
+      }]
+    };
+  }
+  let res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": authorization
+    },
+    body: JSON.stringify(body)
+  });
+  res = await res.json();
+  taskId = res.taskId;
+}
+async function queryTranscription() {
+  if (!taskId) {
+    return
+  }
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks/${taskId}?builderToken=${tokenName}`;
+  await fetch(url, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    }
+    // Log output from get in console json {createTs, status, and taskId}
+});
+}
+async function stopTranscription() {
+  if (!taskId) {
+    return;
+  }
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks/${taskId}?builderToken=${tokenName}`;
+  await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    }
+  });
+  taskId = null;
+}
