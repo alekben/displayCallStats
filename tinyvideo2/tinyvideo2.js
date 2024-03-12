@@ -22,7 +22,7 @@ denyButton.addEventListener("click", () => {
 //token server url
 
 const localTokenUrls = {
-  host: "http://ec2-3-140-200-204.us-east-2.compute.amazonaws.com",
+  host: "https://3-140-200-204.nip.io",
   endpoint: "getToken"
 }
 
