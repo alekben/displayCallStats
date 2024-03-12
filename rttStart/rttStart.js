@@ -194,12 +194,8 @@ $("#start-trans").click(async function (e) {
     throw new Error("appid or channel is empty");
   }
   try {
-    await startTranscription()
-    then(response => response.json())
-    .then(json => {
-      console.log(json);
-    }
-  )
+    let response = await startTranscription()
+    console.log(response);
   //If I log the output of the start to the console, the button changes below don't work;
     $("#start-trans").attr("disabled", true);
     $("#query-trans").attr("disabled", false);
@@ -214,7 +210,7 @@ $("#query-trans").click(function (e) {
 });
 $("#stop-trans").click(function (e) {
   e.preventDefault();
-  stopTranscription();
+  response = stopTranscription();
   $("#start-trans").attr("disabled", false);
   $("#query-trans").attr("disabled", true);
   $("#stop-trans").attr("disabled", true);
@@ -540,17 +536,12 @@ async function stopTranscription() {
     return;
   }
   const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks/${taskId}?builderToken=${tokenName}`;
-  await fetch(url, {
+  let res = await fetch(url, {
     method: 'DELETE',
     headers: {
       "Content-Type": "application/json",
       "Authorization": GetAuthorization()
     }
-  })
-  .then(response => response.json())
-    .then(json => {
-      console.log(json);
-    }
-  );
+  });
   taskId = null;
 }
