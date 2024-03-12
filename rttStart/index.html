@@ -107,61 +107,73 @@
           <input id="uid" type="text" placeholder="Enter the user ID">
         </div>
       </div>
+<!--
+      <div class="rtt-config-wrapper" style="height: 30px;">
+        <div class="rtt-config-content">
+          <button class="btn btn-primary btn-sm collapse-btn" type="button" data-toggle="collapse"
+              data-target="#agora-collapse" aria-expanded="false" aria-controls="agora-collapse">
+            RTT Configuration
+          </button>
+          <div class="collapse" id="rtt-config-collapse" style="width: 100%;z-index: 9999;">
+            <div class="card card-body">
 
-      <form id="key-form" name="key-form">
-        <div class="row join-info-group">
-          <div class="col-sm">
-            <div class="join-info-key">key</div>
-            <input id="key" type="text" placeholder="Enter the customer ID">
-            <p class="tips">The restful API security
-              You find your customer ID and secret in the <a href="https://console.agora.io/">Agora Console</a>
-            </p>
-          </div>
-          <div class="col-sm">
-            <div class="join-info-secret">secret</div>
-            <input id="secret" type="text" placeholder="Enter the secret">
+            <form id="key-form" name="key-form">
+              <div class="row join-info-group">
+                <div class="col-sm">
+                  <div class="join-info-key">key</div>
+                  <input id="key" type="text" placeholder="Enter the customer ID">
+                  <p class="tips">The restful API security
+                    You find your customer ID and secret in the <a href="https://console.agora.io/">Agora Console</a>
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <div class="join-info-secret">secret</div>
+                  <input id="secret" type="text" placeholder="Enter the secret">
+                </div>
+              </div>
+              <!-- stt -1->
+              <form id="stt-form" name="stt-form">
+                <div class="row join-info-group">
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot pull UID</p>
+                    <input id="puller-uid" type="text" placeholder="enter the int uid" value="666666"
+                      onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                      onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot Pull Token(optional)</p>
+                    <input id="puller-token" type="text" placeholder="token of the puller">
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot pusher UID</p>
+                    <input id="pusher-uid" type="text" placeholder="enter the int uid" value="666"
+                      onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                      onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot Push Token(optional)</p>
+                    <input id="pusher-token" type="text" placeholder="token of the pusher">
+                  </div>
+                </div>
+
+                <!-- language -1->
+                <div class="row">
+                  <div class="col-sm">
+                    <p class="join-info-text">Speaking Language</p>
+                    <input id="speaking-language" type="text" placeholder="language code" value="en-US">
+                    <p class="tips">input the language code, such as en-US, zh-CN</p>
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Translation Language(optional)</p>
+                    <input id="translation-language" type="text" placeholder="language code" value="zh-CN">
+                    <p class="tips">input the language code, such as en-US, zh-CN</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <!-- stt -->
-        <form id="stt-form" name="stt-form">
-          <div class="row join-info-group">
-            <div class="col-sm">
-              <p class="join-info-text">Bot pull UID</p>
-              <input id="puller-uid" type="text" placeholder="enter the int uid" value="666666"
-                onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
-                onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
-            </div>
-            <div class="col-sm">
-              <p class="join-info-text">Bot Pull Token(optional)</p>
-              <input id="puller-token" type="text" placeholder="token of the puller">
-            </div>
-            <div class="col-sm">
-              <p class="join-info-text">Bot pusher UID</p>
-              <input id="pusher-uid" type="text" placeholder="enter the int uid" value="666"
-                onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
-                onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
-            </div>
-            <div class="col-sm">
-              <p class="join-info-text">Bot Push Token(optional)</p>
-              <input id="pusher-token" type="text" placeholder="token of the pusher">
-            </div>
-          </div>
-
-          <!-- language -->
-          <div class="row">
-            <div class="col-sm">
-              <p class="join-info-text">Speaking Language</p>
-              <input id="speaking-language" type="text" placeholder="language code" value="en-US">
-              <p class="tips">input the language code, such as en-US, zh-CN</p>
-            </div>
-            <div class="col-sm">
-              <p class="join-info-text">Translation Language(optional)</p>
-              <input id="translation-language" type="text" placeholder="language code" value="zh-CN">
-              <p class="tips">input the language code, such as en-US, zh-CN</p>
-            </div>
-          </div>
-        </form>
-
+      -->
       <!--
       Join or leave a Video Call channel.
     -->
@@ -195,6 +207,58 @@
             <!-- collapse -->
             <div class="collapse" id="agora-collapse" style="width: 100%;z-index: 9999;">
               <div class="card card-body">
+              <form id="key-form" name="key-form">
+              <div class="row join-info-group">
+                <div class="col-sm">
+                  <div class="join-info-key">key</div>
+                  <input id="key" type="text" placeholder="Enter the customer ID">
+                  <p class="tips">The restful API security
+                    You find your customer ID and secret in the <a href="https://console.agora.io/">Agora Console</a>
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <div class="join-info-secret">secret</div>
+                  <input id="secret" type="text" placeholder="Enter the secret">
+                </div>
+              </div>
+              <!-- stt -->
+              <form id="stt-form" name="stt-form">
+                <div class="row join-info-group">
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot pull UID</p>
+                    <input id="puller-uid" type="text" placeholder="enter the int uid" value="666666"
+                      onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                      onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot Pull Token(optional)</p>
+                    <input id="puller-token" type="text" placeholder="token of the puller">
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot pusher UID</p>
+                    <input id="pusher-uid" type="text" placeholder="enter the int uid" value="666"
+                      onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                      onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')">
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Bot Push Token(optional)</p>
+                    <input id="pusher-token" type="text" placeholder="token of the pusher">
+                  </div>
+                </div>
+
+                <!-- language -->
+                <div class="row">
+                  <div class="col-sm">
+                    <p class="join-info-text">Speaking Language</p>
+                    <input id="speaking-language" type="text" placeholder="language code" value="en-US">
+                    <p class="tips">input the language code, such as en-US, zh-CN</p>
+                  </div>
+                  <div class="col-sm">
+                    <p class="join-info-text">Translation Language(optional)</p>
+                    <input id="translation-language" type="text" placeholder="language code" value="zh-CN">
+                    <p class="tips">input the language code, such as en-US, zh-CN</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -234,7 +298,7 @@
   <script src="../jquery-3.4.1.min.js"></script>
   <script src="../bootstrap.bundle.min.js"></script>
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-  <script src="./rttViewer.js"></script>
+  <script src="./rttStart.js"></script>
   <script src="../rttTest/proto/protobuf.min.js"></script>
   <script src="../rttTest/proto/index.js"></script>
 </body>

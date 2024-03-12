@@ -22,6 +22,8 @@ var rttClientJoined = false;
 var remoteUsers = {};
 var remotesArray = [];
 
+
+
 // RTC client for host/audience
 if (!client) {
   client = AgoraRTC.createClient({
@@ -110,6 +112,9 @@ $("#join-form").submit(async function (e) {
   $("#captions").attr("disabled", false);
   $("#subscribe").attr("disabled", false);
   $("#unsubscribe").attr("disabled", false);
+  $("#start-trans").attr("disabled", false);
+  $("#query-trans").attr("disabled", true);
+  $("#stop-trans").attr("disabled", true);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
@@ -179,12 +184,15 @@ $("#start-trans").click(async function (e) {
     throw new Error("appid or channel is empty");
   }
   try {
-    await startTranscription();
+    await startTranscription()
+    /* .then(response => response.json())
+    .then(json => {
+      console.log(json);
+    }
+  ) If I log the output of the start to the console, the button changes below don't work */;
     $("#start-trans").attr("disabled", true);
     $("#query-trans").attr("disabled", false);
     $("#stop-trans").attr("disabled", false);
-    $("#stt-transcribe").css("display", "block");
-    $("#stt-translate").css("display", "block");
   } catch (err) {
     $("#parameters-alert").show();
   }
@@ -192,20 +200,13 @@ $("#start-trans").click(async function (e) {
 $("#query-trans").click(function (e) {
   e.preventDefault();
   queryTranscription();
-  $("#start-trans").attr("disabled", false);
-  $("#query-trans").attr("disabled", true);
-  $("#stop-trans").attr("disabled", false);
-  $("#stt-trans").css("display", "none");
-  $("#stt-trans .content").html("");
 });
 $("#stop-trans").click(function (e) {
   e.preventDefault();
   stopTranscription();
   $("#start-trans").attr("disabled", false);
-  $("#query-trans").attr("disabled", false);
+  $("#query-trans").attr("disabled", true);
   $("#stop-trans").attr("disabled", true);
-  $("#stt-trans").css("display", "none");
-  $("#stt-trans .content").html("");
 });
 
 async function manualSub() {
@@ -395,6 +396,11 @@ async function switchCaptions() {
  }
 };
 
+//STT variables
+var gatewayAddress = "https://api.agora.io";
+let taskId = '';
+let tokenName = '';
+
 function GetAuthorization() {
   const customerKey = $("#key").val();
   const customerSecret = $("#secret").val();
@@ -402,6 +408,7 @@ function GetAuthorization() {
     return "";
   }
   const authorization = `Basic ` + btoa(`${customerKey}:${customerSecret}`);
+  console.log("Got authorization")
   return authorization;
 }
 
@@ -420,6 +427,7 @@ async function acquireToken() {
   });
   if (res.status == 200) {
     res = await res.json();
+    console.log()
     return res;
   } else {
     // status: 504
@@ -503,8 +511,13 @@ async function queryTranscription() {
       "Content-Type": "application/json",
       "Authorization": GetAuthorization()
     }
-    // Log output from get in console json {createTs, status, and taskId}
-});
+})
+  .then(response => response.json())
+    .then(json => {
+      console.log(json);
+    }
+  );
+  // Log output from get in console json {createTs, status, and taskId}
 }
 async function stopTranscription() {
   if (!taskId) {
@@ -517,6 +530,11 @@ async function stopTranscription() {
       "Content-Type": "application/json",
       "Authorization": GetAuthorization()
     }
-  });
+  })
+  .then(response => response.json())
+    .then(json => {
+      console.log(json);
+    }
+  );
   taskId = null;
 }
