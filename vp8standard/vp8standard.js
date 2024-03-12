@@ -1,5 +1,5 @@
 
-//var host = true;
+var host = true;
 //popup stuff
 var popups = 0;
 
@@ -15,7 +15,7 @@ AgoraRTC.setParameter("AG_DEGRADATION_PREFERENCE", 1);
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "rtc",
+  mode: "live",
   codec: "vp8"
 });
 
@@ -327,7 +327,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "rtc",
+        mode: "live",
         codec: "vp8"
       });
     }
@@ -335,11 +335,11 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    //if (host) {
-    //  client.setClientRole("host");
-    //} else {
-    //  client.setClientRole("audience");
-    //}
+    if (host) {
+      client.setClientRole("host");
+    } else {
+      client.setClientRole("audience");
+    }
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -351,6 +351,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
+    $("#role").attr("disabled", true);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
@@ -418,15 +419,15 @@ $("#biggerView").click(function (e) {
   handleExpand();
 });
 
-///$("#role").click(function (e) {
-//  if (host) {
-//    host = false;
-//    $("#role").text("Role: Audience");
-//  } else {
-//    host = true;
-//    $("#role").text("Role: Host");
-//  }
-//});
+$("#role").click(function (e) {
+  if (host) {
+    host = false;
+    $("#role").text("Role: Audience");
+  } else {
+    host = true;
+    $("#role").text("Role: Host");
+  }
+});
 
 
 async function publishMic() {
@@ -494,7 +495,7 @@ async function join() {
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  //if (host) {
+  if (host) {
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
         encoderConfig: "720p_2"
@@ -510,12 +511,13 @@ async function join() {
     await client.publish(localTracks.videoTrack);
     console.log("publish cam success");
     showPopup("Cam Track Published");
-  //} else {
+  } else {
     $("#joined-setup").css("display", "flex");
-  //}
+  }
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
 }
+
 async function leave() {
   for (trackName in localTracks) {
     var track = localTracks[trackName];
@@ -547,6 +549,7 @@ async function leave() {
   showPopup(`Left channel ${options.channel}`);
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
+  $("#role").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);

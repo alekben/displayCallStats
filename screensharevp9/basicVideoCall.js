@@ -1,5 +1,6 @@
 
 
+
 var client;
 var scrClient;
 AgoraRTC.enableLogUpload();
@@ -43,6 +44,7 @@ var options = {
 
 
 // you can find all the agora preset video profiles here https://docs.agora.io/en/Voice/API%20Reference/web_ng/globals.html#videoencoderconfigurationpreset
+
 var videoProfiles = [{
   label: "360p_7",
   detail: "480×360, 15fps, 320Kbps",
@@ -77,6 +79,36 @@ var videoProfiles = [{
   value: "1080p_2"
 }];
 var curVideoProfile;
+
+var screenProfiles = [{
+  label: "720p_1",
+  detail: "1280×720, 5fps",
+  value: {width:1280, height:720, frameRate:5, bitrateMin:120, bitrateMax:500}
+}, {
+  label: "720p_2",
+  detail: "1280x720, 15fps",
+  value: {width:1280, height:720, frameRate:15, bitrateMin:240, bitrateMax:1000}
+}, {
+  label: "720p_3",
+  detail: "1280x720, 30fps",
+  value: {width:1280, height:720, frameRate:30, bitrateMin:360, bitrateMax:1250}
+}, {
+  label: "1080p_1",
+  detail: "1920x1080, 5fps",
+  value: {width:1920, height:1080, frameRate:5, bitrateMin:360, bitrateMax:750}
+}, {
+  label: "1080p_2",
+  detail: "1920x1080, 15fps",
+  value: {width:1920, height:1080, frameRate:15, bitrateMin:540, bitrateMax:1500}
+}, {
+  label: "1080p_3",
+  detail: "1920x1080, 30fps",
+  value: {width:1920, height:1080, frameRate:30, bitrateMin:360, bitrateMax:2000}
+}];
+var curScreenProfile;
+
+
+
 AgoraRTC.onAutoplayFailed = () => {
   alert("click to start autoplay!");
 };
@@ -147,14 +179,27 @@ function initVideoProfiles() {
   videoProfiles.forEach(profile => {
     $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
-  curVideoProfile = videoProfiles.find(item => item.label == '480p_1');
+  curVideoProfile = videoProfiles.find(item => item.label == '720p_2');
   $(".profile-input").val(`${curVideoProfile.detail}`);
+  screenProfiles.forEach(profile => {
+    $(".profile-screen-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
+  });
+  curScreenProfile = screenProfiles.find(item => item.label == '1080p_3');
+  $(".profile-screen-input").val(`${curScreenProfile.detail}`);
 }
+
 async function changeVideoProfile(label) {
   curVideoProfile = videoProfiles.find(profile => profile.label === label);
   $(".profile-input").val(`${curVideoProfile.detail}`);
   // change the local video track`s encoder configuration
   localTracks.videoTrack && (await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value));
+}
+
+async function changeScreenProfile(label) {
+  curScreenProfile = screenProfiles.find(profile => profile.label === label);
+  $(".profile-screen-input").val(`${curScreenProfile.detail}`);
+  // change the local video track`s encoder configuration
+  localTracks.screenTrack && (await localTracks.screenTrack.setEncoderConfiguration(curScreenProfile.value));
 }
 
 async function changeTargetUID(label) {
@@ -198,6 +243,9 @@ $(() => {
   $(".profile-list").delegate("a", "click", function (e) {
     changeVideoProfile(this.getAttribute("label"));
   });
+  $(".profile-screen-list").delegate("a", "click", function (e) {
+    changeScreenProfile(this.getAttribute("label"));
+  });
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
@@ -230,7 +278,7 @@ $("#join-form").submit(async function (e) {
     if (!client) {
       client = AgoraRTC.createClient({
         mode: "rtc",
-        codec: "vp9"
+        codec: getCamCodec()
       });
     }
     options.channel = $("#channel").val();
@@ -418,19 +466,19 @@ async function join() {
 
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: "720p_2"
+      encoderConfig: curVideoProfile.value
     });
   }
 
   if (!localTracks.screenTrack) {
-    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p_3"}, "auto");
+    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: curScreenProfile.value}, "auto");
   }
 
   try {
     if (!scrClient) {
       scrClient = AgoraRTC.createClient({
         mode: "rtc",
-        codec: "vp9"
+        codec: getScreenCodec()
       });
     }
     options.scrUid = await scrClient.join(options.appid, options.channel, options.token || null, options.scrUid || null);
@@ -570,6 +618,28 @@ function handleUserUnpublished(user, mediaType) {
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
+}
+
+function getCamCodec() {
+  var radios = document.getElementsByName("radios");
+  var value;
+  for (var i = 0; i < radios.length; i++) {
+    if (radios[i].checked) {
+      value = radios[i].value;
+    }
+  }
+  return value;
+}
+
+function getScreenCodec() {
+  var radios = document.getElementsByName("screenRadios");
+  var value;
+  for (var i = 0; i < radios.length; i++) {
+    if (radios[i].checked) {
+      value = radios[i].value;
+    }
+  }
+  return value;
 }
 
 

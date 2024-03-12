@@ -1,7 +1,6 @@
 //modal stuff
 
 const modal = document.querySelector("[data-modal]")
-const modalMesssage = document.querySelector("[data-modal-chat]")
 const approveButton = document.querySelector("[data-approve-modal]")
 const denyButton = document.querySelector("[data-deny-modal]")
 const sendButton = document.querySelector("[data-send-modal]")
