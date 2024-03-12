@@ -413,7 +413,7 @@ function GetAuthorization() {
   const customerSecret = $("#secret").val();
   if (!customerKey || !customerSecret) {
     console.log("empty auth info");
-    $("#modalMessage span").text(`FILL IN THE CUSTOMERID AND SECRET IN THE ADVANCED SETTINGS, FOOL!`);
+    $("#modalMessage span").text(`Fill in the customerID and secret in the advanced settings, FOO!`);
     $("#modal").css("display", "block");
     modal.showModal();
     return "";
