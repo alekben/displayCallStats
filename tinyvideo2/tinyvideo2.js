@@ -495,6 +495,12 @@ async function loginRtm() {
       console.log("SIGNALING: Error setting channel metadata:", status.reason);
       showPopup(`SIGNALING ERROR: Error setting channel metadata: ${status.reason}`, false);
     }
+
+    if (options.host) {
+      joinChannelAsHost();
+    } else {
+      startCamera();
+    }
 }
 
 async function sendLocalMuteMessage () {
