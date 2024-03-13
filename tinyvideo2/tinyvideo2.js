@@ -73,6 +73,8 @@ var ready = true;
 var remote_uid = 0;
 var localInbox = "";
 var tokensReturned = false;
+var streamChannel;
+var streamChannelJoined = false;
 
 //Pull URL parameters to join
 
@@ -170,12 +172,19 @@ async function joinChannel() {
           }
         break;
       case "s":
-        // show stats.
+        // start stream channel.
         event.preventDefault();
-        if (remote_joined && remote_published) {
           showPopup(`KEYPRESS: Pressed s`, true);
-          sendMessage("s")
-        }
+            streamChannel = rtmClient.createStreamChannel(options.channel);
+            streamChannel.join(options.token);
+            const result = streamChannel.joinTopic("data-stream"); 
+            if (result) {
+              showPopup('Joined to stream channel')
+              streamChannelJoined = true;
+            }
+            if (remote_joined) {
+              sendMessage("s");
+            }
         break;
       case "c":
         // start mouse cursor capture.
@@ -258,12 +267,19 @@ async function joinChannelAsHost() {
           }
         break;
       case "s":
-        // show stats.
+        // join stream channel
         event.preventDefault();
-        if (remote_joined && remote_published) {
           showPopup(`KEYPRESS: Pressed s`, true);
-          sendMessage("s")
-        }
+            streamChannel = rtmClient.createStreamChannel(options.channel);
+            streamChannel.join(options.token);
+            const result = streamChannel.joinTopic("data-stream"); 
+            if (result) {
+              showPopup('Joined to stream channel')
+              streamChannelJoined = true;
+            }
+            if (remote_joined) {
+              sendMessage("s");
+            }
         break;
       case "c":
         // start mouse cursor capture.
@@ -701,6 +717,16 @@ function handleRtmChannelMessage(event) {
       if (message == "e") {
         showPopup(`SIGNALING: Meeting ended by ${publisher}`, false);
         leaveChannel();
+      }
+      if (message == "s" ) {
+        showPopup(`s received, joining streamchannel`, true);
+          streamChannel = rtmClient.createStreamChannel(options.channel);
+          streamChannel.join(options.token);
+          const result = streamChannel.joinTopic("data-stream"); 
+          if (result) {
+            showPopup('Joined to stream channel')
+            streamChannelJoined = true;
+          }
       }
     }
   } else {
