@@ -176,7 +176,7 @@ async function joinChannel() {
         event.preventDefault();
           showPopup(`KEYPRESS: Pressed s`, true);
             streamChannel = rtmClient.createStreamChannel(options.channel);
-            streamChannel.join(options.token);
+            streamChannel.join({token: options.rtmToken, withPresence: true});
             const result = streamChannel.joinTopic("data-stream"); 
             if (result) {
               showPopup('Joined to stream channel')
@@ -271,7 +271,7 @@ async function joinChannelAsHost() {
         event.preventDefault();
           showPopup(`KEYPRESS: Pressed s`, true);
             streamChannel = rtmClient.createStreamChannel(options.channel);
-            streamChannel.join(options.rtcToken);
+            streamChannel.join({token: options.rtmToken, withPresence: true});
             const result = streamChannel.joinTopic("data-stream"); 
             if (result) {
               showPopup('Joined to stream channel')
@@ -721,7 +721,7 @@ function handleRtmChannelMessage(event) {
       if (message == "s" ) {
         showPopup(`s received, joining streamchannel`, true);
           streamChannel = rtmClient.createStreamChannel(options.channel);
-          streamChannel.join(options.rtcToken);
+          streamChannel.join({token: options.rtmToken, withPresence: true});
           const result = streamChannel.joinTopic("data-stream"); 
           if (result) {
             showPopup('Joined to stream channel')
