@@ -107,7 +107,7 @@ $(() => {
   if (options.uid == null ) {showPopup(`URL: =&uid missing in URL!`, false); ready = false}
   if (ready) {  
       getTokens();
-      loginRtm();
+      //loginRtm();
     if (options.host) {
       joinChannelAsHost();
     } else {
@@ -388,10 +388,6 @@ async function handleUserLeft(user) {
 //Agora RTM functions
 
 async function loginRtm() {
-  while (!tokensReturned) {
-    console.log("waiting for tokens");
-    setTimeout(console.log("checking again"), 1000)
-  }
   try {
     rtmClient = new RTM(options.appid, options.uid, rtmConfig); // Initialize the client instance
   } catch (status) {
@@ -791,4 +787,5 @@ async function getTokens() {
     console.log(err);
   }
   tokensReturned = true;
+  loginRtm();
 }
