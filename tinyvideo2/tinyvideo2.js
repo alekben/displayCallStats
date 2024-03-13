@@ -106,13 +106,16 @@ $(() => {
   if (options.channel == null ) {showPopup(`URL: =&channel param missing in URL!`, false); ready = false}
   if (options.uid == null ) {showPopup(`URL: =&uid missing in URL!`, false); ready = false}
   if (ready) {  
-      getTokens();
-      //loginRtm();
-    if (options.host) {
-      joinChannelAsHost();
-    } else {
-      startCamera();
-    }
+      try {
+        getTokens();
+      } finally {
+        loginRtm();
+        if (options.host) {
+          joinChannelAsHost();
+        } else {
+          startCamera();
+        }
+      }
   }
 });
 
@@ -495,12 +498,6 @@ async function loginRtm() {
       console.log("SIGNALING: Error setting channel metadata:", status.reason);
       showPopup(`SIGNALING ERROR: Error setting channel metadata: ${status.reason}`, false);
     }
-
-    if (options.host) {
-      joinChannelAsHost();
-    } else {
-      startCamera();
-    }
 }
 
 async function sendLocalMuteMessage () {
@@ -793,5 +790,4 @@ async function getTokens() {
     console.log(err);
   }
   tokensReturned = true;
-  loginRtm();
 }
