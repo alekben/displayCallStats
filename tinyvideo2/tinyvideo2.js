@@ -105,8 +105,11 @@ $(() => {
   if (options.channel == null ) {showPopup(`URL: =&channel param missing in URL!`, false); ready = false}
   if (options.uid == null ) {showPopup(`URL: =&uid missing in URL!`, false); ready = false}
   if (ready) {  
-    getTokens();
-    loginRtm();
+    try {
+      getTokens();
+    } finally {
+      loginRtm();
+    }
     if (options.host) {
       joinChannelAsHost();
     } else {
