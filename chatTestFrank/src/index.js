@@ -16,6 +16,7 @@ const destroyChatGroupButton = document.getElementById("destroy_chat_group");
 const joinChatGroupButton = document.getElementById("join_chat_group");
 const leaveChatGroupButton = document.getElementById("leave_chat_group");
 const sendChatGroupMessageButton = document.getElementById("send_group_message");
+const getChatGroupMessageHistoryButton = document.getElementById("getChatGroupMessageHistory");
 
 // Register listening events
 WebIM.conn.addEventHandler('connection&message', {
@@ -80,7 +81,7 @@ document.getElementById("register").onclick = function () {
         })
 }
 // login
-loginButton.onclick = function () {
+loginButton.addEventListener("click", () => {
     logger.appendChild(document.createElement('div')).append("Logging in...")
     username = document.getElementById("userID").value.toString()
     password = document.getElementById("password").value.toString()
@@ -96,18 +97,19 @@ loginButton.onclick = function () {
         .catch((res)=> {
             logger.appendChild(document.createElement('div')).append(`Login failed`)
         })
-}
+});
 
 // logout
-logoutButton.onclick = function () {
+logoutButton.addEventListener("click", () => {
     WebIM.conn.close();
     logger.appendChild(document.createElement('div')).append("logout")
-}
+});
 
 const groupName = document.getElementById("chat_group_name").value.toString();
 const groupId = document.getElementById("chat_group_id").value.toString();
+
 // create chat group
-document.getElementById("create_chat_group").onclick = function () {
+createChatGroupButton.addEventListener("click", () => {
     console.log(groupName);
     let option = {
         data: {
@@ -133,8 +135,9 @@ document.getElementById("create_chat_group").onclick = function () {
     var obj = JSON.parse(response);
     groupId = obj.data.groupId;*/
     console.log("create group " + groupId);
-}
-document.getElementById("destroy_chat_group").onclick = function () {
+});
+
+destroyChatGroupButton.addEventListener("click", () => {
     // Call destroyGroup to disband a chat group.
     const groupId = document.getElementById("chat_group_id").value.toString();
     console.log("destroy group " + groupId);
@@ -142,9 +145,10 @@ document.getElementById("destroy_chat_group").onclick = function () {
         groupId: groupId
     };
     WebIM.conn.destroyGroup(option).then((res) => console.log(res))
-}
+});
+
 // join chat group
-document.getElementById("join_chat_group").onclick = function () {
+joinChatGroupButton.addEventListener("click", () => {
     // Call joinGroup to send a join request to a chat group.
     const groupId = document.getElementById("chat_group_id").value.toString();
     console.log("join group " + groupId);
@@ -154,18 +158,20 @@ document.getElementById("join_chat_group").onclick = function () {
         message: joinMess
     };
     WebIM.conn.joinGroup(options).then(res => console.log(res))
-}
+});
+
 // leave group
-document.getElementById("leave_chat_group").onclick = function () {
+leaveChatGroupButton.addEventListener("click", () => {
     // Call memberAbsence to leave a chat group.
     const groupId = document.getElementById("chat_group_id").value.toString();
     let option = {
         groupId: groupId
     };
     WebIM.conn.leaveGroup(option).then(res => console.log(res))
-    }
+    });
 
-    document.getElementById("chatGroupMessageHistory").onclick = function () {
+    // get group chat history
+    getChatGroupMessageHistoryButton.addEventListener("click", () => {
         const groupId = document.getElementById("chat_group_id").value.toString();
         logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
         WebIM.conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
@@ -182,11 +188,11 @@ document.getElementById("leave_chat_group").onclick = function () {
             })
             var odIV = document.createElement("div");
             odIV.style.whiteSpace = "pre";
-            logger.appendChild(odIV).append('chatGroupMessageHistory:', str)
+            logger.appendChild(odIV).append('getChatGroupMessageHistory:', str)
         }).catch(() => {
             logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
         })
-    }
+    });
 
 // Send a single chat message
 sendPeerMessageButton.onclick = function () {
@@ -208,7 +214,7 @@ sendPeerMessageButton.onclick = function () {
 }
 
 // Send a group chat message
-document.getElementById("send_group_message").onclick = function () {
+sendChatGroupMessageButton.addEventListener("click", () => {
     const groupId = document.getElementById("chat_group_id").value.toString();
     let groupChatMessage = document.getElementById("groupChatMessage").value.toString()
     let option = {
@@ -225,4 +231,4 @@ document.getElementById("send_group_message").onclick = function () {
     }).catch((err) => {
         console.log('group chat text fail', err);
     })
-}
+});
