@@ -1,26 +1,40 @@
-import WebIM from 'agora-chat'
 var username, password
 WebIM.conn = new WebIM.connection({
     appKey: "41117440#383391",
 })
+
+//get elements:
+
+const logger = document.getElementById("log");
+const loginButton = document.getElementById("login");
+const logoutButton = document.getElementById("logout");
+const sendPeerMessageButton = document.getElementById("send_peer_message");
+const joinGroupButton = document.getElementById("joinGroup");
+
+const createChatGroupButton = document.getElementById("create_chat_group");
+const destroyChatGroupButton = document.getElementById("destroy_chat_group");
+const joinChatGroupButton = document.getElementById("join_chat_group");
+const leaveChatGroupButton = document.getElementById("leave_chat_group");
+const sendChatGroupMessageButton = document.getElementById("send_group_message");
+
 // Register listening events
 WebIM.conn.addEventHandler('connection&message', {
     onConnected: () => {
-        document.getElementById("log").appendChild(document.createElement('div')).append("Connect success !")
+        logger.appendChild(document.createElement('div')).append("Connect success !")
     },
     onDisconnected: () => {
-        document.getElementById("log").appendChild(document.createElement('div')).append("Logout success !")
+        logger.appendChild(document.createElement('div')).append("Logout success !")
     },
     onTextMessage: (message) => {
         console.log(message)
-        document.getElementById("log").appendChild(document.createElement('div')).append("Message from: " + message.from + " Message: " + message.msg)
+        logger.appendChild(document.createElement('div')).append("Message from: " + message.from + " Message: " + message.msg)
     },
     onTokenWillExpire: (params) => {
-        document.getElementById("log").appendChild(document.createElement('div')).append("Token is about to expire")
+        logger.appendChild(document.createElement('div')).append("Token is about to expire")
         refreshToken(username, password)
     },
     onTokenExpired: (params) => {
-        document.getElementById("log").appendChild(document.createElement('div')).append("The token has expired, please login again.")
+        logger.appendChild(document.createElement('div')).append("The token has expired, please login again.")
     },
     onError: (error) => {
         console.log('on error', error)
@@ -33,7 +47,7 @@ function refreshToken(username, password) {
         .then((res) => {
             let agoraToken = res.accessToken
             WebIM.conn.renewToken(agoraToken)
-            document.getElementById("log").appendChild(document.createElement('div')).append("Token has been updated")
+            logger.appendChild(document.createElement('div')).append("Token has been updated")
         })
 }
 
@@ -59,15 +73,15 @@ document.getElementById("register").onclick = function () {
     password = document.getElementById("password").value.toString()
     postData('https://a41.chat.agora.io/app/chat/user/register', { "userAccount": username, "userPassword": password })
         .then((res) => {
-            document.getElementById("log").appendChild(document.createElement('div')).append(`register user ${username} success`)
+            logger.appendChild(document.createElement('div')).append(`register user ${username} success`)
         })
         .catch((res)=> {
-            document.getElementById("log").appendChild(document.createElement('div')).append(`${username} already exists`)
+            logger.appendChild(document.createElement('div')).append(`${username} already exists`)
         })
 }
 // login
-document.getElementById("login").onclick = function () {
-    document.getElementById("log").appendChild(document.createElement('div')).append("Logging in...")
+loginButton.onclick = function () {
+    logger.appendChild(document.createElement('div')).append("Logging in...")
     username = document.getElementById("userID").value.toString()
     password = document.getElementById("password").value.toString()
     postData('https://a41.chat.agora.io/app/chat/user/login', { "userAccount": username, "userPassword": password })
@@ -80,14 +94,14 @@ document.getElementById("login").onclick = function () {
             });
         })
         .catch((res)=> {
-            document.getElementById("log").appendChild(document.createElement('div')).append(`Login failed`)
+            logger.appendChild(document.createElement('div')).append(`Login failed`)
         })
 }
 
 // logout
-document.getElementById("logout").onclick = function () {
+logoutButton.onclick = function () {
     WebIM.conn.close();
-    document.getElementById("log").appendChild(document.createElement('div')).append("logout")
+    logger.appendChild(document.createElement('div')).append("logout")
 }
 
 const groupName = document.getElementById("chat_group_name").value.toString();
@@ -151,12 +165,12 @@ document.getElementById("leave_chat_group").onclick = function () {
     WebIM.conn.leaveGroup(option).then(res => console.log(res))
     }
 
-    document.getElementById("chatGroupMessage").onclick = function () {
+    document.getElementById("chatGroupMessageHistory").onclick = function () {
         const groupId = document.getElementById("chat_group_id").value.toString();
-        document.getElementById("log").appendChild(document.createElement('div')).append("getChatGroupMessage...")
+        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
         WebIM.conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
-            console.log('getChatGroupMessage success')
-            document.getElementById("log").appendChild(document.createElement('div')).append("getChatGroupMessage success")
+            console.log('getChatGroupMessageHistory success')
+            logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
             let str='';
             res.messages.map((item) => {
                 str += '\n'+ JSON.stringify({
@@ -168,14 +182,14 @@ document.getElementById("leave_chat_group").onclick = function () {
             })
             var odIV = document.createElement("div");
             odIV.style.whiteSpace = "pre";
-            document.getElementById("log").appendChild(odIV).append('chatGroupMessage:', str)
+            logger.appendChild(odIV).append('chatGroupMessageHistory:', str)
         }).catch(() => {
-            document.getElementById("log").appendChild(document.createElement('div')).append("getChatGroupMessage failed")
+            logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
         })
     }
 
 // Send a single chat message
-document.getElementById("send_peer_message").onclick = function () {
+sendPeerMessageButton.onclick = function () {
     let peerId = document.getElementById("peerId").value.toString()
     let peerMessage = document.getElementById("peerMessage").value.toString()
     let option = {
@@ -187,7 +201,7 @@ document.getElementById("send_peer_message").onclick = function () {
     let msg = WebIM.message.create(option); 
     WebIM.conn.send(msg).then((res) => {
         console.log('send private text success');
-        document.getElementById("log").appendChild(document.createElement('div')).append("Message send to: " + peerId + " Message: " + peerMessage)
+        logger.appendChild(document.createElement('div')).append("Message send to: " + peerId + " Message: " + peerMessage)
     }).catch((err) => {
         console.log('send private text fail', err);
     })
@@ -207,7 +221,7 @@ document.getElementById("send_group_message").onclick = function () {
     let msg = WebIM.message.create(option); 
     WebIM.conn.send(msg).then((res) => {
         console.log('group chat text success');
-        document.getElementById("log").appendChild(document.createElement('div')).append("Message send to: " + groupId + " Message: " + groupChatMessage)
+        logger.appendChild(document.createElement('div')).append("Message send to: " + groupId + " Message: " + groupChatMessage)
     }).catch((err) => {
         console.log('group chat text fail', err);
     })
