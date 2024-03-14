@@ -177,11 +177,19 @@ async function joinChannel() {
           showPopup(`KEYPRESS: Pressed s`, true);
           const modChannel = options.channel + "_stream"
             streamChannel = rtmClient.createStreamChannel(modChannel);
-            streamChannel.join({token: options.rtmToken, withPresence: true});
-            const result = streamChannel.joinTopic("data-stream"); 
-            if (result) {
-              showPopup('Joined to stream channel')
-              streamChannelJoined = true;
+            try {
+              const result = streamChannel.join({token: options.rtmToken, withPresence: true});
+              console.log(result);
+            } catch (status) {
+              console.log(status);
+            }
+
+            try {
+              const result = streamChannel.joinTopic("data-stream");
+              console.log(result);
+              showPopup('Joined to stream channel');
+            } catch (status) {
+              console.log(status);
             }
             if (remote_joined) {
               sendMessage("s");
@@ -273,12 +281,21 @@ async function joinChannelAsHost() {
           showPopup(`KEYPRESS: Pressed s`, true);
           const modChannel = options.channel + "_stream"
             streamChannel = rtmClient.createStreamChannel(modChannel);
-            streamChannel.join({token: options.rtmToken, withPresence: true});
-            const result = streamChannel.joinTopic("data-stream"); 
-            if (result) {
-              showPopup('Joined to stream channel')
-              streamChannelJoined = true;
+            try {
+              const result = streamChannel.join({token: options.rtmToken, withPresence: true});
+              console.log(result);
+            } catch (status) {
+              console.log(status);
             }
+
+            try {
+              const result = streamChannel.joinTopic("data-stream");
+              console.log(result);
+              showPopup('Joined to stream channel');
+            } catch (status) {
+              console.log(status);
+            }
+
             if (remote_joined) {
               sendMessage("s");
             }
@@ -723,12 +740,19 @@ function handleRtmChannelMessage(event) {
       if (message == "s" ) {
         showPopup(`s received, joining streamchannel`, true);
         const modChannel = options.channel + "_stream"
-          streamChannel = rtmClient.createStreamChannel(modChannel);
-          streamChannel.join({token: options.rtmToken, withPresence: true});
-          const result = streamChannel.joinTopic("data-stream"); 
-          if (result) {
-            showPopup('Joined to stream channel')
-            streamChannelJoined = true;
+          streamChannel = rtmClient.createStreamChannel(modChannel);            try {
+            const result = streamChannel.join({token: options.rtmToken, withPresence: true});
+            console.log(result);
+          } catch (status) {
+            console.log(status);
+          }
+
+          try {
+            const result = streamChannel.joinTopic("data-stream");
+            console.log(result);
+            showPopup('Joined to stream channel');
+          } catch (status) {
+            console.log(status);
           }
       }
     }
