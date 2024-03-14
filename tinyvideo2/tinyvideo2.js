@@ -45,15 +45,21 @@ var rtmConfig = {
   useStringUserId : false
 };
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
 
 //Options shared by RTC and RTM TODO add Token Support
 var options = {
   appid: null,
   channel: null,
   uid: 0,
+  uid2: getRandomInt(10000),
   name: null,
   rtcToken: null,
   rtmToken: null,
+  streamToken: null,
   host: false,
   debug: 0
 };
@@ -803,12 +809,34 @@ async function getTokens() {
   } catch (err) {
     console.log(err);
   }
+
+  try {
+    const res = await fetch(
+      localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+          "tokenType": "rtm",
+          "uid": options.uid,
+          "channel": options.channel + "_stream", // optional: passing channel gives streamchannel. wildcard "*" is an option.
+          "expire": 3600 // optional: expiration time in seconds (default: 3600)})
+          })});
+    const response = await res.json();
+    console.log("RTM token fetched from server: ", response.token);
+    options.streamToken = response.token;
+  } catch (err) {
+    console.log(err);
+  }
   tokensReturned = true;
 }
 
 async function joinStreamChannel() {
   try {
-    const result = await streamChannel.join({token: options.rtmToken, withPresence: true});
+    const result = await streamChannel.join({token: options.streamToken, withPresence: true});
     console.log(result);
   } catch (status) {
     console.log(status);
