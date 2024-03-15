@@ -181,8 +181,8 @@ createChatGroupButton.addEventListener("click", () => {
     };
     // Call createGroup to create a chat group.
     conn.createGroup(option).then((res) => {
-        /*let chatGroupRes = res.groupId;*/
-        console.log(res)});
+        let chatGroupRes = res;
+        console.log(chatGroupRes)});
     groupId = chatGroupRes;
     /*const response = res.json();
     var obj = JSON.parse(response);
@@ -223,29 +223,29 @@ leaveChatGroupButton.addEventListener("click", () => {
     conn.leaveGroup(option).then(res => console.log(res))
     });
 
-    // get group chat history
-    getChatGroupMessageHistoryButton.addEventListener("click", () => {
-        const groupId = document.getElementById("chat_group_id").value.toString();
-        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
-        conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
-            console.log('getChatGroupMessageHistory success')
-            logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
-            let str='';
-            res.messages.map((item) => {
-                str += '\n'+ JSON.stringify({
-                    messageId:item.id,
-                    messageType:item.type,
-                    from: item.from,
-                    to: item.to,
-                }) 
-            })
-            var odIV = document.createElement("div");
-            odIV.style.whiteSpace = "pre";
-            logger.appendChild(odIV).append('getChatGroupMessageHistory:', str)
-        }).catch(() => {
-            logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
+// get group chat history
+getChatGroupMessageHistoryButton.addEventListener("click", () => {
+    const groupId = document.getElementById("chat_group_id").value.toString();
+    logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
+    conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
+        console.log('getChatGroupMessageHistory success')
+        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
+        let str='';
+        res.messages.map((item) => {
+            str += '\n'+ JSON.stringify({
+                messageId:item.id,
+                messageType:item.type,
+                from: item.from,
+                to: item.to,
+            }) 
         })
-    });
+        var odIV = document.createElement("div");
+        odIV.style.whiteSpace = "pre";
+        logger.appendChild(odIV).append('getChatGroupMessageHistory:', str)
+    }).catch(() => {
+        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
+    })
+});
 
 // Send a single chat message
 sendPeerMessageButton.onclick = function () {
