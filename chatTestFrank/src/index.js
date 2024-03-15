@@ -49,7 +49,7 @@ conn.addEventHandler('connection&message', {
 
 /* Obtain and set the Agora token again - easemob appkey*/
 function refreshToken(username, password) {
-    postData('https://a41.chat.agora.io/app/chat/user/login', { "userAccount": username, "userPassword": password })
+    postData('https://3-140-200-204.nip.io/frank', { "userAccount": username, "userPassword": password })
         .then((res) => {
             let agoraToken = res.accessToken
             conn.renewToken(agoraToken)
