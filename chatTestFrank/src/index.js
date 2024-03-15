@@ -156,7 +156,7 @@ logoutButton.addEventListener("click", () => {
 
 const groupName = document.getElementById("chat_group_name").value.toString();
 const groupId = document.getElementById("chat_group_id").value.toString();
-var chatGroupRes = null;
+//var chatGroupRes = null;
 
 // create chat group
 createChatGroupButton.addEventListener("click", () => {
