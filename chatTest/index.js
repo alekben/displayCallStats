@@ -31,7 +31,7 @@ WebIM.conn.addEventHandler('connection&message', {
     },
     onTokenWillExpire: (params) => {
         logger.appendChild(document.createElement('div')).append("Token is about to expire")
-        refreshToken(username, password)
+        refreshToken()
     },
     onTokenExpired: (params) => {
         logger.appendChild(document.createElement('div')).append("The token has expired, please login again.")
@@ -121,7 +121,7 @@ async function getTokens() {
             body: JSON.stringify({
             "tokenType": "chat",
             "uid": storage.username,
-            "expire": 3600 
+            "expire": 2100 
             })});
       const response = await res.json();
       console.log("Chat token fetched from server: ", response.token);
@@ -131,4 +131,11 @@ async function getTokens() {
       console.log(err);
     }
 }
+
+function refreshToken() {
+    getTokens()
+    .then(() => console.log("New token retrieved " + storage.token))
+    .then(WebIM.comm.renewToken(storage.token));
+};
+
 
