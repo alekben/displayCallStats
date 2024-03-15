@@ -180,13 +180,18 @@ createChatGroupButton.addEventListener("click", () => {
         },
     };
     // Call createGroup to create a chat group. //chatGroupRes = res;
+    const dataObj = {};
     conn.createGroup(option)
     .then((res) => {
         console.log(res);
         logger.appendChild(document.createElement('div')).append(`${groupName} has been  created, grab groupId out of the console`)
+        //console.log("SOMETHING " + res.entities + " " + res.data)
+        let str='';
+        dataObj.groupid = res.data.groupid;
+        console.log(dataObj.groupid + " OBJECT \n")
         res.data.map((item) => {
             str += '\n' + JSON.stringify({
-                groupId: item.groupId,
+                groupId: groupId,
             }) 
         })
         var odIV = document.createElement("div");
