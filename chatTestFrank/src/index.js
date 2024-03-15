@@ -120,7 +120,7 @@ loginButton.addEventListener("click", () => {
     username = document.getElementById("userID").value.toString()
     $.when(getTokens()).then(function(){
         WebIM.conn.open({
-            user: storage.username,
+            user: username,
             agoraToken: storage.token
         }).then((res) => {
             console.log('logged in');
