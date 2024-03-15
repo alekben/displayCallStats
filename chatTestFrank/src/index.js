@@ -168,11 +168,11 @@ createChatGroupButton.addEventListener("click", () => {
             // Set the type of a chat group to public. Public chat groups can be searched, and users can send join requests.
             public: true,
             // Join requests must be approved by the chat group owner or chat group admins.
-            approval: true,
+            approval: false,
             // Allow chat group members to invite other users to join the chat group.
             allowinvites: true,
             // Group invitations must be confirmed by invitees.
-            inviteNeedConfirm: true,
+            inviteNeedConfirm: false,
             // Set the maximum number of users that can be added to the group.
             maxusers: 500
         },
