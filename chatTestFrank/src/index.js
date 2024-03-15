@@ -260,7 +260,7 @@ getChatGroupMessageHistoryButton.addEventListener("click", () => {
                 messageType:item.type,
                 from: item.from,
                 to: item.to,
-                contents: item.contents.text,
+                contents: item.msg,
             }) 
         })
         var odIV = document.createElement("div");
