@@ -3,6 +3,12 @@ WebIM.conn = new WebIM.connection({
     appKey: "41117440#383391",
 })
 
+var storage = {
+    token: null,
+    tokenReturned: false
+}
+//easemob appkey appKey: "41117440#383391"
+//my appkey: 41155833#993682
 //get elements:
 
 const logger = document.getElementById("log");
@@ -10,7 +16,6 @@ const loginButton = document.getElementById("login");
 const logoutButton = document.getElementById("logout");
 const sendPeerMessageButton = document.getElementById("send_peer_message");
 const joinGroupButton = document.getElementById("joinGroup");
-
 const createChatGroupButton = document.getElementById("create_chat_group");
 const destroyChatGroupButton = document.getElementById("destroy_chat_group");
 const joinChatGroupButton = document.getElementById("join_chat_group");
@@ -232,3 +237,35 @@ sendChatGroupMessageButton.addEventListener("click", () => {
         console.log('group chat text fail', err);
     })
 });
+
+
+// token stuff
+
+async function getTokens() {
+    const localTokenUrls = {
+        host: "https://3-140-200-204.nip.io/frank",
+        endpoint: "getToken"
+    }
+
+    try {
+      const res = await fetch(
+        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+          method: "POST",
+          headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            "tokenType": "chat",
+            "uid": username,
+            "expire": 3600 
+            })});
+      const response = await res.json();
+      console.log("Chat token fetched from server: ", response.token);
+      storage.tokenReturned = true;
+      storage.token = response.token;
+    } catch (err) {
+      console.log(err);
+    }
+}
