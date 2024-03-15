@@ -181,7 +181,7 @@ createChatGroupButton.addEventListener("click", () => {
     };
     // Call createGroup to create a chat group.
     conn.createGroup(option).then((res) => {
-        let chatGroupRes = res;
+        chatGroupRes = res;
         console.log(chatGroupRes)});
     groupId = chatGroupRes;
     /*const response = res.json();
