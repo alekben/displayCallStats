@@ -1,5 +1,5 @@
 var username, password
-WebIM.conn = new WebIM.connection({
+conn = new WebIM.connection({
     appKey: "41155833#993682",
 })
 
@@ -24,7 +24,7 @@ const sendChatGroupMessageButton = document.getElementById("send_group_message")
 const getChatGroupMessageHistoryButton = document.getElementById("getChatGroupMessageHistory");
 
 // Register listening events
-WebIM.conn.addEventHandler('connection&message', {
+conn.addEventHandler('connection&message', {
     onConnected: () => {
         logger.appendChild(document.createElement('div')).append("Connect success !")
     },
@@ -47,15 +47,15 @@ WebIM.conn.addEventHandler('connection&message', {
     }
 })
 
-/* Obtain and set the Agora token again - easemob appkey
+/* Obtain and set the Agora token again - easemob appkey*/
 function refreshToken(username, password) {
-    postData('https://a41.chat.agora.io/app/chat/user/login', { "userAccount": username, "userPassword": password })
+    postData('https://3-140-200-204.nip.io/frank', { "userAccount": username, "userPassword": password })
         .then((res) => {
             let agoraToken = res.accessToken
-            WebIM.conn.renewToken(agoraToken)
+            conn.renewToken(agoraToken)
             logger.appendChild(document.createElement('div')).append("Token has been updated")
         })
-}*/
+}
 
 function postData(url, data) {
     return fetch(url, {
@@ -101,6 +101,7 @@ async function getTokens() {
       console.log(err);
     }
 }
+
 // Button behavior definition
 // register
 document.getElementById("register").onclick = function () {
@@ -119,7 +120,7 @@ loginButton.addEventListener("click", () => {
     logger.appendChild(document.createElement('div')).append("Logging in...")
     username = document.getElementById("userID").value.toString()
     $.when(getTokens()).then(function(){
-        WebIM.conn.open({
+        conn.open({
             user: username,
             agoraToken: storage.token
         }).then((res) => {
@@ -137,7 +138,7 @@ loginButton.addEventListener("click", () => {
         .then((res) => {
             let agoraToken = res.accessToken
             let easemobUserName = res.chatUserName
-            WebIM.conn.open({
+            conn.open({
                 user: easemobUserName,
                 agoraToken: agoraToken
             });
@@ -149,12 +150,13 @@ loginButton.addEventListener("click", () => {
 
 // logout
 logoutButton.addEventListener("click", () => {
-    WebIM.conn.close();
+    conn.close();
     logger.appendChild(document.createElement('div')).append("logout")
 });
 
 const groupName = document.getElementById("chat_group_name").value.toString();
-const groupId = document.getElementById("chat_group_id").value.toString();
+const groupId = document.getElementById("groupId").value.toString();
+const chatGroupRes = null;
 
 // create chat group
 createChatGroupButton.addEventListener("click", () => {
@@ -168,80 +170,122 @@ createChatGroupButton.addEventListener("click", () => {
             // Set the type of a chat group to public. Public chat groups can be searched, and users can send join requests.
             public: true,
             // Join requests must be approved by the chat group owner or chat group admins.
-            approval: true,
+            approval: false,
             // Allow chat group members to invite other users to join the chat group.
             allowinvites: true,
             // Group invitations must be confirmed by invitees.
-            inviteNeedConfirm: true,
+            inviteNeedConfirm: false,
             // Set the maximum number of users that can be added to the group.
             maxusers: 500
         },
     };
-    // Call createGroup to create a chat group.
-    var response;
-    WebIM.conn.createGroup(option).then((res) => console.log(res));
-    /*const response = res.json();
+    // Call createGroup to create a chat group. //chatGroupRes = res;
+    const dataObj = {};
+    conn.createGroup(option)
+    .then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(`${groupName} has been  created, grab groupId out of the console`)
+        //console.log("SOMETHING " + res.entities + " " + res.data)
+        let str='';
+        dataObj.groupid = res.data.groupid;
+        console.log(dataObj.groupid + " OBJECT \n")
+        res.data.map((item) => {
+            str += '\n' + JSON.stringify({
+                groupId: groupId,
+            }) 
+        })
+        var odIV = document.createElement("div");
+        odIV.style.whiteSpace = "pre";
+        logger.appendChild(odIV).append('GROUPID:', str)
+    }).catch((err) => {
+        console.log('create group chat failed', err);
+        logger.appendChild(document.createElement('div')).append(`Failed to create group ${groupId}, check console for error`)
+    })
+})
+    /*groupId = chatGroupRes;
+    const response = res.json();
     var obj = JSON.parse(response);
-    groupId = obj.data.groupId;*/
+    groupId = obj.data.groupId;
     console.log("create group " + groupId);
-});
+});*/
 
 destroyChatGroupButton.addEventListener("click", () => {
     // Call destroyGroup to disband a chat group.
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     console.log("destroy group " + groupId);
     let option = {
         groupId: groupId
     };
-    WebIM.conn.destroyGroup(option).then((res) => console.log(res))
-});
+    conn.destroyGroup(option).then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(`${groupId} has been destoryed`)
+    }).catch((err) => {
+        console.log('destroy group chat failed', err);
+        logger.appendChild(document.createElement('div')).append(`Failed to destroy group ${groupId}, check console for error`)
+    })
+})
 
 // join chat group
 joinChatGroupButton.addEventListener("click", () => {
     // Call joinGroup to send a join request to a chat group.
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     console.log("join group " + groupId);
-    var joinMess = username + " has joined the group";
+    var joinMess = username + " has joined the group " + groupId;
     let options = {
         groupId: groupId,
         message: joinMess
     };
-    WebIM.conn.joinGroup(options).then(res => console.log(res))
-});
+    conn.joinGroup(options).then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(joinMess)
+    }).catch((err) => {
+        console.log('join group chat failed', err),
+        logger.appendChild(document.createElement('div')).append(`Failed to join group ${groupId}, check console for error`)
+    })
+})
 
 // leave group
 leaveChatGroupButton.addEventListener("click", () => {
     // Call memberAbsence to leave a chat group.
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     let option = {
         groupId: groupId
     };
-    WebIM.conn.leaveGroup(option).then(res => console.log(res))
-    });
+    conn.leaveGroup(option).then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(`${username} has left the group ${groupId}`)
+    }).catch((err) => {
+        console.log('leave group chat failed', err),
+        logger.appendChild(document.createElement('div')).append(`Failed to leave group ${groupId}, check console for error`)
+    })
+})
 
-    // get group chat history
-    getChatGroupMessageHistoryButton.addEventListener("click", () => {
-        const groupId = document.getElementById("chat_group_id").value.toString();
-        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
-        WebIM.conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
-            console.log('getChatGroupMessageHistory success')
-            logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
-            let str='';
-            res.messages.map((item) => {
-                str += '\n'+ JSON.stringify({
-                    messageId:item.id,
-                    messageType:item.type,
-                    from: item.from,
-                    to: item.to,
-                }) 
-            })
-            var odIV = document.createElement("div");
-            odIV.style.whiteSpace = "pre";
-            logger.appendChild(odIV).append('getChatGroupMessageHistory:', str)
-        }).catch(() => {
-            logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
+// get group chat history
+getChatGroupMessageHistoryButton.addEventListener("click", () => {
+    const groupId = document.getElementById("groupId").value.toString();
+    logger.appendChild(document.createElement('div')).append("...getChatGroupMessageHistory...")
+    conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
+        console.log('getChatGroupMessageHistory success')
+        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
+        let str='';
+        res.messages.map((item) => {
+            str += '\n'+ JSON.stringify({
+                time: item.time,
+                messageId:item.id,
+                messageType:item.type,
+                from: item.from,
+                to: item.to,
+                msg: item.msg,
+            }) 
         })
-    });
+        //Other vairables here: https://api-ref.agora.io/en/chat-sdk/web/1.x/interfaces/Types.Message.TextMsgBody.html
+        var odIV = document.createElement("div");
+        odIV.style.whiteSpace = "pre";
+        logger.appendChild(odIV).append('Message History:', str)
+    }).catch(() => {
+        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
+    })
+});
 
 // Send a single chat message
 sendPeerMessageButton.onclick = function () {
@@ -254,7 +298,7 @@ sendPeerMessageButton.onclick = function () {
         msg: peerMessage           // The message content
     }
     let msg = WebIM.message.create(option); 
-    WebIM.conn.send(msg).then((res) => {
+    conn.send(msg).then((res) => {
         console.log('send private text success');
         logger.appendChild(document.createElement('div')).append("Message send to: " + peerId + " Message: " + peerMessage)
     }).catch((err) => {
@@ -264,7 +308,7 @@ sendPeerMessageButton.onclick = function () {
 
 // Send a group chat message
 sendChatGroupMessageButton.addEventListener("click", () => {
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     let groupChatMessage = document.getElementById("groupChatMessage").value.toString()
     let option = {
         chatType: 'groupChat',    // Set it to group chat
@@ -272,12 +316,17 @@ sendChatGroupMessageButton.addEventListener("click", () => {
         to: groupId,                // The user receiving the message (user ID)
         msg: groupChatMessage           // The message content
     }
-    console.log("send group message to group " + groupId + "\n& message is " + groupChatMessage)
+    console.log("send group message to group " + groupId + "\n message: " + groupChatMessage)
     let msg = WebIM.message.create(option); 
-    WebIM.conn.send(msg).then((res) => {
-        console.log('group chat text success');
-        logger.appendChild(document.createElement('div')).append("Message send to: " + groupId + " Message: " + groupChatMessage)
-    }).catch((err) => {
-        console.log('group chat text fail', err);
-    })
+    conn
+        .send(msg)
+        .then((res) => {
+            console.log('group chat text success');
+            logger
+            .appendChild(document.createElement('div'))
+            .append("Message send to group: " + groupId + "\n Message: " + groupChatMessage)
+        }).catch((err) => {
+            console.log('group chat send text fail', err),
+            logger.appendChild(document.createElement('div')).append(`Failed to send message, groupId empty =>${groupId}, check console for full error`)
+        })
 });
