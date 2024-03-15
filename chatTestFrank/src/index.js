@@ -155,7 +155,7 @@ logoutButton.addEventListener("click", () => {
 });
 
 const groupName = document.getElementById("chat_group_name").value.toString();
-const groupId = document.getElementById("groupId").value.toString();
+var groupId = document.getElementById("groupId").value.toString();
 const chatGroupRes = null;
 
 // create chat group
@@ -180,38 +180,28 @@ createChatGroupButton.addEventListener("click", () => {
         },
     };
     // Call createGroup to create a chat group. //chatGroupRes = res;
-    const dataObj = {};
+    var dataObj = {};
     conn.createGroup(option)
     .then((res) => {
         console.log(res);
         logger.appendChild(document.createElement('div')).append(`${groupName} has been  created, grab groupId out of the console`)
-        //console.log("SOMETHING " + res.entities + " " + res.data)
-        let str='';
-        dataObj.groupid = res.data.groupid;
-        console.log(dataObj.groupid + " OBJECT \n")
-        res.data.map((item) => {
-            str += '\n' + JSON.stringify({
-                groupId: groupId,
-            }) 
-        })
+        dataObj = res.data.groupid;
+        console.log(dataObj + " OBJECT \n")
         var odIV = document.createElement("div");
         odIV.style.whiteSpace = "pre";
-        logger.appendChild(odIV).append('GROUPID:', str)
+        logger.appendChild(odIV).append('GROUPID:', dataObj)
+        groupId = dataObj;
     }).catch((err) => {
         console.log('create group chat failed', err);
         logger.appendChild(document.createElement('div')).append(`Failed to create group ${groupId}, check console for error`)
     })
 })
-    /*groupId = chatGroupRes;
-    const response = res.json();
-    var obj = JSON.parse(response);
-    groupId = obj.data.groupId;
-    console.log("create group " + groupId);
-});*/
 
 destroyChatGroupButton.addEventListener("click", () => {
     // Call destroyGroup to disband a chat group.
-    const groupId = document.getElementById("groupId").value.toString();
+    if (!groupId) {
+        groupId = document.getElementById("groupId").value.toString();
+    }
     console.log("destroy group " + groupId);
     let option = {
         groupId: groupId
@@ -228,7 +218,9 @@ destroyChatGroupButton.addEventListener("click", () => {
 // join chat group
 joinChatGroupButton.addEventListener("click", () => {
     // Call joinGroup to send a join request to a chat group.
-    const groupId = document.getElementById("groupId").value.toString();
+    if (!groupId) {
+        groupId = document.getElementById("groupId").value.toString();
+    }
     console.log("join group " + groupId);
     var joinMess = username + " has joined the group " + groupId;
     let options = {
@@ -247,7 +239,9 @@ joinChatGroupButton.addEventListener("click", () => {
 // leave group
 leaveChatGroupButton.addEventListener("click", () => {
     // Call memberAbsence to leave a chat group.
-    const groupId = document.getElementById("groupId").value.toString();
+    if (!groupId) {
+        groupId = document.getElementById("groupId").value.toString();
+    }
     let option = {
         groupId: groupId
     };
@@ -262,7 +256,9 @@ leaveChatGroupButton.addEventListener("click", () => {
 
 // get group chat history
 getChatGroupMessageHistoryButton.addEventListener("click", () => {
-    const groupId = document.getElementById("groupId").value.toString();
+    if (!groupId) {
+        groupId = document.getElementById("groupId").value.toString();
+    }
     logger.appendChild(document.createElement('div')).append("...getChatGroupMessageHistory...")
     conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
         console.log('getChatGroupMessageHistory success')
@@ -308,7 +304,9 @@ sendPeerMessageButton.onclick = function () {
 
 // Send a group chat message
 sendChatGroupMessageButton.addEventListener("click", () => {
-    const groupId = document.getElementById("groupId").value.toString();
+    if (!groupId) {
+        groupId = document.getElementById("groupId").value.toString();
+    }
     let groupChatMessage = document.getElementById("groupChatMessage").value.toString()
     let option = {
         chatType: 'groupChat',    // Set it to group chat
