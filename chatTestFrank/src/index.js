@@ -1,8 +1,14 @@
 var username, password
 WebIM.conn = new WebIM.connection({
-    appKey: "41117440#383391",
+    appKey: "41155833#993682",
 })
 
+var storage = {
+    token: null,
+    tokenReturned: false
+}
+//easemob appkey appKey: "41117440#383391"
+//my appkey: 41155833#993682
 //get elements:
 
 const logger = document.getElementById("log");
@@ -10,7 +16,6 @@ const loginButton = document.getElementById("login");
 const logoutButton = document.getElementById("logout");
 const sendPeerMessageButton = document.getElementById("send_peer_message");
 const joinGroupButton = document.getElementById("joinGroup");
-
 const createChatGroupButton = document.getElementById("create_chat_group");
 const destroyChatGroupButton = document.getElementById("destroy_chat_group");
 const joinChatGroupButton = document.getElementById("join_chat_group");
@@ -42,7 +47,7 @@ WebIM.conn.addEventHandler('connection&message', {
     }
 })
 
-// Obtain and set the Agora token again
+/* Obtain and set the Agora token again - easemob appkey
 function refreshToken(username, password) {
     postData('https://a41.chat.agora.io/app/chat/user/login', { "userAccount": username, "userPassword": password })
         .then((res) => {
@@ -50,7 +55,7 @@ function refreshToken(username, password) {
             WebIM.conn.renewToken(agoraToken)
             logger.appendChild(document.createElement('div')).append("Token has been updated")
         })
-}
+}*/
 
 function postData(url, data) {
     return fetch(url, {
@@ -67,6 +72,35 @@ function postData(url, data) {
         .then(response => response.json())
 }
 
+// token stuff
+async function getTokens() {
+    const localTokenUrls = {
+        host: "https://3-140-200-204.nip.io/frank",
+        endpoint: "getToken"
+    }
+
+    try {
+      const res = await fetch(
+        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+          method: "POST",
+          headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            "tokenType": "chat",
+            "uid": username,
+            "expire": 3600 
+            })});
+      const response = await res.json();
+      console.log("Chat token fetched from server: ", response.token);
+      storage.tokenReturned = true;
+      storage.token = response.token;
+    } catch (err) {
+      console.log(err);
+    }
+}
 // Button behavior definition
 // register
 document.getElementById("register").onclick = function () {
@@ -84,6 +118,20 @@ document.getElementById("register").onclick = function () {
 loginButton.addEventListener("click", () => {
     logger.appendChild(document.createElement('div')).append("Logging in...")
     username = document.getElementById("userID").value.toString()
+    $.when(getTokens()).then(function(){
+        WebIM.conn.open({
+            user: storage.username,
+            agoraToken: storage.token
+        }).then((res) => {
+            console.log('logged in');
+            logger.appendChild(document.createElement('div')).append(`Login success`);
+        }).catch((er) => {
+            console.log('log in failed');
+            logger.appendChild(document.createElement('div')).append(`Login failed`);
+        })
+    })      
+});
+/* old stuff
     password = document.getElementById("password").value.toString()
     postData('https://a41.chat.agora.io/app/chat/user/login', { "userAccount": username, "userPassword": password })
         .then((res) => {
@@ -97,7 +145,7 @@ loginButton.addEventListener("click", () => {
         .catch((res)=> {
             logger.appendChild(document.createElement('div')).append(`Login failed`)
         })
-});
+});*/
 
 // logout
 logoutButton.addEventListener("click", () => {
