@@ -181,13 +181,19 @@ createChatGroupButton.addEventListener("click", () => {
     };
     // Call createGroup to create a chat group. //chatGroupRes = res;
     conn.createGroup(option).then((res) => {
-        console.log(res)});
-    //groupId = chatGroupRes;
-    /*const response = res.json();
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(`${groupId} has been  created`)
+    }).catch((err) => {
+        console.log('create group chat failed', err);
+        logger.appendChild(document.createElement('div')).append(`Failed to create ${groupId}, check console for error`)
+    })
+})
+    /*groupId = chatGroupRes;
+    const response = res.json();
     var obj = JSON.parse(response);
-    groupId = obj.data.groupId;*/
+    groupId = obj.data.groupId;
     console.log("create group " + groupId);
-});
+});*/
 
 destroyChatGroupButton.addEventListener("click", () => {
     // Call destroyGroup to disband a chat group.
@@ -196,21 +202,33 @@ destroyChatGroupButton.addEventListener("click", () => {
     let option = {
         groupId: groupId
     };
-    conn.destroyGroup(option).then((res) => console.log(res))
-});
+    conn.destroyGroup(option).then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(`${groupId} has been destoryed`)
+    }).catch((err) => {
+        console.log('destroy group chat failed', err);
+        logger.appendChild(document.createElement('div')).append(`Failed to destroy ${groupId}, check console for error`)
+    })
+})
 
 // join chat group
 joinChatGroupButton.addEventListener("click", () => {
     // Call joinGroup to send a join request to a chat group.
     const groupId = document.getElementById("groupId").value.toString();
     console.log("join group " + groupId);
-    var joinMess = username + " has joined the group";
+    var joinMess = username + " has joined the group" + groupId;
     let options = {
         groupId: groupId,
         message: joinMess
     };
-    conn.joinGroup(options).then(res => console.log(res))
-});
+    conn.joinGroup(options).then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(joinMess)
+    }).catch((err) => {
+        console.log('join group chat failed', err),
+        logger.appendChild(document.createElement('div')).append(`Failed to join ${groupId}, check console for error`)
+    })
+})
 
 // leave group
 leaveChatGroupButton.addEventListener("click", () => {
@@ -219,8 +237,14 @@ leaveChatGroupButton.addEventListener("click", () => {
     let option = {
         groupId: groupId
     };
-    conn.leaveGroup(option).then(res => console.log(res))
-    });
+    conn.leaveGroup(option).then((res) => {
+        console.log(res);
+        logger.appendChild(document.createElement('div')).append(`${username} has left the group ${groupId}`)
+    }).catch((err) => {
+        console.log('leave group chat failed', err),
+        logger.appendChild(document.createElement('div')).append(`Failed to leave ${groupId}, check console for error`)
+    })
+})
 
 // get group chat history
 getChatGroupMessageHistoryButton.addEventListener("click", () => {
