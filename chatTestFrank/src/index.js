@@ -155,7 +155,7 @@ logoutButton.addEventListener("click", () => {
 });
 
 const groupName = document.getElementById("chat_group_name").value.toString();
-const groupId = document.getElementById("chat_group_id").value.toString();
+const groupId = document.getElementById("groupId").value.toString();
 const chatGroupRes = null;
 
 // create chat group
@@ -181,9 +181,9 @@ createChatGroupButton.addEventListener("click", () => {
     };
     // Call createGroup to create a chat group.
     conn.createGroup(option).then((res) => {
-        chatGroupRes = res;
+        //chatGroupRes = res;
         console.log(chatGroupRes)});
-    groupId = chatGroupRes;
+    //groupId = chatGroupRes;
     /*const response = res.json();
     var obj = JSON.parse(response);
     groupId = obj.data.groupId;*/
@@ -192,7 +192,7 @@ createChatGroupButton.addEventListener("click", () => {
 
 destroyChatGroupButton.addEventListener("click", () => {
     // Call destroyGroup to disband a chat group.
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     console.log("destroy group " + groupId);
     let option = {
         groupId: groupId
@@ -203,7 +203,7 @@ destroyChatGroupButton.addEventListener("click", () => {
 // join chat group
 joinChatGroupButton.addEventListener("click", () => {
     // Call joinGroup to send a join request to a chat group.
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     console.log("join group " + groupId);
     var joinMess = username + " has joined the group";
     let options = {
@@ -216,7 +216,7 @@ joinChatGroupButton.addEventListener("click", () => {
 // leave group
 leaveChatGroupButton.addEventListener("click", () => {
     // Call memberAbsence to leave a chat group.
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     let option = {
         groupId: groupId
     };
@@ -225,7 +225,7 @@ leaveChatGroupButton.addEventListener("click", () => {
 
 // get group chat history
 getChatGroupMessageHistoryButton.addEventListener("click", () => {
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
     conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
         console.log('getChatGroupMessageHistory success')
@@ -268,7 +268,7 @@ sendPeerMessageButton.onclick = function () {
 
 // Send a group chat message
 sendChatGroupMessageButton.addEventListener("click", () => {
-    const groupId = document.getElementById("chat_group_id").value.toString();
+    const groupId = document.getElementById("groupId").value.toString();
     let groupChatMessage = document.getElementById("groupChatMessage").value.toString()
     let option = {
         chatType: 'groupChat',    // Set it to group chat
