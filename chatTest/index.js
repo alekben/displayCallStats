@@ -1,19 +1,20 @@
-var username;
-var password;
-const agoraToken = "007eJxTYLCXzm/ftcOJz+sNh3lQfflaJkPTvt+veh38NqrxiKVN3KrAkJpsbJpklmiSZGpoaWKRZpiYlGhkZphiZGhhamBiamr2MPFz6oI2RgaeI4zMjAysDIwMjAwgPgdDYk5qdlJqnhEAu3Iefg==";
+var storage = {
+    username: null,
+    password: null,
+    token: null,
+    tokenReturned: false
+}
 
 WebIM.conn = new WebIM.connection({
     appKey: "41450892#535167",
 });
 
-//get elements:
-
+//get button elements:
 const logger = document.getElementById("log");
 const loginButton = document.getElementById("login");
 const logoutButton = document.getElementById("logout");
 const sendPeerMessageButton = document.getElementById("send_peer_message");
 const joinGroupButton = document.getElementById("joinGroup");
-
 
 
 // Register listening events
@@ -41,21 +42,22 @@ WebIM.conn.addEventHandler('connection&message', {
 });
 
 // Button behavior definition
-
 // login
 loginButton.addEventListener("click", () => {
     logger.appendChild(document.createElement('div')).append("Logging in...")
-    username = document.getElementById("userID").value.toString()
-    WebIM.conn.open({
-                user: username,
-                agoraToken: agoraToken
-            }).then((res) => {
-                console.log('logged in');
-                logger.appendChild(document.createElement('div')).append(`Login success`);
-            }).catch((er) => {
-                console.log('log in failed');
-                logger.appendChild(document.createElement('div')).append(`Login failed`);
-            })
+    storage.username = document.getElementById("userID").value.toString()
+    $.when(getTokens()).then(function(){
+        WebIM.conn.open({
+            user: storage.username,
+            agoraToken: storage.token
+        }).then((res) => {
+            console.log('logged in');
+            logger.appendChild(document.createElement('div')).append(`Login success`);
+        }).catch((er) => {
+            console.log('log in failed');
+            logger.appendChild(document.createElement('div')).append(`Login failed`);
+        })
+    })      
 });
 
 // logout
@@ -97,4 +99,36 @@ joinGroupButton.addEventListener("click", () => {
         console.log('Joining Group Failed', err);
     })
 });
+
+
+// token stuff
+
+async function getTokens() {
+    const localTokenUrls = {
+        host: "https://3-140-200-204.nip.io",
+        endpoint: "getToken"
+    }
+
+    try {
+      const res = await fetch(
+        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+          method: "POST",
+          headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            "tokenType": "chat",
+            "uid": storage.username,
+            "expire": 3600 
+            })});
+      const response = await res.json();
+      console.log("Chat token fetched from server: ", response.token);
+      storage.tokenReturned = true;
+      storage.token = response.token;
+    } catch (err) {
+      console.log(err);
+    }
+}
 
