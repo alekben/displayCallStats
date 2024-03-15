@@ -181,8 +181,8 @@ createChatGroupButton.addEventListener("click", () => {
     };
     // Call createGroup to create a chat group.
     WebIM.conn.createGroup(option).then((res) => {
-        let groupId = res.groupId
-        console.log(chatGroupRes)});
+        let groupId = res.groupId;
+        console.log(groupId)});
     // groupId = chatGroupRes.data.groupId;
     /*const response = res.json();
     var obj = JSON.parse(response);
