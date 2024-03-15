@@ -1,5 +1,5 @@
 var username, password
-WebIM.conn = new WebIM.connection({
+conn = new connection({
     appKey: "41155833#993682",
 })
 
@@ -24,7 +24,7 @@ const sendChatGroupMessageButton = document.getElementById("send_group_message")
 const getChatGroupMessageHistoryButton = document.getElementById("getChatGroupMessageHistory");
 
 // Register listening events
-WebIM.conn.addEventHandler('connection&message', {
+conn.addEventHandler('connection&message', {
     onConnected: () => {
         logger.appendChild(document.createElement('div')).append("Connect success !")
     },
@@ -52,7 +52,7 @@ function refreshToken(username, password) {
     postData('https://a41.chat.agora.io/app/chat/user/login', { "userAccount": username, "userPassword": password })
         .then((res) => {
             let agoraToken = res.accessToken
-            WebIM.conn.renewToken(agoraToken)
+            conn.renewToken(agoraToken)
             logger.appendChild(document.createElement('div')).append("Token has been updated")
         })
 }*/
@@ -120,7 +120,7 @@ loginButton.addEventListener("click", () => {
     logger.appendChild(document.createElement('div')).append("Logging in...")
     username = document.getElementById("userID").value.toString()
     $.when(getTokens()).then(function(){
-        WebIM.conn.open({
+        conn.open({
             user: username,
             agoraToken: storage.token
         }).then((res) => {
@@ -138,7 +138,7 @@ loginButton.addEventListener("click", () => {
         .then((res) => {
             let agoraToken = res.accessToken
             let easemobUserName = res.chatUserName
-            WebIM.conn.open({
+            conn.open({
                 user: easemobUserName,
                 agoraToken: agoraToken
             });
@@ -150,7 +150,7 @@ loginButton.addEventListener("click", () => {
 
 // logout
 logoutButton.addEventListener("click", () => {
-    WebIM.conn.close();
+    conn.close();
     logger.appendChild(document.createElement('div')).append("logout")
 });
 
@@ -180,9 +180,9 @@ createChatGroupButton.addEventListener("click", () => {
         },
     };
     // Call createGroup to create a chat group.
-    WebIM.conn.createGroup(option).then((res) => {
-        let chatGroupRes = res.groupId;
-        console.log(chatGroupRes)});
+    conn.createGroup(option).then((res) => {
+        /*let chatGroupRes = res.groupId;*/
+        console.log(res)});
     groupId = chatGroupRes;
     /*const response = res.json();
     var obj = JSON.parse(response);
@@ -197,7 +197,7 @@ destroyChatGroupButton.addEventListener("click", () => {
     let option = {
         groupId: groupId
     };
-    WebIM.conn.destroyGroup(option).then((res) => console.log(res))
+    conn.destroyGroup(option).then((res) => console.log(res))
 });
 
 // join chat group
@@ -210,7 +210,7 @@ joinChatGroupButton.addEventListener("click", () => {
         groupId: groupId,
         message: joinMess
     };
-    WebIM.conn.joinGroup(options).then(res => console.log(res))
+    conn.joinGroup(options).then(res => console.log(res))
 });
 
 // leave group
@@ -220,14 +220,14 @@ leaveChatGroupButton.addEventListener("click", () => {
     let option = {
         groupId: groupId
     };
-    WebIM.conn.leaveGroup(option).then(res => console.log(res))
+    conn.leaveGroup(option).then(res => console.log(res))
     });
 
     // get group chat history
     getChatGroupMessageHistoryButton.addEventListener("click", () => {
         const groupId = document.getElementById("chat_group_id").value.toString();
         logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
-        WebIM.conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
+        conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
             console.log('getChatGroupMessageHistory success')
             logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
             let str='';
@@ -258,7 +258,7 @@ sendPeerMessageButton.onclick = function () {
         msg: peerMessage           // The message content
     }
     let msg = WebIM.message.create(option); 
-    WebIM.conn.send(msg).then((res) => {
+    conn.send(msg).then((res) => {
         console.log('send private text success');
         logger.appendChild(document.createElement('div')).append("Message send to: " + peerId + " Message: " + peerMessage)
     }).catch((err) => {
@@ -278,7 +278,7 @@ sendChatGroupMessageButton.addEventListener("click", () => {
     }
     console.log("send group message to group " + groupId + "\n& message is " + groupChatMessage)
     let msg = WebIM.message.create(option); 
-    WebIM.conn.send(msg).then((res) => {
+    conn.send(msg).then((res) => {
         console.log('group chat text success');
         logger.appendChild(document.createElement('div')).append("Message send to: " + groupId + " Message: " + groupChatMessage)
     }).catch((err) => {
