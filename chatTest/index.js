@@ -90,7 +90,7 @@ joinGroupButton.addEventListener("click", () => {
     let option = {
         groupId: document.getElementById("groupId").value.toString(),
         //groupId: "218535221592065",
-        message: 'Join Group Request From ' + username 
+        message: 'Join Group Request From ' + storage.username 
     }
 
     WebIM.conn.joinGroup(option).then((res) => {
