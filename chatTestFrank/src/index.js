@@ -249,13 +249,14 @@ leaveChatGroupButton.addEventListener("click", () => {
 // get group chat history
 getChatGroupMessageHistoryButton.addEventListener("click", () => {
     const groupId = document.getElementById("groupId").value.toString();
-    logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory...")
+    logger.appendChild(document.createElement('div')).append("...getChatGroupMessageHistory...")
     conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
         console.log('getChatGroupMessageHistory success')
         logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
         let str='';
         res.messages.map((item) => {
             str += '\n'+ JSON.stringify({
+                time: item.time,
                 messageId:item.id,
                 messageType:item.type,
                 from: item.from,
@@ -263,9 +264,10 @@ getChatGroupMessageHistoryButton.addEventListener("click", () => {
                 msg: item.msg,
             }) 
         })
+        //Other vairables here: https://api-ref.agora.io/en/chat-sdk/web/1.x/interfaces/Types.Message.TextMsgBody.html
         var odIV = document.createElement("div");
         odIV.style.whiteSpace = "pre";
-        logger.appendChild(odIV).append('getChatGroupMessageHistory:', str)
+        logger.appendChild(odIV).append('Message History:', str)
     }).catch(() => {
         logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
     })
@@ -310,6 +312,7 @@ sendChatGroupMessageButton.addEventListener("click", () => {
             .appendChild(document.createElement('div'))
             .append("Message send to group: " + groupId + "\n Message: " + groupChatMessage)
         }).catch((err) => {
-            console.log('group chat text fail', err);
+            console.log('group chat send text fail', err),
+            logger.appendChild(document.createElement('div')).append(`Failed to send message, groupId empty =>${groupId}, check console for full error`)
         })
 });
