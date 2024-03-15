@@ -22,6 +22,7 @@ const joinChatGroupButton = document.getElementById("join_chat_group");
 const leaveChatGroupButton = document.getElementById("leave_chat_group");
 const sendChatGroupMessageButton = document.getElementById("send_group_message");
 const getChatGroupMessageHistoryButton = document.getElementById("getChatGroupMessageHistory");
+const getPublicGroupsButton = document.getElementById("getPublicGroups");
 
 // Register listening events
 conn.addEventHandler('connection&message', {
@@ -193,7 +194,11 @@ createChatGroupButton.addEventListener("click", () => {
 destroyChatGroupButton.addEventListener("click", () => {
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
+        destroyChatGroup(groupId)
     }
+});
+
+function destroyChatGroup(groupId) {
     console.log("Destroy group " + groupId);
     let option = {
         groupId: groupId
@@ -202,12 +207,15 @@ destroyChatGroupButton.addEventListener("click", () => {
         .then((res) => {
             console.log(res);
             logger.appendChild(document.createElement('div')).innerText = `${groupId} has been destroyed`;
+            groupId = null;
+            $("#groupId").val("");
+            console.log("Clearing groupId text box");
         })
         .catch((err) => {
             console.error('Destroy group chat failed', err);
             logger.appendChild(document.createElement('div')).innerText = `Failed to destroy group ${groupId}, check console for error`;
         });
-});
+    }
 
 // join chat group
 joinChatGroupButton.addEventListener("click", () => {
@@ -339,4 +347,33 @@ sendChatGroupMessageButton.addEventListener("click", () => {
                 .appendChild(document.createElement('div'))
                 .innerText = `Failed to send message, GroupId empty =>${groupId}, Check console for full error`
         })
+});
+
+// get public groups
+getPublicGroupsButton.addEventListener("click", () => {
+    logger.appendChild(document.createElement('div')).innerText = "...getPublicGroups...";
+
+    conn.getPublicGroups({limit: 200, cursor: null})
+    .then((res) => {
+            console.log('getPublicGroups success');
+            logger.appendChild(document.createElement('div')).innerText = "getPublicGroups success";
+
+            let str = '';
+            var ctr = 0;
+            res.data.forEach((item) => {
+                str += '\n' + JSON.stringify({
+                    groupid: item.groupid,
+                    groupname: item.groupname
+                });
+                ctr++;
+            });
+            console.log("Counter - " + ctr)
+            var odIV = document.createElement("div");
+            odIV.style.whiteSpace = "pre";
+            logger.appendChild(odIV).innerText = 'Public group:' + str;
+        })
+        .catch((err) => {
+            console.error('getPublicGroups failed', err);
+            logger.appendChild(document.createElement('div')).innerText = "getPublicGroups failed";
+        });
 });
