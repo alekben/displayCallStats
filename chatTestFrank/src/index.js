@@ -179,9 +179,8 @@ createChatGroupButton.addEventListener("click", () => {
             maxusers: 500
         },
     };
-    // Call createGroup to create a chat group.
+    // Call createGroup to create a chat group. //chatGroupRes = res;
     conn.createGroup(option).then((res) => {
-        //chatGroupRes = res;
         console.log(chatGroupRes)});
     //groupId = chatGroupRes;
     /*const response = res.json();
@@ -278,10 +277,14 @@ sendChatGroupMessageButton.addEventListener("click", () => {
     }
     console.log("send group message to group " + groupId + "\n& message is " + groupChatMessage)
     let msg = WebIM.message.create(option); 
-    conn.send(msg).then((res) => {
-        console.log('group chat text success');
-        logger.appendChild(document.createElement('div')).append("Message send to: " + groupId + " Message: " + groupChatMessage)
-    }).catch((err) => {
-        console.log('group chat text fail', err);
-    })
+    conn
+        .send(msg)
+        .then((res) => {
+            console.log('group chat text success');
+            logger
+            .appendChild(document.createElement('div'))
+            .append("Message send to: " + groupId + " Message: " + groupChatMessage)
+        }).catch((err) => {
+            console.log('group chat text fail', err);
+        })
 });
