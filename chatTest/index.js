@@ -105,7 +105,7 @@ joinGroupButton.addEventListener("click", () => {
 
 async function getTokens() {
     const localTokenUrls = {
-        host: "https://3-140-200-204.nip.io",
+        host: "https://3-140-200-204.nip.io/aleksey",
         endpoint: "getToken"
     }
 
