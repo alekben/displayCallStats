@@ -180,9 +180,18 @@ createChatGroupButton.addEventListener("click", () => {
         },
     };
     // Call createGroup to create a chat group. //chatGroupRes = res;
-    conn.createGroup(option).then((res) => {
+    conn.createGroup(option)
+    .then((res) => {
         console.log(res);
         logger.appendChild(document.createElement('div')).append(`${groupName} has been  created, grab groupId out of the console`)
+        res.data.map((item) => {
+            str += '\n' + JSON.stringify({
+                groupId: item.groupId,
+            }) 
+        })
+        var odIV = document.createElement("div");
+        odIV.style.whiteSpace = "pre";
+        logger.appendChild(odIV).append('GROUPID:', str)
     }).catch((err) => {
         console.log('create group chat failed', err);
         logger.appendChild(document.createElement('div')).append(`Failed to create group ${groupId}, check console for error`)
