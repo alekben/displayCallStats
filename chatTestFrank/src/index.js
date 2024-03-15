@@ -33,7 +33,7 @@ conn.addEventHandler('connection&message', {
     },
     onTextMessage: (message) => {
         console.log(message)
-        logger.appendChild(document.createElement('div')).append("Message from: " + message.from + " Message: " + message.msg)
+        logger.appendChild(document.createElement('div')).append(message.from + ": " + message.msg)
     },
     onTokenWillExpire: (params) => {
         logger.appendChild(document.createElement('div')).append("Token is about to expire")
@@ -156,64 +156,58 @@ logoutButton.addEventListener("click", () => {
 
 const groupName = document.getElementById("chat_group_name").value.toString();
 var groupId = document.getElementById("groupId").value.toString();
-const chatGroupRes = null;
 
 // create chat group
 createChatGroupButton.addEventListener("click", () => {
     const groupName = document.getElementById("chat_group_name").value.toString();
-    console.log(groupName);
+    console.log("groupName: " + groupName);
     let option = {
         data: {
             groupname: groupName,
             desc: "A description of a group",
-            // members: ["user1", "user2"],
-            // Set the type of a chat group to public. Public chat groups can be searched, and users can send join requests.
             public: true,
-            // Join requests must be approved by the chat group owner or chat group admins.
             approval: false,
-            // Allow chat group members to invite other users to join the chat group.
             allowinvites: true,
-            // Group invitations must be confirmed by invitees.
             inviteNeedConfirm: false,
-            // Set the maximum number of users that can be added to the group.
             maxusers: 500
         },
     };
-    // Call createGroup to create a chat group. //chatGroupRes = res;
-    var dataObj = {};
+    // Call createGroup to create a chat group.
     conn.createGroup(option)
-    .then((res) => {
-        console.log(res);
-        logger.appendChild(document.createElement('div')).append(`${groupName} has been  created, grab groupId out of the console`)
-        dataObj = res.data.groupid;
-        console.log(dataObj + " OBJECT \n")
-        var odIV = document.createElement("div");
-        odIV.style.whiteSpace = "pre";
-        logger.appendChild(odIV).append('GROUPID:', dataObj)
-        groupId = dataObj;
-    }).catch((err) => {
-        console.log('create group chat failed', err);
-        logger.appendChild(document.createElement('div')).append(`Failed to create group ${groupId}, check console for error`)
-    })
-})
+        .then((res) => {
+            console.log(res);
+            logger.appendChild(document.createElement('div')).innerText = `${groupName} has been created, groupId has been auto populated`;
+            var dataObj = res.data.groupid;
+            var odIV = document.createElement("div");
+            odIV.style.whiteSpace = "pre";
+            logger.appendChild(odIV).innerText = 'groupid for peer is ' + dataObj;
+            groupId = dataObj;
+        })
+        .catch((err) => {
+            console.error('Create group chat failed', err);
+            logger.appendChild(document.createElement('div')).innerText = `Failed to create group ${groupId}, check console for error`;
+        });
+});
 
+// Call destroyGroup to disband a chat group.
 destroyChatGroupButton.addEventListener("click", () => {
-    // Call destroyGroup to disband a chat group.
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
     }
-    console.log("destroy group " + groupId);
+    console.log("Destroy group " + groupId);
     let option = {
         groupId: groupId
     };
-    conn.destroyGroup(option).then((res) => {
-        console.log(res);
-        logger.appendChild(document.createElement('div')).append(`${groupId} has been destoryed`)
-    }).catch((err) => {
-        console.log('destroy group chat failed', err);
-        logger.appendChild(document.createElement('div')).append(`Failed to destroy group ${groupId}, check console for error`)
-    })
-})
+    conn.destroyGroup(option)
+        .then((res) => {
+            console.log(res);
+            logger.appendChild(document.createElement('div')).innerText = `${groupId} has been destroyed`;
+        })
+        .catch((err) => {
+            console.error('Destroy group chat failed', err);
+            logger.appendChild(document.createElement('div')).innerText = `Failed to destroy group ${groupId}, check console for error`;
+        });
+});
 
 // join chat group
 joinChatGroupButton.addEventListener("click", () => {
@@ -237,70 +231,86 @@ joinChatGroupButton.addEventListener("click", () => {
 })
 
 // leave group
-leaveChatGroupButton.addEventListener("click", () => {
-    // Call memberAbsence to leave a chat group.
+joinChatGroupButton.addEventListener("click", () => {
+    // Call joinGroup to send a join request to a chat group.
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
     }
-    let option = {
-        groupId: groupId
+    console.log("Join group " + groupId);
+    var joinMess = username + " has joined the group " + groupId;
+    let options = {
+        groupId: groupId,
+        message: joinMess
     };
-    conn.leaveGroup(option).then((res) => {
-        console.log(res);
-        logger.appendChild(document.createElement('div')).append(`${username} has left the group ${groupId}`)
-    }).catch((err) => {
-        console.log('leave group chat failed', err),
-        logger.appendChild(document.createElement('div')).append(`Failed to leave group ${groupId}, check console for error`)
-    })
-})
+    conn.joinGroup(options)
+        .then((res) => {
+            console.log(res);
+            logger.appendChild(document.createElement('div')).innerText = joinMess;
+        })
+        .catch((err) => {
+            console.error('Join group chat failed', err);
+            logger.appendChild(document.createElement('div')).innerText = `Failed to join group ${groupId}, check console for error`;
+        });
+});
 
 // get group chat history
 getChatGroupMessageHistoryButton.addEventListener("click", () => {
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
     }
-    logger.appendChild(document.createElement('div')).append("...getChatGroupMessageHistory...")
-    conn.getHistoryMessages({ targetId: groupId, chatType:"groupChat", pageSize: 20 }).then((res) => {
-        console.log('getChatGroupMessageHistory success')
-        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory success")
-        let str='';
-        res.messages.map((item) => {
-            str += '\n'+ JSON.stringify({
-                time: item.time,
-                messageId:item.id,
-                messageType:item.type,
-                from: item.from,
-                to: item.to,
-                msg: item.msg,
-            }) 
+
+    logger.appendChild(document.createElement('div')).innerText = "...getChatGroupMessageHistory...";
+
+    conn.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 20 })
+        .then((res) => {
+            console.log('getChatGroupMessageHistory success');
+            logger.appendChild(document.createElement('div')).innerText = "getChatGroupMessageHistory success";
+
+            let str = '';
+            res.messages.forEach((item) => {
+                str += '\n' + JSON.stringify({
+                    time: item.time,
+                    messageId: item.id,
+                    messageType: item.type,
+                    from: item.from,
+                    to: item.to,
+                    msg: item.msg,
+                });
+            });
+
+            var odIV = document.createElement("div");
+            odIV.style.whiteSpace = "pre";
+            logger.appendChild(odIV).innerText = 'Message History:' + str;
         })
-        //Other vairables here: https://api-ref.agora.io/en/chat-sdk/web/1.x/interfaces/Types.Message.TextMsgBody.html
-        var odIV = document.createElement("div");
-        odIV.style.whiteSpace = "pre";
-        logger.appendChild(odIV).append('Message History:', str)
-    }).catch(() => {
-        logger.appendChild(document.createElement('div')).append("getChatGroupMessageHistory failed")
-    })
+        .catch((err) => {
+            console.error('getChatGroupMessageHistory failed', err);
+            logger.appendChild(document.createElement('div')).innerText = "getChatGroupMessageHistory failed";
+        });
 });
 
 // Send a single chat message
 sendPeerMessageButton.onclick = function () {
-    let peerId = document.getElementById("peerId").value.toString()
-    let peerMessage = document.getElementById("peerMessage").value.toString()
+    let peerId = document.getElementById("peerId").value.toString();
+    let peerMessage = document.getElementById("peerMessage").value.toString();
+    
     let option = {
         chatType: 'singleChat',    // Set it to single chat
         type: 'txt',               // Message type
         to: peerId,                // The user receiving the message (user ID)
         msg: peerMessage           // The message content
-    }
+    };
+    
     let msg = WebIM.message.create(option); 
-    conn.send(msg).then((res) => {
-        console.log('send private text success');
-        logger.appendChild(document.createElement('div')).append("Message send to: " + peerId + " Message: " + peerMessage)
-    }).catch((err) => {
-        console.log('send private text fail', err);
-    })
-}
+    conn.send(msg)
+        .then((res) => {
+            console.log('Send private text success');
+            logger.appendChild(document.createElement('div')).innerText = `Message sent to: ${peerId}\nMessage: ${peerMessage}`;
+        })
+        .catch((err) => {
+            console.error('Send private text failed', err);
+        });
+};
+
 
 // Send a group chat message
 sendChatGroupMessageButton.addEventListener("click", () => {
@@ -314,17 +324,19 @@ sendChatGroupMessageButton.addEventListener("click", () => {
         to: groupId,                // The user receiving the message (user ID)
         msg: groupChatMessage           // The message content
     }
-    console.log("send group message to group " + groupId + "\n message: " + groupChatMessage)
+    console.log("send group message to group " + groupId + "\nmessage: " + groupChatMessage)
     let msg = WebIM.message.create(option); 
     conn
         .send(msg)
         .then((res) => {
-            console.log('group chat text success');
+            console.log('Group chat text successfully');
             logger
-            .appendChild(document.createElement('div'))
-            .append("Message send to group: " + groupId + "\n Message: " + groupChatMessage)
+                .appendChild(document.createElement('div'))
+                .innerText = `Message sent to group: ${groupId}\n${username}: ${groupChatMessage}`
         }).catch((err) => {
-            console.log('group chat send text fail', err),
-            logger.appendChild(document.createElement('div')).append(`Failed to send message, groupId empty =>${groupId}, check console for full error`)
+            console.log('Failed to send group chat text', err),
+            logger
+                .appendChild(document.createElement('div'))
+                .innerText = `Failed to send message, GroupId empty =>${groupId}, Check console for full error`
         })
 });
