@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Agora Chat Examples</title>
+    <script src="../clients/Agora-chat_1_2_0.js"></script>
+</head>
+
+<body>
+    <h2 class="left-align">Agora Chat Examples</h5>
+        <form id="loginForm">
+            <div class="col" style="min-width: 433px; max-width: 443px">
+                <div class="card" style="margin-top: 0px; margin-bottom: 0px;">
+                    <div class="row card-content" style="margin-bottom: 0px; margin-top: 10px;">
+                        <div class="input-field">
+                            <label>Username</label>
+                            <input type="text" placeholder="Username" id="userID" value="frankfrank">
+                        </div>
+                        <div class="input-field">
+                            <label>Password</label>
+                            <input type="passward" placeholder="Password" id="password" value="frankfrank">
+                        </div>
+                        <div class="row">
+                            <div>
+                                <button type="button" id="register">Register</button>
+                                <button type="button" id="login">Login</button>
+                                <button type="button" id="logout">Logout</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div>
+                                <input type="text" placeholder="Chat Group Name" id="chat_group_name">
+                                <br>
+                                <button type="button" id="create_chat_group">Create Chat Group</button>
+                                <button type="button" id="destroy_chat_group">Destroy Chat Group</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div>
+                                <input type="text" placeholder="Chat Group ID" id="chat_group_id">
+                                <br>
+                                <button type="button" id="join_chat_group">Join Chat Group</button>
+                                <button type="button" id="leave_chat_group">Leave Chat Group</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="input-field">
+                                <label>Group Chat Message</label>
+                                <input type="text" placeholder="Group Chat Message" id="groupChatMessage">
+                                <button type="button" id="send_group_message">sendTextMessage</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div>
+                                <button type="button" id="getChatGroupMessageHistory">getChatGroupMessageHistory</button>
+                            </div>
+                        </div>
+                        <br>   
+                        <div class="input-field">
+                            <label>Peer username</label>
+                            <input type="text" placeholder="Peer username" id="peerId">
+                        </div>
+                        <div class="input-field">
+                            <label>Peer Message</label>
+                            <input type="text" placeholder="Peer message" id="peerMessage">
+                            <button type="button" id="send_peer_message">sendTextMessage</button>
+                        </div>
+                        <br>
+                        <div class="input-field" style="position:relative">
+                            <button type="button" id="send_audio_message">SendAudioMessage</button>
+                            <div id="recordBox" style="display:none;position: absolute;left:0;bottom:0;width: 140px; height: 50px; text-align:center;line-height:50px;background:#ccc;cursor:pointer;font-weight:bold;">start recording</div>
+                        </div>
+                        <div class="row">
+                            <div>
+                                <button type="button" id="conversationList">ConversationList</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div>
+                                <input type="text" placeholder="converationId" id="converationId">
+                                <button type="button" id="roamingMessage">RoamingMessage</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <hr>
+
+        <div id="log"></div>
+
+        <script src="src/index.js"></script>
+</body>
+
+</html>
