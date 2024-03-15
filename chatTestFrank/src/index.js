@@ -158,6 +158,7 @@ const groupId = document.getElementById("chat_group_id").value.toString();
 
 // create chat group
 createChatGroupButton.addEventListener("click", () => {
+    const groupName = document.getElementById("chat_group_name").value.toString();
     console.log(groupName);
     let option = {
         data: {
