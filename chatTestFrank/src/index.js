@@ -101,6 +101,7 @@ async function getTokens() {
       console.log(err);
     }
 }
+
 // Button behavior definition
 // register
 document.getElementById("register").onclick = function () {
@@ -155,6 +156,7 @@ logoutButton.addEventListener("click", () => {
 
 const groupName = document.getElementById("chat_group_name").value.toString();
 const groupId = document.getElementById("chat_group_id").value.toString();
+var chatGroupRes = null;
 
 // create chat group
 createChatGroupButton.addEventListener("click", () => {
@@ -179,7 +181,10 @@ createChatGroupButton.addEventListener("click", () => {
     };
     // Call createGroup to create a chat group.
     var response;
-    WebIM.conn.createGroup(option).then((res) => console.log(res));
+    WebIM.conn.createGroup(option).then((res) => {
+        let chatGroupRes = data;
+        console.log(chatGroupRes)});
+    groupId = chatGroupRes.data.groupId;
     /*const response = res.json();
     var obj = JSON.parse(response);
     groupId = obj.data.groupId;*/
