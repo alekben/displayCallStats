@@ -1,5 +1,5 @@
 var username, password
-conn = new connection({
+conn = new WebIM.connection({
     appKey: "41155833#993682",
 })
 
