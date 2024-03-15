@@ -5,8 +5,6 @@ var storage = {
     tokenReturned: false
 }
 
-const tempToken = "007eJxTYLD+F7Ne+8sfh1WnRZ6m/F1wifeUolh7+lFeX6XS57Z3DhUpMKQmG5smmSWaJJkaWppYpBkmJiUamRmmGBlamBqYmJqaXWz4nLqgjZFBX/sNKyMDKwMjAyMDiM/BkJiTmp2UmmcIABAGIrI="
-
 WebIM.conn = new WebIM.connection({
     appKey: "41450892#535167",
 });
@@ -51,7 +49,7 @@ loginButton.addEventListener("click", () => {
     $.when(getTokens()).then(function(){
         WebIM.conn.open({
             user: storage.username,
-            agoraToken: tempToken
+            agoraToken: storage.token
         }).then((res) => {
             console.log('logged in');
             logger.appendChild(document.createElement('div')).append(`Login success`);
