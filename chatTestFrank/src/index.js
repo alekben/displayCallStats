@@ -195,6 +195,7 @@ destroyChatGroupButton.addEventListener("click", () => {
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
         destroyChatGroup(groupId)
+        groupId = null;
     }
 });
 
