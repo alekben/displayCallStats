@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <title>Agora Chat Examples</title>
     <script src="../clients/Agora-chat_1_2_0.js"></script>
+    <link rel="stylesheet" href="AgoraChatStyle.css">
 </head>
 
 <body>
     <h2 class="left-align">Agora Chat Examples</h5>
         <form id="loginForm">
-            <div class="col" style="min-width: 433px; max-width: 443px">
-                <div class="card" style="margin-top: 0px; margin-bottom: 0px;">
-                    <div class="row card-content" style="margin-bottom: 0px; margin-top: 10px;">
+            <div class="col">
+                <div class="card">
+                    <div class="row card-content">
                         <div class="input-field">
                             <label>Username</label>
                             <input type="text" placeholder="Username" id="userID" value="frank">
@@ -91,10 +92,11 @@
                 </div>
             </div>
         </form>
-
+        
         <hr>
-
-        <div id="log"></div>
+        <div class="groups" id="groups"></div>
+        <div class="log" id="log"></div>
+        <div class="messages" id="messages"></div>
 
         <script src="../jquery-3.4.1.min.js"></script>
         <script src="src/index.js"></script>
