@@ -195,6 +195,38 @@ getPublicGroupsButton.addEventListener("click", () => {
                 var odIV = document.createElement("div");
                 odIV.style.whiteSpace = "pre";
                 logger.appendChild(odIV).append(str);
+            }).then((count) => {
+                logger.appendChild(document.createElement('div')).append(`Public Groups have been fetched (${count} total).`)
+            })
+        });
+    }).catch((err) => {
+        console.log('fetching groups failed', err);
+    })
+});
+
+/**getPublicGroupsButton.addEventListener("click", () => {
+    console.log("Fetching Public Groups...");  
+    let options = {limit: 50, cursor: null};
+    const groups_no_owners = WebIM.conn.getPublicGroups(options);
+    groups_no_owners
+    .then((res) => {
+        console.log(res);
+        const count = res.data.length;
+        res.data.forEach((item) => {
+            let str = "";
+            const groupowner = WebIM.conn.getGroupInfo({groupId: item.groupid});
+            groupowner
+            .then((res) => {
+                console.log(res);
+                const groupOwner = res.data[0].owner;
+                str += '\n'+ JSON.stringify({
+                    groupname: item.groupname,
+                    groupid: item.groupid,
+                    groupOwner: groupOwner
+                });
+                var odIV = document.createElement("div");
+                odIV.style.whiteSpace = "pre";
+                logger.appendChild(odIV).append(str);
             })
         });
         logger.appendChild(document.createElement('div')).append(`Public Groups have been fetched (${count} total).`)
@@ -202,7 +234,7 @@ getPublicGroupsButton.addEventListener("click", () => {
         console.log('fetching groups failed', err);
     })
 });
-
+*/
 
 // token stuff
 
