@@ -2,7 +2,8 @@ var storage = {
     username: null,
     password: null,
     token: null,
-    tokenReturned: false
+    tokenReturned: false,
+    groupsFetched: false
 }
 
 WebIM.conn = new WebIM.connection({
@@ -11,6 +12,7 @@ WebIM.conn = new WebIM.connection({
 
 //get button elements:
 const loggerBox = document.getElementById("log");
+
 const loginButton = document.getElementById("login");
 const logoutButton = document.getElementById("logout");
 
@@ -22,7 +24,7 @@ const leaveGroupButton = document.getElementById("leaveGroup");
 const destroyGroupButton = document.getElementById("destroyGroup");
 const getPublicGroupsButton = document.getElementById("getPublicGroups");
 const getJoinedGroupsButton = document.getElementById("getJoinedGroups");
-
+const groupList = document.getElementById("groups");
 //log to log div
 function logger(line) {
     loggerBox.appendChild(document.createElement('div')).append(line);
@@ -128,6 +130,9 @@ createGroupButton.addEventListener("click", () => {
         const groupId = res.data.groupid;
         $("#groupID").val(groupId);
         logger(`${groupName} (${groupId}) has been created!`);
+        if (storage.groupsFetched) {
+            fetchPublicGroups();
+        }
         }).catch((err) => {
             console.log('create group chat failed', err);
             logger(`failed to create Chat Group ${groupName}, check console for error;`);
@@ -170,22 +175,36 @@ leaveGroupButton.addEventListener("click", () => {
     })
 })
 
+
 //destroy chat group
 destroyGroupButton.addEventListener("click", () => {
     const groupId = document.getElementById("groupID").value.toString();
-    console.log("destroy group " + groupId);
+    if (groupId) {
+        console.log("destroy group " + groupId);
+        destroyGroup(groupId);
+    } else {
+        console.log('groupid field is empty');
+        logger(`Fill out groupId field to delete a group.`)
+    }
+});
+
+//destroy chat group function
+function destroyGroup(groupId, refresh) {
     let options = {
-        groupId: groupId
+        groupId: groupId.toString()
     };
     WebIM.conn.destroyGroup(options).then((res) => {
         console.log(`group ${res.data.id} destroyed ${res.data.success}`);
         logger(`${res.data.id} has been destroyed.`);
         $("#groupID").val("");
+        if (refresh || storage.groupsFetched) {
+            fetchPublicGroups();
+        }
     }).catch((err) => {
         console.log(`destroy chat group ${groupId} failed`, err);
         logger(`Failed to destroy group ${groupId}, check console for error`);
     })
-});
+}
 
 //get public chat rooms and owners
 
@@ -193,29 +212,40 @@ destroyGroupButton.addEventListener("click", () => {
 */
 
 getPublicGroupsButton.addEventListener("click", () => {
+    fetchPublicGroups();
+});
+
+function fetchPublicGroups() {
     console.log("get groups start"); 
     logger('Fetching Public Groups...') ;
     let options = {limit: 50, cursor: null};
     WebIM.conn.getPublicGroups(options)
     .then((res) => {
         console.log('public group list retrieved');
+        groupList.innerHTML = "";
+        const groupListTable = groupList.appendChild(document.createElement('table'));
+        groupListTable.id = "groupTable";
+        const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
+        $("#groupTable").append(groupTableHeader);
         const count = res.data.length;
-        let i = 0;
+        let i = 0;  
         res.data.forEach((item) => {
-            let str = "";
             WebIM.conn.getGroupInfo({groupId: item.groupid})
             .then((res) => {
-                console.log(`group owner for ${res.data[0].id} retrieved`);
                 const groupOwner = res.data[0].owner;
-                str += '\n'+ JSON.stringify({
-                    groupname: item.groupname,
-                    groupid: item.groupid,
-                    groupOwner: groupOwner
-                });
-                logger(str);
+                console.log(`group owner for ${res.data[0].id} retrieved`);
+                if (groupOwner == storage.username) {
+                    let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
+                    const groupTableRow = $(`<tr><td>${item.groupname}</td><td id="group_id_${res.data[0].id}">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                    $("#groupTable").append(groupTableRow);
+                } else {
+                    const groupTableRow = $(`<tr><td>${item.groupname}</td><td>${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                    $("#groupTable").append(groupTableRow);
+                }
                 i++;
                 if (i == count) {
                     logger(`Public Groups have been fetched (${count} total).`);
+                    storage.groupsFetched = true;
                 } else if (i > count) {
                     logger('WARN: logged group rows greated than returned groups');
                 }
@@ -224,8 +254,7 @@ getPublicGroupsButton.addEventListener("click", () => {
     }).catch((err) => {
         console.log('fetching groups failed', err);
     })
-});
-
+}
 
 // token stuff
 //get token using username
@@ -264,6 +293,38 @@ function refreshToken() {
     .then(() => console.log("new token retrieved " + storage.token))
     .then(WebIM.conn.renewToken(storage.token))
     .then((res) => {
-        logger(`Token renewed - Expire: ${res.expire} - Status: ${res.status}`);
+        logger(`Token renewed - Expire: ${res.data.expire} - Status: ${res.data.status}`);
     });
 };
+
+//reference area
+
+/** 
+ * save this stringify if needed at some point to manipulate json to string
+          res.data.forEach((item) => {
+            let str = "";
+            WebIM.conn.getGroupInfo({groupId: item.groupid})
+            .then((res) => {
+                console.log(`group owner for ${res.data[0].id} retrieved`);
+                const groupOwner = res.data[0].owner;
+                str += '\n'+ JSON.stringify({
+                    groupname: item.groupname,
+                    groupid: item.groupid,
+                    groupOwner: groupOwner
+                });
+                groupList.appendChild(document.createElement('div')).append(str);
+                i++;
+                if (i == count) {
+                    logger(`Public Groups have been fetched (${count} total).`);
+                } else if (i > count) {
+                    logger('WARN: logged group rows greated than returned groups');
+                }
+            })
+        });
+
+
+* save string writing of group public list, just in case, now it's table instead:
+    let str = `Group Name: ${item.groupname} -- Group Id: ${item.groupId} -- Group Owner: ${res.data[0].owner}`;
+    groupList.appendChild(document.createElement('div')).append(str);
+ */
+
