@@ -4,9 +4,9 @@ var storage = {
     token: null,
     tokenReturned: false,
     groupsFetched: false
-}
+};
 
-WebIM.conn = new WebIM.connection({
+chatClient = new WebIM.connection({
     appKey: "41450892#535167",
 });
 
@@ -18,20 +18,22 @@ const logoutButton = document.getElementById("logout");
 
 const sendPeerMessageButton = document.getElementById("send_peer_message");
 
+const publicGroupsList = document.getElementById("publicGroupsList");
 const createGroupButton = document.getElementById("createGroup");
 const joinGroupButton = document.getElementById("joinGroup");
 const leaveGroupButton = document.getElementById("leaveGroup");
 const destroyGroupButton = document.getElementById("destroyGroup");
 const getPublicGroupsButton = document.getElementById("getPublicGroups");
 const getJoinedGroupsButton = document.getElementById("getJoinedGroups");
-const groupList = document.getElementById("groups");
+
+
 //log to log div
 function logger(line) {
     loggerBox.appendChild(document.createElement('div')).append(line);
-}
+};
 
 // Register listening events
-WebIM.conn.addEventHandler('connection&message', {
+chatClient.addEventHandler('connection&message', {
     onConnected: () => {
         logger("Connect success !");
     },
@@ -63,7 +65,7 @@ loginButton.addEventListener("click", () => {
         console.log(`login started as ${storage.username}`);
         logger(`Logging in as ${storage.username}...`);
         $.when(getTokens()).then(function(){
-            WebIM.conn.open({
+            chatClient.open({
                 user: storage.username,
                 agoraToken: storage.token
             }).then((res) => {
@@ -82,7 +84,7 @@ loginButton.addEventListener("click", () => {
 
 // logout
 logoutButton.addEventListener("click", () => {
-    WebIM.conn.close();
+    chatClient.close();
     logger("Logging Out.");
 });
 
@@ -96,8 +98,8 @@ sendPeerMessageButton.addEventListener("click", () => {
         to: peerId,                // The user receiving the message (user ID)
         msg: peerMessage           // The message content
     }
-    let msg = WebIM.message.create(option); 
-    WebIM.conn.send(msg).then((res) => {
+    let msg = chatClient.message.create(option); 
+    chatClient.send(msg).then((res) => {
         console.log('send private text success');
         logger("Message send to: " + peerId + " Message: " + peerMessage);
     }).catch((err) => {
@@ -107,6 +109,7 @@ sendPeerMessageButton.addEventListener("click", () => {
 
 
 //Chat Group stuff
+//buttons
 //create chat group
 createGroupButton.addEventListener("click", () => {
     const groupName = document.getElementById("groupName").value.toString();
@@ -124,7 +127,7 @@ createGroupButton.addEventListener("click", () => {
         },
     };
 
-    WebIM.conn.createGroup(options)
+    chatClient.createGroup(options)
     .then((res) => {
         console.log(`created chat group ${groupName} as groupid ${res.data.groupid}`);
         const groupId = res.data.groupid;
@@ -151,7 +154,7 @@ joinGroupButton.addEventListener("click", () => {
         message: 'Join Group Request From ' + storage.username 
     }
 
-    WebIM.conn.joinGroup(options).then((res) => {
+    chatClient.joinGroup(options).then((res) => {
         console.log(`join group ${res.data.id} for ${res.data.user} result ${res.data.result}.`);
         logger(`User ${res.data.user} has joined Chat Group ${res.data.id}`)
     }).catch((err) => {
@@ -166,15 +169,14 @@ leaveGroupButton.addEventListener("click", () => {
     let options = {
         groupId: groupId
     };
-    WebIM.conn.leaveGroup(options).then((res) => {
+    chatClient.leaveGroup(options).then((res) => {
         console.log(`left group ${groupId} with ` + res.data.result);
         logger(`${storage.username} has left the group ${groupId}.`);
     }).catch((err) => {
         console.log('leave group chat failed', err);
         logger(`Failed to leave group ${groupId}, check console for error`);
     })
-})
-
+});
 
 //destroy chat group
 destroyGroupButton.addEventListener("click", () => {
@@ -188,64 +190,79 @@ destroyGroupButton.addEventListener("click", () => {
     }
 });
 
+//get public chat rooms and owners
+getPublicGroupsButton.addEventListener("click", () => {
+    fetchPublicGroups();
+});
+
+
+//functions for chat groups
+
+//set groupname field
+function setGroupName(groupName) {
+    $("#groupName").val(groupName);
+};
+
+//set groupid field
+function setGroupID(groupId) {
+    $("#groupID").val(groupId);
+};
+
+function setGroupNameAndID(groupName, groupId) {
+    $("#groupName").val(groupName);
+    $("#groupID").val(groupId);
+};
+
 //destroy chat group function
 function destroyGroup(groupId, refresh) {
     let options = {
         groupId: groupId.toString()
     };
-    WebIM.conn.destroyGroup(options).then((res) => {
+    chatClient.destroyGroup(options).then((res) => {
         console.log(`group ${res.data.id} destroyed ${res.data.success}`);
         logger(`${res.data.id} has been destroyed.`);
         $("#groupID").val("");
         if (refresh || storage.groupsFetched) {
-            fetchPublicGroups();
+            setTimeout(fetchPublicGroups(), 5000);
         }
     }).catch((err) => {
         console.log(`destroy chat group ${groupId} failed`, err);
         logger(`Failed to destroy group ${groupId}, check console for error`);
     })
-}
+};
 
 
-function setGroup(groupId) {
-    $("#groupID").val(groupId);
-}
-
-//get public chat rooms and owners
-
+//fetch public groups
 /** not interesting way, comparing an i count of length of public group length to number of times group owner is logged to output 'after' all requests have been received and processed. Should be a way to do this with Promise.all, so that resolve condition is all promises fired to get group owner have resolved to output final count and confirmation
 */
-
-getPublicGroupsButton.addEventListener("click", () => {
-    fetchPublicGroups();
-});
 
 function fetchPublicGroups() {
     console.log("get groups start"); 
     logger('Fetching Public Groups...') ;
     let options = {limit: 50, cursor: null};
-    WebIM.conn.getPublicGroups(options)
+    chatClient.getPublicGroups(options)
     .then((res) => {
-        console.log('public group list retrieved');
-        groupList.innerHTML = "";
-        const groupListTable = groupList.appendChild(document.createElement('table'));
-        groupListTable.id = "groupTable";
+        console.log('public groups list retrieved');
+        publicGroupsList.innerHTML = "";
+        const publicGroupsListTable = publicGroupsList.appendChild(document.createElement('table'));
+        publicGroupsListTable.id = "publicGroupsTable";
+        publicGroupsListTable.className = "publicGroupsTable";
         const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
-        $("#groupTable").append(groupTableHeader);
+        $("#publicGroupsTable").append(groupTableHeader);
         const count = res.data.length;
         let i = 0;  
         res.data.forEach((item) => {
-            WebIM.conn.getGroupInfo({groupId: item.groupid})
+            chatClient.getGroupInfo({groupId: item.groupid})
             .then((res) => {
                 const groupOwner = res.data[0].owner;
                 console.log(`group owner for ${res.data[0].id} retrieved`);
                 if (groupOwner == storage.username) {
                     let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
-                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
-                    $("#groupTable").append(groupTableRow);
+                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                    $("#publicGroupsTable").append(groupTableRow);
                 } else {
-                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td onclick="setGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
-                    $("#groupTable").append(groupTableRow);
+                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                    $("#publicGroupsTable").append(groupTableRow);
                 }
                 i++;
                 if (i == count) {
@@ -296,7 +313,7 @@ async function getTokens() {
 function refreshToken() {
     getTokens()
     .then(() => console.log("new token retrieved " + storage.token))
-    .then(WebIM.conn.renewToken(storage.token))
+    .then(chatClient.renewToken(storage.token))
     .then((res) => {
         logger(`Token renewed - Expire: ${res.data.expire} - Status: ${res.data.status}`);
     });
@@ -308,7 +325,7 @@ function refreshToken() {
  * save this stringify if needed at some point to manipulate json to string
           res.data.forEach((item) => {
             let str = "";
-            WebIM.conn.getGroupInfo({groupId: item.groupid})
+            chatClient.getGroupInfo({groupId: item.groupid})
             .then((res) => {
                 console.log(`group owner for ${res.data[0].id} retrieved`);
                 const groupOwner = res.data[0].owner;

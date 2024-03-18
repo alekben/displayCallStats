@@ -11,88 +11,95 @@
 <body>
     <div class="main" id="main">
 
-    <!-- left pane is controllers and event log-->
-    <div class="leftPane" id="leftPane" style="background-color:#aaa;">
-        <h2 class="left-align">Agora Chat JS Only</h5>
+        <!-- left pane is controllers and event log-->
+        <div class="column" id="leftPane" style="background-color:#aaa;">
+
+            <h2 class="left-align">Agora Chat JS Only</h2>
+
             <form id="loginForm">
-                <div class="col">
-                    <div class="card">
-                        <div class="row card-content">
-                            <div class="input-field">
-                                <label>Username</label>
-                                <input type="text" placeholder="Username" id="userID" value="alekben2">
-                            </div>
-                            <div class="input-field">
-                                <label>Password</label>
-                                <input type="passward" placeholder="Password" id="password">
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <button type="button" id="login">Login</button>
-                                    <button type="button" id="logout">Logout</button>
-                                </div>
-                            </div>
-                            <div class="input-field">
-                                <label>Peer username</label>
-                                <input type="text" placeholder="Peer username" id="peerId">
-                            </div>
-                            <div class="input-field">
-                                <label>Peer Message</label>
-                                <input type="text" placeholder="Peer message" id="peerMessage">
-                                <button type="button" id="send_peer_message">sendTextMessage</button>
-                            </div>
-                            <div class="input-field" style="position:relative">
-                                <button type="button" id="send_audio_message">SendAudioMessage</button>
-                                <div id="recordBox" style="display:none;position: absolute;left:0;bottom:0;width: 140px; height: 50px; text-align:center;line-height:50px;background:#ccc;cursor:pointer;font-weight:bold;">start recording</div>
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <button type="button" id="conversationList">ConversationList</button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <input type="text" placeholder="converationId" id="converationId">
-                                    <button type="button" id="roamingMessage">RoamingMessage</button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <input type="text" placeholder="groupName" id="groupName">
-                                    <input type="text" placeholder="groupID" id="groupID">
-                                    <button type="button" id="createGroup">CreateGroup</button>
-                                    <button type="button" id="joinGroup">JoinGroup</button>
-                                    <button type="button" id="leaveGroup">LeaveGroup</button>
-                                    <button type="button" id="destroyGroup">DestroyGroup</button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div>
-                                    <button type="button" id="getPublicGroups">GetPublicGroups</button>
-                                    <button type="button" id="getJoinedGroups">GetJoinedGroups</button>
-                                </div>
-                            </div>
-                        </div>
+
+                <div>
+                    <label>Username</label>
+                    <input type="text" placeholder="Username" id="userID" value="alekben2">
                 </div>
+
+                <div>
+                    <label>Password</label>
+                    <input type="passward" placeholder="Password" id="password">
+                </div>
+
+                <div>
+                    <button type="button" id="login">Login</button>
+                    <button type="button" id="logout">Logout</button>
+                </div>
+
+                <div>
+                    <label>Peer username</label>
+                    <input type="text" placeholder="Peer username" id="peerId">
+                </div>
+
+                <div>
+                    <label>Peer Message</label>
+                    <input type="text" placeholder="Peer message" id="peerMessage">
+                    <button type="button" id="send_peer_message">sendTextMessage</button>
+                </div>
+
+                <div>
+                    <button type="button" id="conversationList">ConversationList</button>
+                </div>
+
+                <div>
+                    <input type="text" placeholder="groupName" id="groupName">
+                    <input type="text" placeholder="groupID" id="groupID">
+                    <br>
+                    <button type="button" id="createGroup">CreateGroup</button>
+                    <button type="button" id="joinGroup">JoinGroup</button>
+                    <button type="button" id="leaveGroup">LeaveGroup</button>
+                    <button type="button" id="destroyGroup">DestroyGroup</button>
+                </div>
+
+                <div>
+                    <button type="button" id="getPublicGroups">GetPublicGroups</button>
+                    <button type="button" id="getJoinedGroups">GetJoinedGroups</button>
+                </div>
+
+                <div>
+                    <button type="button" id="sendGroupMessage">SendGroupMessage</button>
+                </div>
+
+            </form>
+
+            <hr>
+
+            <div id="log" class="logWindow">
             </div>
-        </form>
 
-        <hr>
-
-        <div id="log"></div>
         </div>
+
         <!-- mid pane is group lists-->
-        <div class="groups" id="groups" style="background-color:#bbb;">
-            <center><i>Public Groups...</span></i></center>
+        <div class="column" id="groups" style="background-color:#bbb;">
+
+            <div class="publicGroupsList" id="publicGroupsList">
+                <center><i>Public Groups...</span></i></center>
+            </div>
+
         </div>
+
+        <!--right pane is message view-->
+        <div class="column" id="messages" style="background-color:#ccc;">
+            
+            <div class="messageList" id="messageList">
+                <center><i>Messages View...</span></i></center>
+            </div>
+
         </div>
-    <!--right pane is message view-->
-    <div class="messages" id="messages" style="background-color:#ccc;">
-        <center><i>Messages View...</span></i></center>
+
     </div>
 
-        <script src="../jquery-3.4.1.min.js"></script>
-        <script src="./index.js"></script>
+    <!-- load scripts-->
+    <script src="../jquery-3.4.1.min.js"></script>
+    <script src="./index.js"></script>
+
 </body>
 
 </html>
