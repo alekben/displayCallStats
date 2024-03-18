@@ -277,7 +277,8 @@ function reportAutoFallback(proxyServer) {
 }
 
 function reportProxyUsed(isProxyUsed) {
-  console.log(`is-cloud-proxy-used reports: ${isProxyUsed}`);
+  let ms = Date.now();
+  console.log(`${ms} - is-cloud-proxy-used reports: ${isProxyUsed}`);
 }
 
 /*
