@@ -25,18 +25,31 @@ const leaveChatGroupButton = document.getElementById("leave_chat_group");
 const sendChatGroupMessageButton = document.getElementById("send_group_message");
 const getChatGroupMessageHistoryButton = document.getElementById("getChatGroupMessageHistory");
 const getPublicGroupsButton = document.getElementById("getPublicGroups");
+const groupList = document.getElementById("groups");
+function appendLogger(line) {
+    logger.appendChild(document.createElement('div')).append(line);
+}
+function prependLogger(line){
+    logger.prepend(line)
+}
+function inlineLogger(line) {
+    logMessages.appendChild(document.createElement('div')).innerText = line;
+}
 
 // Register listening events
 conn.addEventHandler('connection&message', {
     onConnected: () => {
-        $(logger).prepend(`<div>${Date()}Connect success !`)
+        //$(logger).prepend(`<div>${Date()}Connect success !`)
+        prependLogger('<div>Connect success !')
     },
     onDisconnected: () => {
-        $(logger).prepend(`<div>Logout success !`)
+        //$(logger).prepend(`<div>Logout success !`)
+        prependLogger('<div>Logout success !')
     },
     onTextMessage: (message) => {
         console.log(message)
-        logMessages.appendChild(document.createElement('div')).innerText = `${message.from}: ${message.msg}`
+        // logMessages.appendChild(document.createElement('div')).innerText = `${message.from}: ${message.msg}`
+        line = `${message.from}: ${message.msg}`
     },
     onTokenWillExpire: (params) => {
         $(logger).prepend(`<div>Token is about to expire`)
@@ -350,7 +363,7 @@ sendChatGroupMessageButton.addEventListener("click", () => {
         })
 });
 
-// get public groups
+/* get public groups - my old way
 getPublicGroupsButton.addEventListener("click", () => {
     $(logger).prepend(`<div>getting PublicGroups...`);
 
@@ -377,4 +390,54 @@ getPublicGroupsButton.addEventListener("click", () => {
             console.error('getPublicGroups failed', err);
             $(logger).prepend(`<div>getPublicGroups failed`);
         });
+}); 
+*/
+
+//get public chat rooms and owners
+/* not interesting way, comparing an i count of length of public group length to number of times group owner is logged to output 'after' all requests have been received and processed. Should be a way to do this with Promise.all, so that resolve condition is all promises fired to get group owner have resolved to output final count and confirmation
+*/
+
+getPublicGroupsButton.addEventListener("click", () => {
+    fetchPublicGroups();
 });
+
+function fetchPublicGroups() {
+    console.log("get groups start"); 
+    prependLogger('Fetching Public Groups...') ;
+    let options = {limit: 50, cursor: null};
+    conn.getPublicGroups(options)
+    .then((res) => {
+        console.log('public group list retrieved');
+        groupList.innerHTML = "";
+        const groupListTable = groupList.appendChild(document.createElement('table'));
+        groupListTable.id = "groupTable";
+        const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
+        $("#groupTable").append(groupTableHeader);
+        const count = res.data.length;
+        let i = 0;  
+        res.data.forEach((item) => {
+            conn.getGroupInfo({groupId: item.groupid})
+            .then((res) => {
+                const groupOwner = res.data[0].owner;
+                console.log(`group owner for ${res.data[0].id} retrieved`);
+                if (groupOwner == storage.username) {
+                    let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
+                    const groupTableRow = $(`<tr><td>${item.groupname}</td><td id="group_id_${res.data[0].id}">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                    $("#groupTable").append(groupTableRow);
+                } else {
+                    const groupTableRow = $(`<tr><td>${item.groupname}</td><td>${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                    $("#groupTable").append(groupTableRow);
+                }
+                i++;
+                if (i == count) {
+                    prependLogger(`Public Groups have been fetched (${count} total).`);
+                    storage.groupsFetched = true;
+                } else if (i > count) {
+                    prependLogger('WARN: logged group rows greated than returned groups');
+                }
+            })
+        });
+    }).catch((err) => {
+        console.log('fetching groups failed', err);
+    })
+}
