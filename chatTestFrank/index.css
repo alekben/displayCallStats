@@ -5,6 +5,7 @@ body {
 .col{
     min-width: 433px; 
     max-width: 443px;
+    background-color: rgb(114, 165, 213);
 }
 
 .card{
@@ -18,20 +19,23 @@ body {
 .log{
     position: relative;
     position: absolute;
-    left: 440px;  /* Set distance from right */
+    left: 460px;  /* Set distance from right */
     top: 65px; /* Set distance from top */
     max-width: 443px;
+    background-color: rgb(228, 228, 228);
 }
 
 .messages{
     position: absolute;
-    left: 880px;
+    left: 920px;
     top: 65px;
+    background-color: rgb(163, 163, 163);
 }
 
 .groups{
     min-width: 433px; 
     max-width: 443px;
+    background-color: rgb(89, 89, 89);
 }
 
 .groups {
