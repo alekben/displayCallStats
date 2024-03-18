@@ -25,6 +25,7 @@ const leaveGroupButton = document.getElementById("leaveGroup");
 const destroyGroupButton = document.getElementById("destroyGroup");
 const getPublicGroupsButton = document.getElementById("getPublicGroups");
 const getJoinedGroupsButton = document.getElementById("getJoinedGroups");
+const sendGroupMessageButton = document.getElementById("sendGroupMessage");
 
 
 //log to log div
@@ -196,6 +197,36 @@ getPublicGroupsButton.addEventListener("click", () => {
 });
 
 
+//send group chat message
+sendGroupMessageButton.addEventListener("click", () => {
+    const groupId = document.getElementById("groupID").value.toString();
+    if (!groupId) {
+        console.log('fill out a group id to send a message');
+        logger(`Fill out the groupId field to send a group message.`);
+    } else { 
+    let groupChatMessage = document.getElementById("groupChatMessage").value.toString();
+    let options = {
+        chatType: 'groupChat',    // Set it to group chat
+        type: 'txt',               // Message type
+        to: groupId,                // The user receiving the message (user ID)
+        msg: groupChatMessage           // The message content
+    };
+    console.log("send group message to group " + groupId + "\nmessage: " + groupChatMessage);
+    logger(`Sending Chat Group message to GroupId ${groupId}`);
+    let msg = WebIM.message.create(options); 
+    chatClient
+        .send(msg)
+        .then((res) => {
+            console.log(`group chat text successfully to ${groupId}`);
+            logger(`${storage.username} has sent a group message to ${groupId}`);
+        }).catch((err) => {
+            console.log('failed to send group chat text', err),
+            logger(`Failed to send group message to ${groupId}, check console for errors`);
+        })
+    }
+});
+
+
 //functions for chat groups
 
 //set groupname field
@@ -313,7 +344,7 @@ async function getTokens() {
 function refreshToken() {
     getTokens()
     .then(() => console.log("new token retrieved " + storage.token))
-    .then(chatClient.renewToken(storage.token))
+    chatClient.renewToken(storage.token)
     .then((res) => {
         logger(`Token renewed - Expire: ${res.data.expire} - Status: ${res.data.status}`);
     });
