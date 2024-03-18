@@ -206,6 +206,11 @@ function destroyGroup(groupId, refresh) {
     })
 }
 
+
+function setGroup(groupId) {
+    $("#groupID").val(groupId);
+}
+
 //get public chat rooms and owners
 
 /** not interesting way, comparing an i count of length of public group length to number of times group owner is logged to output 'after' all requests have been received and processed. Should be a way to do this with Promise.all, so that resolve condition is all promises fired to get group owner have resolved to output final count and confirmation
@@ -236,10 +241,10 @@ function fetchPublicGroups() {
                 console.log(`group owner for ${res.data[0].id} retrieved`);
                 if (groupOwner == storage.username) {
                     let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
-                    const groupTableRow = $(`<tr><td>${item.groupname}</td><td id="group_id_${res.data[0].id}">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
                     $("#groupTable").append(groupTableRow);
                 } else {
-                    const groupTableRow = $(`<tr><td>${item.groupname}</td><td>${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td onclick="setGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
                     $("#groupTable").append(groupTableRow);
                 }
                 i++;
