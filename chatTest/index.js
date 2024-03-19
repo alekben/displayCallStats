@@ -11,6 +11,9 @@ chatClient = new WebIM.connection({
 });
 
 //get button elements:
+
+const groupView = document.getElementById("groups");
+const messageView = document.getElementById("messages");
 const loggerBox = document.getElementById("log");
 
 const loginButton = document.getElementById("login");
@@ -26,6 +29,7 @@ const destroyGroupButton = document.getElementById("destroyGroup");
 const getPublicGroupsButton = document.getElementById("getPublicGroups");
 const getJoinedGroupsButton = document.getElementById("getJoinedGroups");
 const sendGroupMessageButton = document.getElementById("sendGroupMessage");
+const getGroupMessagesButton = document.getElementById("getGroupMessages");
 
 
 //log to log div
@@ -225,6 +229,39 @@ sendGroupMessageButton.addEventListener("click", () => {
         })
     }
 });
+
+//get group history messages
+getGroupMessagesButton.addEventListener("click", () => {
+    const groupId = document.getElementById("groupID").value.toString();
+    if (!groupId) {
+        console.log('fill out a group id to geta messages');
+        logger(`Fill out the groupId field to get group messages.`);
+    } else { 
+    chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 })
+        .then((res) => {
+            console.log('getChatGroupMessageHistory success');
+            logger(`Retreived Group Chat ${groupId} History Messages.`);
+            let str = '';
+            res.messages.forEach((item) => {
+                str += '\n' + JSON.stringify({
+                    time: item.time,
+                    messageId: item.id,
+                    messageType: item.type,
+                    from: item.from,
+                    to: item.to,
+                    msg: item.msg,
+                });
+            });
+            messages.innerHTML = "";
+            messages.appendChild(document.createElement('div')).innerText = `Message History: ${str}`;
+        })
+        .catch((err) => {
+            console.error('getChatGroupMessageHistory failed', err);
+            logger(`getChatGroupMessageHistory failed`);
+        });
+    }
+});
+
 
 
 //functions for chat groups
