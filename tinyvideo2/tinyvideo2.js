@@ -831,7 +831,7 @@ async function getTokens() {
           "expire": 3600 // optional: expiration time in seconds (default: 3600)})
           })});
     const response = await res.json();
-    console.log("RTM token fetched from server: ", response.token);
+    console.log("StreamChannel RTC token fetched from server: ", response.token);
     options.streamToken = response.token;
   } catch (err) {
     console.log(err);
