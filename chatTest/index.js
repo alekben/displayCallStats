@@ -1,3 +1,4 @@
+//session storage
 var storage = {
     username: null,
     password: null,
@@ -7,12 +8,12 @@ var storage = {
     visibleGroup: 0
 };
 
+//AC client init
 chatClient = new WebIM.connection({
     appKey: "41450892#535167",
 });
 
-//get button elements:
-
+//get button  and other elements:
 const groupView = document.getElementById("groups");
 const messageView = document.getElementById("messages");
 const messageList = document.getElementById("messageList");
@@ -31,51 +32,6 @@ const getPublicGroupsButton = document.getElementById("getPublicGroups");
 const getJoinedGroupsButton = document.getElementById("getJoinedGroups");
 const sendGroupMessageButton = document.getElementById("sendGroupMessage");
 const getGroupMessagesButton = document.getElementById("getGroupMessages");
-
-
-//log to log div
-function logger(line) {
-   const logLine = loggerBox.appendChild(document.createElement('div'));
-   loggerBox.append(line);
-   logLine.scrollIntoViewIfNeeded();
-};
-
-function logMyMessage(msg, id) {
-    const message = $(`<div id="my_message_${id}" class="mMessage"><span>${msg}</span></div>`);
-    console.log(`logging my message to bottom ${msg}`);
-    $("#messageList").append(message);
-}
-
-function logRemoteMessage(from, msg, id) {
-    const sender = $(`<div id="remote_sender_${id}" class="rMessage"><span class="rFrom">${from}</span>`);
-    const message = $(`<div id="remote_message_${id}" class="rMessage"><span class="rText">${msg}</span>`);
-    $("#messageList").append(sender);
-    $("#messageList").append(message);
-}
-
-function logTime(time) {
-    let t = '';
-    t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
-    const timeDone = $(`<div id="time_${time}" class="rTime">${t}</div>`);
-    $("#messageList").append(timeDone);
-    let emptyDiv = messageList.appendChild(document.createElement('div'));
-    emptyDiv.className = "emptyDiv";
-    console.log("logging time");
-    messageList.append(emptyDiv); 
-    emptyDiv.scrollIntoViewIfNeeded();
-}
-
-function logMyTime(time) {
-    let t = '';
-    t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
-    const timeDone = $(`<div id="time_${time}" class="myTime">${t}</div>`);
-    $("#messageList").append(timeDone);
-    let emptyDiv = messageList.appendChild(document.createElement('div'));
-    emptyDiv.className = "emptyDiv";
-    console.log("logging time");
-    messageList.append(emptyDiv); 
-    emptyDiv.scrollIntoViewIfNeeded();
-}
 
 // Register listening events
 chatClient.addEventHandler('connection&message&group', {
@@ -133,22 +89,8 @@ chatClient.addEventHandler('connection&message&group', {
     }
 });
 
-chatClient.addEventHandler("eventName", {
-    onGroupEvent: function(msg){
-      switch(msg.operation){
-        case "create":
-          console.log(`${msg.operation}`);
-          break;
-        case 'destroy':
-            console.log(`${msg.operation}`);
-          break;
-        default:
-          break;
-    }}
-  });
 
 // Button behavior definition
-
 // login
 loginButton.addEventListener("click", () => {
     storage.username = document.getElementById("userID").value.toString();
@@ -206,7 +148,6 @@ logoutButton.addEventListener("click", () => {
     $("#groupID").val("");
 
 });
-
 
 //Chat Group stuff
 //buttons
@@ -304,7 +245,6 @@ getJoinedGroupsButton.addEventListener("click", () => {
     fetchJoinedGroups();
 });
 
-
 //send group chat message
 sendGroupMessageButton.addEventListener("click", () => {
     const groupId = document.getElementById("groupID").value.toString();
@@ -343,6 +283,53 @@ getGroupMessagesButton.addEventListener("click", () => {
     fetchGroupHistory();
 });
 
+//Chat group functions
+//log to log div
+function logger(line) {
+    const logLine = loggerBox.appendChild(document.createElement('div'));
+    loggerBox.append(line);
+    logLine.scrollIntoViewIfNeeded();
+};
+ 
+//append message user has sent to message list
+function logMyMessage(msg, id) {
+    const message = $(`<div id="my_message_${id}" class="mMessage"><span>${msg}</span></div>`);
+    $("#messageList").append(message);
+}
+ 
+//append other user's message to message list
+function logRemoteMessage(from, msg, id) {
+    const sender = $(`<div id="remote_sender_${id}" class="rMessage"><span class="rFrom">${from}</span>`);
+    const message = $(`<div id="remote_message_${id}" class="rMessage"><span class="rText">${msg}</span>`);
+    $("#messageList").append(sender);
+    $("#messageList").append(message);
+}
+ 
+//convert and append timestamp from message of other user
+function logTime(time) {
+    let t = '';
+    t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
+    const timeDone = $(`<div id="time_${time}" class="rTime">${t}</div>`);
+    $("#messageList").append(timeDone);
+    let emptyDiv = messageList.appendChild(document.createElement('div'));
+    emptyDiv.className = "emptyDiv";
+    messageList.append(emptyDiv); 
+    emptyDiv.scrollIntoViewIfNeeded();
+}
+ 
+//convert and append timestamp of user's own message
+function logMyTime(time) {
+    let t = '';
+    t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
+    const timeDone = $(`<div id="time_${time}" class="myTime">${t}</div>`);
+    $("#messageList").append(timeDone);
+    let emptyDiv = messageList.appendChild(document.createElement('div'));
+    emptyDiv.className = "emptyDiv";
+    console.log("logging time");
+    messageList.append(emptyDiv); 
+    emptyDiv.scrollIntoViewIfNeeded();
+}
+
 async function fetchGroupHistory(passedID) {
     var groupId;
     if (passedID) {
@@ -371,8 +358,6 @@ async function fetchGroupHistory(passedID) {
     }
 };
 
-//functions for chat groups
-
 //set groupname field
 function setGroupName(groupName) {
     $("#groupName").val(groupName);
@@ -383,11 +368,13 @@ function setGroupID(groupId) {
     $("#groupID").val(groupId);
 };
 
+//set groupid and name to input fields
 function setGroupNameAndID(groupName, groupId) {
     $("#groupName").val(groupName);
     $("#groupID").val(groupId);
 };
 
+//set groupid and name to input fields, and fetch history
 function setGroupNameAndIDAndPull(groupName, groupId) {
     $("#groupName").val(groupName);
     $("#groupID").val(groupId);
@@ -412,7 +399,6 @@ function destroyGroup(groupId, refresh) {
         logger(`Failed to destroy group ${groupId}, check console for error`);
     })
 };
-
 
 //fetch public groups
 /** not interesting way, comparing an i count of length of public group length to number of times group owner is logged to output 'after' all requests have been received and processed. Should be a way to do this with Promise.all, so that resolve condition is all promises fired to get group owner have resolved to output final count and confirmation
