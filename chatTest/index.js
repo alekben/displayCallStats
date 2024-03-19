@@ -40,22 +40,26 @@ function logger(line) {
 
 function logMyMessage(msg, id) {
     const message = $(`<div id="my_message_${id}" class="mMessage"><span>${msg}</span></div>`);
+    console.log(`logging my message to bottom ${msg}`);
     $("#messageList").append(message);
 }
 
 function logRemoteMessage(from, msg, id) {
     const sender = $(`<div id="remote_sender_${id}" class="rMessage"><span class="rFrom">${from}</span>`);
-    $("#messageList").append(sender);
     const message = $(`<div id="remote_message_${id}" class="rMessage"><span class="rText">${msg}</span>`);
+    $("#messageList").append(sender);
     $("#messageList").append(message);
 }
 
-function logTime(line) {
-    const time = $(`<div id="time" class="mTime">${line}</div>`);
-    $("#messageList").append(time);
+function logTime(time) {
+    let t = '';
+    t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
+    const timeDone = $(`<div id="time" class="mTime">${t}</div>`);
+    $("#messageList").append(timeDone);
     let emptyDiv = messageList.appendChild(document.createElement('div'));
     emptyDiv.className = "emptyDiv";
-    messageList.append(emptyDiv);  
+    console.log("logging time");
+    messageList.append(emptyDiv); 
 }
 
 // Register listening events
@@ -67,8 +71,22 @@ chatClient.addEventHandler('connection&message&group', {
         logger("Logout success !");
     },
     onTextMessage: (message) => {
-        console.log(message)
-        logger("Message from: " + message.from + " Message: " + message.msg);
+        logger("Message from: " + message.from + " for Group " + message.to);
+        switch(message.chatType){
+            case "groupChat":
+                    logRemoteMessage(message.from, message.msg, message.id);
+                    logTime(message.time);
+                    break;
+            case "singleChat":
+                console.log("single chat received, ignoring");
+                break;
+            case "chatRoom":
+                console.log("chatRoom message received, ignoring");
+                break;
+            default:
+                console.log(`unexpected message type!! - ${message}`);
+                break;             
+            }
     },
     onTokenWillExpire: (params) => {
         logger("Token is about to expire");
@@ -259,6 +277,8 @@ sendGroupMessageButton.addEventListener("click", () => {
         .then((res) => {
             console.log(`group chat text successfully to ${groupId}`);
             logger(`${storage.username} has sent a group message to ${groupName}.`);
+            logMyMessage(msg.msg, res.serverMsgId);
+            logTime(msg.time); 
         }).catch((err) => {
             console.log('failed to send group chat text', err),
             logger(`Failed to send group message to ${groupId}, check console for errors`);
@@ -280,34 +300,18 @@ async function fetchGroupHistory() {
         const res = await chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 });
         console.log(`retreived messages for ${groupId}`);
         messageList.innerHTML = "";
-        res.messages.forEach((item) => {
-            if (item.from == storage.username) {
-                logMyMessage(item.msg, item.id);
-                let t = '';
-                t = new Date(item.time).toLocaleDateString("en-US") + " " + new Date(1504095567183).toLocaleTimeString("en-US");
-                logTime(t.toString());
-                
+        for (let index = res.messages.length - 1; index >= 0; index--) {
+            const message = res.messages[index];
+            if (message.from == storage.username) {
+                logMyMessage(message.msg, message.id);
+                logTime(message.time);       
             } else {
-                logRemoteMessage(item.from, item.msg, item.id);
-                let t = '';
-                t = new Date(item.time).toLocaleDateString("en-US") + " " + new Date(1504095567183).toLocaleTimeString("en-US");
-                logTime(t.toString());
+                logRemoteMessage(message.from, message.msg, message.id);
+                logTime(message.time);
             }
-})}};
-
-async function refreshMessages(messages) {
-    let str = '';
-    messages.forEach((item) => {
-        str += '\n' + JSON.stringify({
-            time: item.time,
-            messageId: item.id,
-            messageType: item.type,
-            from: item.from,
-            to: item.to,
-            msg: item.msg,
-        });
-    return str;
-});};
+        }
+    }
+};
 
 //functions for chat groups
 
@@ -461,5 +465,40 @@ function refreshToken() {
 * save string writing of group public list, just in case, now it's table instead:
     let str = `Group Name: ${item.groupname} -- Group Id: ${item.groupId} -- Group Owner: ${res.data[0].owner}`;
     groupList.appendChild(document.createElement('div')).append(str);
- */
+ 
+ .forEach reference, replaced with for loop to iterate backgrounds through messages array:
+
+  res.messages.forEach((item) => {
+            if (item.from == storage.username) {
+                logMyMessage(item.msg, item.id, false);
+                let t = '';
+                t = new Date(item.time).toLocaleDateString("en-US") + " " + new Date(item.time).toLocaleTimeString("en-US");
+                logTime(t.toString(), false);
+                
+            } else {
+                logRemoteMessage(item.from, item.msg, item.id, false);
+                let t = '';
+                t = new Date(item.time).toLocaleDateString("en-US") + " " + new Date(item.time).toLocaleTimeString("en-US");
+                logTime(t.toString(), false);
+            }
+})
+ 
+
+refreshMessages as broken up string:
+
+async function refreshMessages(messages) {
+    let str = '';
+    messages.forEach((item) => {
+        str += '\n' + JSON.stringify({
+            time: item.time,
+            messageId: item.id,
+            messageType: item.type,
+            from: item.from,
+            to: item.to,
+            msg: item.msg,
+        });
+    return str;
+});};
+ 
+*/
 
