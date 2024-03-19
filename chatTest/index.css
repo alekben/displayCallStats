@@ -67,30 +67,29 @@ body {
 
 .mMessage {
     background: linear-gradient(90deg, rgba(116,215,132,1) 1%, rgba(0,212,255,0) 100%);
-    text-align: left;
+    text-align: right;
     border-radius: 10px;
 }
 
 .rFrom {
     background: linear-gradient(90deg, rgba(194,138,53,0) 81%, rgba(67,120,166,1) 100%);
-    text-align: right;
+    text-align: left;
     font-weight: bolder;
 }
 
 .rMessage {
     background: linear-gradient(90deg, rgba(194,138,53,0) 81%, rgba(67,120,166,1) 100%);
-    text-align: right;
+    text-align: left;
 }
 .rText {
     background: linear-gradient(90deg, rgba(194,138,53,0) 81%, rgba(67,120,166,1) 100%);
-    text-align: right;
+    text-align: left;
 }
-
 .mTime {
     font-family: arial, sans-serif;
     font-size: smaller;
-    text-align: center;
-    background: linear-gradient(90deg, rgba(139,139,139,0) 5%, rgba(207,202,202,1) 44%, rgba(0,212,255,0) 100%);    
+    text-align: left;
+    background: linear-gradient(90deg, rgba(164,164,164,1) 0%, rgba(67,120,166,0) 47%);
 }
 
 .emptyDiv {

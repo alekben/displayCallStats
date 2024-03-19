@@ -307,7 +307,7 @@ async function fetchGroupHistory() {
             const message = res.messages[index];
             if (message.from == storage.username) {
                 logMyMessage(message.msg, message.id);
-                logTime(message.time);       
+                //logTime(message.time);       
             } else {
                 logRemoteMessage(message.from, message.msg, message.id);
                 logTime(message.time);
