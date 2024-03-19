@@ -432,7 +432,7 @@ function refreshToken() {
     .then(() => console.log("new token retrieved " + storage.token))
     chatClient.renewToken(storage.token)
     .then((res) => {
-        logger(`Token renewed - Expire: ${res.data.expire} - Status: ${res.data.status}`);
+        logger(`Token renewed - Expire: ${res.expire} - Status: ${res.status}`);
     });
 };
 
