@@ -3,7 +3,8 @@ var storage = {
     password: null,
     token: null,
     tokenReturned: false,
-    groupsFetched: false
+    groupsFetched: false,
+    visibleGroup: 0
 };
 
 chatClient = new WebIM.connection({
@@ -89,8 +90,12 @@ chatClient.addEventHandler('connection&message&group', {
         logger("Message from: " + message.from + " for Group " + message.to);
         switch(message.chatType){
             case "groupChat":
-                    logRemoteMessage(message.from, message.msg, message.id);
-                    logTime(message.time);
+                    if (message.to == storage.visibleGroup) {
+                        logRemoteMessage(message.from, message.msg, message.id);
+                        logTime(message.time);
+                    } else {
+                        console.log("Message received for non-visible group, ignorning. future should maybe store this.");
+                    }
                     break;
             case "singleChat":
                 console.log("single chat received, ignoring");
@@ -306,10 +311,15 @@ getGroupMessagesButton.addEventListener("click", () => {
     fetchGroupHistory();
 });
 
-async function fetchGroupHistory() {
-    const groupId = document.getElementById("groupID").value.toString();
+async function fetchGroupHistory(passedID) {
+    var groupId;
+    if (passedID) {
+        groupId = passedID.toString();
+    } else {
+        groupId = document.getElementById("groupID").value.toString();
+    }
     if (!groupId) {
-        console.log('fill out a group id to geta messages');
+        console.log('fill out a group id to get a messages');
         logger(`Fill out the groupId field to get group messages.`);
     } else { 
         const res = await chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 });
@@ -324,7 +334,8 @@ async function fetchGroupHistory() {
                 logRemoteMessage(message.from, message.msg, message.id);
                 logTime(message.time);
             }
-        }
+        };
+        storage.visibleGroup = groupId;
     }
 };
 
@@ -343,6 +354,12 @@ function setGroupID(groupId) {
 function setGroupNameAndID(groupName, groupId) {
     $("#groupName").val(groupName);
     $("#groupID").val(groupId);
+};
+
+function setGroupNameAndIDAndPull(groupName, groupId) {
+    $("#groupName").val(groupName);
+    $("#groupID").val(groupId);
+    fetchGroupHistory(groupId);
 };
 
 //destroy chat group function
@@ -390,10 +407,10 @@ function fetchPublicGroups() {
                 console.log(`group owner for ${res.data[0].id} retrieved`);
                 if (groupOwner == storage.username) {
                     let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
-                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
                     $("#publicGroupsTable").append(groupTableRow);
                 } else {
-                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupname}</td><td onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
                     $("#publicGroupsTable").append(groupTableRow);
                 }
                 i++;
