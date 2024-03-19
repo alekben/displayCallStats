@@ -764,50 +764,55 @@ if (debug == true && options.debug == 1) {
 
 //Token getters
 async function getTokens() {
-  try {
-    const res = await fetch(
-      localTokenUrls.host + "/" + localTokenUrls.endpoint, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-          "tokenType": "rtc",
-          "channel": options.channel,
-          "role": "publisher",  // "publisher" or "subscriber"
-          "uid": options.uid,
-          "expire": 3600 // optional: expiration time in seconds (default: 3600)})
-          })});
-    const response = await res.json();
-    console.log("RTC token fetched from server: ", response.token);
-    options.rtcToken = response.token;
-  } catch (err) {
-    console.log(err);
+
+  if (options.rtcToken == null) {
+    try {
+      const res = await fetch(
+        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+          method: "POST",
+          headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            "tokenType": "rtc",
+            "channel": options.channel,
+            "role": "publisher",  // "publisher" or "subscriber"
+            "uid": options.uid,
+            "expire": 3600 // optional: expiration time in seconds (default: 3600)})
+            })});
+      const response = await res.json();
+      console.log("RTC token fetched from server: ", response.token);
+      options.rtcToken = response.token;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
-  try {
-    const res = await fetch(
-      localTokenUrls.host + "/" + localTokenUrls.endpoint, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-          "tokenType": "rtm",
-          "uid": options.uid,
-          "channel": "*", // optional: passing channel gives streamchannel. wildcard "*" is an option.
-          "expire": 3600 // optional: expiration time in seconds (default: 3600)})
-          })});
-    const response = await res.json();
-    console.log("RTM token fetched from server: ", response.token);
-    options.rtmToken = response.token;
-    rtmConfig.token = response.token;
-  } catch (err) {
-    console.log(err);
+  if (options.rtmToken == null) {
+    try {
+      const res = await fetch(
+        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+          method: "POST",
+          headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            "tokenType": "rtm",
+            "uid": options.uid,
+            "channel": "*", // optional: passing channel gives streamchannel. wildcard "*" is an option.
+            "expire": 3600 // optional: expiration time in seconds (default: 3600)})
+            })});
+      const response = await res.json();
+      console.log("RTM token fetched from server: ", response.token);
+      options.rtmToken = response.token;
+      rtmConfig.token = response.token;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   try {
