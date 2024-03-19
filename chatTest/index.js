@@ -35,7 +35,9 @@ const getGroupMessagesButton = document.getElementById("getGroupMessages");
 
 //log to log div
 function logger(line) {
-    loggerBox.appendChild(document.createElement('div')).append(line);
+   const logLine = loggerBox.appendChild(document.createElement('div'));
+   loggerBox.append(line);
+   logLine.scrollIntoViewIfNeeded();
 };
 
 function logMyMessage(msg, id) {
@@ -60,6 +62,7 @@ function logTime(time) {
     emptyDiv.className = "emptyDiv";
     console.log("logging time");
     messageList.append(emptyDiv); 
+    emptyDiv.scrollIntoViewIfNeeded();
 }
 
 // Register listening events
