@@ -14,6 +14,7 @@ chatClient = new WebIM.connection({
 
 const groupView = document.getElementById("groups");
 const messageView = document.getElementById("messages");
+const messageList = document.getElementById("messageList");
 const loggerBox = document.getElementById("log");
 
 const loginButton = document.getElementById("login");
@@ -37,12 +38,28 @@ function logger(line) {
     loggerBox.appendChild(document.createElement('div')).append(line);
 };
 
-function logMessage(line) {
-    messageView.appendChild(document.createElement('div')).append(line);   
+function logMyMessage(msg, id) {
+    const message = $(`<div id="my_message_${id}" class="mMessage"><span>${msg}</span></div>`);
+    $("#messageList").append(message);
+}
+
+function logRemoteMessage(from, msg, id) {
+    const sender = $(`<div id="remote_sender_${id}" class="rMessage"><span class="rFrom">${from}</span>`);
+    $("#messageList").append(sender);
+    const message = $(`<div id="remote_message_${id}" class="rMessage"><span class="rText">${msg}</span>`);
+    $("#messageList").append(message);
+}
+
+function logTime(line) {
+    const time = $(`<div id="time" class="mTime">${line}</div>`);
+    $("#messageList").append(time);
+    let emptyDiv = messageList.appendChild(document.createElement('div'));
+    emptyDiv.className = "emptyDiv";
+    messageList.append(emptyDiv);  
 }
 
 // Register listening events
-chatClient.addEventHandler('connection&message', {
+chatClient.addEventHandler('connection&message&group', {
     onConnected: () => {
         logger("Connect success !");
     },
@@ -64,6 +81,20 @@ chatClient.addEventHandler('connection&message', {
         console.log('on error', error);
     }
 });
+
+chatClient.addEventHandler("eventName", {
+    onGroupEvent: function(msg){
+      switch(msg.operation){
+        case "create":
+          console.log(`${msg.operation}`);
+          break;
+        case 'destroy':
+            console.log(`${msg.operation}`);
+          break;
+        default:
+          break;
+    }}
+  });
 
 // Button behavior definition
 
@@ -208,6 +239,7 @@ getPublicGroupsButton.addEventListener("click", () => {
 //send group chat message
 sendGroupMessageButton.addEventListener("click", () => {
     const groupId = document.getElementById("groupID").value.toString();
+    const groupName = document.getElementById("groupName").value.toString();
     if (!groupId) {
         console.log('fill out a group id to send a message');
         logger(`Fill out the groupId field to send a group message.`);
@@ -219,14 +251,14 @@ sendGroupMessageButton.addEventListener("click", () => {
         to: groupId,                // The user receiving the message (user ID)
         msg: groupChatMessage           // The message content
     };
-    console.log("send group message to group " + groupId + "\nmessage: " + groupChatMessage);
-    logger(`Sending Chat Group message to GroupId ${groupId}`);
+    console.log("send group message to group " + groupName + " " + groupId + "\nmessage: " + groupChatMessage);
+    logger(`Sending Chat Group message to ${groupName} (${groupId}).`);
     let msg = WebIM.message.create(options); 
     chatClient
         .send(msg)
         .then((res) => {
             console.log(`group chat text successfully to ${groupId}`);
-            logger(`${storage.username} has sent a group message to ${groupId}`);
+            logger(`${storage.username} has sent a group message to ${groupName}.`);
         }).catch((err) => {
             console.log('failed to send group chat text', err),
             logger(`Failed to send group message to ${groupId}, check console for errors`);
@@ -245,51 +277,37 @@ async function fetchGroupHistory() {
         console.log('fill out a group id to geta messages');
         logger(`Fill out the groupId field to get group messages.`);
     } else { 
-        chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 })
-        .then((res) => {
-            console.log('getChatGroupMessageHistory success');
-            messageView.innerHTML = "";
-            res.data.forEach((item) => {
-                logMessage(item.)
-
-            })
-            publicGroupsListTable.id = "publicGroupsTable";
-            publicGroupsListTable.className = "publicGroupsTable";
-            const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
-            $("#publicGroupsTable").append(groupTableHeader);
-            const count = res.data.length;
-            let i = 0;  
-            res.data.forEach((item) => {
-                chatClient.getGroupInfo({groupId: item.groupid})
-                .then((res) => {
-                    const groupOwner = res.data[0].owner;
-                    console.log(`group owner for ${res.data[0].id} retrieved`);
-                    if (groupOwner == storage.username) {
-                        let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
-                        const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
-                        $("#publicGroupsTable").append(groupTableRow);
-                    } else {
-                        const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
-                        $("#publicGroupsTable").append(groupTableRow);
-                    }
-                    i++;
-}};
+        const res = await chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 });
+        console.log(`retreived messages for ${groupId}`);
+        messageList.innerHTML = "";
+        res.messages.forEach((item) => {
+            if (item.from == storage.username) {
+                logMyMessage(item.msg, item.id);
+                let t = '';
+                t = new Date(item.time).toLocaleDateString("en-US") + " " + new Date(1504095567183).toLocaleTimeString("en-US");
+                logTime(t.toString());
+                
+            } else {
+                logRemoteMessage(item.from, item.msg, item.id);
+                let t = '';
+                t = new Date(item.time).toLocaleDateString("en-US") + " " + new Date(1504095567183).toLocaleTimeString("en-US");
+                logTime(t.toString());
+            }
+})}};
 
 async function refreshMessages(messages) {
-let str = '';
-messages.forEach((item) => {
-    str += '\n' + JSON.stringify({
-        time: item.time,
-        messageId: item.id,
-        messageType: item.type,
-        from: item.from,
-        to: item.to,
-        msg: item.msg,
-    });
-return str;
-}
-);
-};
+    let str = '';
+    messages.forEach((item) => {
+        str += '\n' + JSON.stringify({
+            time: item.time,
+            messageId: item.id,
+            messageType: item.type,
+            from: item.from,
+            to: item.to,
+            msg: item.msg,
+        });
+    return str;
+});};
 
 //functions for chat groups
 
