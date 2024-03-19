@@ -81,6 +81,7 @@ body {
 .rMessage {
     background: linear-gradient(90deg, rgba(116,215,132,1) 1%, rgba(0,212,255,0) 100%);
     text-align: left;
+    border-radius: 10px;
 }
 .rText {
     background: linear-gradient(90deg, rgba(116,215,132,1) 1%, rgba(0,212,255,0) 100%);
@@ -90,14 +91,14 @@ body {
     font-family: arial, sans-serif;
     font-size: x-small;
     text-align: left;
-    background: linear-gradient(90deg, rgba(164,164,164,1) 0%, rgba(67,120,166,0) 47%);
+    background: linear-gradient(90deg, rgba(67,120,166,0) 0%, rgba(224,224,224,1) 100%);
 }
 
 .myTime {
     font-family: arial, sans-serif;
     font-size: x-small;
     text-align: right;
-    background: linear-gradient(90deg, rgba(67,120,166,0) 0%, rgba(164,164,164,1) 100%);
+    background: linear-gradient(90deg, rgba(67,120,166,0) 0%, rgba(224,224,224,1) 100%);
 }
 
 .emptyDiv {
