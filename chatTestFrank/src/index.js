@@ -5,7 +5,8 @@ conn = new WebIM.connection({
 
 var storage = {
     token: null,
-    tokenReturned: false
+    tokenReturned: false,
+    groupsFetched: false
 }
 //easemob appkey appKey: "41117440#383391"
 //my appkey: 41155833#993682
@@ -17,15 +18,17 @@ const logMessages = document.getElementById("messages");
 const loginButton = document.getElementById("login");
 const logoutButton = document.getElementById("logout");
 const sendPeerMessageButton = document.getElementById("send_peer_message");
-const joinGroupButton = document.getElementById("joinGroup");
-const createChatGroupButton = document.getElementById("create_chat_group");
-const destroyChatGroupButton = document.getElementById("destroy_chat_group");
-const joinChatGroupButton = document.getElementById("join_chat_group");
-const leaveChatGroupButton = document.getElementById("leave_chat_group");
-const sendChatGroupMessageButton = document.getElementById("send_group_message");
-const getChatGroupMessageHistoryButton = document.getElementById("getChatGroupMessageHistory");
+const joinGroupButton = document.getElementById("join_group");
+const createGroupButton = document.getElementById("create_group");
+const destroyGroupButton = document.getElementById("destroy_group");
+const leaveGroupButton = document.getElementById("leave_group");
+const sendGroupMessageButton = document.getElementById("send_group_message");
+const getGroupMessageHistoryButton = document.getElementById("getGroupMessageHistory");
 const getPublicGroupsButton = document.getElementById("getPublicGroups");
 const groupList = document.getElementById("groups");
+const groupMessageList = document.getElementById("messageHistoryList");
+//const groupName = document.getElementById("group_name").value.toString();
+var groupId = document.getElementById("groupId").value.toString();
 
 function appendLogger(line) {
     logger.appendChild(document.createElement('div')).append(line);
@@ -41,7 +44,7 @@ function inlineLogger(line) {
 conn.addEventHandler('connection&message', {
     onConnected: () => {
         // appendLogger(`${Date(hours,minutes,seconds)}Connect success !`)
-        appendLogger(`Connect success`)
+        appendLogger(`Connect success !`)
     },
     onDisconnected: () => {
         appendLogger(`Logout success !`)
@@ -64,15 +67,15 @@ conn.addEventHandler('connection&message', {
     }
 })
 
-/* Obtain and set the Agora token again - easemob appkey*/
-function refreshToken(username, password) {
-    postData('https://3-140-200-204.nip.io/frank', { "userAccount": username, "userPassword": password })
-        .then((res) => {
-            let agoraToken = res.accessToken
-            conn.renewToken(agoraToken)
-            appendLogger(`Token has been updated`)
-        })
-}
+//refresh token to token server
+function refreshToken() {
+    getTokens()
+    .then(() => console.log("new token retrieved " + storage.token))
+    conn.renewToken(storage.token)
+    .then((res) => {
+        logger(`Token renewed - Expire: ${res.data.expire} - Status: ${res.data.status}`);
+    });
+};
 
 function postData(url, data) {
     return fetch(url, {
@@ -108,7 +111,7 @@ async function getTokens() {
             body: JSON.stringify({
             "tokenType": "chat",
             "uid": username,
-            "expire": 3600 
+            "expire": 3600
             })});
       const response = await res.json();
       console.log("Chat token fetched from server: ", response.token);
@@ -142,10 +145,10 @@ loginButton.addEventListener("click", () => {
             agoraToken: storage.token
         }).then((res) => {
             console.log('logged in');
-            appendLogger(`Login success`);
+            appendLogger(`Login success !`);
         }).catch((er) => {
             console.log('log in failed');
-            appendLogger(`Login failed`);
+            appendLogger(`Login failed !!`);
         })
     })      
 });
@@ -171,12 +174,11 @@ logoutButton.addEventListener("click", () => {
     appendLogger(`logout`)
 });
 
-const groupName = document.getElementById("chat_group_name").value.toString();
-var groupId = document.getElementById("groupId").value.toString();
+
 
 // create chat group
-createChatGroupButton.addEventListener("click", () => {
-    const groupName = document.getElementById("chat_group_name").value.toString();
+createGroupButton.addEventListener("click", () => {
+    const groupName = document.getElementById("group_name").value.toString();
     console.log("groupName: " + groupName);
     let option = {
         data: {
@@ -207,32 +209,33 @@ createChatGroupButton.addEventListener("click", () => {
 });
 
 // Call destroyGroup to disband a chat group.
-destroyChatGroupButton.addEventListener("click", () => {
+destroyGroupButton.addEventListener("click", () => {
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
-        destroyChatGroup(groupId)
+        destroyGroup(groupId)
         groupId = null;
         appendLogger(`${groupId} has beed destroyed`)
     }
-    destroyChatGroup(groupId)
+    destroyGroup(groupId)
     groupId = null;
     console.log('groupid field is empty');
     appendLogger(`Fill out groupId field to delete a group.`)
 });
 
-function destroyChatGroup(groupId, refresh) {
+function destroyGroup(groupId, refresh) {
     console.log("Destroy group " + groupId);
     let option = {
-        groupId: groupId
+        groupId: groupId.toString()
     };
     conn.destroyGroup(option)
         .then((res) => {
             console.log(res);
             appendLogger(`${groupId} has been destroyed`);
-            groupId = null;
+            // groupId = null;
             $("#groupId").val("");
-            console.log("Clearing groupId text box");
+            console.log("Clearing ${groupId} text box");
             if (refresh || storage.groupsFetched) {
+                delayFunction();
                 fetchPublicGroups();
             }
         })
@@ -242,8 +245,13 @@ function destroyChatGroup(groupId, refresh) {
         });
     }
 
+async function delayFunction() {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Code to be executed after 1 second
+}
+
 // join chat group
-joinChatGroupButton.addEventListener("click", () => {
+joinGroupButton.addEventListener("click", () => {
     // Call joinGroup to send a join request to a chat group.
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
@@ -264,7 +272,7 @@ joinChatGroupButton.addEventListener("click", () => {
 })
 
 // leave group
-leaveChatGroupButton.addEventListener("click", () => {
+leaveGroupButton.addEventListener("click", () => {
     // Call memberAbsence to leave a chat group.
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
@@ -285,17 +293,17 @@ leaveChatGroupButton.addEventListener("click", () => {
 
 
 // get group chat history
-getChatGroupMessageHistoryButton.addEventListener("click", () => {
+function logGroupHistoryMessages() {
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
     }
 
-    appendLogger(`...getChatGroupMessageHistory...`);
+    appendLogger(`...getGroupMessageHistory...`);
 
     conn.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 20 })
         .then((res) => {
-            console.log('getChatGroupMessageHistory success');
-            appendLogger(`getChatGroupMessageHistory success`);
+            console.log('getGroupMessageHistory success');
+            appendLogger(`getGroupMessageHistory success`);
 
             let str = '';
             res.messages.forEach((item) => {
@@ -311,14 +319,89 @@ getChatGroupMessageHistoryButton.addEventListener("click", () => {
 
             var odIV = document.createElement("div");
             odIV.style.whiteSpace = "pre";
-            logMessages.appendChild(document.createElement('div')).innerText = `Message History: ${str}`;
+            appendLogger(`Message History: ${str}`);
         })
         .catch((err) => {
-            console.error('getChatGroupMessageHistory failed', err);
-            appendLogger(`getChatGroupMessageHistory failed`);
+            console.error('getGroupMessageHistory failed', err);
+            appendLogger(`getGroupMessageHistory failed`);
         });
-});
+}
 
+getGroupMessageHistoryButton.addEventListener("click", () => {
+    fetchGroupHistoryMessages();
+    logGroupHistoryMessages();
+})
+
+function fetchGroupHistoryMessages() {
+    appendLogger("get history messages start")
+    appendLogger('Fetching historical message...')
+    if (!groupId) {
+        groupId = document.getElementById("groupId").value.toString();
+    }
+    let options = {
+        targetId: groupId.toString(), 
+        chatType: "groupChat", 
+        pageSize: 20
+    }
+    conn.getHistoryMessages(options)
+    .then((res) => {
+        console.log('historical message retrieval')
+        groupMessageList.innerHTML = "";
+        const groupMessageListRemote = groupMessageList.appendChild(document.createElement('div'));
+        const groupMessageListLocal = groupMessageList.appendChild(document.createElement('div'));
+        groupMessageListRemote.id = "groupMessageListRemote";
+        groupMessageListLocal.id = "groupMessageListLocal";
+            // const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
+            // $("#groupMessageTable").append(groupMessageTableHeader);
+            const count = res.messages.length;
+            const item = res.messages;
+            let i = 0;
+            while (i < count) {
+                const groupMessageFrom = res.messages[i].from;
+                console.log(`group message from ${res.messages[i].id} retrieved`);
+                if (groupMessageFrom == username) {
+                    //const groupMessageTableRow = $(`${item.from}: ${msg}`);
+                    //$("#groupMessageTable").append(groupMessageTableRow);
+                    inlineLogger(`${item[i].from}: ${item[i].msg}`);
+                } else {
+                    //const groupMessageTableRow = $(`${item.from}: ${msg}`);
+                    //$("#groupMessageTable").append(groupMessageTableRow);
+                    inlineLogger(`${item[i].from}: ${item[i].msg}`);
+                }
+                i++;
+                if (i == count) {
+                    appendLogger(`Group Message History have been fetched (${count} total).`);
+                    storage.groupsFetched = true;
+                } else if (i > count) {
+                    appendLogger('WARN: logged group rows greater than returned groups (message)');
+                }
+            }
+        
+            /*res.messages.forEach((item) => {
+                const groupMessageFrom = res.messages[item].from;
+                console.log(`group message from ${res.messages[i].id} retrieved`);
+                if (groupMessageFrom == username) {
+                    //const groupMessageTableRow = $(`${item.from}: ${msg}`);
+                    //$("#groupMessageTable").append(groupMessageTableRow);
+                    appendLogger(`${item.from}: ${msg}`);
+                } else {
+                    const groupMessageTableRow = $(`${item.from}: ${msg}`);
+                    $("#groupMessageTable").append(groupMessageTableRow);
+                    appendLogger(`${item.from}: ${msg}`);
+                }
+                i++;
+                if (i == count) {
+                    appendLogger(`Group Message History have been fetched (${count} total).`);
+                    storage.groupsFetched = true;
+                } else if (i > count) {
+                    appendLogger('WARN: logged group rows greater than returned groups (message)');
+                }
+            })
+        }).catch((err) => {
+        console.log('fetching groups failed', err);
+    })
+}*/
+    })}
 // Send a single chat message
 sendPeerMessageButton.onclick = function () {
     let peerId = document.getElementById("peerId").value.toString();
@@ -331,7 +414,7 @@ sendPeerMessageButton.onclick = function () {
         msg: peerMessage           // The message content
     };
     
-    let msg = WebIM.message.create(option); 
+    let msg = message.create(option); 
     conn.send(msg)
         .then((res) => {
             console.log('Send private text success');
@@ -344,7 +427,8 @@ sendPeerMessageButton.onclick = function () {
 
 
 // Send a group chat message
-sendChatGroupMessageButton.addEventListener("click", () => {
+sendGroupMessageButton.addEventListener("click", () => {
+    console.log(groupId)
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
     }
@@ -357,8 +441,7 @@ sendChatGroupMessageButton.addEventListener("click", () => {
     }
     console.log("send group message to group " + groupId + "\nmessage: " + groupChatMessage)
     let msg = WebIM.message.create(option); 
-    conn
-        .send(msg)
+    conn.send(msg)
         .then((res) => {
             console.log('Group chat text successfully');
             appendLogger(`${username} sent message to group ${groupId}`);
@@ -431,9 +514,9 @@ function fetchPublicGroups() {
             .then((res) => {
                 const groupOwner = res.data[0].owner;
                 console.log(`group owner for ${res.data[0].id} retrieved`);
-                if (groupOwner == storage.username) {
-                    let delete_img = `<img src="red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyChatGroup(${res.data[0].id}, true)" height=20 width=20></img>`
-                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="destroyChatGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                if (groupOwner == username) {
+                    let delete_img = `<img src="src/red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
+                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}">${item.groupid}</td><td>${groupOwner}</td><td onclick="destroyGroup(${item.groupid})">${delete_img}</td></tr>`);
                     $("#groupTable").append(groupTableRow);
                 } else {
                     const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td onclick="setGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
@@ -444,10 +527,11 @@ function fetchPublicGroups() {
                     appendLogger(`Public Groups have been fetched (${count} total).`);
                     storage.groupsFetched = true;
                 } else if (i > count) {
-                    appendLogger('WARN: logged group rows greated than returned groups');
+                    appendLogger('WARN: logged group rows greater than returned groups');
                 }
             })
-        });
+        },
+        refresh = false);
     }).catch((err) => {
         console.log('fetching groups failed', err);
     })

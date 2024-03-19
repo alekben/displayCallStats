@@ -32,9 +32,9 @@
                         <br>
                         <div class="row">
                             <div>
-                                <input type="text" placeholder="Chat Group Name" id="chat_group_name">
+                                <input type="text" placeholder="Chat Group Name" id="group_name">
                                 <br>
-                                <button type="button" id="create_chat_group">Create Chat Group</button>
+                                <button type="button" id="create_group">Create Chat Group</button>
                             </div>
                         </div>
                         <br>
@@ -42,22 +42,16 @@
                             <div>
                                 <input type="text" placeholder="Chat Group ID" id="groupId">
                                 <br>
-                                <button type="button" id="join_chat_group">Join Chat Group</button>
-                                <button type="button" id="leave_chat_group">Leave Chat Group</button>
-                                <button type="button" id="destroy_chat_group">Destroy Chat Group</button>
+                                <button type="button" id="join_group">Join Chat Group</button>
+                                <button type="button" id="leave_group">Leave Chat Group</button>
+                                <button type="button" id="destroy_group">Destroy Chat Group</button>
                             </div>
                         </div>
                         <br>
-                        <div class="row">
-                            <div class="input-field">
-                                <label>Group Chat Message</label>
-                                <input type="text" placeholder="Group Chat Message" id="groupChatMessage">
-                                <button type="button" id="send_group_message">sendTextMessage</button>
-                            </div>
-                        </div><br>
+                        
                         <div class="row">
                             <div>
-                                <button type="button" id="getChatGroupMessageHistory">getChatGroupMessageHistory</button>
+                                <button type="button" id="getGroupMessageHistory">getGroupMessageHistory</button>
                                 <button type="button" id="getPublicGroups">getPublicGroups</button>
                             </div>
                         </div>
@@ -91,13 +85,23 @@
                     </div>
                 </div>
             </div>
-        </form>
+        
         
         <hr>
         <div class="groups" id="groups"></div>
-        <div class="log" id="log"></div>
-        <div class="messages" id="messages"></div>
-
+        <div class="log" id="log">
+            <center><h4>Logs</h4></u></center>
+        </div>
+        <div class="messages" id="messages">
+            <center><h4>${group_name}</h4></center>
+            <div class="messageHistory" id="messageHistoryList"></div>
+            <div class="messageRow">
+                    <label>Message: </label>
+                    <input class="chat-input-field" type="text" placeholder="Group Chat Message" id="groupChatMessage">
+                    <button type="button" id="send_group_message">sendTextMessage</button>
+            </div>
+        </div>
+        </form>
         <script src="../jquery-3.4.1.min.js"></script>
         <script src="src/index.js"></script>
 </body>
