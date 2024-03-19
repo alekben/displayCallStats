@@ -2,49 +2,54 @@ body {
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
 }
 
-.col{
+.col {
     min-width: 433px; 
     max-width: 443px;
+    height: 443px;
     background-color: rgb(114, 165, 213);
 }
 
-.card{
+.card {
     margin-top: 0px; margin-bottom: 0px;
 }
 
-.row card-content{
+.row card-content {
     margin-bottom: 0px; margin-top: 10px;
 }
 
-.log{
+.log {
     position: relative;
     position: absolute;
     left: 460px;  /* Set distance from right */
     top: 65px; /* Set distance from top */
-    max-width: 443px;
+    width: 443px;
     background-color: rgb(228, 228, 228);
+    height: 443px;
+    overflow: auto;
 }
 
-.messages{
+.messages {
     position: absolute;
     left: 920px;
     top: 65px;
     background-color: rgb(163, 163, 163);
+    height: 443px;
+    width: 450px;
+    overflow: auto;
 }
 
-.groups{
-    min-width: 433px; 
-    max-width: 443px;
-    background-color: rgb(89, 89, 89);
+.messageRow {
+    position: absolute;
+    bottom: 3px; 
+}
+
+.messageRow input {
+    width: 225px;
 }
 
 .groups {
-    position: absolute;
-    min-width: 433px; 
     max-width: 443px;
-    /* border: 5px black solid; */
-    border-radius: 25px;
-    text-align: left;
+    background-color: rgb(89, 89, 89);
     overflow: auto;
 }
 
