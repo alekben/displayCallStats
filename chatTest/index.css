@@ -24,6 +24,10 @@ body {
     background-color: white;
 }
 
+.publicGroupsTable {
+    margin: auto;
+}
+
 .publicGroupsTable table {
     font-family: arial, sans-serif;
     border-collapse: collapse;

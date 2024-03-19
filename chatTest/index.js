@@ -37,6 +37,10 @@ function logger(line) {
     loggerBox.appendChild(document.createElement('div')).append(line);
 };
 
+function logMessage(line) {
+    messageView.appendChild(document.createElement('div')).append(line);   
+}
+
 // Register listening events
 chatClient.addEventHandler('connection&message', {
     onConnected: () => {
@@ -232,37 +236,60 @@ sendGroupMessageButton.addEventListener("click", () => {
 
 //get group history messages
 getGroupMessagesButton.addEventListener("click", () => {
+    fetchGroupHistory();
+});
+
+async function fetchGroupHistory() {
     const groupId = document.getElementById("groupID").value.toString();
     if (!groupId) {
         console.log('fill out a group id to geta messages');
         logger(`Fill out the groupId field to get group messages.`);
     } else { 
-    chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 })
+        chatClient.getHistoryMessages({ targetId: groupId, chatType: "groupChat", pageSize: 50 })
         .then((res) => {
             console.log('getChatGroupMessageHistory success');
-            logger(`Retreived Group Chat ${groupId} History Messages.`);
-            let str = '';
-            res.messages.forEach((item) => {
-                str += '\n' + JSON.stringify({
-                    time: item.time,
-                    messageId: item.id,
-                    messageType: item.type,
-                    from: item.from,
-                    to: item.to,
-                    msg: item.msg,
-                });
-            });
-            messages.innerHTML = "";
-            messages.appendChild(document.createElement('div')).innerText = `Message History: ${str}`;
-        })
-        .catch((err) => {
-            console.error('getChatGroupMessageHistory failed', err);
-            logger(`getChatGroupMessageHistory failed`);
-        });
-    }
-});
+            messageView.innerHTML = "";
+            res.data.forEach((item) => {
+                logMessage(item.)
 
+            })
+            publicGroupsListTable.id = "publicGroupsTable";
+            publicGroupsListTable.className = "publicGroupsTable";
+            const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
+            $("#publicGroupsTable").append(groupTableHeader);
+            const count = res.data.length;
+            let i = 0;  
+            res.data.forEach((item) => {
+                chatClient.getGroupInfo({groupId: item.groupid})
+                .then((res) => {
+                    const groupOwner = res.data[0].owner;
+                    console.log(`group owner for ${res.data[0].id} retrieved`);
+                    if (groupOwner == storage.username) {
+                        let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
+                        const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}" onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                        $("#publicGroupsTable").append(groupTableRow);
+                    } else {
+                        const groupTableRow = $(`<tr><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupname}</td><td onclick="setGroupNameAndID('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                        $("#publicGroupsTable").append(groupTableRow);
+                    }
+                    i++;
+}};
 
+async function refreshMessages(messages) {
+let str = '';
+messages.forEach((item) => {
+    str += '\n' + JSON.stringify({
+        time: item.time,
+        messageId: item.id,
+        messageType: item.type,
+        from: item.from,
+        to: item.to,
+        msg: item.msg,
+    });
+return str;
+}
+);
+};
 
 //functions for chat groups
 
