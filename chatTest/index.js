@@ -109,6 +109,18 @@ chatClient.addEventHandler('connection&message&group', {
                 break;             
             }
     },
+    onGroupEvent: (event) => {
+        switch(event.operation){
+          case "create":
+            console.log(`${msg.operation}`);
+            break;
+          case 'destroy':
+              console.log(`${msg.operation}`);
+            break;
+          default:
+            break;
+      }
+    },
     onTokenWillExpire: (params) => {
         logger("Token is about to expire");
         refreshToken()
@@ -186,7 +198,9 @@ logoutButton.addEventListener("click", () => {
     $("#sendGroupMessage").attr("disabled", true);
     $("#getGroupMessages").attr("disabled", true);
     publicGroupsList.innerHTML = "";
+    $("#publicGroupsList").append(`<center><i>Public Groups...</span></i></center>`);
     joinedGroupsList.innerHTML = "";
+    $("#joinedGroupsList").append(`<center><i>Joined Groups...</span></i></center>`);
     messageList.innerHTML = "";
     $("#groupName").val("");
     $("#groupID").val("");
