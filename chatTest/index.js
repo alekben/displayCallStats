@@ -24,6 +24,7 @@ const logoutButton = document.getElementById("logout");
 const sendPeerMessageButton = document.getElementById("send_peer_message");
 
 const publicGroupsList = document.getElementById("publicGroupsList");
+const joinedGroupsList = document.getElementById("joinedGroupsList");
 const createGroupButton = document.getElementById("createGroup");
 const joinGroupButton = document.getElementById("joinGroup");
 const leaveGroupButton = document.getElementById("leaveGroup");
@@ -273,6 +274,10 @@ getPublicGroupsButton.addEventListener("click", () => {
     fetchPublicGroups();
 });
 
+getJoinedGroupsButton.addEventListener("click", () => {
+    fetchJoinedGroups();
+});
+
 
 //send group chat message
 sendGroupMessageButton.addEventListener("click", () => {
@@ -393,10 +398,15 @@ function fetchPublicGroups() {
     .then((res) => {
         console.log('public groups list retrieved');
         publicGroupsList.innerHTML = "";
+        const publicTitle = publicGroupsList.appendChild(document.createElement('div'));
+        publicTitle.id = "publicTableTitle";
+        publicTitle.className = "publicTableTitle";
+        publicTitle.innerHTML ="Public Groups:"
+        publicGroupsList.append(publicTitle);
         const publicGroupsListTable = publicGroupsList.appendChild(document.createElement('table'));
         publicGroupsListTable.id = "publicGroupsTable";
         publicGroupsListTable.className = "publicGroupsTable";
-        const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th<</tr>`);
+        const groupTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th></tr>`);
         $("#publicGroupsTable").append(groupTableHeader);
         const count = res.data.length;
         let i = 0;  
@@ -416,6 +426,54 @@ function fetchPublicGroups() {
                 i++;
                 if (i == count) {
                     logger(`Public Groups have been fetched (${count} total).`);
+                    storage.groupsFetched = true;
+                } else if (i > count) {
+                    logger('WARN: logged group rows greated than returned groups');
+                }
+            })
+        });
+    }).catch((err) => {
+        console.log('fetching groups failed', err);
+    })
+}
+
+//fetch joined groups
+function fetchJoinedGroups() {
+    console.log("get joined groups start"); 
+    logger('Fetching Joined Groups...') ;
+    let options = {pageNum: 1, pageSize: 500, needAffiliations: false, needRole: false};
+    chatClient.getJoinedGroups(options)
+    .then((res) => {
+        console.log('joined groups list retrieved');
+        joinedGroupsList.innerHTML = "";
+        const joinedTitle = joinedGroupsList.appendChild(document.createElement('div'));
+        joinedTitle.id = "joinedTableTitle";
+        joinedTitle.className = "joinedTableTitle";
+        joinedTitle.innerHTML ="Joined Groups:"
+        joinedGroupsList.append(joinedTitle);
+        const joinedGroupsListTable = joinedGroupsList.appendChild(document.createElement('table'));
+        joinedGroupsListTable.id = "joinedGroupsTable";
+        joinedGroupsListTable.className = "joinedGroupsTable";
+        const joinedTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner></th><th>Delete</th></tr>`);
+        $("#joinedGroupsTable").append(joinedTableHeader);
+        const count = res.data.length;
+        let i = 0;  
+        res.data.forEach((item) => {
+            chatClient.getGroupInfo({groupId: item.groupid})
+            .then((res) => {
+                const groupOwner = res.data[0].owner;
+                console.log(`group owner for ${res.data[0].id} retrieved`);
+                if (groupOwner == storage.username) {
+                    let delete_img = `<img src="./red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
+                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupname}</td><td id="joined_group_id_${res.data[0].id}" onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
+                    $("#joinedGroupsTable").append(groupTableRow);
+                } else {
+                    const groupTableRow = $(`<tr><td onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupname}</td><td onclick="setGroupNameAndIDAndPull('${item.groupname}', ${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
+                    $("#joinedGroupsTable").append(groupTableRow);
+                }
+                i++;
+                if (i == count) {
+                    logger(`Joined Groups have been fetched (${count} total).`);
                     storage.groupsFetched = true;
                 } else if (i > count) {
                     logger('WARN: logged group rows greated than returned groups');
