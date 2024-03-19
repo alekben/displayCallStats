@@ -329,7 +329,8 @@ sendGroupMessageButton.addEventListener("click", () => {
             console.log(`group chat text successfully to ${groupId}`);
             logger(`${storage.username} has sent a group message to ${groupName}.`);
             logMyMessage(msg.msg, res.serverMsgId);
-            logMyTime(msg.time); 
+            logMyTime(msg.time);
+            $("#groupChatMessage").val(""); 
         }).catch((err) => {
             console.log('failed to send group chat text', err),
             logger(`Failed to send group message to ${groupId}, check console for errors`);
