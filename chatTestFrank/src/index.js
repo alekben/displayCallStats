@@ -516,7 +516,7 @@ function fetchPublicGroups() {
                 console.log(`group owner for ${res.data[0].id} retrieved`);
                 if (groupOwner == username) {
                     let delete_img = `<img src="src/red_x.png" alt="Delete Group" class="deleteGroupDirect" id="${res.data[0].id}" onclick="destroyGroup(${res.data[0].id}, true)" height=20 width=20></img>`
-                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}">${item.groupid}</td><td>${groupOwner}</td><td onclick="destroyGroup(${item.groupid})">${delete_img}</td></tr>`);
+                    const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td id="group_id_${res.data[0].id}">${item.groupid}</td><td>${groupOwner}</td><td>${delete_img}</td></tr>`);
                     $("#groupTable").append(groupTableRow);
                 } else {
                     const groupTableRow = $(`<tr><td onclick="setGroup(${item.groupid})">${item.groupname}</td><td onclick="setGroup(${item.groupid})">${item.groupid}</td><td>${groupOwner}</td><td></td></tr>`);
