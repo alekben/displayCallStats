@@ -19,6 +19,27 @@ body {
     min-height: 300px;
 }
 
+.button {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    cursor: pointer;
+}
+
+.button:hover {
+    color: #fff;
+    background-color: #004b9c;
+    border-color: #004b9c;
+    cursor: pointer;
+}
+
+.button.disabled,.button:disabled {
+    color: #fff;
+    background-color: #002349;
+    border-color: #002349;
+    cursor:default;
+}
+
 .logWindow {
     background-color: white;
     overflow-y: auto;

@@ -21,8 +21,6 @@ const loggerBox = document.getElementById("log");
 const loginButton = document.getElementById("login");
 const logoutButton = document.getElementById("logout");
 
-const sendPeerMessageButton = document.getElementById("send_peer_message");
-
 const publicGroupsList = document.getElementById("publicGroupsList");
 const joinedGroupsList = document.getElementById("joinedGroupsList");
 const createGroupButton = document.getElementById("createGroup");
@@ -83,6 +81,8 @@ function logMyTime(time) {
 chatClient.addEventHandler('connection&message&group', {
     onConnected: () => {
         logger("Connect success !");
+        fetchPublicGroups();
+        fetchJoinedGroups();
     },
     onDisconnected: () => {
         logger("Logout success !");
@@ -150,6 +150,16 @@ loginButton.addEventListener("click", () => {
             }).then((res) => {
                 console.log('logged in');
                 logger(`Login success!`);
+                $("#login").attr("disabled", true);
+                $("#logout").attr("disabled", false);
+                $("#createGroup").attr("disabled", false);
+                $("#joinGroup").attr("disabled", false);
+                $("#leaveGroup").attr("disabled", false);
+                $("#destroyGroup").attr("disabled", false);
+                $("#getPublicGroups").attr("disabled", false);
+                $("#getJoinedGroups").attr("disabled", false);
+                $("#sendGroupMessage").attr("disabled", false);
+                $("#getGroupMessages").attr("disabled", false);
             }).catch((err) => {
                 console.log('log in failed', err);
                 logger(`Login failed as ${storage.username}, check console!`);
@@ -165,25 +175,22 @@ loginButton.addEventListener("click", () => {
 logoutButton.addEventListener("click", () => {
     chatClient.close();
     logger("Logging Out.");
-});
+    $("#login").attr("disabled", false);
+    $("#logout").attr("disabled", true);
+    $("#createGroup").attr("disabled", true);
+    $("#joinGroup").attr("disabled", true);
+    $("#leaveGroup").attr("disabled", true);
+    $("#destroyGroup").attr("disabled", true);
+    $("#getPublicGroups").attr("disabled", true);
+    $("#getJoinedGroups").attr("disabled", true);
+    $("#sendGroupMessage").attr("disabled", true);
+    $("#getGroupMessages").attr("disabled", true);
+    publicGroupsList.innerHTML = "";
+    joinedGroupsList.innerHTML = "";
+    messageList.innerHTML = "";
+    $("#groupName").val("");
+    $("#groupID").val("");
 
-// Send a single chat message
-sendPeerMessageButton.addEventListener("click", () => {
-    let peerId = document.getElementById("peerId").value.toString()
-    let peerMessage = document.getElementById("peerMessage").value.toString()
-    let option = {
-        chatType: 'singleChat',    // Set it to single chat
-        type: 'txt',               // Message type
-        to: peerId,                // The user receiving the message (user ID)
-        msg: peerMessage           // The message content
-    }
-    let msg = chatClient.message.create(option); 
-    chatClient.send(msg).then((res) => {
-        console.log('send private text success');
-        logger("Message send to: " + peerId + " Message: " + peerMessage);
-    }).catch((err) => {
-        console.log('send private text fail', err);
-    })
 });
 
 
@@ -213,7 +220,8 @@ createGroupButton.addEventListener("click", () => {
         $("#groupID").val(groupId);
         logger(`${groupName} (${groupId}) has been created!`);
         if (storage.groupsFetched) {
-            fetchPublicGroups();
+            setTimeout(fetchPublicGroups(), 2000);
+            setTimeout(fetchJoinedGroups(), 2000);
         }
         }).catch((err) => {
             console.log('create group chat failed', err);
@@ -235,7 +243,9 @@ joinGroupButton.addEventListener("click", () => {
 
     chatClient.joinGroup(options).then((res) => {
         console.log(`join group ${res.data.id} for ${res.data.user} result ${res.data.result}.`);
-        logger(`User ${res.data.user} has joined Chat Group ${res.data.id}`)
+        logger(`User ${res.data.user} has joined Chat Group ${res.data.id}`);
+        setTimeout(fetchPublicGroups(), 2000);
+        setTimeout(fetchJoinedGroups(), 2000);
     }).catch((err) => {
         console.log(`joining ${groupId} failed`, err);
         logger(`Unable to join Chat Group ${groupId}!`);
@@ -251,6 +261,8 @@ leaveGroupButton.addEventListener("click", () => {
     chatClient.leaveGroup(options).then((res) => {
         console.log(`left group ${groupId} with ` + res.data.result);
         logger(`${storage.username} has left the group ${groupId}.`);
+        setTimeout(fetchPublicGroups(), 2000);
+        setTimeout(fetchJoinedGroups(), 2000);
     }).catch((err) => {
         console.log('leave group chat failed', err);
         logger(`Failed to leave group ${groupId}, check console for error`);
@@ -377,7 +389,8 @@ function destroyGroup(groupId, refresh) {
         logger(`${res.data.id} has been destroyed.`);
         $("#groupID").val("");
         if (refresh || storage.groupsFetched) {
-            setTimeout(fetchPublicGroups(), 5000);
+            setTimeout(function() {fetchPublicGroups()}, 1000);
+            setTimeout(function() {fetchJoinedGroups()}, 1000);
         }
     }).catch((err) => {
         console.log(`destroy chat group ${groupId} failed`, err);
@@ -454,7 +467,7 @@ function fetchJoinedGroups() {
         const joinedGroupsListTable = joinedGroupsList.appendChild(document.createElement('table'));
         joinedGroupsListTable.id = "joinedGroupsTable";
         joinedGroupsListTable.className = "joinedGroupsTable";
-        const joinedTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner></th><th>Delete</th></tr>`);
+        const joinedTableHeader = $(`<tr><th>Group Name</th><th>Group ID</th><th>Group Owner</th><th>Delete</th></tr>`);
         $("#joinedGroupsTable").append(joinedTableHeader);
         const count = res.data.length;
         let i = 0;  

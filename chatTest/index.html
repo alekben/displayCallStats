@@ -29,45 +29,30 @@
                 </div>
 
                 <div>
-                    <button type="button" id="login">Login</button>
-                    <button type="button" id="logout">Logout</button>
-                </div>
-
-                <div>
-                    <label>Peer username</label>
-                    <input type="text" placeholder="Peer username" id="peerId">
-                </div>
-
-                <div>
-                    <label>Peer Message</label>
-                    <input type="text" placeholder="Peer message" id="peerMessage">
-                    <button type="button" id="send_peer_message">sendTextMessage</button>
-                </div>
-
-                <div>
-                    <button type="button" id="conversationList">ConversationList</button>
+                    <button type="button" class="button" id="login">Login</button>
+                    <button type="button" class="button" id="logout" disabled>Logout</button>
                 </div>
 
                 <div>
                     <input type="text" placeholder="groupName" id="groupName">
                     <input type="text" placeholder="groupID" id="groupID">
                     <br>
-                    <button type="button" id="createGroup">CreateGroup</button>
-                    <button type="button" id="joinGroup">JoinGroup</button>
-                    <button type="button" id="leaveGroup">LeaveGroup</button>
-                    <button type="button" id="destroyGroup">DestroyGroup</button>
+                    <button type="button" class="button" id="createGroup" disabled>CreateGroup</button>
+                    <button type="button" class="button" id="joinGroup" disabled>JoinGroup</button>
+                    <button type="button" class="button" id="leaveGroup" disabled>LeaveGroup</button>
+                    <button type="button" class="button" id="destroyGroup" disabled>DestroyGroup</button>
                 </div>
 
                 <div>
-                    <button type="button" id="getPublicGroups">GetPublicGroups</button>
-                    <button type="button" id="getJoinedGroups">GetJoinedGroups</button>
+                    <button type="button" class="button" id="getPublicGroups" disabled>GetPublicGroups</button>
+                    <button type="button" class="button" id="getJoinedGroups" disabled>GetJoinedGroups</button>
                 </div>
 
                 <div>
                     <label>Group Chat Message</label>
                     <input type="text" placeholder="Group Chat Message" id="groupChatMessage">
-                    <button type="button" id="sendGroupMessage">SendGroupMessage</button>
-                    <button type="button" id="getGroupMessages">GetGroupMessages</button>
+                    <button type="button" class="button" id="sendGroupMessage" disabled>SendGroupMessage</button>
+                    <button type="button" class="button" id="getGroupMessages" disabled>GetGroupMessages</button>
                 </div>
 
             </form>
