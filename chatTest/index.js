@@ -220,8 +220,8 @@ createGroupButton.addEventListener("click", () => {
         $("#groupID").val(groupId);
         logger(`${groupName} (${groupId}) has been created!`);
         if (storage.groupsFetched) {
-            setTimeout(fetchPublicGroups(), 2000);
-            setTimeout(fetchJoinedGroups(), 2000);
+            setTimeout(function() {fetchPublicGroups()}, 1000);
+            setTimeout(function() {fetchJoinedGroups()}, 1000);
         }
         }).catch((err) => {
             console.log('create group chat failed', err);
@@ -244,8 +244,8 @@ joinGroupButton.addEventListener("click", () => {
     chatClient.joinGroup(options).then((res) => {
         console.log(`join group ${res.data.id} for ${res.data.user} result ${res.data.result}.`);
         logger(`User ${res.data.user} has joined Chat Group ${res.data.id}`);
-        setTimeout(fetchPublicGroups(), 2000);
-        setTimeout(fetchJoinedGroups(), 2000);
+        setTimeout(function() {fetchPublicGroups()}, 1000);
+        setTimeout(function() {fetchJoinedGroups()}, 1000);
     }).catch((err) => {
         console.log(`joining ${groupId} failed`, err);
         logger(`Unable to join Chat Group ${groupId}!`);
@@ -261,8 +261,8 @@ leaveGroupButton.addEventListener("click", () => {
     chatClient.leaveGroup(options).then((res) => {
         console.log(`left group ${groupId} with ` + res.data.result);
         logger(`${storage.username} has left the group ${groupId}.`);
-        setTimeout(fetchPublicGroups(), 2000);
-        setTimeout(fetchJoinedGroups(), 2000);
+        setTimeout(function() {fetchPublicGroups()}, 1000);
+        setTimeout(function() {fetchJoinedGroups()}, 1000);
     }).catch((err) => {
         console.log('leave group chat failed', err);
         logger(`Failed to leave group ${groupId}, check console for error`);
