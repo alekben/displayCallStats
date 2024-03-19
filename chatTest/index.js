@@ -56,7 +56,19 @@ function logRemoteMessage(from, msg, id) {
 function logTime(time) {
     let t = '';
     t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
-    const timeDone = $(`<div id="time" class="mTime">${t}</div>`);
+    const timeDone = $(`<div id="time_${time}" class="rTime">${t}</div>`);
+    $("#messageList").append(timeDone);
+    let emptyDiv = messageList.appendChild(document.createElement('div'));
+    emptyDiv.className = "emptyDiv";
+    console.log("logging time");
+    messageList.append(emptyDiv); 
+    emptyDiv.scrollIntoViewIfNeeded();
+}
+
+function logMyTime(time) {
+    let t = '';
+    t = new Date(time).toLocaleDateString("en-US") + " " + new Date(time).toLocaleTimeString("en-US");
+    const timeDone = $(`<div id="time_${time}" class="myTime">${t}</div>`);
     $("#messageList").append(timeDone);
     let emptyDiv = messageList.appendChild(document.createElement('div'));
     emptyDiv.className = "emptyDiv";
@@ -281,7 +293,7 @@ sendGroupMessageButton.addEventListener("click", () => {
             console.log(`group chat text successfully to ${groupId}`);
             logger(`${storage.username} has sent a group message to ${groupName}.`);
             logMyMessage(msg.msg, res.serverMsgId);
-            logTime(msg.time); 
+            logMyTime(msg.time); 
         }).catch((err) => {
             console.log('failed to send group chat text', err),
             logger(`Failed to send group message to ${groupId}, check console for errors`);
@@ -307,7 +319,7 @@ async function fetchGroupHistory() {
             const message = res.messages[index];
             if (message.from == storage.username) {
                 logMyMessage(message.msg, message.id);
-                //logTime(message.time);       
+                logMyTime(message.time);       
             } else {
                 logRemoteMessage(message.from, message.msg, message.id);
                 logTime(message.time);
