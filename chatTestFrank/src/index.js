@@ -213,13 +213,15 @@ destroyGroupButton.addEventListener("click", () => {
     if (!groupId) {
         groupId = document.getElementById("groupId").value.toString();
         destroyGroup(groupId)
+        appendLogger(`${groupId} has been destroyed`)
         groupId = null;
-        appendLogger(`${groupId} has beed destroyed`)
     }
-    destroyGroup(groupId)
-    groupId = null;
-    console.log('groupid field is empty');
-    appendLogger(`Fill out groupId field to delete a group.`)
+    else {
+        destroyGroup(groupId)
+        groupId = null;
+        console.log('groupid field is empty');
+        appendLogger(`Fill out groupId field to delete a group.`)
+    }
 });
 
 function destroyGroup(groupId, refresh) {
