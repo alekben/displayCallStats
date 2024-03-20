@@ -633,7 +633,7 @@ function handleRtmTopicEvent(event) {
   const totalTopics = event.totalTopics; // How many topics
   if (channelName == options.streamChannel) {
     switch (action) {
-      case "JOIN":
+      case "REMOTE_JOIN":
         console.log(`JOIN action for stream channel topic`);
         streamChannel.subscribeTopic("data-stream");
         break;
