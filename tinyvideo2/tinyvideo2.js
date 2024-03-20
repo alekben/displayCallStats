@@ -183,10 +183,24 @@ async function joinChannel() {
           showPopup(`KEYPRESS: Pressed s`, true);
           const modChannel = options.channel + "_stream"
           streamChannel = rtmClient.createStreamChannel(modChannel);
-          joinStreamChannel();
-            if (remote_joined) {
-              sendMessage("s");
-            }
+          if (streamChannelJoined == false) {
+            joinStreamChannel();
+          } else {
+            leaveStreamChannel();
+          }
+          if (remote_joined) {
+            sendMessage("s");
+          }
+        break;
+      case "t":
+        // send topic message.
+        event.preventDefault();
+          showPopup(`KEYPRESS: Pressed t`, true);
+          if (streamChannelJoined == false) {
+            console.log(`SIGNALING: Not in Stream Channel, not sending topic message`);
+          } else {
+            sendTopicMessage("Test Topic Message");
+          }
         break;
       case "c":
         // start mouse cursor capture.
@@ -274,8 +288,11 @@ async function joinChannelAsHost() {
           showPopup(`KEYPRESS: Pressed s`, true);
             const modChannel = options.channel + "_stream"
             streamChannel = rtmClient.createStreamChannel(modChannel);
-            joinStreamChannel();
-
+            if (options.streamChannelJoined == false) {
+              joinStreamChannel(modChannel);
+            } else {
+              leaveStreamChannel();
+            }
             if (remote_joined) {
               sendMessage("s");
             }
@@ -725,7 +742,7 @@ function handleRtmChannelMessage(event) {
       }
     }
   } else {
-    showPopup(`SIGNALING: Stream Channel Message received from: ${publisher}: "${message}"`, true);
+    showPopup(`SIGNALING: Stream Channel Message received from: ${publisher}: "${message}"`, false);
   }
 };
 
@@ -839,10 +856,11 @@ async function getTokens() {
   tokensReturned = true;
 }
 
-async function joinStreamChannel() {
+async function joinStreamChannel(channel) {
   try {
     const result = await streamChannel.join({token: options.streamToken, withPresence: true});
     console.log(result);
+    showPopup(`SIGNALING: Joined Stream Channel "${channel}"`, false);
   } catch (status) {
     console.log(status);
   }
@@ -850,8 +868,46 @@ async function joinStreamChannel() {
   try {
     const result = await streamChannel.joinTopic("data-stream");
     console.log(result);
-    showPopup('Joined to stream channel');
+    showPopup(`SIGNALING: Joined Topic "data-stream" in Stream Channel "${channel}"`, false);
+    streamChannelJoined = true;
+  } catch (status) {
+    console.log(status);
+  }
+    await streamChannel.subscribeTopic(topicName);
+}
+
+async function leaveStreamChannel() {
+  try {
+    await streamChannel.unsubscribeTopic("data-stream");
+    const result = await streamChannel.leaveTopic("data-stream");
+    console.log(result);
+    showPopup(`SIGNALING: Left topic "data-stream"`, false);
+  } catch (status) {
+    console.log(status);
+  }
+
+  try {
+    const result = await streamChannel.leave();
+    console.log(result);
+    showPopup(`SIGNALING: Left Stream Channel`, false);
+    streamChannelJoined = false;
   } catch (status) {
     console.log(status);
   }
 }
+
+function sendTopicMessage(message) {
+  if (message == "" || streamChannelJoined === false) {
+    console.log(
+      "Not sending topic message, not joined to stream channel."
+    );
+    showPopup(`SIGNALING: Failed to send topic message.`);
+    return;
+  }
+  streamChannel.publishTopicMessage("data-stream", message).then((response) => {
+    console.log(response);
+    showPopup(`SIGNALING: Topic Message ${message} sent to Stream Channel "data-stream`);
+  });
+};
+
+
