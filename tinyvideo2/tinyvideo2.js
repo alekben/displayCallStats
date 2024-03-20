@@ -774,12 +774,12 @@ function handleRtmChannelMessage(event) {
       }
       if (message == "s" ) {
         showPopup(`s received, joining streamchannel`, true);
-        const modChannel = options.channel + "_stream"
-        streamChannel = rtmClient.createStreamChannel(modChannel);
+        options.streamChannel = options.channel + "_stream"
+        streamChannel = rtmClient.createStreamChannel(options.streamChannel);
         if (streamChannelJoined) {
           leaveStreamChannel();
         } else {
-          joinStreamChannel(modChannel);
+          joinStreamChannel(options.streamChannel);
         }           
       }
     }
