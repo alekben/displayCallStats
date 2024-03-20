@@ -297,6 +297,16 @@ async function joinChannelAsHost() {
               sendMessage("s");
             }
         break;
+      case "t":
+          // send topic message.
+          event.preventDefault();
+            showPopup(`KEYPRESS: Pressed t`, true);
+            if (streamChannelJoined == false) {
+              console.log(`SIGNALING: Not in Stream Channel, not sending topic message`);
+            } else {
+              sendTopicMessage("Test Topic Message");
+            }
+          break;
       case "c":
         // start mouse cursor capture.
         event.preventDefault();
@@ -738,7 +748,7 @@ function handleRtmChannelMessage(event) {
         showPopup(`s received, joining streamchannel`, true);
         const modChannel = options.channel + "_stream"
         streamChannel = rtmClient.createStreamChannel(modChannel);
-        joinStreamChannel();            
+        joinStreamChannel(modChannel);            
       }
     }
   } else {
@@ -873,7 +883,7 @@ async function joinStreamChannel(channel) {
   } catch (status) {
     console.log(status);
   }
-    await streamChannel.subscribeTopic(topicName);
+    await streamChannel.subscribeTopic("data-stream");
 }
 
 async function leaveStreamChannel() {
