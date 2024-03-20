@@ -748,7 +748,11 @@ function handleRtmChannelMessage(event) {
         showPopup(`s received, joining streamchannel`, true);
         const modChannel = options.channel + "_stream"
         streamChannel = rtmClient.createStreamChannel(modChannel);
-        joinStreamChannel(modChannel);            
+        if (streamChannelJoined) {
+          leaveStreamChannel();
+        } else {
+          joinStreamChannel(modChannel);
+        }           
       }
     }
   } else {
@@ -880,10 +884,11 @@ async function joinStreamChannel(channel) {
     console.log(result);
     showPopup(`SIGNALING: Joined Topic "data-stream" in Stream Channel "${channel}"`, false);
     streamChannelJoined = true;
+    await streamChannel.subscribeTopic("data-stream");
   } catch (status) {
     console.log(status);
   }
-    await streamChannel.subscribeTopic("data-stream");
+    
 }
 
 async function leaveStreamChannel() {
