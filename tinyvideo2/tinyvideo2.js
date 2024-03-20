@@ -111,6 +111,10 @@ $(() => {
     rtmConfig.token = options.rtmToken;
   }
 
+  if (!options.debug) {
+    options.debug = 0;
+  }
+
   if (options.appid == null ) {showPopup(`URL: =&appid param missing in URL!`, false); ready = false;}
   if (options.channel == null ) {showPopup(`URL: =&channel param missing in URL!`, false); ready = false}
   if (options.uid == null ) {showPopup(`URL: =&uid missing in URL!`, false); ready = false}
@@ -773,7 +777,10 @@ function handleRtmChannelMessage(event) {
       if (message == "s" ) {
         showPopup(`s received, joining streamchannel`, true);
         options.streamChannel = options.channel + "_stream"
-        streamChannel = rtmClient.createStreamChannel(options.streamChannel);
+        if (!streamChannel) {
+          streamChannel = rtmClient.createStreamChannel(options.streamChannel);
+          showPopup(`Creating new stream channel`);
+        }
         if (streamChannelJoined) {
           leaveStreamChannel();
         } else {
