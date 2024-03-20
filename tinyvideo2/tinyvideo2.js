@@ -60,6 +60,7 @@ var options = {
   rtcToken: null,
   rtmToken: null,
   streamToken: null,
+  streamChannel: "",
   host: false,
   debug: 0
 };
@@ -181,10 +182,10 @@ async function joinChannel() {
         // start stream channel.
         event.preventDefault();
           showPopup(`KEYPRESS: Pressed s`, true);
-          const modChannel = options.channel + "_stream"
-          streamChannel = rtmClient.createStreamChannel(modChannel);
+          options.streamChannel = options.channel + "_stream"
+          streamChannel = rtmClient.createStreamChannel(options.streamChannel);
           if (streamChannelJoined == false) {
-            joinStreamChannel();
+            joinStreamChannel(options.streamChannel);
           } else {
             leaveStreamChannel();
           }
@@ -286,10 +287,10 @@ async function joinChannelAsHost() {
         // join stream channel
         event.preventDefault();
           showPopup(`KEYPRESS: Pressed s`, true);
-            const modChannel = options.channel + "_stream"
-            streamChannel = rtmClient.createStreamChannel(modChannel);
+            options.streamChannel = options.channel + "_stream"
+            streamChannel = rtmClient.createStreamChannel(options.streamChannel);
             if (streamChannelJoined == false) {
-              joinStreamChannel(modChannel);
+              joinStreamChannel(options.streamChannel);
             } else {
               leaveStreamChannel();
             }
@@ -435,6 +436,9 @@ async function loginRtm() {
   // Message
   rtmClient.addEventListener("message", event => {
     handleRtmChannelMessage(event);
+  });
+  rtmClient.addEventListener("topic", event => {
+    handleRtmTopicEvent(event)
   });
   // Presence
   rtmClient.addEventListener("presence", event => {
@@ -620,7 +624,31 @@ function handleRtmStorageEvent(event) {
     showPopup(`${channelType} ${channelName} ${storageType} by ${publisher}`, true);
   }
 }
-//RTM2 event handling functions
+
+function handleRtmTopicEvent(event) {
+  const action = event.evenType; // The action. Should be one of 'SNAPSHOT'、'JOIN'、'LEAVE'.
+  const channelName = event.channelName; // The channel this event came from
+  const publisher = event.userId; // Who triggered this event
+  const topicInfos = event.topicInfos; // Topic information payload
+  const totalTopics = event.totalTopics; // How many topics
+  if (channelName == options.streamChannel) {
+    switch (action) {
+      case "JOIN":
+        console.log(`JOIN action for stream channel topic`);
+        streamChannel.subscribeTopic("data-stream");
+        break;
+      case "LEAVE":
+        console.log(`LEAVE action for stream channel topic`);
+        streamChannel.unsubscribeTopic("data-stream");
+        break;
+      default:
+        return;
+    }
+  } else {
+    console.log(`topic event received for unexpected stream channel`)
+  }
+};
+
 
 function handleRtmPresenceEvent(event) {
   const action = event.eventType; // The action. Should be one of 'SNAPSHOT'、'INTERVAL'、'JOIN'、'LEAVE'、'TIMEOUT、'STATE_CHANGED'、'OUT_OF_SERVICE'.
@@ -868,7 +896,7 @@ async function getTokens() {
     console.log(err);
   }
   tokensReturned = true;
-}
+};
 
 async function joinStreamChannel(channel) {
   try {
@@ -884,16 +912,14 @@ async function joinStreamChannel(channel) {
     console.log(result);
     showPopup(`SIGNALING: Joined Topic "data-stream" in Stream Channel "${channel}"`, false);
     streamChannelJoined = true;
-    await streamChannel.subscribeTopic("data-stream");
   } catch (status) {
     console.log(status);
   }
-    
-}
+};
 
 async function leaveStreamChannel() {
   try {
-    await streamChannel.unsubscribeTopic("data-stream");
+    //await streamChannel.unsubscribeTopic("data-stream");
     const result = await streamChannel.leaveTopic("data-stream");
     console.log(result);
     showPopup(`SIGNALING: Left topic "data-stream"`, false);
@@ -909,7 +935,7 @@ async function leaveStreamChannel() {
   } catch (status) {
     console.log(status);
   }
-}
+};
 
 function sendTopicMessage(message) {
   if (message == "" || streamChannelJoined === false) {
