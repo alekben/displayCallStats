@@ -183,7 +183,10 @@ async function joinChannel() {
         event.preventDefault();
           showPopup(`KEYPRESS: Pressed s`, true);
           options.streamChannel = options.channel + "_stream"
-          streamChannel = rtmClient.createStreamChannel(options.streamChannel);
+          if (!streamChannel) {
+            streamChannel = rtmClient.createStreamChannel(options.streamChannel);
+            showPopup(`Creating new stream channel`);
+          }
           if (streamChannelJoined == false) {
             joinStreamChannel(options.streamChannel);
           } else {
@@ -217,25 +220,21 @@ async function joinChannel() {
         remote_joined ? sendMessage("e") : leaveChannel();
         break;
       case "ArrowLeft":
-          // end meeting.
           event.preventDefault();
           showPopup(`KEYPRESS: Pan remote camera left`, true);
           sendMessage("Pan camera left");
           break;
       case "ArrowRight":
-          // end meeting.
           event.preventDefault();
           showPopup(`KEYPRESS: Pan remote camera right`, true);
           sendMessage("Pan camera right");
           break;
       case "ArrowUp":
-          // end meeting.
           event.preventDefault();
           showPopup(`KEYPRESS: Pan remote camera up`, true);
           sendMessage("Pan camera up");
           break;
       case "ArrowDown":
-          // end meeting.
           event.preventDefault();
           showPopup(`KEYPRESS: Pan remote camera down`, true);
           sendMessage("Pan camera down");
@@ -288,7 +287,10 @@ async function joinChannelAsHost() {
         event.preventDefault();
           showPopup(`KEYPRESS: Pressed s`, true);
             options.streamChannel = options.channel + "_stream"
-            streamChannel = rtmClient.createStreamChannel(options.streamChannel);
+            if (!streamChannel) {
+              streamChannel = rtmClient.createStreamChannel(options.streamChannel);
+              showPopup(`Creating new stream channel`);
+            }
             if (streamChannelJoined == false) {
               joinStreamChannel(options.streamChannel);
             } else {
@@ -323,25 +325,21 @@ async function joinChannelAsHost() {
         remote_joined ? sendMessage("e") : leaveChannel();
         break;
       case "ArrowLeft":
-        // end meeting.
         event.preventDefault();
         showPopup(`KEYPRESS: Pan remote camera left`, true);
         sendMessage("Pan camera left");
         break;
       case "ArrowRight":
-        // end meeting.
         event.preventDefault();
         showPopup(`KEYPRESS: Pan remote camera right`, true);
         sendMessage("Pan camera right");
         break;
       case "ArrowUp":
-        // end meeting.
         event.preventDefault();
         showPopup(`KEYPRESS: Pan remote camera up`, true);
         sendMessage("Pan camera up");
         break;
       case "ArrowDown":
-        // end meeting.
         event.preventDefault();
         showPopup(`KEYPRESS: Pan remote camera down`, true);
         sendMessage("Pan camera down");
