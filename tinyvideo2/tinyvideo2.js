@@ -288,7 +288,7 @@ async function joinChannelAsHost() {
           showPopup(`KEYPRESS: Pressed s`, true);
             const modChannel = options.channel + "_stream"
             streamChannel = rtmClient.createStreamChannel(modChannel);
-            if (options.streamChannelJoined == false) {
+            if (streamChannelJoined == false) {
               joinStreamChannel(modChannel);
             } else {
               leaveStreamChannel();
