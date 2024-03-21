@@ -643,7 +643,7 @@ function handleRtmTopicEvent(event) {
         showPopup(`Remote user ${publisher} published into topic ${topicInfos[0].topicName}, subscribing.`)
         streamChannel.subscribeTopic("data-stream", options);
         break;
-      case "LEAVE":
+      case "REMOTE_LEAVE":
         console.log(`LEAVE action for stream channel topic ${topicInfos[0].topicName} of user ${publisher}`);
         showPopup(`Remote user ${publisher} unpublished from topic ${topicInfos[0].topicName}, unsubscribing.`)
         streamChannel.unsubscribeTopic("data-stream", options);
