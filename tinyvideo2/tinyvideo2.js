@@ -633,21 +633,19 @@ function handleRtmTopicEvent(event) {
   const publisher = event.userId; // Who triggered this event
   const topicInfos = event.topicInfos; // Topic information payload
   if (channelName == options.streamChannel) {
+    const publisherArray = [publisher];
+    const options = {
+      users: publisherArray
+    };
     switch (action) {
       case "REMOTE_JOIN":
         console.log(`REMOTE_JOIN action for stream channel topic ${topicInfos[0].topicName} of user ${publisher}`);
-        var publisherArray = [publisher];
-        const options = {
-          users: publisherArray
-        };
+        showPopup(`Remote user ${publisher} published into topic ${topicInfos[0].topicName}, subscribing.`)
         streamChannel.subscribeTopic("data-stream", options);
         break;
       case "LEAVE":
         console.log(`LEAVE action for stream channel topic ${topicInfos[0].topicName} of user ${publisher}`);
-        var publisherArray = [publisher];
-        const options = {
-          users: publisherArray
-        };
+        showPopup(`Remote user ${publisher} unpublished from topic ${topicInfos[0].topicName}, unsubscribing.`)
         streamChannel.unsubscribeTopic("data-stream", options);
         break;
       default:
