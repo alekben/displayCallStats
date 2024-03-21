@@ -630,7 +630,7 @@ function handleRtmStorageEvent(event) {
 function handleRtmTopicEvent(event) {
   const action = event.eventType; // The action. Should be one of 'SNAPSHOT'、'JOIN'、'LEAVE'.
   const channelName = event.channelName; // The channel this event came from
-  const publisher = event.userId; // Who triggered this event
+  const publisher = event.publisher; // Who triggered this event
   const topicInfos = event.topicInfos; // Topic information payload
   if (channelName == options.streamChannel) {
     const publisherArray = [publisher];
