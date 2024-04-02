@@ -461,6 +461,13 @@ async function startTranscription() {
   const pushToken = $("#pusher-token").val();
   const speakingLanguage = $("#speaking-language").val();
   const translationLanguage = $("#translation-language").val();
+  const s3Bucket = $("#s3-bucket").val();
+  const s3AccessKey = $("s3-access-key").val();
+  const s3SecretKey= $("s3-secret-key").val();
+  const s3Vendor = $("s3-vendor").val();
+  const s3Region = $("s3-region").val();
+  const s3FileNamePrefix = $("s3-filenameprefix").val();
+  
   let body = {
     "audio": {
       "subscribeSource": "AGORARTC",
@@ -482,12 +489,27 @@ async function startTranscription() {
         "model": "Model",
         "connectionTimeout": 60,
         "output": {
-          "destinations": ["AgoraRTCDataStream"],
+          "destinations": ["AgoraRTCDataStream","Storage"],
           "agoraRTCDataStream": {
             "channelName": options.channel,
             "uid": pushUid,
             "token": pushToken
-          }
+          },
+          "cloudStorage":[
+            {
+               "format":"HLS",
+               "storageConfig":{
+                  "accessKey":s3AccessKey,
+                  "secretKey":s3SecretKey,
+                  "bucket":s3Bucket,
+                  "vendor":s3Vendor,
+                  "region":s3Region,
+                  "fileNamePrefix": [
+                      s3FileNamePrefix
+                  ]
+               }
+            }
+         ]
         }
       }
     }
