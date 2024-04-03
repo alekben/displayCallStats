@@ -10,7 +10,7 @@ const context = {
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "rtc",
+  mode: "live",
   codec: "vp8"
 });
 
@@ -24,7 +24,8 @@ var remoteUsers = {};
 var options = {
   appid: null,
   channel: null,
-  uid: null
+  uid: null,
+  token: null
 };
 
 AgoraRTC.onAutoplayFailed = () => {
@@ -39,6 +40,8 @@ $(() => {
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
+  options.token = urlParams.get("token");
+  options.uid = urlParams.get("uid");
   joinChannel();
 });
 
@@ -46,7 +49,7 @@ async function joinChannel() {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "rtc",
+        mode: "live",
         codec: "vp8"
       });
     }
@@ -61,7 +64,7 @@ async function joinChannel() {
 async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  options.uid = await client.join(options.appid, options.channel, null, null);
+  options.uid = await client.join(options.appid, options.channel, option.token || null, options.uid || null );
 
   initStats();
 }
