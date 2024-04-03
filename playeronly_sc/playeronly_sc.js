@@ -42,6 +42,9 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
+  if (options.token != null) {
+    options.token = options.token.replace(/ /g,'+');
+    }
   joinChannel();
 });
 
