@@ -64,7 +64,7 @@ async function joinChannel() {
 async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  options.uid = await client.join(options.appid, options.channel, option.token || null, options.uid || null );
+  options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null );
 
   initStats();
 }
