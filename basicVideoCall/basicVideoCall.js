@@ -444,8 +444,8 @@ async function join() {
   localTrackState.audioPublished = false;
 
   // Publish the local video and audio tracks to the channel.
-  //await client.publish(Object.values(localTracks));
-  //console.log("publish success");
+  await client.publish(Object.values(localTracks));
+  console.log("publish success");
 }
 
 /*
