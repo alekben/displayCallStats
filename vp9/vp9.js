@@ -82,7 +82,7 @@ var client = AgoraRTC.createClient({
 //  codec: "vp9"
 //});
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+//AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
 
@@ -258,6 +258,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
+    await client.enableDualStream();
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -412,7 +413,7 @@ async function join() {
   //}
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: "1080p_2"});
+      encoderConfig: "720p_3"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
