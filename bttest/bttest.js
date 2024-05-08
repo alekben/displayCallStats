@@ -14,8 +14,7 @@ var clientListener = AgoraRTC.createClient({
 var localTracks = {
   videoTrack: null,
   audioTrack: null,
-  audioMixingTrack: null,
-  audioEnabled: true
+  audioMixingTrack: null
 };
 var remoteUsers = {};
 // Agora client options
@@ -24,7 +23,8 @@ var options = {
   channel: null,
   uid: null,
   uid2: null,
-  token: null
+  token: null,
+  audioEnabled: true
 };
 var audioMixing = {
   state: "IDLE",
@@ -111,8 +111,8 @@ function setVolume(value) {
   localTracks.audioMixingTrack.setVolume(parseInt(value));
 }
 async function switchSetEnabled() {
-  await localTracks.audioTrack.setEnabled(!localTracks.audioEnabled);
-  localTracks.audioEnabled = !localTracks.audioEnabled;
+  await localTracks.audioTrack.setEnabled(!options.audioEnabled);
+  options.audioEnabled = !options.audioEnabled;
 }
 async function startAudioMixing(file) {
   if (audioMixing.state === "PLAYING" || audioMixing.state === "LOADING") return;
@@ -224,6 +224,7 @@ async function leave() {
 
   // leave the channel
   await clientSender.leave();
+  await clientListener.leave();
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
