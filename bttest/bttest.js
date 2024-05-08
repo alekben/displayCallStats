@@ -193,7 +193,7 @@ async function join() {
   clientSender.join(options.appid, options.channel, options.token || null, options.uid || null),
   // create local tracks, using microphone and camera
   AgoraRTC.createCameraVideoTrack(),
-  AgoraRTC.createMicrophoneTrack()]);
+  AgoraRTC.createMicrophoneAudioTrack()]);
 
   clientListener.on("user-published", handleUserPublished);
   clientListener.on("user-unpublished", handleUserUnpublished);
