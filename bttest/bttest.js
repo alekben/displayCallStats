@@ -235,7 +235,7 @@ async function leave() {
 async function subscribe(user, mediaType) {
   const uid = user.uid;
   // subscribe to a remote user
-  await clientSender.subscribe(user, mediaType);
+  await clientListener.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === 'video') {
     const player = $(`
