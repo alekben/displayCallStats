@@ -528,8 +528,8 @@ async function startTranscription() {
       }
     }
     if (s3FileNamePrefix != "") {
-      body.config.recognizeConfig.cloudStorage.storageConfig = {
-        ...body.config.recognizeConfig.cloudStorage.storageConfig,fileNamePrefix: [
+      body.config.recognizeConfig.output.cloudStorage.storageConfig = {
+        ...body.config.recognizeConfig.output.cloudStorage.storageConfig,fileNamePrefix: [
                         s3FileNamePrefix
                     ]
       }
