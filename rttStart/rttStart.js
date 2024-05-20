@@ -468,9 +468,7 @@ async function startTranscription() {
   const s3Vendor = parseInt($("#s3-vendor").val());
   const s3Region = parseInt($("#s3-region").val());
   const s3FileNamePrefix = $("#s3-fileNamePrefix").val();
-  console.log("words words words" + s3Bucket)
-  if (s3Bucket == "") {
-    console.log("null s3 bucket")
+
     let body = {
       "audio": {
         "subscribeSource": "AGORARTC",
@@ -502,74 +500,16 @@ async function startTranscription() {
         }
       }
     };
-    if (translationLanguage) {
+  }
+  if (translationLanguage) {
     body.config.translateConfig = {
       "languages": [{
         "source": speakingLanguage,
         "target": [translationLanguage]
       }]
     };
-  }
-  }
-  else {
-    console.log("s3 bucket has data")
-    let body = {
-      "audio": {
-        "subscribeSource": "AGORARTC",
-        "agoraRtcConfig": {
-          "channelName": options.channel,
-          "uid": pullUid,
-          "token": pullToken,
-          "channelType": "LIVE_TYPE",
-          "subscribeConfig": {
-            "subscribeMode": "CHANNEL_MODE"
-          },
-          "maxIdleTime": 60
-        }
-      },
-      "config": {
-        "features": ["RECOGNIZE"],
-        "recognizeConfig": {
-          "language": speakingLanguage,
-          "model": "Model",
-          "connectionTimeout": 60,
-          "output": {
-            "destinations": ["AgoraRTCDataStream","Storage"],
-            "agoraRTCDataStream": {
-              "channelName": options.channel,
-              "uid": pushUid,
-              "token": pushToken
-            },
-            "cloudStorage":[
-              {
-                "format":"HLS",
-                "storageConfig":{
-                    "accessKey": s3AccessKey,
-                    "secretKey": s3SecretKey,
-                    "bucket": s3Bucket,
-                    "vendor": s3Vendor,
-                    "region": s3Region,
-                    "fileNamePrefix": [
-                        s3FileNamePrefix
-                    ]
-                }
-              }
-          ]
-          }
-        }
-      }
-    };
-    if (translationLanguage) {
-      body.config.translateConfig = {
-        "languages": [{
-          "source": speakingLanguage,
-          "target": [translationLanguage]
-        }]
-      };
-    }
-  }
-  console.log(body)
-  let res = await fetch(url, {
+    
+    let res = await fetch(url, {
     method: 'POST',
     headers: {
       "Content-Type": "application/json",
