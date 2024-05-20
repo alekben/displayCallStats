@@ -500,7 +500,6 @@ async function startTranscription() {
         }
       }
     };
-  }
   if (translationLanguage) {
     body.config.translateConfig = {
       "languages": [{
