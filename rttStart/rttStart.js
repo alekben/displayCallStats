@@ -522,7 +522,7 @@ async function startTranscription() {
                     "vendor": s3Vendor,
                     "region": s3Region,
                     "fileNamePrefix": [
-                        s3FileNamePrefix
+                        (s3FileNamePrefix ? s3FileNamePrefix : "/")
                     ]
                 }
               }
