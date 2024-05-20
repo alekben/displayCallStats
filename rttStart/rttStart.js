@@ -470,6 +470,7 @@ async function startTranscription() {
   const s3FileNamePrefix = $("#s3-fileNamePrefix").val();
   
   if (s3Bucket == null) {
+    console.log("null s3 bucket")
     let body = {
       "audio": {
         "subscribeSource": "AGORARTC",
@@ -501,8 +502,17 @@ async function startTranscription() {
         }
       }
     };
+    if (translationLanguage) {
+      body.config.translateConfig = {
+        "languages": [{
+          "source": speakingLanguage,
+          "target": [translationLanguage]
+        }]
+      };
+    }
   }
   else {
+    console.log("s3 bucket has data")
     let body = {
       "audio": {
         "subscribeSource": "AGORARTC",
@@ -549,15 +559,16 @@ async function startTranscription() {
         }
       }
     };
+    if (translationLanguage) {
+      body.config.translateConfig = {
+        "languages": [{
+          "source": speakingLanguage,
+          "target": [translationLanguage]
+        }]
+      };
+    }
   }
-  if (translationLanguage) {
-    body.config.translateConfig = {
-      "languages": [{
-        "source": speakingLanguage,
-        "target": [translationLanguage]
-      }]
-    };
-  }
+  
   let res = await fetch(url, {
     method: 'POST',
     headers: {
