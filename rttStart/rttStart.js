@@ -468,7 +468,7 @@ async function startTranscription() {
   const s3Vendor = parseInt($("#s3-vendor").val());
   const s3Region = parseInt($("#s3-region").val());
   const s3FileNamePrefix = $("#s3-fileNamePrefix").val();
-  console.log(s3Bucket)
+  console.log("words words words" + s3Bucket)
   if (s3Bucket == "") {
     console.log("null s3 bucket")
     let body = {
