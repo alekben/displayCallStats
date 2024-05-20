@@ -500,6 +500,36 @@ async function startTranscription() {
         }
       }
     };
+    if (s3Bucket != "") {
+      body.config.recognizeConfig = {
+        "language": speakingLanguage,
+          "model": "Model",
+          "connectionTimeout": 60,
+          "output": {
+            "destinations": ["AgoraRTCDataStream","Storage"],
+            "agoraRTCDataStream": {
+              "channelName": options.channel,
+              "uid": pushUid,
+              "token": pushToken
+            },
+            "cloudStorage":[
+              {
+                "format":"HLS",
+                "storageConfig":{
+                    "accessKey": s3AccessKey,
+                    "secretKey": s3SecretKey,
+                    "bucket": s3Bucket,
+                    "vendor": s3Vendor,
+                    "region": s3Region,
+                    "fileNamePrefix": [
+                        s3FileNamePrefix
+                    ]
+                }
+              }
+          ]
+          }
+      }
+    }
   if (translationLanguage) {
     body.config.translateConfig = {
       "languages": [{
