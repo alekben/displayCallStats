@@ -468,7 +468,7 @@ async function startTranscription() {
   const s3Vendor = parseInt($("#s3-vendor").val());
   const s3Region = parseInt($("#s3-region").val());
   const s3FileNamePrefix = $("#s3-fileNamePrefix").val();
-
+  
     let body = {
       "audio": {
         "subscribeSource": "AGORARTC",
@@ -507,8 +507,8 @@ async function startTranscription() {
         "target": [translationLanguage]
       }]
     };
-    
-    let res = await fetch(url, {
+  }
+  let res = await fetch(url, {
     method: 'POST',
     headers: {
       "Content-Type": "application/json",
