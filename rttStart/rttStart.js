@@ -568,7 +568,7 @@ async function startTranscription() {
       };
     }
   }
-  
+  console.log(body)
   let res = await fetch(url, {
     method: 'POST',
     headers: {
