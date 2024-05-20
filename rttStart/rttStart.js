@@ -520,14 +520,18 @@ async function startTranscription() {
                     "secretKey": s3SecretKey,
                     "bucket": s3Bucket,
                     "vendor": s3Vendor,
-                    "region": s3Region,
-                    "fileNamePrefix": [
-                        (s3FileNamePrefix ? s3FileNamePrefix : "/")
-                    ]
+                    "region": s3Region
                 }
               }
           ]
           }
+      }
+    }
+    if (s3FileNamePrefix != "") {
+      body.config.recognizeConfig.cloudStorage.storageConfig = {
+        ...body.config.recognizeConfig.cloudStorage.storageConfig,fileNamePrefix: [
+                        s3FileNamePrefix
+                    ]
       }
     }
   if (translationLanguage) {
