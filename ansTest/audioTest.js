@@ -1,11 +1,14 @@
+
+AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "rtc",
+  mode: "live",
   codec: "vp8"
 });
 
 var loopback_client = AgoraRTC.createClient({
-  mode: "rtc",
+  mode: "live",
   codec: "vp8"
 });
 
@@ -164,7 +167,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "rtc",
+        mode: "live",
         codec: "vp8"
       });
     }

@@ -557,6 +557,7 @@ async function join() {
   $("#joined-setup").css("display", "flex");
 
   // publish local tracks to channel
+  await client.setClientRole("host");
   await client.publish(localTracks.videoTrack);
   console.log("publish cam success");
   showPopup("Cam Track Published");
