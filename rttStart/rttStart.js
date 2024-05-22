@@ -351,7 +351,8 @@ async function subscribe(user, mediaType) {
           <div id="player-${uid}" class="player"></div>
           <div id="remoteCaptions" class="remoteCaptions">
           <p>Remote: ${uid}</p>
-          <p id="subtitles"></p></div>
+          <p id="subtitles"></p>
+          <p id="subTranslation"></div>
       </div>
       </div>
     `);
@@ -468,52 +469,61 @@ async function startTranscription() {
   const s3Region = parseInt($("#s3-region").val());
   const s3FileNamePrefix = $("#s3-fileNamePrefix").val();
   
-  let body = {
-    "audio": {
-      "subscribeSource": "AGORARTC",
-      "agoraRtcConfig": {
-        "channelName": options.channel,
-        "uid": pullUid,
-        "token": pullToken,
-        "channelType": "LIVE_TYPE",
-        "subscribeConfig": {
-          "subscribeMode": "CHANNEL_MODE"
-        },
-        "maxIdleTime": 60
-      }
-    },
-    "config": {
-      "features": ["RECOGNIZE"],
-      "recognizeConfig": {
-        "language": speakingLanguage,
-        "model": "Model",
-        "connectionTimeout": 60,
-        "output": {
-          "destinations": ["AgoraRTCDataStream","Storage"],
-          "agoraRTCDataStream": {
-            "channelName": options.channel,
-            "uid": pushUid,
-            "token": pushToken
+    let body = {
+      "audio": {
+        "subscribeSource": "AGORARTC",
+        "agoraRtcConfig": {
+          "channelName": options.channel,
+          "uid": pullUid,
+          "token": pullToken,
+          "channelType": "LIVE_TYPE",
+          "subscribeConfig": {
+            "subscribeMode": "CHANNEL_MODE"
           },
+          "maxIdleTime": 60
+        }
+      },
+      "config": {
+        "features": ["RECOGNIZE"],
+        "recognizeConfig": {
+          "language": speakingLanguage,
+          "model": "Model",
+          "connectionTimeout": 60,
+          "output": {
+            "destinations": ["AgoraRTCDataStream"],
+            "agoraRTCDataStream": {
+              "channelName": options.channel,
+              "uid": pushUid,
+              "token": pushToken
+            }
+          }
+        }
+      }
+    };
+    if (s3Bucket != "") {
+      body.config.recognizeConfig.output.destinations = [...body.config.recognizeConfig.output.destinations,"Storage"],
+      body.config.recognizeConfig.output = {...body.config.recognizeConfig.output,
           "cloudStorage":[
             {
-               "format":"HLS",
-               "storageConfig":{
+              "format":"HLS",
+              "storageConfig":{
                   "accessKey": s3AccessKey,
                   "secretKey": s3SecretKey,
                   "bucket": s3Bucket,
                   "vendor": s3Vendor,
-                  "region": s3Region,
-                  "fileNamePrefix": [
-                      s3FileNamePrefix
-                  ]
-               }
+                  "region": s3Region
+              }
             }
-         ]
+        ]
         }
+     }   
+    if (s3FileNamePrefix != "") {
+      body.config.recognizeConfig.output.cloudStorage.storageConfig = {
+        ...body.config.recognizeConfig.output.cloudStorage.storageConfig,fileNamePrefix: [
+                        s3FileNamePrefix
+                    ]
       }
     }
-  };
   if (translationLanguage) {
     body.config.translateConfig = {
       "languages": [{
