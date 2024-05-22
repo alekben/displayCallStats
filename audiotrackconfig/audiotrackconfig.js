@@ -373,7 +373,7 @@ $("#createTrack").click(function (e) {
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", false);
   if (audioTrackConfig.webaudio = true) {
-    $("#enableAiDenosier").attr("disabled", false);
+    $("#enableAiDenoiser").attr("disabled", false);
   }
 });
 
@@ -466,7 +466,7 @@ async function toggleWebAudio() {
     audioTrackConfig.webaudio = false;
     AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
     $("#webAudio").text("Enable WebAudio");
-    $("#enableAiDenosier").attr("disabled", true);
+    $("#enableAiDenoiser").attr("disabled", true);
     showPopup("WebAudio Disabled");
     initDevices();
   }
@@ -608,7 +608,7 @@ async function leave() {
   $("#aec").attr("disabled", true);
   $("#ans").attr("disabled", true);
   $("#googFilter").attr("disabled", true);
-  $("#enableAiDenosier").attr("disabled", true);
+  $("#enableAiDenoiser").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
   proxy = false;
@@ -897,7 +897,6 @@ function flushStats() {
   if (localTracks.audioTrack) {
   localStats = {
     audioconfig: localTracks.audioTrack._config.encoderConfig,
-    samplerate: localTracks.audioTrack._constraints.sampleRate,
     trackSettings: localTracks.audioTrack.getMediaStreamTrackSettings(),
     audio: client.getLocalAudioStats()
   };
@@ -923,7 +922,7 @@ function flushStats() {
     unit: ""
     },  {
     description: "Sample Rate",
-    value: localStats.samplerate,
+    value: localStats.trackSettings.sampleRate,
     unit: ""
     }, {
     description: "AGC",
@@ -1111,9 +1110,9 @@ let processorEnable = true;
 const pipeAIDenosier = (audioTrack, processor) => {
   audioTrack.pipe(processor).pipe(audioTrack.processorDestination);
 };
-$("#enableAiDenosier").click(async e => {
+$("#enableAiDenoiser").click(async e => {
   e.preventDefault();
-  await createMicTrack();
+  //await createMicTrack();
   $("#agc").attr("disabled", true);
   $("#aec").attr("disabled", true);
   $("#ans").attr("disabled", true);
@@ -1136,12 +1135,12 @@ $("#enableAiDenosier").click(async e => {
       console.log("overload!!!");
       try {
         await processor.disable();
-        $("#enableAiDenosier").text("Disable AIDenoiser");
+        $("#enableAiDenoiser").text("Disable AIDenoiser");
         processorEnable = true;
       } catch (error) {
         console.error("disable AIDenoiser failure");
       } finally {
-        $("#enableAiDenosier").attr("disabled", false);
+        $("#enableAiDenoiser").attr("disabled", false);
       }
     };
     return processor;
@@ -1151,24 +1150,24 @@ $("#enableAiDenosier").click(async e => {
   if (processorEnable) {
     try {
       await processor.enable();
-      $("#enableAiDenosier").text("Disable AIDenoiser");
+      $("#enableAiDenoiser").text("Disable AIDenoiser");
       showPopup("AINS enabled");
       processorEnable = false;
     } catch (e) {
       console.error("enable AIDenoiser failure");
     } finally {
-      $("#enableAiDenosier").attr("disabled", false);
+      $("#enableAiDenoiser").attr("disabled", false);
     }
   } else {
     try {
       await processor.disable();
-      $("#enableAiDenosier").text("Enable AIDenoiser");
+      $("#enableAiDenoiser").text("Enable AIDenoiser");
       processorEnable = true;
       showPopup("AINS disabled");
     } catch (e) {
       console.error("disable AIDenoiser failure");
     } finally {
-      $("#enableAiDenosier").attr("disabled", false);
+      $("#enableAiDenoiser").attr("disabled", false);
     }
   }
 });

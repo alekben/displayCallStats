@@ -1,14 +1,15 @@
 ### Install AI denoiser extension with Agora web SDK.
+
 ```javascript
 import {AIDenoiserExtension} from "agora-extension-ai-denoiser";
-// Create AIDenoiserExtension instance, please make sure this instance is a singleton, assetsPath is the path of wasm and wasmjs.
-const denoiser = new AIDenoiserExtension({assetsPath:'./external'});
+// Create AIDenoiserExtension instance, assetsPath is the path of wasm files.
+const extension = new AIDenoiserExtension({assetsPath:'./external'});
 
 // Register AI denoiser extension into AgoraRTC.
-AgoraRTC.registerExtensions([denoiser]);
+AgoraRTC.registerExtensions([extension]);
 
 // listen the loaderror callback to handle loading module failed.
-denoiser.onloaderror = (e) => {
+extension.onloaderror = (e) => {
   // if loading denoiser is failed, disable the function of denoiser. For example, set your button disbled.
   openDenoiserButton.enabled = false;
   console.log(e);
@@ -18,17 +19,19 @@ denoiser.onloaderror = (e) => {
 ### Create a processor by denioser extension.
 
 ```javascript
-const processor = denoiser.createProcessor();
+const processor = extension.createProcessor();
 
 // If you want to enable the processor by default.
-processor.enable();
+await processor.enable();
 
 // If you want to disable the processor by default.
-// processor.disable();
+// await processor.disable();
 
 // Optional, listen the processor`s overlaod callback to catch overload message
-processor.onoverload = async () => {
-  console.log("overload!!!");
+processor.onoverload = async (elapsedTimeInMs) => {
+  console.log("overload!!!", elapsedTimeInMs);
+  // fallback or disable
+  // await processor.setMode("STATIONARY_NS");
   await processor.disable();
 }
 ```
@@ -55,15 +58,27 @@ await processor.enable();
 }
 ```
 
+### Change the denoiser mode and level.
+
+```javascript
+await processor.setMode("NSNG"); // recommended
+await processor.setMode("STATIONARY_NS");
+
+await processor.setLevel("LEVEL26"); // recommended
+await processor.setLevel("LEVEL40");
+```
 
 ### Dump audio (download files which are 30s audio file before the method called and two audio files 30s after the method called)
 ```javascript
 processor.ondump = (blob, name) => {
   const objectURL = URL.createObjectURL(blob);
   const tag = document.createElement("a");
-  tag.download = name + ".wav";
+  tag.download = name;
   tag.href = objectURL;
   tag.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(objectURL);
+  }, 0);
 }
 
 processor.ondumpend = () => {
