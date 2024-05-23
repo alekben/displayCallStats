@@ -12,78 +12,6 @@ var proxyServer = ""
 var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
-//MediaRecorder
-
-//let recording = document.getElementById("recording");
-//let startButton = document.getElementById("record");
-//let downloadButton = document.getElementById("download");
-let logElement = document.getElementById("log");
-//let recordingTimeMS = 10000;
-
-
-function log(msg) {
-  logElement.innerHTML += msg + "\n";
-}
-
-//function wait(delayInMS) {
-//  return new Promise(resolve => setTimeout(resolve, delayInMS));
-//}
-
-//function stop(stream) {
-//  stream.getTracks().forEach(track => track.stop());
-//  $("#download").attr("hidden", false);
-//  log("Done recording.");
-//}
-
-//Handles startRecording being triggered by start button
-//startButton.addEventListener("click", function() {
-//      let astream = localTracks.audioTrack.getMediaStreamTrack();
-//      const aastream = new MediaStream();
-//      aastream.addTrack(astream);
-//      //astream = "video_" + vstream;
-//      //let vvstream = document.getElementById(`${vstream}`);
-//      download.href = localTracks.audioTrack;
-//      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-//      startRecording(aastream, recordingTimeMS)
-//      .then (recordedChunks => {
-//      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
-//      //vvstream.src = URL.createObjectURL(recordedBlob);
-//      download.href = URL.createObjectURL(recordedBlob);
-//      download.download = "RecordedMicTrack.ogg";
-//      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-//      $("#download").attr("hidden", false);
-//      })
-//});
-
-//creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
-
-//function startRecording(stream, lengthInMS) {
-//  $("#download").attr("hidden", true);
-//  let recorder = new MediaRecorder(stream);
-//  let data = [];
-
-//  recorder.ondataavailable = event => data.push(event.data);
-//  recorder.start();
-//  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
-
-//  let stopped = new Promise((resolve, reject) => {
-//    recorder.onstop = resolve;
-//    recorder.onerror = event => reject(event.name);
-//  });
-
-//  let recorded = wait(lengthInMS).then(
-//    () => recorder.state == "recording" && recorder.stop()
-//  );
-
-//  return Promise.all([
-//    stopped,
-//    recorded
-//  ])
-//  .then(() => data);
-//}
-
-
-
 
 // create Agora client
 var client = AgoraRTC.createClient({
@@ -91,24 +19,14 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 
+AgoraRTC.setParameter('NEW_ICE_RESTART', true);
+AgoraRTC.setParameter('TCP_CANDIDATE_ONLY', true);
+AgoraRTC.enableLogUpload();
+
 var localTracks = {
   videoTrack: null,
   audioTrack: null
 };
-
-//localTracks.audioTrack = AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
-
-//var loopback_client = AgoraRTC.createClient({
-//  mode: "rtc",
-//  codec: "vp9"
-//});
-
-//AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
-//console.log("Start with Web Audio ON");
-
-
-AgoraRTC.enableLogUpload();
-
 
 var localTrackState = {
   audioTrackMuted: false,
@@ -117,8 +35,6 @@ var localTrackState = {
 };
 
 var joined = false;
-//var loopback = false;
-
 
 var remoteUsers = {};
 var remotesArray = [];
@@ -130,7 +46,6 @@ var options = {
   channel: null,
   uid: null,
   token: null,
-  //uidLoopback: null
 };
 
 var audioProfiles = [{
@@ -290,11 +205,6 @@ function updateUIDs(id, action) {
     j++;
   } 
   $(".uid-input").val(`${remotesArray[0]}`);
-  //var x = document.getElementById(`player-${remotesArray[0]}`);
-  //if (x) {
-  //  x.className = "remotePlayerSelected";
-  //  remoteFocus = remotesArray[0];
- // }
 }
 }
 
@@ -385,17 +295,6 @@ $("#publishTrack").click(function (e) {
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
 });
-
-//$("#startLoopback").click(function (e) {
-//  if (!loopback) {
-//    startLoopbackClient();
-//    loopback = true;
-//  } else {
-//    stopLoopbackClient();
-//    loopback = false;
-//  }
-//  
-//});
 
 $("#setMuted").click(function (e) {
   if (!localTrackState.audioTrackMuted) {
@@ -489,10 +388,7 @@ async function publishMic() {
 
 async function muteAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
+
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   localTrackState.published = false;
@@ -511,10 +407,7 @@ async function unmuteAudio() {
 
 async function disableAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
+
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
   localTrackState.published = false;
@@ -541,15 +434,9 @@ async function join() {
   client.on("is-using-cloud-proxy", handleCloudProxy);
   client.on("join-fallback-to-proxy", handleFallback);
 
-  //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
-
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  //if (!localTracks.audioTrack) {
-  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-  //    encoderConfig: "speech_low_quality"
-  //  });
-  //}
+  
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3"});
   }
@@ -643,21 +530,6 @@ async function manualUnsub() {
   showPopup(`Manually unsubscribed from UID ${id}`);
 }
 
-//async function startLoopbackClient() {
-  // add event listener to play remote tracks when remote user publishs.
-//  loopback_client.on("user-published", handleUserPublishedLoopback);
-//  loopback_client.on("user-unpublished", handleUserUnpublishedLoopback);
-
-  // join the channel
-//  options.uidLoopback = await loopback_client.join(options.appid, options.channel, options.token || null, null);
-//  $("#startLoopback").text("Stop Loopback");
-//}
-
-//async function stopLoopbackClient() {
-//  await loopback_client.leave();
-//  remoteUsersLoopback = {};
-//  $("#startLoopback").text("Start Loopback");
-//}
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
@@ -723,15 +595,6 @@ async function subscribe(user, mediaType) {
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
 }
 
-//async function subscribeLoopback(user, mediaType) {
-//  console.log("Trying loopback subscription");
-//  await loopback_client.subscribe(user, mediaType);
-//  console.log("subscribe success");
-//  if (mediaType === 'audio') {
-//    user.audioTrack.play();
-//  }
-//}
-
 function handleUserPublished(user, mediaType) {
   if (userCount >= 8 ) {
     console.log("8 remotes already publishing, not supporting more right now.");
@@ -749,26 +612,6 @@ function handleUserPublished(user, mediaType) {
     showPopup(`Remote User Count now: ${userCount}`);
   }
 }
-
-//function handleUserPublishedLoopback(user, mediaType) {
-//    const id = user.uid;
-//    if (id === options.uid) {
-//      if (mediaType === "audio") {
-//        remoteUsersLoopback[id] = user;
-//        subscribeLoopback(user, mediaType);    
-//      }
-//    }
-//}
-
-//function handleUserUnpublishedLoopback(user, mediaType) {
-//  if (mediaType === 'audio') {
-//    if (options.uid = user.uid) {
-//      delete remoteUsersLoopback[user.uid];
-//    }    
-//  }
-//}
-
-
 
 function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
@@ -949,7 +792,6 @@ function flushStats() {
 Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {
-    //video: client.getRemoteVideoStats()[uid],
     audio: client.getRemoteAudioStats()[uid]
   };
   const remoteTracksStatsList = [{
