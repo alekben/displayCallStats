@@ -105,8 +105,7 @@ async function initDevices() {
   if (localTrackState.published) {
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc, 
-        googHighpassFilter: {exact:audioTrackConfig.googFilter}, "microphoneId":"default"});
+        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc, "microphoneId":"default", bypassWebAudio:true});
     } else {
       console.log("mic track already exists, replacing.");
       await client.unpublish(localTracks.audioTrack);
@@ -114,8 +113,7 @@ async function initDevices() {
       await localTracks.audioTrack.close();
       localTracks.audioTrack = undefined;
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc, 
-        googHighpassFilter: {exact:audioTrackConfig.googFilter}, "microphoneId":"default"});
+        encoderConfig: curMicProfile.value, "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc, "microphoneId":"default", bypassWebAudio:true});
       publishMic();
       showPopup("Replacing, unmuting, and publishing new mic track")
       $("#setMuted").attr("disabled", false);
@@ -127,8 +125,7 @@ async function initDevices() {
       }
     } else {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc, 
-        googHighpassFilter: {exact:audioTrackConfig.googFilter}, "microphoneId":"default"});
+        "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc,"microphoneId":"default", bypassWebAudio:true});
       localTrackState.audioTrackEnabled = true;
       localTrackState.audioTrackMuted = false;
       showPopup("Mic Track Created");
@@ -376,7 +373,7 @@ async function publishMic() {
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       "AEC": audioTrackConfig.aec, "ANS": audioTrackConfig.ans, "AGC": audioTrackConfig.agc, 
-      googHighpassFilter: {exact:audioTrackConfig.googFilter}, "microphoneId":"default"});
+      "microphoneId":"default", bypassWebAudio:true});
   }
     await client.publish(localTracks.audioTrack);
     console.log("Published mic track");
@@ -943,7 +940,7 @@ function removeItemOnce(arr, value) {
 }
 
 async function createMicTrack() {
-  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:true});
 }
 
 //AINS
