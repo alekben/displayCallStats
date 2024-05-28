@@ -640,15 +640,17 @@ async function subscribe(user, mediaType) {
       default:
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
-    user.videoTrack.on("first-frame-decoded", (track) => {
-        console.log(`remote track for ${uid} has decoded, play it now`);
-        user.videoTrack.play(`player-${uid}`);
-      });
+    user.videoTrack.on("first-frame-decoded", handleFirstFrame);
+    user.videoTrack.play(`player-${uid}`);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
   }
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
+}
+
+function handleFirstFrame() {
+  console.log(`first frame decoded`);
 }
 
 
