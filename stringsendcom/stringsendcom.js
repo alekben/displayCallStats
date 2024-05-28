@@ -441,10 +441,9 @@ async function join() {
   // Add an event listener to play remote tracks when remote user publishes.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.enableDualStream();
+  //client.enableDualStream();
   // Join the channel.
-  options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
-  options.intUid = client._joinInfo.apResponse.uid;
+
 
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
@@ -467,6 +466,9 @@ async function join() {
     localTrackState.videoTrackMuted = false;
     localTrackState.videoTrackEnabled = true;
     localTrackState.videoPublished = true;
+
+    options.uid = await client.join(options.appid, options.channel, options.token || null, String(options.uid) || null);
+    options.intUid = client._joinInfo.apResponse.uid;
 
     await client.publish(Object.values(localTracks));
     localTracks.videoTrack.setEncoderConfiguration("120p_1");
