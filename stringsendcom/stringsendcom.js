@@ -468,7 +468,7 @@ async function join() {
     localTrackState.videoTrackEnabled = true;
     localTrackState.videoPublished = true;
 
-    client.publish(Object.values(localTracks));
+    await client.publish(Object.values(localTracks));
     localTracks.videoTrack.setEncoderConfiguration("120p_1");
   }
 
