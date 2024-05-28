@@ -453,7 +453,7 @@ async function join() {
 
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: curVideoProfile.value
+        encoderConfig: "480p_1", facingMode:"user"
       });
     }
 
@@ -468,7 +468,8 @@ async function join() {
     localTrackState.videoTrackEnabled = true;
     localTrackState.videoPublished = true;
 
-    await client.publish(Object.values(localTracks));
+    client.publish(Object.values(localTracks));
+    localTracks.videoTrack.setEncoderConfiguration("120p_1");
   }
 
 }
