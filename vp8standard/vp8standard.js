@@ -516,6 +516,7 @@ async function join() {
   }
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
+  notifyReady();
 }
 
 async function leave() {
@@ -740,6 +741,12 @@ function destructStats() {
   $("#session-stats").html("");
   $("#transport-stats").html("");
   $("#local-stats").html("");
+}
+
+
+function notifyReady() {
+  if (typeof window.navigator.notifyReady === 'function')
+      window.navigator.notifyReady();
 }
 
 // flush stats views

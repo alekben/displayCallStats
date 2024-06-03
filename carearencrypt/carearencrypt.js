@@ -154,7 +154,7 @@ async function subscribe(user, mediaType) {
     user.audioTrack.play();
     const audioNode = audioContext.createMediaStreamSource(new MediaStream([user.audioTrack.getMediaStreamTrack()]));
     const gainNode = audioContext.createGain();
-    gainNode.gain.value = 9;
+    gainNode.gain.value = 1;
     audioNode.connect(gainNode);
     gainNode.connect(audioContext.destination);
   }
