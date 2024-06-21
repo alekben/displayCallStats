@@ -1,72 +1,73 @@
 //MediaRecorder
 
-//let recording = document.getElementById("recording");
-//let startButton = document.getElementById("record");
-//let downloadButton = document.getElementById("download");
+let recording = document.getElementById("recording");
+let startButton = document.getElementById("record");
+let downloadButton = document.getElementById("download");
 let logElement = document.getElementById("log");
-//let recordingTimeMS = 10000;
+let recordingTimeMS = 10000;
 
 
 function log(msg) {
   logElement.innerHTML += msg + "\n";
 }
 
-//function wait(delayInMS) {
-//  return new Promise(resolve => setTimeout(resolve, delayInMS));
-//}
+function wait(delayInMS) {
+  return new Promise(resolve => setTimeout(resolve, delayInMS));
+}
 
-//function stop(stream) {
-//  stream.getTracks().forEach(track => track.stop());
-//  $("#download").attr("hidden", false);
-//  log("Done recording.");
-//}
+function stop(stream) {
+  stream.getTracks().forEach(track => track.stop());
+  $("#download").attr("hidden", false);
+  log("Done recording.");
+}
 
 //Handles startRecording being triggered by start button
-//startButton.addEventListener("click", function() {
-//      let astream = localTracks.audioTrack.getMediaStreamTrack();
-//      const aastream = new MediaStream();
-//      aastream.addTrack(astream);
-//      //astream = "video_" + vstream;
-//      //let vvstream = document.getElementById(`${vstream}`);
-//      download.href = localTracks.audioTrack;
-//      //vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-//      startRecording(aastream, recordingTimeMS)
-//      .then (recordedChunks => {
-//      let recordedBlob = new Blob(recordedChunks, { type: "audio/ogg; codecs=opus" });
-//      //vvstream.src = URL.createObjectURL(recordedBlob);
-//      download.href = URL.createObjectURL(recordedBlob);
-//      download.download = "RecordedMicTrack.ogg";
-//      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-//      $("#download").attr("hidden", false);
-//      })
-//});
+startButton.addEventListener("click", function() {
+      let stream = localTracks.videoTrack.getMediaStreamTrack();
+      const vstream = new MediaStream();
+      vstream.addTrack(stream);
+      streamname = "video_" + localTracks.videoTrack.getTrackId();
+      let vvstream = document.getElementById(`${streamname}`);
+      download.href = localTracks.videoTrack;
+      vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
+      startRecording(vstream, recordingTimeMS)
+      .then (recordedChunks => {
+      let recordedBlob = new Blob(recordedChunks, { type: "video/webm; codecs=vp8,opus" });
+      vvstream.src = URL.createObjectURL(recordedBlob);
+      download.href = URL.createObjectURL(recordedBlob);
+      download.download = "RecordedTrack.webm";
+      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
+      $("#download").attr("hidden", false);
+      localTracks.videoTrack.play("local-player");
+      })
+});
 
 //creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
 
-//function startRecording(stream, lengthInMS) {
-//  $("#download").attr("hidden", true);
-//  let recorder = new MediaRecorder(stream);
-//  let data = [];
+function startRecording(stream, lengthInMS) {
+  $("#download").attr("hidden", true);
+  let recorder = new MediaRecorder(stream);
+  let data = [];
 
-//  recorder.ondataavailable = event => data.push(event.data);
-//  recorder.start();
-//  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
+  recorder.ondataavailable = event => data.push(event.data);
+  recorder.start();
+  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
 
-//  let stopped = new Promise((resolve, reject) => {
-//    recorder.onstop = resolve;
-//    recorder.onerror = event => reject(event.name);
-//  });
+  let stopped = new Promise((resolve, reject) => {
+    recorder.onstop = resolve;
+    recorder.onerror = event => reject(event.name);
+  });
 
-//  let recorded = wait(lengthInMS).then(
-//    () => recorder.state == "recording" && recorder.stop()
-//  );
+  let recorded = wait(lengthInMS).then(
+    () => recorder.state == "recording" && recorder.stop()
+  );
 
-//  return Promise.all([
-//    stopped,
-//    recorded
-//  ])
-//  .then(() => data);
-//}
+  return Promise.all([
+    stopped,
+    recorded
+  ])
+  .then(() => data);
+}
 
 
 
@@ -270,7 +271,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
-    //$("#record").attr("disabled", false);
+    $("#record").attr("disabled", false);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
     //$("#startLoopback").attr("disabled", true);
@@ -450,6 +451,7 @@ async function leave() {
   $("#leave").attr("disabled", true);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);
+  $("#record").attr("disabled", true);
   //$("#startLoopback").attr("disabled", true);
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
