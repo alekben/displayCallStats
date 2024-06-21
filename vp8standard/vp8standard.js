@@ -10,13 +10,13 @@ var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
 
-AgoraRTC.setParameter("AG_DEGRADATION_PREFERENCE", 1);
+//AgoraRTC.setParameter("AG_DEGRADATION_PREFERENCE", 1);
 
 
 // create Agora client
 var client = AgoraRTC.createClient({
   mode: "live",
-  codec: "vp8"
+  codec: "vp9"
 });
 
 
