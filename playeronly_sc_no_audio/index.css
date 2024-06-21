@@ -69,14 +69,14 @@ input {
 }
 
 .remotePlayerLarge {
-  width: 1920px;
-  height: 1080px;
+  width: 1280px;
+  height: 720px;
   margin: auto;
 }
 
 .remotePlayerLargeSelected {
-  width: 1920px;
-  height: 1080px;
+  width: 1280px;
+  height: 720px;
   border-style: solid;
   border-color: red;
 }
