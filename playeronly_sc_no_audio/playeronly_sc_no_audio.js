@@ -25,7 +25,8 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
-  token: null
+  token: null,
+  sc: "true"
 };
 
 //AgoraRTC.onAutoplayFailed = () => {
@@ -42,6 +43,7 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
+  options.sc = urlParams.get("sc");
   if (options.token != null) {
     options.token = options.token.replace(/ /g,'+');
     }
@@ -103,20 +105,21 @@ async function handleUserPublished(user, mediaType) {
       remoteUsers[id] = user;
       context.uid = user.uid;
       await subscribe(user, mediaType);
-      context.processor = extension.createProcessor();
-      context.processor.on("first-video-frame", (stats) => {
-      console.log("plugin have first video frame, stats:", stats);
-    });
-      context.processor.on("error", (msg) => {
-      console.log("plugin error:", msg);
-    });
-      context.processor.on("stats", (stats) => {
-      console.log("plugin stats:", Date.now(), stats);
-    });
-      context.track.pipe(context.processor).pipe(context.track.processorDestination);
-      await context.processor.enable();
-      context.track.play(`player-${id}`);
-      //subscribe(user, mediaType);
+      if (sc == "true") {
+        context.processor = extension.createProcessor();
+        context.processor.on("first-video-frame", (stats) => {
+        console.log("plugin have first video frame, stats:", stats);
+      });
+        context.processor.on("error", (msg) => {
+        console.log("plugin error:", msg);
+      });
+        context.processor.on("stats", (stats) => {
+        console.log("plugin stats:", Date.now(), stats);
+      });
+        context.track.pipe(context.processor).pipe(context.track.processorDestination);
+        await context.processor.enable();
+        context.track.play(`player-${id}`);
+      } 
       remoteJoined = true;
     }
   } else {
