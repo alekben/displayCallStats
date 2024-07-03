@@ -1,3 +1,6 @@
+var audioTrackPresent = false;
+var remoteUID = 0;
+
 const extension = new SuperClarityExtension();
 AgoraRTC.registerExtensions([extension]);
 
@@ -72,9 +75,26 @@ async function join() {
   initStats();
 }
 
+async function handleTrackUpdated(track) {
+  console.log(`track-updated fired for ${track.id}`);
+}
+
+async function handleVideoStateChanged(vState) {
+  console.log(`video-state-changed fired ${vState}`);
+  if (vState = 2) {
+    remoteUsers[remoteUID].videoTrack.play(`player-${remoteUID}`);
+    remoteUsers[remoteUID].audioTrack.play();
+  }
+}
+
+async function handleFirstFrameDecoded() {
+  console.log(`first-frame-decoded`);
+}
+
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
+  remoteUID = uid;
   if (mediaType === 'video') {
     context.track = await client.subscribe(user, mediaType);
     const player = $(`
@@ -86,10 +106,15 @@ async function subscribe(user, mediaType) {
       </div>
   `);
   $("#remote-playerlist-row1").append(player);
-    user.videoTrack.play(`player-${uid}`);
+  // add track listeners for video
+    user.videoTrack.on("track-updated", handleTrackUpdated);
+    user.videoTrack.on("video-state-changed", handleVideoStateChanged);
+    user.videoTrack.on("first-frame-decoded", handleFirstFrameDecoded);
+    //user.videoTrack.play(`player-${uid}`);
   } else {
     await client.subscribe(user, mediaType);
-    user.audioTrack.play();
+    audioTrackPresent = true;
+    //user.audioTrack.play();
   }
 }
 
@@ -138,6 +163,8 @@ async function handleUserUnpublished(user, mediaType) {
     context.track = undefined;
     $(`#player-wrapper-${id}`).remove();
     remoteJoined = false;
+  } else {
+    audioTrackPresent = false;
   }
 }
 
