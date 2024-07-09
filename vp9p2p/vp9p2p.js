@@ -90,7 +90,8 @@ var webAudioOff = true;
 AgoraRTC.enableLogUpload();
 var localTracks = {
   videoTrack: null,
-  audioTrack: null
+  audioTrack: null,
+  scrTrack: null
 };
 
 var localTrackState = {
