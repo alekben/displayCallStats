@@ -250,16 +250,17 @@ $("#join-form").submit(async function (e) {
   $("#join").attr("disabled", true);
   try {
     if (!client) {
-      client = AgoraRTC.createClient({
+      client = await AgoraRTC.createClient({
         mode: "rtc",
         codec: "vp9"
       });
+      await client.enableDualStream();
     }
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    await client.enableDualStream();
+    
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -457,9 +458,9 @@ async function leave() {
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
-  if (loopback) {
-    stopLoopbackClient();
-  }
+  //if (loopback) {
+  //  stopLoopbackClient();
+  //}
 }
 
 //async function startLoopbackClient() {
