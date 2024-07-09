@@ -277,7 +277,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "rtc",
+        mode: "p2p",
         codec: getCamCodec()
       });
     }
@@ -477,7 +477,7 @@ async function join() {
   try {
     if (!scrClient) {
       scrClient = AgoraRTC.createClient({
-        mode: "rtc",
+        mode: "p2p",
         codec: getScreenCodec()
       });
     }
