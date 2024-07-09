@@ -259,7 +259,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    await client.enableDualStream();
+    //await client.enableDualStream();
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -457,9 +457,9 @@ async function leave() {
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
-  if (loopback) {
-    stopLoopbackClient();
-  }
+  //if (loopback) {
+  //  stopLoopbackClient();
+  //}
 }
 
 //async function startLoopbackClient() {
