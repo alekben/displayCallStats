@@ -277,7 +277,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "p2p",
+        mode: "rtc",
         codec: getCamCodec()
       });
     }
@@ -477,7 +477,7 @@ async function join() {
   try {
     if (!scrClient) {
       scrClient = AgoraRTC.createClient({
-        mode: "p2p",
+        mode: "rtc",
         codec: getScreenCodec()
       });
     }
@@ -602,7 +602,6 @@ function handleUserPublished(user, mediaType) {
     remoteUsers[id] = user;
     subscribe(user, mediaType);
   }
-
 }
 
 /*
