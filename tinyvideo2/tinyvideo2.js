@@ -62,7 +62,8 @@ var options = {
   streamToken: null,
   streamChannel: "",
   host: false,
-  debug: 0
+  debug: 0,
+  nostream: false
 };
 
 var localAttributesMapping = {};
@@ -95,6 +96,7 @@ $(() => {
   options.host = urlParams.get("host");
   options.name = urlParams.get("name");
   options.debug = urlParams.get("debug");
+  options.nostream = urlParams.get("nostream");
   if (options.host == null) {
     options.host = false;
   } else {
@@ -110,9 +112,11 @@ $(() => {
     options.rtmToken = options.rtmToken.replace(/ /g,'+');
     rtmConfig.token = options.rtmToken;
   }
-
   if (!options.debug) {
     options.debug = 0;
+  }
+  if (!options.nostream) {
+    options.nostream = false;
   }
 
   if (options.appid == null ) {showPopup(`URL: =&appid param missing in URL!`, false); ready = false;}
@@ -884,29 +888,32 @@ async function getTokens() {
     }
   }
 
-  try {
-    const res = await fetch(
-      localTokenUrls.host + "/" + localTokenUrls.endpoint, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-          "tokenType": "rtm",
-          "uid": options.uid,
-          "channel": options.channel + "_stream", // optional: passing channel gives streamchannel. wildcard "*" is an option.
-          "expire": 3600 // optional: expiration time in seconds (default: 3600)})
-          })});
-    const response = await res.json();
-    console.log("StreamChannel RTC token fetched from server: ", response.token);
-    options.streamToken = response.token;
-  } catch (err) {
-    console.log(err);
-  }
+if (options.nostream = false) {
+    try {
+      const res = await fetch(
+        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+          method: "POST",
+          headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+            "tokenType": "rtm",
+            "uid": options.uid,
+            "channel": options.channel + "_stream", // optional: passing channel gives streamchannel. wildcard "*" is an option.
+            "expire": 3600 // optional: expiration time in seconds (default: 3600)})
+            })});
+      const response = await res.json();
+      console.log("StreamChannel RTC token fetched from server: ", response.token);
+      options.streamToken = response.token;
+    } catch (err) {
+      console.log(err);
+    }
+  };
   tokensReturned = true;
 };
+
 
 async function joinStreamChannel(channel) {
   try {
