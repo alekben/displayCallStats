@@ -83,6 +83,7 @@ var client = AgoraRTC.createClient({
 //  codec: "vp9"
 //});
 
+AgoraRTC.setParameter("RESTRICTION_SET_PLAYBACK_DEVICE", false);
 //AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
