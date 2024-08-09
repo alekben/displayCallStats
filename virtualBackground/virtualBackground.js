@@ -155,7 +155,7 @@ const loadImage = url => {
     document.body.appendChild(image);
   });
 };
-let denoiser = null;
+let vb = null;
 let processor = null;
 let processorIsDisable = true;
 let currentOption = "blur"; // "blur" or "color" or "image"
@@ -171,13 +171,13 @@ const pipeProcessor = (track, processor) => {
 };
 $("#openVirtualBackground").click(async e => {
   e.preventDefault();
-  denoiser = denoiser || (() => {
-    let denoiser = new VirtualBackgroundExtension();
-    AgoraRTC.registerExtensions([denoiser]);
-    return denoiser;
+  vb = vb || (() => {
+    let vb = new VirtualBackgroundExtension();
+    AgoraRTC.registerExtensions([vb]);
+    return vb;
   })();
   processor = processor || (await (async () => {
-    let processor = denoiser.createProcessor();
+    let processor = vb.createProcessor();
     processor.eventBus.on("PERFORMANCE_WARNING", () => {
       console.warn("Performance warning!!!!!!!!!!!!!!!!!");
     });
