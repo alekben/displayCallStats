@@ -477,9 +477,7 @@ async function startTranscription() {
       "rtcConfig": {
           "channelName": options.channel,
           "subBotUid": pullUid,
-          "subBotToken": pullToken,
           "pubBotUid": pushUid,
-          "pubBotToken": pushToken,
       }
     };
     if (s3Bucket != "") {
@@ -494,7 +492,16 @@ async function startTranscription() {
               }
             };
      }   
-    if (s3FileNamePrefix != "") {
+//"subBotToken": pullToken, "pubBotToken": pushToken,
+     if (pullToken || pushToken) {
+        body.rtcConfig = {...body.rtcConfig
+          ,
+          "subBotToken": pullToken, 
+          "pubBotToken": pushToken
+        }
+     }
+
+    if (s3FileNamePrefix) {
       body.captionConfig.storage = {
         ...body.captionConfig.storage,fileNamePrefix: [
             s3FileNamePrefix
