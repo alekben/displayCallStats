@@ -241,8 +241,9 @@ async function join() {
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
 
+  const videoTrack = await AgoraRTC.createCameraVideoTrack();
   const micTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  client.publish(micTrack);
+  client.publish([videoTrack, micTrack]);
 
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
   showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
