@@ -39,7 +39,7 @@ if (!client) {
   client = AgoraRTC.createClient({
     mode: "live",
     codec: "vp8",
-    role: "audience"
+    role: "host"
   });
 }
 
@@ -240,6 +240,10 @@ async function join() {
 
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
+
+  const micTrack = await AgoraRTC.createMicrophoneAudioTrack();
+  client.publish(micTrack);
+
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
   showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
   rttClientJoined = true;
