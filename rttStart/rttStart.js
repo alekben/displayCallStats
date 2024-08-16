@@ -39,7 +39,7 @@ if (!client) {
   client = AgoraRTC.createClient({
     mode: "live",
     codec: "vp8",
-    role: "audience"
+    role: "host"
   });
 }
 
@@ -240,6 +240,11 @@ async function join() {
 
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
+
+  const videoTrack = await AgoraRTC.createCameraVideoTrack();
+  const micTrack = await AgoraRTC.createMicrophoneAudioTrack();
+  client.publish([videoTrack, micTrack]);
+
   options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
   showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
   rttClientJoined = true;
@@ -470,62 +475,46 @@ async function startTranscription() {
   const s3FileNamePrefix = $("#s3-fileNamePrefix").val();
   
     let body = {
-      "audio": {
-        "subscribeSource": "AGORARTC",
-        "agoraRtcConfig": {
+      "languages": [
+        speakingLanguage
+      ],
+      "maxIdleTime": 60,
+      "rtcConfig": {
           "channelName": options.channel,
-          "uid": pullUid,
-          "token": pullToken,
-          "channelType": "LIVE_TYPE",
-          "subscribeConfig": {
-            "subscribeMode": "CHANNEL_MODE"
-          },
-          "maxIdleTime": 60
-        }
-      },
-      "config": {
-        "features": ["RECOGNIZE"],
-        "recognizeConfig": {
-          "language": speakingLanguage,
-          "model": "Model",
-          "connectionTimeout": 60,
-          "output": {
-            "destinations": ["AgoraRTCDataStream"],
-            "agoraRTCDataStream": {
-              "channelName": options.channel,
-              "uid": pushUid,
-              "token": pushToken
-            }
-          }
-        }
+          "subBotUid": pullUid,
+          "pubBotUid": pushUid,
       }
     };
     if (s3Bucket != "") {
-      body.config.recognizeConfig.output.destinations = [...body.config.recognizeConfig.output.destinations,"Storage"],
-      body.config.recognizeConfig.output = {...body.config.recognizeConfig.output,
-          "cloudStorage":[
+      body.captionConfig =
             {
-              "format":"HLS",
-              "storageConfig":{
+              "storage":{
                   "accessKey": s3AccessKey,
                   "secretKey": s3SecretKey,
                   "bucket": s3Bucket,
                   "vendor": s3Vendor,
                   "region": s3Region
               }
-            }
-        ]
-        }
+            };
      }   
-    if (s3FileNamePrefix != "") {
-      body.config.recognizeConfig.output.cloudStorage.storageConfig = {
-        ...body.config.recognizeConfig.output.cloudStorage.storageConfig,fileNamePrefix: [
-                        s3FileNamePrefix
-                    ]
+//"subBotToken": pullToken, "pubBotToken": pushToken,
+     if (pullToken || pushToken) {
+        body.rtcConfig = {...body.rtcConfig
+          ,
+          "subBotToken": pullToken, 
+          "pubBotToken": pushToken
+        }
+     }
+
+    if (s3FileNamePrefix) {
+      body.captionConfig.storage = {
+        ...body.captionConfig.storage,fileNamePrefix: [
+            s3FileNamePrefix
+        ]
       }
     }
   if (translationLanguage) {
-    body.config.translateConfig = {
+    body.translateConfig = {
       "languages": [{
         "source": speakingLanguage,
         "target": [translationLanguage]
