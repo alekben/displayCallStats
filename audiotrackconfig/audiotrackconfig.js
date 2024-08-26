@@ -994,7 +994,7 @@ $("#enableAiDenoiser").click(async e => {
       showPopup("AINS enabled");
       processorEnable = false;
       await processor.setMode("STATIONARY_NS");
-      await processor.setLevel("AGGRESSIVE");
+      await processor.setLevel("LEVEL100");
     } catch (e) {
       console.error("enable AIDenoiser failure");
     } finally {
