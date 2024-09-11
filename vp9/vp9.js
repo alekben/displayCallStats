@@ -405,6 +405,7 @@ async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("exception", handleLowInput);
+  client.enableDualStream();
   //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
   // join the channel
@@ -416,7 +417,7 @@ async function join() {
   //}
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: "720p_3"});
+      encoderConfig: "720p_2", optimizationMode: "motion"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");

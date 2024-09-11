@@ -487,7 +487,7 @@ async function switchCamScreen() {
     window.navigator.userAgent = storeUA;
     $("#screenOrCam").text("Switch to Camera");
   } else {
-    console.log("cam is currently published, switching to screenshare.");
+    console.log("screen is currently published, switching to cam.");
     $("#screenOrCam").text("Switch to Screenshare");
     localTracks.screenTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: curVideoProfile.value});
     const newTrack = localTracks.screenTrack.getMediaStreamTrack();

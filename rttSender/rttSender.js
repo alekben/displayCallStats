@@ -63,26 +63,13 @@ $(() => {
 $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
-  $("#captions").attr("disabled", false);
-  $("#subscribe").attr("disabled", false);
-  $("#unsubscribe").attr("disabled", false);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "live",
-        codec: "vp8",
-        role: "audience"
+        mode: "rtc",
+        codec: "vp8"
       });
     }
-
-    if (!rttClient) {
-      rttClient = AgoraRTC.createClient({
-        mode: "live",
-        codec: "vp8",
-        role: "audience"
-      });
-    }
-
     options.channel = $("#channel").val();
     options.uid = $("#uid").val();
     if (isNaN(options.uid)) {
@@ -94,7 +81,6 @@ $("#join-form").submit(async function (e) {
     }
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    options.rttToken = $("#token2").val();
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -106,6 +92,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
+    $("#send").attr("disabled", false);
   }
 });
 
@@ -113,57 +100,36 @@ $("#join-form").submit(async function (e) {
 $("#leave").click(function (e) {
   leave();
 });
-$(".uid-list").delegate("a", "click", function (e) {
-  changeTargetUID(this.getAttribute("label"));
-});
-$("#subscribe").click(function (e) {
-  manualSub();
-});
-$("#unsubscribe").click(function (e) {
-  manualUnsub();
-});
-$("#captions").click(function (e) {
-  switchCaptions();
+$("#send").click(function (e) {
+  sendRtt();
 });
 
-async function manualSub() {
-  //get value of of uid-input
-  const id = $(".uid-input").val();
-  let user = remoteUsers[id];
-  await subscribe(user, "video");
-  await subscribe(user, "audio");
-}
-
-async function manualUnsub() {
-  //get value of of uid-input
-  const id = $(".uid-input").val();
-  let user = remoteUsers[id];
-  await client.unsubscribe(user, "");
-  $(`#player-wrapper-${id}`).remove();
-}
 
 async function join() {
 
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  rttClient.on("stream-message", handleStreammessage);
+  client.on("stream-message", handleStreamMessage);
 
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
-  options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
-  showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
-  rttClientJoined = true;
 
-  localIntUid = client._joinInfo.uid;
+  const localIntUid = client._joinInfo.uid;
   $("#local-player-name").text(`localVideo(String: ${options.uid}, Int: ${localIntUid})`);
   $("#joined-setup").css("display", "flex");
 }
 
+function handleStreamMessage(msgUid, data) {
+  // use protobuf decode data
+  const text = Utf8ArrayToStr(data);
+  console.log(`handleStreamMessage from ${msgUid}: ${text}`);
+  addTranscribeItem(msgUid, text);
+}
 
-function handleStreammessage(msgUid, data) {
+function handleStreamMessageOff(msgUid, data) {
   // use protobuf decode data
   const msg = $protobufRoot.lookup("Text").decode(data) || {};
-  console.log("handleStreammessage", msg);
+  console.log(`handleStreamMessage from ${msgUid}: ${msg}`);
   const {
     words,
     data_type,
@@ -183,7 +149,6 @@ function handleStreammessage(msgUid, data) {
       });
       addTranscribeItem(uid, text);
       if (isFinal) {
-        addToCaptions(text);
         transcribeIndex++;
       }
     }
@@ -200,10 +165,7 @@ function handleStreammessage(msgUid, data) {
     }
   }
 }
-function addToCaptions(msg) {
-    $("#subtitles").text(msg);
-    //$("#remoteCaptions .content").append($item);
-  }
+
 
 function addTranscribeItem(uid, msg) {
   if ($(`#transcribe-${transcribeIndex}`)[0]) {
@@ -234,28 +196,96 @@ async function leave() {
   $("#remote-playerlist").html("");
 
   remotesArray = [];
-  $(".uid-list").empty();
-  $(".uid-input").val(``);
 
   // leave the channel
   await client.leave();
-  await rttClient.leave();
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
-  $("#captions").attr("disabled", true);
+  $("#send").attr("disabled", true);
   $("#joined-setup").css("display", "none");
-  $("#subscribe").attr("disabled", true);
-  $("#unsubscribe").attr("disabled", true);
   console.log("client leaves channel success");
+}
+
+function StringToUint8Array(Str)
+{
+  const result = new Uint8Array(new ArrayBuffer(Str.length));
+  for (let i = 0; i < Str.length; i += 1)
+  {
+    result[i] = Str.charCodeAt(i);
+  }
+  return result;
+}
+
+function Utf8ArrayToStr(array) {
+  var out, i, len, c;
+  var char2, char3;
+
+  out = "";
+  len = array.length;
+  i = 0;
+  while(i < len) {
+  c = array[i++];
+  switch(c >> 4)
+  { 
+    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+      // 0xxxxxxx
+      out += String.fromCharCode(c);
+      break;
+    case 12: case 13:
+      // 110x xxxx   10xx xxxx
+      char2 = array[i++];
+      out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+      break;
+    case 14:
+      // 1110 xxxx  10xx xxxx  10xx xxxx
+      char2 = array[i++];
+      char3 = array[i++];
+      out += String.fromCharCode(((c & 0x0F) << 12) |
+                     ((char2 & 0x3F) << 6) |
+                     ((char3 & 0x3F) << 0));
+      break;
+  }
+  }
+
+  return out;
+}
+
+async function sendRtt() {
+  const msg = $("#message").val();
+  const rttArray = StringToUint8Array(msg);
+  client.sendStreamMessage(rttArray);
+}
+
+async function sendRttOff() {
+  const msg = $("#message").val();
+  const split_msg = msg.split(" ");
+  const word_array = [];
+  for (let i = 0; i < split_msg.length; i += 1)
+  {
+    word_array[i] = {text: split_msg[i]};
+  }
+
+  const rttData = {
+    data_type: "transcribe",
+    duration_ms: 500,
+    offtime: 300,
+    trans: [],
+    uid: options.uid,
+    words: word_array
+  };
+
+  const base64 = window.btoa(rttData);
+  const rttArray = base64ToUint8Array(base64);
+  client.sendStreamMessage(rttArray);
 }
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
+  if (mediaType === "video") {
   await client.subscribe(user, mediaType);
   console.log("subscribe success");
-  if (mediaType === "video") {
-    const player = $(`
+  const player = $(`
       <div id="player-wrapper-${uid}">
         <div class="player-with-rtt">
           <div id="player-${uid}" class="player"></div>
@@ -268,14 +298,10 @@ async function subscribe(user, mediaType) {
     $("#remote-playerlist").append(player);
     user.videoTrack.play(`player-${uid}`);
   }
-  if (mediaType === "audio") {
-    user.audioTrack.play();
-  }
 }
 
 function handleUserPublished(user, mediaType) {
   const id = user.uid;
-  updateUIDs(id, "add");
   remoteUsers[id] = user;
   subscribe(user, mediaType);
 }
@@ -283,32 +309,7 @@ function handleUserPublished(user, mediaType) {
 function handleUserUnpublished(user, mediaType) {
   if (mediaType === "video") {
     const id = user.uid;
-    removeItemOnce(remotesArray, id);
-    updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
 }
-
-function removeItemOnce(arr, value) {
-  var index = arr.indexOf(value);
-  if (index > -1) {
-    arr.splice(index, 1);
-  }
-  return arr;
-}
-
-async function switchCaptions() {
- if (rttClientJoined) {
-  rttClientJoined = false;
-  rttClient.leave();
-  $("#remoteCaptions").css("display", "block");
-  $("#captions").text(`Show Captions`);
- } else {
-  options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
-  rttClientJoined = true;
-  showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
-  $("#remoteCaptions").css("display", "none");
-  $("#captions").text(`Hide Captions`);
- }
-};
