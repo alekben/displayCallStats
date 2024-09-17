@@ -243,6 +243,7 @@ $("#join-form").submit(async function (e) {
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
   $("#screenOrCam").attr("disabled", false);
+  $("#stopScreenShare").attr("disabled", true);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
@@ -277,6 +278,9 @@ $("#join-form").submit(async function (e) {
  * Called when a user clicks Leave in order to exit a channel.
  */
 $("#screenOrCam").click(function (e) {
+  switchCamScreen();
+});
+$("#stopScreenShare").click(function (e) {
   switchCamScreen();
 });
 $("#leave").click(function (e) {
@@ -486,6 +490,7 @@ async function switchCamScreen() {
     localTrackState.screenPublished = true;
     window.navigator.userAgent = storeUA;
     $("#screenOrCam").text("Switch to Camera");
+    $("#stopScreenShare").attr("disabled", false);
   } else {
     console.log("screen is currently published, switching to cam.");
     $("#screenOrCam").text("Switch to Screenshare");
@@ -496,6 +501,7 @@ async function switchCamScreen() {
     $(`#video_${trackId}`).css("transform", "rotateY(180)");
     localTrackState.camPublished = true;
     localTrackState.screenPublished = false;
+    $("#stopScreenShare").attr("disabled", true);
     }
   //method 2 - create new track, unpublish cam track, publish screen track, close cam track, reverse
   //if (localTrackState.camPublished) {
@@ -563,6 +569,7 @@ async function leave() {
   $("#setEnabled").text("Disable Mic Track");
   $("#setEnabled").attr("disabled", true);
   $("#screenOrCam").attr("disabled", true);
+  $("#stopScreenShare").attr("disabled", true);
   console.log("client leaves channel success");
 }
 
