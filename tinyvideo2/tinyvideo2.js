@@ -100,6 +100,7 @@ $(() => {
   options.name = urlParams.get("name");
   options.debug = urlParams.get("debug");
   options.nostream = urlParams.get("nostream");
+  options.notoken = urlParams.get("")
   if (options.host == null) {
     options.host = false;
   } else {

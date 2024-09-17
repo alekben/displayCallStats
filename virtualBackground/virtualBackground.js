@@ -155,6 +155,7 @@ const loadImage = url => {
     document.body.appendChild(image);
   });
 };
+
 let vb = null;
 let processor = null;
 let processorIsDisable = true;

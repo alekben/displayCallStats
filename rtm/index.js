@@ -49,7 +49,7 @@ window.onload = function () {
 
     document.getElementById("start").onclick = async function () {
         appID = options.uid = document.getElementById("appid").value.toString()
-        client = AgoraRTM.createInstance(appID)
+        client = AgoraRTM.createInstance(appID, { enableCloudProxy: true })
         setupListners()
     }
 
