@@ -483,12 +483,14 @@ async function switchCamScreen() {
         }
     const newTrack = localTracks.screenVideoTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
+    localTracks.videoTrack.on("track-ended", () => {
+      switchCamScreen();
+    });
     trackId = localTracks.videoTrack.getTrackId();
     $(`#video_${trackId}`).css("object-fit", "");
     $(`#video_${trackId}`).css("transform", "");
     localTrackState.camPublished = false;
     localTrackState.screenPublished = true;
-    window.navigator.userAgent = storeUA;
     $("#screenOrCam").text("Switch to Camera");
     $("#stopScreenShare").attr("disabled", false);
   } else {
@@ -497,6 +499,7 @@ async function switchCamScreen() {
     localTracks.screenTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: curVideoProfile.value});
     const newTrack = localTracks.screenTrack.getMediaStreamTrack();
     await localTracks.videoTrack.replaceTrack(newTrack, true);
+    localTracks.videoTrack.off("track-ended");
     $(`#video_${trackId}`).css("object-fit", "cover");
     $(`#video_${trackId}`).css("transform", "rotateY(180)");
     localTrackState.camPublished = true;
