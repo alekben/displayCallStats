@@ -504,7 +504,7 @@ function fetchJoinedGroups() {
 async function getTokens() {
     console.log('getting token...');
     const localTokenUrls = {
-        host: "https://3-140-200-204.nip.io/aleksey",
+        host: "https://18-118-241-12.nip.io/aleksey",
         endpoint: "getToken"
     }
 
