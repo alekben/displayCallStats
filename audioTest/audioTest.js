@@ -580,7 +580,7 @@ function handleUserUnpublishedLoopback(user, mediaType) {
 
 function handleLowInput(event) {
   stats = localTracks.audioTrack.getStats();
-  if (event == 2001 && stats.sendBitrate != 0 ) {
+  if (event.code == 2001 && stats.sendBitrate != 0 ) {
     zeroVolume = true;
     console.log("frank - audio input low trigger while published, starting 10 sec timer");
     showPopup("audio input low trigger while published, starting 10 sec timer");
@@ -593,7 +593,7 @@ function handleLowInput(event) {
         });
       }
     }, 10000);
-  } else if (event == 4001) {
+  } else if (event.code == 4001) {
     console.log("frank - audio input low trigger recovered, cancel reset");
     showPopup("audio input low trigger recovered, cancel reset");
     zeroVolume = false;
