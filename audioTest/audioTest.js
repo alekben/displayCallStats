@@ -580,19 +580,22 @@ function handleUserUnpublishedLoopback(user, mediaType) {
 
 function handleLowInput(event) {
   stats = localTracks.audioTrack.getStats();
-  showPopup("AUDIO_LOW_INPUT triggered on enabled track, waiting 10 seconds");
   if (event == 2001 && stats.sendBitrate != 0 ) {
     zeroVolume = true;
+    console.log("frank - audio input low trigger while published, starting 10 sec timer");
+    showPopup("audio input low trigger while published, starting 10 sec timer");
     setTimeout(() => {
       if (zeroVolume) {
-        console.log("audio input low trigger, reset track");
+        console.log("frank - audio input low trigger not recovered, reseting track");
+        showPopup("audio input low trigger not recovered, reseting track");
         localTracks.audioTrack.setEnabled(false).then(() => {
           localTracks.audioTrack.setEnabled(true);
         });
       }
-    });
+    }, 10000);
   } else if (event == 4001) {
-    showPopup("AUDIO_LOW_INPUT level recovered");
+    console.log("frank - audio input low trigger recovered, cancel reset");
+    showPopup("audio input low trigger recovered, cancel reset");
     zeroVolume = false;
   }
 }
