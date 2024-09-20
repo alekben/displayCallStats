@@ -5,14 +5,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Display Call Stats -- Agora</title>
+  <title>VP9 Proxy Test -- Agora</title>
   <link rel="stylesheet" href="./bootstrap.min.css">
   <link rel="stylesheet" href="./index.css">
 </head>
 
 <body>
   <div class="container-fluid banner">
-    <p class="banner-text">Display Call Stats</p>
+    <p class="banner-text">VP9 Proxy Test</p>
     <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
       class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
       <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
@@ -51,7 +51,7 @@
       <div class="row join-info-group">
         <div class="col-sm sso-hidden">
           <p class="join-info-text">AppID</p>
-          <input id="appid" type="text" value="7c9a6773eb7b4650831ecdb3a0931dac">
+          <input id="appid" type="text" value="">
           <p class="tips">If you don`t know what is your appid, checkout <a
               href="https://docs.agora.io/en/Agora%20Platform/terms?platform=All%20Platforms#a-nameappidaapp-id">this</a>
           </p>
@@ -65,7 +65,7 @@
         </div>
         <div class="col-sm">
           <p class="join-info-text">Channel</p>
-          <input id="channel" type="text" value="TESTMOBILE" required>
+          <input id="channel" type="text" value="" required>
           <p class="tips">If you don`t know what is your channel, checkout <a
               href="https://docs.agora.io/en/Agora%20Platform/terms?platform=All%20Platforms#channel">this</a></p>
         </div>
@@ -85,7 +85,7 @@
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
         <button id="createTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Create Mic Track</button>
         <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
-        <button id="startLoopback" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Start Loopback</button>
+        <!--<button id="startLoopback" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Start Loopback</button>-->
         <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>
         <button id="setEnabled" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Disable Mic Track</button>
         <button id="webAudio" type="button" class="btn btn-primary btn-sm" style="height: 30px;">Enable Web Audio</button>
@@ -149,12 +149,13 @@
 
   </div>
 
+  <div id="popup-section"></div>
+
   
   <script src="./jquery-3.4.1.min.js"></script>
   <script src="./bootstrap.bundle.min.js"></script>
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
-  <script src="../clients/4_21_0.js"></script>
-  <script src="./audioTest.js"></script>
+  <script src="./vp9proxytest.js"></script>
 
 </body>
 

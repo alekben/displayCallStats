@@ -70,7 +70,7 @@ input {
 }
 
 .stats {
-  color: rgb(245, 3, 3);
+  color: rgb(255, 255, 255);
   margin-left: 10px;
   position: absolute;
 }
