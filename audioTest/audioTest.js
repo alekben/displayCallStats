@@ -577,7 +577,9 @@ function handleUserUnpublishedLoopback(user, mediaType) {
 }
 
 function handleLowInput(event) {
-  if (event == 2001) {
+  stats = localTracks.audioTrack.getStats();
+  if (event == 2001 && stats.sendBitrate != 0 ) {
+    showPopup("AUDIO_LOW_INPUT triggered on enabled track, resetting track")
     console.log("audio input low trigger, reset track");
     localTracks.audioTrack.setEnabled(false).then(() => {
       localTracks.audioTrack.setEnabled(true);
@@ -746,4 +748,35 @@ function flushStats() {
       ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
     `);
   });
+}
+
+
+var popups = 0;
+
+function showPopup(message, debug) {
+if (debug == true && options.debug == 1) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+} else if (debug == true && options.debug == 0) {
+  return;
+} else {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+}
 }
