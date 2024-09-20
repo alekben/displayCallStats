@@ -167,8 +167,8 @@ input {
 
 .popupShow {
   visibility: true; /* Hidden by default. Visible on click */
-  min-width: 10%; /* Set a default minimum width */
-  max-width: 10%;
+  min-width: 20%; /* Set a default minimum width */
+  max-width: 20%;
   margin-left: 0px; /* Divide value of min-width by 2 */
   background-color: #333; /* Black background color */
   color: #fff; /* White text color */
@@ -178,7 +178,7 @@ input {
   position: fixed; /* Sit on top of the screen */
   z-index: 1; /* Add a z-index if needed */
   left: 0%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
+  bottom: 50px; /* 30px from the bottom */
   -webkit-animation: fadein 0.5s, fadeout 0.5s 10.0s;
   animation: fadein 0.5s, fadeout 0.5s 10.0s;
 }

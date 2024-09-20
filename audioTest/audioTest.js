@@ -86,6 +86,7 @@ AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
+let zeroVolume = false;
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -402,7 +403,7 @@ async function join() {
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("exception", handleLowInput);
-  AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+  //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
@@ -421,6 +422,7 @@ async function join() {
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
   console.log("publish cam success");
+  showPopup(`Joined to channel ${options.channel}`);
   initStats();
 }
 async function leave() {
@@ -578,12 +580,20 @@ function handleUserUnpublishedLoopback(user, mediaType) {
 
 function handleLowInput(event) {
   stats = localTracks.audioTrack.getStats();
+  showPopup("AUDIO_LOW_INPUT triggered on enabled track, waiting 10 seconds");
   if (event == 2001 && stats.sendBitrate != 0 ) {
-    showPopup("AUDIO_LOW_INPUT triggered on enabled track, resetting track")
-    console.log("audio input low trigger, reset track");
-    localTracks.audioTrack.setEnabled(false).then(() => {
-      localTracks.audioTrack.setEnabled(true);
+    zeroVolume = true;
+    setTimeout(() => {
+      if (zeroVolume) {
+        console.log("audio input low trigger, reset track");
+        localTracks.audioTrack.setEnabled(false).then(() => {
+          localTracks.audioTrack.setEnabled(true);
+        });
+      }
     });
+  } else if (event == 4001) {
+    showPopup("AUDIO_LOW_INPUT level recovered");
+    zeroVolume = false;
   }
 }
 
@@ -761,7 +771,7 @@ if (debug == true && options.debug == 1) {
   $("#popup-section").append(y);
   var x = document.getElementById(`popup-${newPopup}`);
   x.className = "popupShow";
-  z = popups * 10;
+  z = popups * 5;
   $(`#popup-${newPopup}`).css("left", `${z}%`);
   popups++;
   setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
@@ -774,7 +784,7 @@ if (debug == true && options.debug == 1) {
   $("#popup-section").append(y);
   var x = document.getElementById(`popup-${newPopup}`);
   x.className = "popupShow";
-  z = popups * 10;
+  z = popups * 5;
   $(`#popup-${newPopup}`).css("left", `${z}%`);
   popups++;
   setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
