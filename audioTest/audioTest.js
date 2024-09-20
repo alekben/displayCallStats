@@ -296,6 +296,8 @@ $("#publishTrack").click(function (e) {
   $("#startLoopback").attr("disabled", false);
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
+  $("#local-player").css("border", "7px solid yellowgreen");
+  $("#local-player").css("border-radius", "10px");
 });
 
 $("#startLoopback").click(function (e) {
@@ -360,6 +362,8 @@ async function publishMic() {
     console.log("Published mic track");
     localTrackState.audioTrackMuted = false;
     localTrackState.audioTrackEnabled = true;
+    $("#local-player").css("border", "7px solid yellowgreen");
+    $("#local-player").css("border-radius", "10px");
 }
 
 async function muteAudio() {
@@ -371,6 +375,8 @@ async function muteAudio() {
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   $("#setMuted").text("Unmute Mic Track");
+  $("#local-player").css("border", "7px solid grey");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function unmuteAudio() {
@@ -378,6 +384,8 @@ async function unmuteAudio() {
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
   $("#setMuted").text("Mute Mic Track");
+  $("#local-player").css("border", "7px solid yellowgreen");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function disableAudio() {
@@ -389,6 +397,8 @@ async function disableAudio() {
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
   $("#setEnabled").text("Enable Mic Track");
+  $("#local-player").css("border", "7px solid grey");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function enableAudio() {
@@ -396,6 +406,8 @@ async function enableAudio() {
   await localTracks.audioTrack.setEnabled(true);
   localTrackState.audioTrackEnabled = true;
   $("#setEnabled").text("Disable Mic Track");
+  $("#local-player").css("border", "7px solid yellowgreen");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function join() {
@@ -417,7 +429,9 @@ async function join() {
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
-  $("#joined-setup").css("display", "flex");
+  $("#local-player").css("border", "7px solid gray");
+  $("#local-player").css("border-radius", "10px");
+
 
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
@@ -584,6 +598,8 @@ function handleLowInput(event) {
     zeroVolume = true;
     console.log("frank - audio input low trigger while published, starting 10 sec timer");
     showPopup("audio input low trigger while published, starting 10 sec timer");
+    $("#local-player").css("border", "7px solid gray");
+    $("#local-player").css("border-radius", "10px");
     setTimeout(() => {
       if (zeroVolume) {
         console.log("frank - audio input low trigger not recovered, reseting track");
@@ -596,6 +612,8 @@ function handleLowInput(event) {
   } else if (event.code == 4001) {
     console.log("frank - audio input low trigger recovered, cancel reset");
     showPopup("audio input low trigger recovered, cancel reset");
+    $("#local-player").css("border", "7px solid yellowgreen");
+    $("#local-player").css("border-radius", "10px");
     zeroVolume = false;
   }
 }
