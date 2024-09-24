@@ -280,6 +280,7 @@ $("#join-form").submit(async function (e) {
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
     joined = true;
+    //if iceConnectionState returns 'connected', then P2P is established
     client._p2pChannel.connection.onICEConnectionStateChange = () => {
       console.log(`ice state changed: ${client._p2pChannel.connection.iceConnectionState}`);
     };
