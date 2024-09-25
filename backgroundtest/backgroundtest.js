@@ -46,7 +46,8 @@ var localTracks = {
 
 var localTrackState = {
   audioTrackMuted: false,
-  audioTrackEnabled: false
+  audioTrackEnabled: false,
+  audioTrackPublished: false
 };
 
 // Agora client options
@@ -162,20 +163,37 @@ async function initDevices() {
       });
     } else {
       console.log("mic track already exists, replacing.");
-      await client.unpublish(localTracks.audioTrack);
-      await localTracks.audioTrack.stop();
-      await localTracks.audioTrack.close();
-      localTracks.audioTrack = undefined;
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-      });
-      publishMic();
-      $("#setMuted").attr("disabled", false);
-      $("#setEnabled").attr("disabled", false);
-      $("#setMuted").text("Mute Mic Track");
-      $("#setEnabled").text("Disable Mic Track");
-      localTrackState.audioTrackEnabled = true;
-      localTrackState.audioTrackMuted = false;
+      if (localTrackState.audioTrackPublished) {
+        await client.unpublish(localTracks.audioTrack);
+        await localTracks.audioTrack.stop();
+        await localTracks.audioTrack.close();
+        localTracks.audioTrack = undefined;
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+          encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+        });
+        publishMic();
+        $("#setMuted").attr("disabled", false);
+        $("#setEnabled").attr("disabled", false);
+        $("#setMuted").text("Mute Mic Track");
+        $("#setEnabled").text("Disable Mic Track");
+        localTrackState.audioTrackEnabled = true;
+        localTrackState.audioTrackMuted = false;
+        localTrackState.audioTrackPublished = true;
+      } else {
+        await localTracks.audioTrack.stop();
+        await localTracks.audioTrack.close();
+        localTracks.audioTrack = undefined;
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+          encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+        });;
+        $("#setMuted").attr("disabled", false);
+        $("#setEnabled").attr("disabled", false);
+        $("#setMuted").text("Mute Mic Track");
+        $("#setEnabled").text("Disable Mic Track");
+        localTrackState.audioTrackEnabled = true;
+        localTrackState.audioTrackMuted = false;
+        localTrackState.audioTrackPublished = false;
+      }
       }
 
       if (!localTracks.videoTrack) {
@@ -333,6 +351,7 @@ $(() => {
     $("#channel").val(options.channel);
     $("#join-form").submit();
   }
+  $('#agora-collapse').collapse('toggle');
 });
 $("#join-form").submit(async function (e) {
   e.preventDefault();
@@ -398,6 +417,8 @@ $("#publishTrack").click(function (e) {
   $("#publishTrack").attr("disabled", true);
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
+  $("#local-player").css("border", "7px solid yellowgreen");
+  $("#local-player").css("border-radius", "10px");
 });
 
 
@@ -561,6 +582,9 @@ async function publishMic() {
     showPopup("Mic Track Published");
     localTrackState.audioTrackMuted = false;
     localTrackState.audioTrackEnabled = true;
+    localTrackState.audioTrackPublished = true;
+    $("#local-player").css("border", "7px solid yellowgreen");
+    $("#local-player").css("border-radius", "10px");
 }
 
 async function muteAudio() {
@@ -571,16 +595,22 @@ async function muteAudio() {
    */
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
+  localTrackState.audioTrackPublished = false;
   $("#setMuted").text("Unmute Mic Track");
   showPopup("Mic Track Muted");
+  $("#local-player").css("border", "7px solid grey");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function unmuteAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
+  localTrackState.audioTrackPublished = true;
   $("#setMuted").text("Mute Mic Track");
   showPopup("Mic Track Unmuted");
+  $("#local-player").css("border", "7px solid yellowgreen");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function disableAudio() {
@@ -591,16 +621,22 @@ async function disableAudio() {
    */
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
+  localTrackState.audioTrackPublished = false;
   showPopup("Mic Track Disabled");
   $("#setEnabled").text("Enable Mic Track");
+  $("#local-player").css("border", "7px solid grey");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function enableAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setEnabled(true);
   localTrackState.audioTrackEnabled = true;
+  localTrackState.audioTrackPublished = true;
   showPopup("Mic Track Enabled");
   $("#setEnabled").text("Disable Mic Track");
+  $("#local-player").css("border", "7px solid yellowgreen");
+  $("#local-player").css("border-radius", "10px");
 }
 
 async function join() {
@@ -610,7 +646,8 @@ async function join() {
   client.on("user-joined", handleUserJoined);
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
-  client.on("network-quality", handleNetworkQuality);
+  client.on("exception", handleLowInput);
+  //client.on("network-quality", handleNetworkQuality);
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
@@ -625,6 +662,8 @@ async function join() {
     //localTracks.videoTrack.contentHint = "ptz";
     // play local video track
     localTracks.videoTrack.play("local-player");
+    $("#local-player").css("border", "7px solid gray");
+    $("#local-player").css("border-radius", "10px");
     $("#joined-setup").css("display", "flex");
 
     // publish local tracks to channel
@@ -637,6 +676,7 @@ async function join() {
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
   notifyReady();
+  $('#agora-collapse').collapse('toggle');
 }
 
 async function leave() {
@@ -833,7 +873,7 @@ function handleNetworkQuality(stats) {
   let time = d.getTime();
   console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
   client.sendCustomReportMessage({
-    reportId: "50", category: "netstats", event: "netstats", label: String("stats"), value: String(`${localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
+    reportId: "50", category: "netstats", event: "netstats", label: String("stats"), value: String(`$//{localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
 }
 
 
@@ -863,6 +903,32 @@ function destructStats() {
 function notifyReady() {
   if (typeof window.navigator.notifyReady === 'function')
       window.navigator.notifyReady();
+}
+
+function handleLowInput(event) {
+  stats = localTracks.audioTrack.getStats();
+  if (event.code == 2001 && stats.sendBitrate != 0 ) {
+    zeroVolume = true;
+    console.log("frank - audio input low trigger while published, starting 10 sec timer");
+    showPopup("audio input low trigger while published, starting 10 sec timer");
+    $("#local-player").css("border", "7px solid gray");
+    $("#local-player").css("border-radius", "10px");
+    setTimeout(() => {
+      if (zeroVolume) {
+        console.log("frank - audio input low trigger not recovered, reseting track");
+        showPopup("audio input low trigger not recovered, reseting track");
+        localTracks.audioTrack.setEnabled(false).then(() => {
+          localTracks.audioTrack.setEnabled(true);
+        });
+      }
+    }, 10000);
+  } else if (event.code == 4001) {
+    console.log("frank - audio input low trigger recovered, cancel reset");
+    showPopup("audio input low trigger recovered, cancel reset");
+    $("#local-player").css("border", "7px solid yellowgreen");
+    $("#local-player").css("border-radius", "10px");
+    zeroVolume = false;
+  }
 }
 
 // flush stats views
