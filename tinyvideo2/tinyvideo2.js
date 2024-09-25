@@ -37,8 +37,9 @@ const { RTM } = AgoraRTM;
 var rtmClient;
 
 var rtmConfig = {
-  token : null,
-  presenceTimeout : 30,
+  //2.1.x or below
+  //token : null,
+  //presenceTimeout : 30,
   logUpload : false,
   logLevel : "info",
   cloudProxy : false,
@@ -114,7 +115,6 @@ $(() => {
   }
   if (options.rtmToken != null) {
     options.rtmToken = options.rtmToken.replace(/ /g,'+');
-    rtmConfig.token = options.rtmToken;
   }
   if (!options.debug) {
     options.debug = 0;
@@ -468,7 +468,10 @@ async function loginRtm() {
   });
 
   try {
-    const result = await rtmClient.login();
+    //2.1.x or below
+    //const result = await rtmClient.login();
+    //2.2.0
+    const result = await rtmClient.login({token: options.rtmToken});
     console.log(result);
   } catch (status) {
     console.log(status);
@@ -886,7 +889,6 @@ async function getTokens() {
       const response = await res.json();
       console.log("RTM token fetched from server: ", response.token);
       options.rtmToken = response.token;
-      rtmConfig.token = response.token;
     } catch (err) {
       console.log(err);
     }

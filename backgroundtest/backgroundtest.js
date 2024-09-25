@@ -1,4 +1,6 @@
 
+//
+let dual = false;
 //vb
 let vb = null;
 let processor = null;
@@ -34,6 +36,8 @@ var client = AgoraRTC.createClient({
   codec: "vp8"
 });
 AgoraRTC.enableLogUpload();
+client.startProxyServer(5);
+client.enableDualStream();
 
 var localTracks = {
   videoTrack: null,
@@ -607,7 +611,7 @@ async function join() {
   client.on("user-left", handleUserLeft);
   client.on("user-info-updated", handleUserInfoUpdated);
   client.on("network-quality", handleNetworkQuality);
-  client.startProxyServer(5);
+
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
