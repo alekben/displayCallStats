@@ -77,6 +77,13 @@
               href="https://docs.agora.io/en/Agora%20Platform/terms?platform=All%20Platforms#a-namekeyadynamic-key">this</a>
           </p>
         </div>
+        <div class="col-sm sso-hidden">
+          <p class="join-info-text">Screenshare Token(optional)</p>
+          <input id="tokenScreen" type="text" placeholder="enter token">
+          <p class="tips">If you don`t know what is your token, checkout <a
+              href="https://docs.agora.io/en/Agora%20Platform/terms?platform=All%20Platforms#a-namekeyadynamic-key">this</a>
+          </p>
+        </div>
         <div class="col-sm">
           <p class="join-info-text">Channel</p>
           <input id="channel" type="text" value="" required>
@@ -86,6 +93,11 @@
         <div class="col-sm">
           <p class="join-info-text">User ID(optional)</p>
           <input id="uid" type="text" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+            onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="Enter the user ID">
+        </div>
+        <div class="col-sm">
+          <p class="join-info-text">Screen UID(optional)</p>
+          <input id="uidScreen" type="text" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
             onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="Enter the user ID">
         </div>
       </div>
@@ -98,6 +110,7 @@
         <button id="join" type="submit" class="btn btn-primary btn-sm" style="height: 30px;">Join</button>
         <button id="role" type="button" class="btn btn-primary btn-sm" style="height: 30px;">Role: Host</button>
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
+        <button id="screen" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Share Screen</button>
         <button id="createTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Create Mic Track</button>
         <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
         <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>

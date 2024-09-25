@@ -39,15 +39,19 @@ AgoraRTC.enableLogUpload();
 client.startProxyServer(5);
 client.enableDualStream();
 
+var screenClient;
+
 var localTracks = {
   videoTrack: null,
-  audioTrack: null
+  audioTrack: null,
+  screenTrack: null
 };
 
 var localTrackState = {
   audioTrackMuted: false,
   audioTrackEnabled: false,
-  audioTrackPublished: false
+  audioTrackPublished: false,
+  screenTrackPublished: false
 };
 
 // Agora client options
@@ -55,7 +59,9 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
+  screenUid: null,
   token: null,
+  screenToken: null
 };
 
 var videoProfiles = [{
@@ -344,10 +350,20 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
+  options.uid = urlParams.get("screenUid");
+  options.uid = urlParams.get("screenToken");
+  if (options.token != null) {
+    options.token = options.token.replace(/ /g,'+');
+    }
+  if (options.screenToken != null) {
+      options.screenToken = options.screenToken.replace(/ /g,'+');
+    }
   if (options.appid && options.channel) {
     $("#uid").val(options.uid);
+    $("#uidScreen").val(options.screenUid);
     $("#appid").val(options.appid);
     $("#token").val(options.token);
+    $("#tokenScreen").val(options.screenToken);
     $("#channel").val(options.channel);
     $("#join-form").submit();
   }
@@ -393,11 +409,16 @@ $("#join-form").submit(async function (e) {
     $("#subscribe").attr("disabled", false);
     $("#unsubscribe").attr("disabled", false);
     $("#biggerView").attr("disabled", false);
+    $("#screen").attr("disabled", false);
     joined = true;
   }
 });
 $("#leave").click(function (e) {
   leave();
+});
+
+$("#screen").click(function (e) {
+  shareScreen();
 });
 
 $(".uid-list").delegate("a", "click", function (e) {
@@ -679,6 +700,34 @@ async function join() {
   $('#agora-collapse').collapse('toggle');
 }
 
+async function shareScreen() {
+  if (!screenClient) {
+    screenClient = AgoraRTC.createClient({
+      mode: "live",
+      codec: "vp8",
+      role: "host"
+    });
+    screenClient.startProxyServer(5);
+  }
+  if (localTrackState.screenTrackPublished) {
+    console.log('unpublishing screen track');
+    localTrackState.screenTrackPublished = false;
+    screenClient.unpublish(localTracks.screenTrack);
+    localTracks.screenTrack.stop();
+    localTracks.screenTrack.close();
+    $("#screen").text("Share Screen");
+    screenClient.leave();
+  } else {
+    console.log('publishing screen track');
+    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "disabled");
+    options.screenUid = await screenClient.join(options.appid, options.channel, options.screenToken || null, options.screenUid || null);
+    screenClient.publish(localTracks.screenTrack);
+    localTrackState.screenTrackPublished = true;
+    $("#screen").text("Stop Screen Share");
+  }
+}
+
+
 async function leave() {
   for (trackName in localTracks) {
     var track = localTracks[trackName];
@@ -722,6 +771,7 @@ async function leave() {
   $("#biggerView").attr("disabled", true);
   $("#ains").attr("disabled", true);
   $("#vb").attr("disabled", true);
+  $("#screen").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
   console.log("client leaves channel success");
