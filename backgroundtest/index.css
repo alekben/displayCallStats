@@ -43,23 +43,23 @@ input {
 }
 
 .player {
-  width: 210px;
-  height: 210px;
+  width: 480px;
+  height: 320px;
   margin-right: 10px;
   display: flex;
   position: relative;
 }
 
 .remotePlayer {
-  width: 200px;
-  height: 200px;
+  width: 480px;
+  height: 320px;
   margin-right: 10px;
   display: flex;
 }
 
 .remotePlayerSelected {
-  width: 200px;
-  height: 200px;
+  width: 480px;
+  height: 320px;
   border-style: solid;
   border-color: red;
 }
