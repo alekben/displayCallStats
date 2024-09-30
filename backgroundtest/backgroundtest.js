@@ -66,6 +66,10 @@ var options = {
 };
 
 var videoProfiles = [{
+  label: "480p_vp9",
+  detail: "640×480, 30fps, 200Kbps",
+  value: `{"width":640, "height":480, "frameRate":30, "bitrateMin":100, "bitrateMax":200}`
+}, {
   label: "360p_7",
   detail: "480×360, 15fps, 320Kbps",
   value: "360p_7"
@@ -677,7 +681,7 @@ async function join() {
   if (host) {
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: "720p_2"
+        encoderConfig: {"width":640, "height":480, "frameRate":30, "bitrateMin":100, "bitrateMax":200}
       });
     }
 
