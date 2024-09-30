@@ -33,16 +33,17 @@ var dumbTempFix = "Selected";
 // create Agora client early
 var client = AgoraRTC.createClient({
   mode: "live",
-  codec: "vp8"
+  codec: "vp9"
 });
 AgoraRTC.enableLogUpload();
-client.startProxyServer(5);
+//client.startProxyServer(5);
 client.enableDualStream();
 
 var screenClient;
 
 var localTracks = {
   videoTrack: null,
+  videoTrack2: null,
   audioTrack: null,
   screenTrack: null
 };
@@ -376,7 +377,7 @@ $("#join-form").submit(async function (e) {
     if (!client) {
       client = AgoraRTC.createClient({
         mode: "live",
-        codec: "vp8"
+        codec: "vp9"
       });
     }
     options.channel = $("#channel").val();
@@ -704,10 +705,10 @@ async function shareScreen() {
   if (!screenClient) {
     screenClient = AgoraRTC.createClient({
       mode: "live",
-      codec: "vp8",
+      codec: "vp9",
       role: "host"
     });
-    screenClient.startProxyServer(5);
+    //screenClient.startProxyServer(5);
   }
   if (localTrackState.screenTrackPublished) {
     console.log('unpublishing screen track');
