@@ -681,7 +681,7 @@ async function join() {
   if (host) {
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: {"width":640, "height":480, "frameRate":30, "bitrateMin":100, "bitrateMax":200}
+        encoderConfig: curVideoProfile.value
       });
     }
 
