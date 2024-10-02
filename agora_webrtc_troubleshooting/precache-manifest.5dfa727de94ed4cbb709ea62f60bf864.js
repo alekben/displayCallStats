@@ -21,7 +21,7 @@ self.__precacheManifest = [
   },
   {
     "revision": "37508d6b6c920e25915da3c64f614b5f",
-    "url": "/agora_webrtc_troubleshooting/media/music.37508d6b.mp3"
+    "url": "../sendaudio/HeroicAdventure.mp3"
   },
   {
     "revision": "c8118bf2828214dd25840b537fcae9fb",
