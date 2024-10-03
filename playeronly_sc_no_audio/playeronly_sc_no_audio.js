@@ -18,7 +18,8 @@ var client = AgoraRTC.createClient({
 var joined = false;
 var remoteJoined = false;
 var remoteUsers = {};
-
+var remoteUID = 0;
+var aspect = 1.7;
 
 // Agora client options
 var options = {
@@ -74,6 +75,8 @@ async function join() {
   initStats();
 }
 
+//$("#local-player").css("border", "7px solid yellowgreen");
+//$("#local-player").css("border-radius", "10px");
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
@@ -82,13 +85,13 @@ async function subscribe(user, mediaType) {
     const player = $(`
       <div id="player-wrapper-${uid}">
         <div class="player-with-stats">
-          <div id="player-${uid}" class="remotePlayerLarge"></div>
+          <div id="player" class="remotePlayerLargeL"></div>
           <div class="track-stats remoteStats"></div>
         </div>
       </div>
   `);
   $("#remote-playerlist-row1").append(player);
-    user.videoTrack.play(`player-${uid}`);
+    user.videoTrack.play(`player`);
   } else {
     await client.subscribe(user, mediaType);
     user.audioTrack.play();
@@ -105,7 +108,7 @@ async function handleUserPublished(user, mediaType) {
       remoteUsers[id] = user;
       context.uid = user.uid;
       await subscribe(user, mediaType);
-      if (sc == "true") {
+      if (options.sc == "true") {
         context.processor = extension.createProcessor();
         context.processor.on("first-video-frame", (stats) => {
         console.log("plugin have first video frame, stats:", stats);
@@ -118,9 +121,10 @@ async function handleUserPublished(user, mediaType) {
       });
         context.track.pipe(context.processor).pipe(context.track.processorDestination);
         await context.processor.enable();
-        context.track.play(`player-${id}`);
+        context.track.play(`player`);
       } 
       remoteJoined = true;
+      remoteUID = id;
     }
   } else {
     remoteUsers[id] = user;
@@ -139,8 +143,9 @@ async function handleUserUnpublished(user, mediaType) {
     context.track.stop();
     //user.videoTrack.stop(`player-${id}`)
     context.track = undefined;
-    $(`#player-wrapper-${id}`).remove();
+    $(`#player-wrapper`).remove();
     remoteJoined = false;
+    remoteUID = 0;
   }
 }
 
@@ -149,6 +154,20 @@ function initStats() {
 }
 
 function flushStats() {
+
+//get and adjust resolution
+if (remoteUID != 0) {
+  const stream = remoteUsers[remoteUID].videoTrack.getMediaStreamTrackSettings();
+  aspect = stream.aspectRatio;
+  if (aspect > 1) {
+    var x = document.getElementById(`player`);
+    x.className = "remotePlayerLargeL";
+  } else {
+    var x = document.getElementById(`player`);
+    x.className = "remotePlayerLargeP";
+  }
+} 
+
 
 
 Object.keys(remoteUsers).forEach(uid => {
@@ -197,6 +216,10 @@ Object.keys(remoteUsers).forEach(uid => {
     description: "video freeze rate",
     value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
     unit: "%"
+  }, {
+    description: "Aspect Ratio",
+    value: Number(aspect),
+    unit: ""
   }];
   $(`#player-wrapper-${uid} .track-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}

@@ -13,6 +13,8 @@ body {
 
 .remoteRow {
   display: flex;
+  margin: auto;
+  padding-top: 50px;
 }
 
 .banner {
@@ -71,6 +73,18 @@ input {
 .remotePlayerLarge {
   width: 1280px;
   height: 720px;
+  margin: auto;
+}
+
+.remotePlayerLargeL {
+  width: 1280px;
+  height: 720px;
+  margin: auto;
+}
+
+.remotePlayerLargeP {
+  width: 720px;
+  height: 1280px;
   margin: auto;
 }
 
