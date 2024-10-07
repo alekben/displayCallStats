@@ -48,6 +48,9 @@ $(() => {
   if (options.token != null) {
     options.token = options.token.replace(/ /g,'+');
     }
+  if (options.sc == null) {
+      options.sc = "true";
+    }
   joinChannel();
 });
 
@@ -92,10 +95,7 @@ async function subscribe(user, mediaType) {
   `);
   $("#remote-playerlist-row1").append(player);
     user.videoTrack.play(`player`);
-  } else {
-    await client.subscribe(user, mediaType);
-    user.audioTrack.play();
-  }
+  } 
 }
 
 
@@ -126,24 +126,23 @@ async function handleUserPublished(user, mediaType) {
       remoteJoined = true;
       remoteUID = id;
     }
-  } else {
-    remoteUsers[id] = user;
-    subscribe(user, mediaType);
-  }
+  } 
 }
 
 async function handleUserUnpublished(user, mediaType) {
   if (mediaType === 'video') {
     const id = user.uid;
     delete remoteUsers[id];
-    context.processor.unpipe();
-    context.track.unpipe();
-    await context.processor.release();
-    context.processor = undefined;
-    context.track.stop();
+    if (options.sc == "true") {
+      context.processor.unpipe();
+      context.track.unpipe();
+      await context.processor.release();
+      context.processor = undefined;
+      context.track.stop();
+      context.track = undefined;
+    }
     //user.videoTrack.stop(`player-${id}`)
-    context.track = undefined;
-    $(`#player-wrapper`).remove();
+    $(`#player-wrapper-${id}`).remove();
     remoteJoined = false;
     remoteUID = 0;
   }
