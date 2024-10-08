@@ -39,7 +39,7 @@ var rtmClient;
 var rtmConfig = {
   //2.1.x or below
   //token : null,
-  //presenceTimeout : 30,
+  presenceTimeout : 30,
   logUpload : false,
   logLevel : "info",
   cloudProxy : false,
