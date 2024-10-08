@@ -121,8 +121,14 @@ async function handleUserPublished(user, mediaType) {
       });
         context.track.pipe(context.processor).pipe(context.track.processorDestination);
         await context.processor.enable();
-        context.track.play(`player`);
-      } 
+        context.track.play(`player`,  {
+          fit: "contain"
+        });
+      } else {
+        user.videoTrack.play(`player`,  {
+          fit: "contain"
+        });
+      }
       remoteJoined = true;
       remoteUID = id;
     }

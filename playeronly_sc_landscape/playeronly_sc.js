@@ -21,6 +21,7 @@ var client = AgoraRTC.createClient({
 var joined = false;
 var remoteJoined = false;
 var remoteUsers = {};
+var remotePlayed = false;
 
 
 // Agora client options
@@ -81,10 +82,19 @@ async function handleTrackUpdated(track) {
 
 async function handleVideoStateChanged(vState) {
   console.log(`video-state-changed fired ${vState}`);
-  if (vState = 2) {
-    remoteUsers[remoteUID].videoTrack.play(`player-${remoteUID}`);
-    remoteUsers[remoteUID].audioTrack.play();
+  if (!remotePlayed) {
+    if (vState = 2) {
+      remotePlayed = true;
+    }
+  } else {
+    if (vState = 3) {
+      $(`#player-${remoteUID}`).css("filter", "blur(10px)");
+    }
+    if (vState = 2) {
+      $(`#player-${remoteUID}`).css("filter", "");
+    }
   }
+
 }
 
 async function handleFirstFrameDecoded() {
@@ -135,9 +145,9 @@ async function handleUserPublished(user, mediaType) {
       context.processor.on("error", (msg) => {
       console.log("plugin error:", msg);
     });
-      context.processor.on("stats", (stats) => {
-      console.log("plugin stats:", Date.now(), stats);
-    });
+      //context.processor.on("stats", (stats) => {
+      //console.log("plugin stats:", Date.now(), stats);
+    //});
       context.track.pipe(context.processor).pipe(context.track.processorDestination);
       await context.processor.enable();
       context.track.play(`player-${id}`);
@@ -163,6 +173,7 @@ async function handleUserUnpublished(user, mediaType) {
     context.track = undefined;
     $(`#player-wrapper-${id}`).remove();
     remoteJoined = false;
+    remotePlayed = false;
   } else {
     audioTrackPresent = false;
   }
