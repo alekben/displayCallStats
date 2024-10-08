@@ -80,21 +80,22 @@ async function handleTrackUpdated(track) {
   console.log(`track-updated fired for ${track.id}`);
 }
 
-async function handleVideoStateChanged(vState) {
+function handleVideoStateChanged(vState) {
   console.log(`video-state-changed fired ${vState}`);
-  if (!remotePlayed) {
-    if (vState = 2) {
-      remotePlayed = true;
-    }
-  } else {
-    if (vState = 3) {
-      $(`#player-${remoteUID}`).css("filter", "blur(10px)");
-    }
-    if (vState = 2) {
-      $(`#player-${remoteUID}`).css("filter", "");
-    }
+  if (vState == 1) {
+    console.log(`v state 1`);
+  } else if (vState == 2) {
+    if (!remotePlayed) {
+        console.log(`v state 2 setting remoteplayed true`);
+        remotePlayed = true;
+      } else {
+        console.log(`v state 2 after playing, unblurring`);
+        $(`#player-${remoteUID}`).css("filter", "");
+      }
+  } else if (vState == 3) {
+    console.log(`v state 3 blurring`);
+    $(`#player-${remoteUID}`).css("filter", "blur(10px)")
   }
-
 }
 
 async function handleFirstFrameDecoded() {
