@@ -461,7 +461,7 @@ async function join() {
   //}
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: "720p_2"});
+      encoderConfig: "720p_2", optimizationMode:"detail"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
@@ -470,6 +470,8 @@ async function join() {
   // publish local tracks to channel
   await client.publish(localTracks.videoTrack);
   console.log("publish cam success");
+  localTrackState.videoTrackEnabled = true;
+  localTrackState.videoTrackMuted = true;
   initStats();
 }
 async function leave() {
