@@ -724,7 +724,7 @@ async function shareScreen() {
     screenClient.leave();
   } else {
     console.log('publishing screen track');
-    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p"}, "disabled");
+    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "disabled");
     options.screenUid = await screenClient.join(options.appid, options.channel, options.screenToken || null, options.screenUid || null);
     screenClient.publish(localTracks.screenTrack);
     localTrackState.screenTrackPublished = true;

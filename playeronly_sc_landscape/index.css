@@ -111,6 +111,14 @@ input {
   position: absolute;
 }
 
+.blurActive {
+  color: rgb(255, 255, 255);
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  font-size: x-large;
+}
+
 .stats-row {
   font-size: 12px;
   margin-bottom: 2px;

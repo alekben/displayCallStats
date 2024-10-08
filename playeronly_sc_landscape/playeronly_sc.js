@@ -91,10 +91,12 @@ function handleVideoStateChanged(vState) {
       } else {
         console.log(`v state 2 after playing, unblurring`);
         $(`#player-${remoteUID}`).css("filter", "");
+        $(`#blurText`).text("");
       }
   } else if (vState == 3) {
     console.log(`v state 3 blurring`);
     $(`#player-${remoteUID}`).css("filter", "blur(10px)")
+    $(`#blurText`).text("BLURRING ACTIVATED");
   }
 }
 
@@ -113,6 +115,7 @@ async function subscribe(user, mediaType) {
         <div class="player-with-stats">
           <div id="player-${uid}" class="remotePlayerLarge"></div>
           <div class="track-stats remoteStats"></div>
+          <div class="blurActive" id="blurText"></div>
         </div>
       </div>
   `);
