@@ -77,7 +77,7 @@ var client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp9"
 });
-AgoraRTC.setParameter("ENABLE_SVC","true");
+AgoraRTC.setParameter("ENABLE_SVC", true);
 
 //var loopback_client = AgoraRTC.createClient({
 //  mode: "rtc",
@@ -259,7 +259,7 @@ $("#join-form").submit(async function (e) {
         codec: "vp9"
       });
       //await client.enableDualStream();
-      AgoraRTC.setParameter("ENABLE_SVC","true");
+      AgoraRTC.setParameter("ENABLE_SVC", true);
     }
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
