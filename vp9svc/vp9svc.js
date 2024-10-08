@@ -20,7 +20,7 @@ var client = AgoraRTC.createClient({
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 AgoraRTC.setParameter("SVC",["vp9"]);
 console.log("Start with Web Audio OFF");
-var webAudioOff = true;
+var webAudioOff = false;
 
 AgoraRTC.enableLogUpload();
 var localTracks = {

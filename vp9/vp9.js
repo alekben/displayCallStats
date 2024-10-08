@@ -77,6 +77,7 @@ var client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp9"
 });
+AgoraRTC.setParameter("ENABLE_SVC","true");
 
 //var loopback_client = AgoraRTC.createClient({
 //  mode: "rtc",
@@ -85,8 +86,8 @@ var client = AgoraRTC.createClient({
 
 AgoraRTC.setParameter("RESTRICTION_SET_PLAYBACK_DEVICE", false);
 //AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-console.log("Start with Web Audio OFF");
-var webAudioOff = true;
+//console.log("Start with Web Audio OFF");
+var webAudioOff = false;
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -96,8 +97,10 @@ var localTracks = {
 
 var localTrackState = {
   audioTrackMuted: false,
-  audioTrackEnabled: false
-};
+  audioTrackEnabled: false,
+  videoTrackMuted: false,
+  videoTrackEnabled: false
+}
 
 var joined = false;
 //var loopback = false;
@@ -255,7 +258,8 @@ $("#join-form").submit(async function (e) {
         mode: "rtc",
         codec: "vp9"
       });
-      await client.enableDualStream();
+      //await client.enableDualStream();
+      AgoraRTC.setParameter("ENABLE_SVC","true");
     }
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
@@ -279,6 +283,8 @@ $("#join-form").submit(async function (e) {
     //$("#startLoopback").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
+    $("#setMutedCam").attr("disabled", false);
+    $("#setEnabledCam").attr("disabled", false);
     joined = true;
   }
 });
@@ -327,6 +333,22 @@ $("#setEnabled").click(function (e) {
   }
 });
 
+$("#setMutedCam").click(function (e) {
+  if (!localTrackState.videoTrackMuted) {
+    muteVideo();
+  } else {
+    unmuteVideo();
+  }
+});
+
+$("#setEnabledCam").click(function (e) {
+  if (localTrackState.videoTrackEnabled) {
+    disableVideo();
+  } else {
+    enableVideo();
+  }
+});
+
 $("#webAudio").click(function (e) {
   toggleWebAudio();
 });
@@ -366,10 +388,6 @@ async function publishMic() {
 
 async function muteAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   $("#setMuted").text("Unmute Mic Track");
@@ -384,10 +402,7 @@ async function unmuteAudio() {
 
 async function disableAudio() {
   if (!localTracks.audioTrack) return;
-  /**
-   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
-   * Calling setEnabled to disable a track, the SDK stops audio or video capture
-   */
+
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
   $("#setEnabled").text("Enable Mic Track");
@@ -400,12 +415,41 @@ async function enableAudio() {
   $("#setEnabled").text("Disable Mic Track");
 }
 
+async function muteVideo() {
+  if (!localTracks.videoTrack) return;
+  await localTracks.videoTrack.setMuted(true);
+  localTrackState.videoTrackMuted = true;
+  $("#setMutedCam").text("Unmute Cam Track");
+}
+
+async function unmuteVideo() {
+  if (!localTracks.videoTrack) return;
+  await localTracks.videoTrack.setMuted(false);
+  localTrackState.videoTrackMuted = false;
+  $("#setMutedCam").text("Mute Cam Track");
+}
+
+async function disableVideo() {
+  if (!localTracks.videoTrack) return;
+
+  await localTracks.videoTrack.setEnabled(false);
+  localTrackState.videoTrackEnabled = false;
+  $("#setEnabledCam").text("Enable Cam Track");
+}
+
+async function enableVideo() {
+  if (!localTracks.videoTrack) return;
+  await localTracks.videoTrack.setEnabled(true);
+  localTrackState.videoTrackEnabled = true;
+  $("#setEnabledCam").text("Disable Cam Track");
+}
+
 async function join() {
   // add event listener to play remote tracks when remote user publishs.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
   client.on("exception", handleLowInput);
-  client.enableDualStream();
+  //client.enableDualStream();
   //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 
   // join the channel
@@ -417,7 +461,7 @@ async function join() {
   //}
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: "720p_2", optimizationMode: "motion"});
+      encoderConfig: "720p_2"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
@@ -456,6 +500,12 @@ async function leave() {
   $("#publishTrack").attr("disabled", true);
   $("#record").attr("disabled", true);
   //$("#startLoopback").attr("disabled", true);
+  $("#setMuted").text("Mute Mic Track");
+  $("#setEnabled").text("Disable Mic Track");
+  $("#setMuted").attr("disabled", true);
+  $("#setEnabled").attr("disabled", true);
+  $("#setMutedCam").text("Mute Cam Track");
+  $("#setEnabledCam").text("Disable Cam Track");
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
