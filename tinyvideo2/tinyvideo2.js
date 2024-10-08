@@ -44,9 +44,9 @@ var rtmConfig = {
   logLevel : "info",
   cloudProxy : false,
   useStringUserId : false,
-  encryptionMode: "AES_128_GCM",
-  cipherKey: "",
-  salt: ""
+  //encryptionMode: "AES_128_GCM",
+  //cipherKey: "",
+  //salt: ""
 };
 
 function getRandomInt(max) {
