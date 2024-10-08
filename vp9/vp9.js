@@ -461,7 +461,7 @@ async function join() {
   //}
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: "720p_2", optimizationMode:"detail"});
+        encoderConfig: {width:1280, height:720, bitrateMax:700, bitrateMin:100, frameRate:30}, optimizationMode: "detail"});
   }
   // play local video track
   localTracks.videoTrack.play("local-player");
