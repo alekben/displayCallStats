@@ -51,8 +51,8 @@ input {
 }
 
 .remotePlayer {
-  width: 200px;
-  height: 200px;
+  width: 480px;
+  height: 360px;
   margin-right: 10px;
   display: flex;
 }
