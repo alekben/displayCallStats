@@ -10,7 +10,7 @@ const context = {
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "live",
+  mode: "rtc",
   codec: "vp8"
 });
 
@@ -55,11 +55,11 @@ $(() => {
 });
 
 async function joinChannel() {
-  await AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
+  //await AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "live",
+        mode: "rtc",
         codec: "vp8"
       });
     }
