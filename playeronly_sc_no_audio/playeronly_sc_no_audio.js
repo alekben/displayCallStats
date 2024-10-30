@@ -55,7 +55,7 @@ $(() => {
 });
 
 async function joinChannel() {
-  //await AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
+  await AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
