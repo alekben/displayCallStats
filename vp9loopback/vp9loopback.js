@@ -868,8 +868,8 @@ $("#local-stats").html(`
 Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {
-    video: client.getRemoteVideoStats()[uid],
-    net: client.getRemoteNetworkQuality()[uid]
+    video: client2.getRemoteVideoStats()[uid],
+    net: client2.getRemoteNetworkQuality()[uid]
     //audio: client.getRemoteAudioStats()[uid]
   };
   const remoteTracksStatsList = [
