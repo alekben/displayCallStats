@@ -11,6 +11,7 @@
  */
 
 AgoraRTC.enableLogUpload();
+AgoraRTC.setArea("NORTH_AMERICA");
 
 var client = AgoraRTC.createClient({
   mode: "rtc",
