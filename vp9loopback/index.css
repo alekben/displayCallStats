@@ -89,9 +89,10 @@ input {
 }
 
 .stats {
-  color: rgb(255, 5, 5);
+  color: rgb(0, 255, 110);
   margin-left: 10px;
   position: absolute;
+  font-weight: bolder;
 }
 
 .stats2 {
@@ -101,7 +102,7 @@ input {
 }
 
 .remoteStats {
-  color: rgb(245, 2, 2);
+  color: rgb(0, 255, 60);
   margin-left: 10px;
   position: absolute;
 }
