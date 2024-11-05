@@ -553,6 +553,12 @@ $("#vb").click(async e => {
       console.warn("Performance warning!!!!!!!!!!!!!!!!!");
       showPopup("VirtualBackground performance warning!");
     });
+    processor.eventBus.on("cost", (cost) => {
+      console.warn(`cost of vb is ${cost}`);
+    });
+    processor.onoverload = async () => {
+      console.log("overload!!!");
+    };
     try {
       await processor.init("not_needed");
     } catch (error) {
