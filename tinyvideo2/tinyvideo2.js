@@ -40,8 +40,8 @@ var rtmConfig = {
   //2.1.x or below
   //token : null,
   presenceTimeout : 30,
-  logUpload : false,
-  logLevel : "info",
+  logUpload : true,
+  logLevel : "debug",
   cloudProxy : false,
   useStringUserId : false,
   //encryptionMode: "AES_128_GCM",
