@@ -93,6 +93,11 @@ window.onload = function () {
         await rtmClient.logout();
     }
 
+    document.getElementById("logoutNull").onclick = async function () {
+      await rtmClient.logout();
+      rtmClient = "";
+  }
+
     // create and join channel
     document.getElementById("join").onclick = async function () {
         try {
