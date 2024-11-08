@@ -59,6 +59,25 @@ window.onload = function () {
         setupListners()
     }
 
+    document.getElementById("startLogin").onclick = async function () {
+        appID = document.getElementById("appid").value.toString();
+        options.uid = document.getElementById("userID").value.toString();
+        options.token = document.getElementById("token").value.toString();
+
+        try {
+            rtmClient = new RTM(appID, options.uid, rtmConfig); 
+            } catch (status) {
+            console.log(status); 
+        };
+        setupListners();
+        try {
+            const result = await rtmClient.login({token: options.token});
+            console.log(result);
+          } catch (status) {
+            console.log(status);
+          };
+    }
+
     document.getElementById("login").onclick = async function () {
         options.token = document.getElementById("token").value.toString() 
         try {
@@ -66,7 +85,7 @@ window.onload = function () {
             console.log(result);
           } catch (status) {
             console.log(status);
-          } ;
+          };
     }
 
     // logout
