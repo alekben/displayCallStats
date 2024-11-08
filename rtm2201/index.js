@@ -4,6 +4,12 @@ let options = {
     token: ""
 }
 
+let state = {
+  client: false,
+  loggedin: false,
+  subscribed: false,
+}
+
 const { RTM } = AgoraRTM;
 var rtmClient;
 
@@ -51,12 +57,21 @@ window.onload = function () {
     document.getElementById("start").onclick = async function () {
         appID = document.getElementById("appid").value.toString();
         options.uid = document.getElementById("userID").value.toString();
-        try {
+        if (!state.client) {
+          try {
             rtmClient = new RTM(appID, options.uid, rtmConfig); 
             } catch (status) {
                 console.log(status); 
-        };
-        setupListners()
+                console.log(state);
+            } finally {
+              state.client = true;
+            };
+        setupListners() 
+        } else {
+          console.log("SIGNALING: client status already true");
+          document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client status already true");
+        }
+
     }
 
     document.getElementById("startLogin").onclick = async function () {
@@ -64,38 +79,82 @@ window.onload = function () {
         options.uid = document.getElementById("userID").value.toString();
         options.token = document.getElementById("token").value.toString();
 
-        try {
+        if (!state.client) {
+          try {
             rtmClient = new RTM(appID, options.uid, rtmConfig); 
             } catch (status) {
             console.log(status); 
-        };
+            console.log(state);
+            } finally {
+              state.client = true;
+            };
         setupListners();
-        try {
+        } else {
+          console.log("SIGNALING: client status already true");
+          document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client status already true");
+        }
+
+        if (!state.loggedin) {
+          try {
             const result = await rtmClient.login({token: options.token});
             console.log(result);
+            console.log(state);
           } catch (status) {
-            console.log(status);
+          console.log(status);
+          } finally {
+            state.loggedin = true;
           };
+        } else {
+          console.log("SIGNALING: client logged in already true");
+          document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already true");
+        }
     }
 
     document.getElementById("login").onclick = async function () {
         options.token = document.getElementById("token").value.toString() 
-        try {
+        if (!state.loggedin) {
+          try {
             const result = await rtmClient.login({token: options.token});
             console.log(result);
+
+            console.log(state);
           } catch (status) {
             console.log(status);
+          } finally {
+            state.loggedin = true;
           };
+        } else {
+          console.log("SIGNALING: client logged in already true");
+          document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already true");
+        }
     }
 
     // logout
     document.getElementById("logout").onclick = async function () {
+      if (state.loggedin) {
         await rtmClient.logout();
+        state.loggedin = false;
+        state.subscribed = false;
+        console.log(state);
+      } else {
+        console.log("SIGNALING: client logged in already false");
+        document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already false");
+      }
+
     }
 
     document.getElementById("logoutNull").onclick = async function () {
-      await rtmClient.logout();
-      rtmClient = "";
+      if (state.loggedin) {
+        await rtmClient.logout();
+        state.loggedin = false;
+        console.log(state);
+        rtmClient = "";
+        state.client = false;
+        state.subscribed = false;
+      } else {
+        console.log("SIGNALING: client logged in already false");
+        document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already false");
+      }
   }
 
     // create and join channel
@@ -109,6 +168,7 @@ window.onload = function () {
             });
             console.log("SIGNALING: rtm channel sub result: ", result.channelName);
             document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully joined channel demoChannel");
+            state.subscribed = true;
           } catch (status) {
             console.log(status);
           };
@@ -121,6 +181,7 @@ window.onload = function () {
             const result = await rtmClient.unsubscribe("demoChannel");
             console.log("SIGNALING: rtm channel unsub result: ", result.channelName);
             document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully left channel demoChannel");
+            state.subscribed = false;
           } catch (status) {
             console.log(status);
           };
