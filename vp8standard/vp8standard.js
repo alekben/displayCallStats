@@ -21,7 +21,7 @@ var dumbTempFix = "Selected";
 // create Agora client
 var client = AgoraRTC.createClient({
   mode: "live",
-  codec: "vp9"
+  codec: "vp8"
 });
 
 
@@ -721,9 +721,9 @@ function handleNetworkQuality(stats) {
   localNetQuality.downlink = stats.downlinkNetworkQuality;
   const d = new Date();
   let time = d.getTime();
-  console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
-  client.sendCustomReportMessage({
-    reportId: "50", category: "netstats", event: "netstats", label: String("stats"), value: String(`${localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
+  //console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
+  //client.sendCustomReportMessage({
+  //  reportId: "50", category: "netstats", event: "netstats", label: String("stats"), value: String(`$//{localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
 }
 
 
@@ -990,9 +990,9 @@ async function drawCurveTypes(array) {
     vAxis: {
       title: 'Kbits/s'
     },
-    series: {
-      1: {curveType: 'function'}
-    }
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
   };
 
   chart.draw(data, options);
