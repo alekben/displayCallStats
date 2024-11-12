@@ -1,4 +1,9 @@
 
+//chart stuff
+google.charts.load('current', {packages: ['corechart', 'line']});
+var chart;
+var chartArray = [];
+
 var host = true;
 //popup stuff
 var popups = 0;
@@ -515,6 +520,7 @@ async function join() {
     $("#joined-setup").css("display", "flex");
   }
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+  chart = new google.visualization.LineChart(document.getElementById('chart-div'));
   initStats();
   notifyReady();
 }
@@ -562,6 +568,9 @@ async function leave() {
   $("#biggerView").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
+  //clear chart
+  chart.clearChart();
+  chartArray.length = 0;
   console.log("client leaves channel success");
 
 }
@@ -755,11 +764,11 @@ function flushStats() {
   const status = navigator.onLine;
   const clientStats = client.getRTCStats();
   const clientStatsList = [
-    {
-      description: "Local UID",
-      value: options.uid,
-      unit: ""
-    },
+  {
+    description: "Local UID",
+    value: options.uid,
+    unit: ""
+  },
   {
     description: "Host Count",
     value: clientStats.UserCount,
@@ -800,6 +809,8 @@ function flushStats() {
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
   `);
+  chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats.RecvBitrate]);
+  drawCurveTypes(chartArray);
 
 // get the local track stats message
 const localStats = {
@@ -963,3 +974,26 @@ function removeItemOnce(arr, value) {
   }
   return arr;
 }
+
+async function drawCurveTypes(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Up');
+  data.addColumn('number', 'Down');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'Kbits/s'
+    },
+    series: {
+      1: {curveType: 'function'}
+    }
+  };
+
+  chart.draw(data, options);
+};
