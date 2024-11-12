@@ -24,7 +24,7 @@ var client = AgoraRTC.createClient({
 
 //AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 AgoraRTC.setParameter("SVC",["vp9"]);
-AgoraRTC.setParameter("ENABLE_SVC", true);
+//AgoraRTC.setParameter("ENABLE_SVC", true);
 //console.log("Start with Web Audio OFF");
 var webAudioOff = false;
 
