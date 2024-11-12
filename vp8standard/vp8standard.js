@@ -172,27 +172,27 @@ async function initDevices() {
       localTrackState.audioTrackEnabled = true;
       localTrackState.audioTrackMuted = false;
       }
-
-      if (!localTracks.videoTrack) {
-        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-          encoderConfig: curVideoProfile.value
-        });
-      } else {
-        console.log("cam track already exists, replacing.");
-        await client.unpublish(localTracks.videoTrack);
-        await localTracks.videoTrack.stop();
-        await localTracks.videoTrack.close();
-        localTracks.videoTrack = undefined;
-        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-          encoderConfig: curVideoProfile.value
-        });
-        await client.publish(localTracks.videoTrack);;
-        localTrackState.videoTrackEnabled = true;
-        localTrackState.videoTrackMuted = false;
-      }
     }
+     // if (!localTracks.videoTrack) {
+     //   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+     //     encoderConfig: curVideoProfile.value
+     //   });
+     // } else {
+     //   console.log("cam track already exists, replacing.");
+     //   await client.unpublish(localTracks.videoTrack);
+     //   await localTracks.videoTrack.stop();
+     //   await localTracks.videoTrack.close();
+     //   localTracks.videoTrack = undefined;
+     //   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+     //     encoderConfig: curVideoProfile.value
+     //   });
+     //   await client.publish(localTracks.videoTrack);;
+     //   localTrackState.videoTrackEnabled = true;
+     //   localTrackState.videoTrackMuted = false;
+     // }
+    //}
 
-  if (localTracks.audioTrack) {
+  //if (localTracks.audioTrack) {
   // get mics
   mics = await AgoraRTC.getMicrophones();
   const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
@@ -202,7 +202,7 @@ async function initDevices() {
   mics.forEach(mic => {
     $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
   });
-  }
+  //}
 
   if (localTracks.videoTrack) {
     //get cams
