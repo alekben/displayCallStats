@@ -988,9 +988,9 @@ async function drawCurveTypes(array) {
     vAxis: {
       title: 'Kbits/s'
     },
-    series: {
-      1: {curveType: 'function'}
-    }
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
   };
 
   chart.draw(data, options);
