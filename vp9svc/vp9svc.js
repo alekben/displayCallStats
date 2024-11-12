@@ -1,3 +1,8 @@
+//chart stuff
+google.charts.load('current', {packages: ['corechart', 'line']});
+var chart;
+var chartArray = [];
+
 //SVC stuff
 var layers = {};
 
@@ -17,9 +22,10 @@ var client = AgoraRTC.createClient({
 });
 
 
-AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
+//AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 AgoraRTC.setParameter("SVC",["vp9"]);
-console.log("Start with Web Audio OFF");
+AgoraRTC.setParameter("ENABLE_SVC", true);
+//console.log("Start with Web Audio OFF");
 var webAudioOff = false;
 
 AgoraRTC.enableLogUpload();
@@ -236,7 +242,7 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    AgoraRTC.setParameter("SVC",["vp9"]);
+    //AgoraRTC.setParameter("SVC",["vp9"]);
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -507,6 +513,7 @@ async function join() {
   console.log("publish cam success");
   showPopup("Cam Track Published");
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+  chart = new google.visualization.LineChart(document.getElementById('chart-div'));
   initStats();
 }
 async function leave() {
@@ -556,6 +563,10 @@ async function leave() {
   $("#biggerView").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
+
+  //clear chart
+  chart.clearChart();
+  chartArray.length = 0;
   console.log("client leaves channel success");
 
 }
@@ -750,11 +761,11 @@ function flushStats() {
   // get the client stats message
   const clientStats = client.getRTCStats();
   const clientStatsList = [
-    {
-      description: "Local UID",
-      value: options.uid,
-      unit: ""
-    },
+  {
+    description: "Local UID",
+    value: options.uid,
+    unit: ""
+  },
   {
     description: "Host Count",
     value: clientStats.UserCount,
@@ -783,6 +794,8 @@ function flushStats() {
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
   `);
+  chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats.RecvBitrate]);
+  drawCurveTypes(chartArray);
 
 // get the local track stats message
 const localStats = {
@@ -952,3 +965,26 @@ function removeItemOnce(arr, value) {
   }
   return arr;
 }
+
+async function drawCurveTypes(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Up');
+  data.addColumn('number', 'Down');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'Kbits/s'
+    },
+    series: {
+      1: {curveType: 'function'}
+    }
+  };
+
+  chart.draw(data, options);
+};
