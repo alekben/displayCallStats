@@ -33,6 +33,9 @@ var connectionState = {
   isTURN: null
 };
 
+var localNetQuality = {uplink: 0, downlink: 0};
+var local2NetQuality = {uplink: 0, downlink: 0};
+
 var remoteUsers = {};
 let loopback = false;
 
@@ -98,11 +101,13 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
+    $("#channelSettings").css("display", "none");
   }
 });
 
 $("#leave").click(function (e) {
   leave();
+  $("#channelSettings").css("display", "");
 });
 
 async function join() {
@@ -112,8 +117,11 @@ async function join() {
   client.on("join-fallback-to-proxy", reportAutoFallback);
   client.on("stream-type-changed", reportStreamTypeChanged)
   client.on("connection-state-change", handleConnectionState);
+  client.on("network-quality", handleNetworkQuality);
   client2.on("user-published", handleUserPublished2);
   client2.on("user-unpublished", handleUserUnpublished2);
+  client2.on("network-quality", handleNetworkQuality2);
+  client.on("connection-state-change", handleConnectionState2);
 
 
   const value = Number(mode.value);
@@ -231,29 +239,61 @@ function reportProxyUsed(isProxyUsed) {
   showPopup(`is-cloud-proxy-used reports: ${isProxyUsed}`);
 }
 
+function handleNetworkQuality(stats) {
+  localNetQuality.uplink = stats.uplinkNetworkQuality;
+  localNetQuality.downlink = stats.downlinkNetworkQuality;
+}
+
+function handleNetworkQuality2(stats) {
+  local2NetQuality.uplink = stats.uplinkNetworkQuality;
+  local2NetQuality.downlink = stats.downlinkNetworkQuality;
+}
 
 function handleConnectionState(cur, prev, reason) {
   if (cur == "DISCONNECTED") {
-    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
-    showPopup(`Connection State: ${cur}, Reason: ${reason}`)
+    console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+    showPopup(`Sender: Connection State: ${cur}, Reason: ${reason}`)
     if (reason == "FALLBACK") {
-      console.log(`Autofallback TCP Proxy being attempted.`);
-      showPopup(`Autofallback TCP Proxy Attempted`);
+      console.log(`Sender: Autofallback TCP Proxy being attempted.`);
+      showPopup(`Sender: Autofallback TCP Proxy Attempted`);
     }
   } else if (cur == "CONNECTED") {
-    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Connection State: ${cur}`);
+    console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Sender: Connection State: ${cur}`);
     connectionState.isJoined = true;
-    client._p2pChannel.connection?.onICEConnectionStateChange = () => {
-      console.log(`ice state changed: ${client._p2pChannel.connection.iceConnectionState}`);
-      showPopup(`ICE State: ${client._p2pChannel.connection.iceConnectionState}`);
+    client._p2pChannel.connection.onICEConnectionStateChange = () => {
+      console.log(`Sender: ice state changed: ${client._p2pChannel.connection.iceConnectionState}`);
+      showPopup(`Sender: ICE State: ${client._p2pChannel.connection.iceConnectionState}`);
     };
   } else {
-    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Connection State: ${cur}`);
+    console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Sender: Connection State: ${cur}`);
     connectionState.isJoined = false;
   }
   }
+
+  function handleConnectionState2(cur, prev, reason) {
+    if (cur == "DISCONNECTED") {
+      console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+      showPopup(`Receiver: Connection State: ${cur}, Reason: ${reason}`)
+      if (reason == "FALLBACK") {
+        console.log(`Receiver: Autofallback TCP Proxy being attempted.`);
+        showPopup(`Receiver: Autofallback TCP Proxy Attempted`);
+      }
+    } else if (cur == "CONNECTED") {
+      console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+      showPopup(`Receiver: Connection State: ${cur}`);
+      connectionState.isJoined = true;
+      client2._p2pChannel.connection.onICEConnectionStateChange = () => {
+        console.log(`Receiver: ice state changed: ${client2._p2pChannel.connection.iceConnectionState}`);
+        showPopup(`Receiver: ICE State: ${client2._p2pChannel.connection.iceConnectionState}`);
+      };
+    } else {
+      console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+      showPopup(`Receiver: Connection State: ${cur}`);
+      connectionState.isJoined = false;
+    }
+    }
 
 async function changeModes(label) {
   mode = modes.find(profile => profile.label === label);
@@ -261,6 +301,8 @@ async function changeModes(label) {
   if (connectionState.isJoined) {
     await leave();
     await join();
+    $("#join").attr("disabled", true);
+    $("#leave").attr("disabled", false);
   }
 }
 
@@ -314,22 +356,20 @@ function initStats() {
 
 function destructStats() {
   clearInterval(statsInterval);
-  //$("#session-stats").html("");
-  //$("#transport-stats").html("");
-  //$("#local-stats").html("");
+  $("#client-stats").html("");
 }
 
 function flushStats() {
   // get the client stats message
   const clientStats = client.getRTCStats();
   const clientStats2 = client2.getRTCStats();
+  const status = navigator.onLine;
   const clientStatsList = [
   {
     description: "Local UID",
     value: options.uid,
     unit: ""
-  },
-  {
+  }, {
     description: "Host Count",
     value: clientStats.UserCount,
     unit: ""
@@ -353,6 +393,18 @@ function flushStats() {
     description: "RTT to SD-RTN Edge",
     value: clientStats.RTT,
     unit: "ms"
+  }, {
+    description: "Uplink Stat",
+    value: localNetQuality.uplink,
+    unit: ""
+  }, {
+    description: "Downlink Stat",
+    value: local2NetQuality.downlink,
+    unit: ""
+  }, {
+    description: "Link Status",
+    value: status,
+    unit: ""
   }];
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
