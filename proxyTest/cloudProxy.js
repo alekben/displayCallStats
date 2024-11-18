@@ -114,7 +114,7 @@ async function join() {
   client.on("connection-state-change", handleConnectionState);
   client2.on("user-published", handleUserPublished2);
   client2.on("user-unpublished", handleUserUnpublished2);
- 
+
 
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
@@ -244,6 +244,10 @@ function handleConnectionState(cur, prev, reason) {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
     showPopup(`Connection State: ${cur}`);
     connectionState.isJoined = true;
+    client._p2pChannel.connection.onICEConnectionStateChange = () => {
+      console.log(`ice state changed: ${client._p2pChannel.connection.iceConnectionState}`);
+      showPopup(`ICE State: ${client._p2pChannel.connection.iceConnectionState}`);
+    };
   } else {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
     showPopup(`Connection State: ${cur}`);
