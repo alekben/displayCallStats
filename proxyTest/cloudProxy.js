@@ -156,6 +156,12 @@ async function leave() {
   }
   remoteUsers = {};
   $("#remote-player").html("");
+  //not a good way to do this it's hack but works
+  const rStats = $(`
+    <div id="remote-stats" class="stream-stats stats"></div>
+  `);
+  $("#remote-player").append(rStats);
+
 
   await client.leave();
   await client2.leave();
