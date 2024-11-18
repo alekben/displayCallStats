@@ -768,8 +768,7 @@ function flushStats() {
     description: "Local UID",
     value: options.uid,
     unit: ""
-  },
-  {
+  }, {
     description: "Host Count",
     value: clientStats.UserCount,
     unit: ""

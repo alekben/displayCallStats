@@ -357,6 +357,7 @@ function initStats() {
 function destructStats() {
   clearInterval(statsInterval);
   $("#client-stats").html("");
+  $("#local-stats").html("");
 }
 
 function flushStats() {
