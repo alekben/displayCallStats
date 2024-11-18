@@ -82,6 +82,7 @@ input {
 
 .stream-stats {
   min-width: 260px;
+  z-index: 1;
 }
 
 @media (max-width: 640px) {

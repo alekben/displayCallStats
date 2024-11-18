@@ -130,11 +130,14 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
   -->
     <div class="row video-group">
       <div class="col">
-        <p id="local-player-name" class="player-name"></p>
         <div id="client-stats" class="stream-stats stats2"></div>
         <div id="chart-div"></div>
-        <div id="local-player" class="player"></div>
-        <div id="remote-player" class="player"></div>
+        <div id="local-player" class="player">
+          <div id="local-stats" class="stream-stats stats"></div>
+        </div>
+        <div id="remote-player" class="player">
+          <div id="remote-stats" class="stream-stats stats"></div>
+        </div>
       </div>
     </div>
   </div>

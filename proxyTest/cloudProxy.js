@@ -349,4 +349,104 @@ function flushStats() {
   `);
   chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
   drawCurveTypes(chartArray);
+  const localStats = {
+    video: client.getLocalVideoStats()
+  };
+  const localStatsList = [{
+    description: "Capture FPS",
+    value: localStats.video.captureFrameRate,
+    unit: ""
+    }, {
+    description: "Send FPS",
+    value: localStats.video.sendFrameRate,
+    unit: ""
+    }, {
+    description: "Video encode delay",
+    value: Number(localStats.video.encodeDelay).toFixed(2),
+    unit: "ms"
+    }, {
+    description: "Video send resolution height",
+    value: localStats.video.sendResolutionHeight,
+    unit: ""
+    }, {
+    description: "Video send resolution width",
+    value: localStats.video.sendResolutionWidth,
+    unit: ""
+    },  {
+    description: "Send video bit rate",
+    value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
+    }, {
+    description: "Send Jitter",
+    value: (Number(localStats.video.sendJitterMs)),
+    unit: "ms"
+    }, {
+    description: "Send RTT",
+    value: (Number(localStats.video.sendRttMs)),
+    unit: "ms"
+    }, {
+    description: "Video packet loss rate",
+    value: Number(localStats.video.currentPacketLossRate).toFixed(3),
+    unit: "%"
+  }];
+  $("#local-stats").html(`
+    ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+  `);
+
+  const remoteTracksStats = {
+    video: client2.getRemoteVideoStats()[options.uid]
+  };
+  const remoteTracksStatsList = [
+  {
+    description: "Receive FPS",
+    value: remoteTracksStats.video.receiveFrameRate,
+    unit: ""
+  }, {
+    description: "Decode FPS",
+    value: remoteTracksStats.video.decodeFrameRate,
+    unit: ""
+  }, {
+    description: "Render FPS",
+    value: remoteTracksStats.video.renderFrameRate,
+    unit: ""
+  }, {
+    description: "Video received height",
+    value: remoteTracksStats.video.receiveResolutionHeight,
+    unit: ""
+  }, {
+    description: "Video received width",
+    value: remoteTracksStats.video.receiveResolutionWidth,
+    unit: ""
+  }, {
+    description: "Recv video bitrate",
+    value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
+  }, {
+    description: "Video receive delay",
+    value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
+    unit: "ms"
+  }, {
+    description: "Video packets lost",
+    value: remoteTracksStats.video.receivePacketsLost,
+    unit: ""
+  }, {
+    description: "E2E Delay",
+    value: remoteTracksStats.video.end2EndDelay,
+    unit: ""
+  }, {
+    description: "Transport Delay",
+    value: remoteTracksStats.video.transportDelay,
+    unit: ""
+  },{
+    description: "Freeze Rate",
+    value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
+    unit: "%"
+  }, {
+    description: "Total video freeze time",
+    value: remoteTracksStats.video.totalFreezeTime,
+    unit: "s"
+  }];
+  $(`#remote-stats`).html(`
+    ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+  `);
 }
