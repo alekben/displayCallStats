@@ -1,17 +1,15 @@
-/*
- *  These procedures use Agora Video Call SDK for Web to enable local and remote
- *  users to join and leave a Video Call channel managed by Agora Platform.
- */
+var popups = 0;
 
-/*
- *  Create an {@link https://docs.agora.io/en/Video/API%20Reference/web_ng/interfaces/iagorartcclient.html|AgoraRTCClient} instance.
- *
- * @param {string} mode - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#mode| streaming algorithm} used by Agora SDK.
- * @param  {string} codec - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/clientconfig.html#codec| client codec} used by the browser.
- */
+google.charts.load('current', {packages: ['corechart', 'line']});
+var chart;
+var chartArray = [];
+
+let statsInterval;
 
 AgoraRTC.enableLogUpload();
-AgoraRTC.setArea("NORTH_AMERICA");
+//AgoraRTC.setArea("NORTH_AMERICA");
+//AgoraRTC.setArea("EUROPE");
+//AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
 
 var client = AgoraRTC.createClient({
   mode: "rtc",
@@ -23,26 +21,22 @@ var client2 = AgoraRTC.createClient({
   codec: "vp8"
 });
 
-/*
- * Clear the video and audio tracks used by `client` on initiation.
- */
 var localTracks = {
   videoTrack: null,
   audioTrack: null
 };
 
-/*
- * On initiation no users are connected.
- */
-var remoteUsers = {};
+var connectionState = {
+  isJoined: null,
+  mediaReceived: null,
+  isProxy: null,
+  isTURN: null
+};
 
+var remoteUsers = {};
 let loopback = false;
 
-//AgoraRTC.setArea("EUROPE");
 
-/*
- * On initiation. `client` is not attached to any project or channel for any specific user.
- */
 var options = {
   appid: null,
   channel: null,
@@ -50,6 +44,7 @@ var options = {
   uid2: null,
   token: null
 };
+
 var modes = [{
   label: "Close",
   detail: "Disable Cloud Proxy",
@@ -65,10 +60,6 @@ var modes = [{
 }];
 var mode;
 
-/*
- * When this page is called with parameters in the URL, this procedure
- * attempts to join a Video Call channel using those parameters.
- */
 $(() => {
   initModes();
   $(".proxy-list").delegate("a", "click", function (e) {
@@ -88,11 +79,6 @@ $(() => {
   }
 });
 
-/*
- * When a user clicks Join or Leave in the HTML form, this procedure gathers the information
- * entered in the form and calls join asynchronously. The UI is updated to match the options entered
- * by the user.
- */
 $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
@@ -115,28 +101,21 @@ $("#join-form").submit(async function (e) {
   }
 });
 
-/*
- * Called when a user clicks Leave in order to exit a channel.
- */
 $("#leave").click(function (e) {
   leave();
 });
 
-/*
- * Join a channel, then create local video and audio tracks and publish them to the channel.
- */
 async function join() {
-  // Add an event listener to play remote tracks when remote user publishes.
-  //client.enableLogUpload();
-  client.on("user-published", handleUserPublished);
-  client.on("user-unpublished", handleUserUnpublished);
+  //client.on("user-published", handleUserPublished);
+  //client.on("user-unpublished", handleUserUnpublished);
   client.on("is-using-cloud-proxy", reportProxyUsed);
   client.on("join-fallback-to-proxy", reportAutoFallback);
   client.on("stream-type-changed", reportStreamTypeChanged)
+  client.on("connection-state-change", handleConnectionState);
   client2.on("user-published", handleUserPublished2);
   client2.on("user-unpublished", handleUserUnpublished2);
+ 
 
-  // Enable Cloud Proxy according to setting
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
     client.startProxyServer(value);
@@ -146,33 +125,26 @@ async function join() {
     client.stopProxyServer();
     client2.stopProxyServer();
   }
-  // Join the channel.
+
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   options.uid2 = await client2.join(options.appid, options.channel, options.token || null, null);
-  // Create tracks to the local microphone and camera.
+
   if (!localTracks.videoTrack) {
     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
   }
 
   await localTracks.videoTrack.setEncoderConfiguration("720p_2");
-  
-  //if (!localTracks.audioTrack) {
-  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-  //}
-
-  // Play the local video track to the local browser and update the UI with the user ID.
   localTracks.videoTrack.play("local-player");
-  $("#local-player-name").text(`localVideo(${options.uid})`);
   $("#joined-setup").css("display", "flex");
 
-  // Publish the local video and audio tracks to the channel.
   await client.publish(localTracks.videoTrack);
   console.log("publish success");
+
+  showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+  chart = new google.visualization.LineChart(document.getElementById('chart-div'));
+  initStats();
 }
 
-/*
- * Stop all local and remote tracks then leave the channel.
- */
 async function leave() {
   for (trackName in localTracks) {
     var track = localTracks[trackName];
@@ -182,61 +154,33 @@ async function leave() {
       localTracks[trackName] = undefined;
     }
   }
-
-  // Remove remote users and player views.
   remoteUsers = {};
-  $("#remote-playerlist").html("");
+  $("#remote-player").html("");
 
-  // leave the channel
   await client.leave();
   await client2.leave();
+  destructStats();
+  chart.clearChart();
+  chartArray.length = 0;
   loopback = false;
-  $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
 }
 
-/*
- * Add the local use to a remote channel.
- *
- * @param  {IAgoraRTCRemoteUser} user - The {@link  https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/iagorartcremoteuser.html| remote user} to add.
- * @param {trackMediaType - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/itrack.html#trackmediatype | media type} to add.
- */
-async function subscribe(user, mediaType) {
-  const uid = user.uid;
-  // subscribe to a remote user
-  await client.subscribe(user, mediaType);
-  console.log("subscribe success");
-  if (mediaType === 'video') {
-    const player = $(`
-      <div id="player-wrapper-${uid}">
-        <p class="player-name">remoteUser(${uid})</p>
-        <div id="player-${uid}" class="player"></div>
-      </div>
-    `);
-    $("#remote-playerlist").append(player);
-    user.videoTrack.play(`player-${uid}`);
-  }
-  if (mediaType === 'audio') {
-    user.audioTrack.play();
-  }
-}
 
 async function subscribe2(user, mediaType) {
   const uid = user.uid;
-  // subscribe to a remote user
   await client2.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === 'video') {
     const player = $(`
       <div id="player-wrapper-${uid}">
-        <p class="player-name">remoteUser(${uid})</p>
         <div id="player-${uid}" class="player"></div>
       </div>
     `);
-    $("#remote-playerlist").append(player);
+    $("#remote-player").append(player);
     user.videoTrack.play(`player-${uid}`);
   }
   if (mediaType === 'audio') {
@@ -244,17 +188,6 @@ async function subscribe2(user, mediaType) {
   }
 }
 
-/*
- * Add a user who has subscribed to the live channel to the local interface.
- *
- * @param  {IAgoraRTCRemoteUser} user - The {@link  https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/iagorartcremoteuser.html| remote user} to add.
- * @param {trackMediaType - The {@link https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/itrack.html#trackmediatype | media type} to add.
- */
-function handleUserPublished(user, mediaType) {
-  const id = user.uid;
-  remoteUsers[id] = user;
-  subscribe(user, mediaType);
-}
 
 function handleUserPublished2(user, mediaType) {
   if (user.uid = options.uid) {
@@ -269,6 +202,15 @@ function handleUserPublished2(user, mediaType) {
   }
 }
 
+function handleUserUnpublished2(user, mediaType) {
+  if (mediaType === 'video') {
+    const id = user.uid;
+    delete remoteUsers[id];
+    $(`#player-wrapper-${id}`).remove();
+  }
+  loopback = false;
+}
+
 function reportStreamTypeChanged(uid, streamType) {
     console.log(`Receive Stream for remote UID ${uid} changed to ${streamType}`);
 }
@@ -280,38 +222,131 @@ function reportAutoFallback(proxyServer) {
 function reportProxyUsed(isProxyUsed) {
   let ms = Date.now();
   console.log(`${ms} - is-cloud-proxy-used reports: ${isProxyUsed}`);
+  showPopup(`is-cloud-proxy-used reports: ${isProxyUsed}`);
 }
 
-/*
- * Remove the user specified from the channel in the local interface.
- *
- * @param  {string} user - The {@link  https://docs.agora.io/en/Voice/API%20Reference/web_ng/interfaces/iagorartcremoteuser.html| remote user} to remove.
- */
-function handleUserUnpublished(user, mediaType) {
-  if (mediaType === 'video') {
-    const id = user.uid;
-    delete remoteUsers[id];
-    $(`#player-wrapper-${id}`).remove();
-  }
-}
 
-function handleUserUnpublished2(user, mediaType) {
-  if (mediaType === 'video') {
-    const id = user.uid;
-    delete remoteUsers[id];
-    $(`#player-wrapper-${id}`).remove();
+function handleConnectionState(cur, prev, reason) {
+  if (cur == "DISCONNECTED") {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+    showPopup(`Connection State: ${cur}, Reason: ${reason}`)
+    if (reason == "FALLBACK") {
+      console.log(`Autofallback TCP Proxy being attempted.`);
+      showPopup(`Autofallback TCP Proxy Attempted`);
+    }
+  } else if (cur == "CONNECTED") {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Connection State: ${cur}`);
+    connectionState.isJoined = true;
+  } else {
+    console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+    showPopup(`Connection State: ${cur}`);
+    connectionState.isJoined = false;
   }
-  loopback = false;
-}
+  }
 
 async function changeModes(label) {
   mode = modes.find(profile => profile.label === label);
   $(".proxy-input").val(`${mode.detail}`);
+  if (connectionState.isJoined) {
+    await leave();
+    await join();
+  }
 }
+
 function initModes() {
   modes.forEach(profile => {
     $(".proxy-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
   mode = modes[0];
   $(".proxy-input").val(`${mode.detail}`);
+}
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+}
+
+async function drawCurveTypes(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Up');
+  data.addColumn('number', 'Down');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'Kbits/s'
+    },
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
+  };
+
+  chart.draw(data, options);
+};
+
+function initStats() {
+  statsInterval = setInterval(flushStats, 1000);
+}
+
+function destructStats() {
+  clearInterval(statsInterval);
+  //$("#session-stats").html("");
+  //$("#transport-stats").html("");
+  //$("#local-stats").html("");
+}
+
+function flushStats() {
+  // get the client stats message
+  const clientStats = client.getRTCStats();
+  const clientStats2 = client2.getRTCStats();
+  const clientStatsList = [
+  {
+    description: "Local UID",
+    value: options.uid,
+    unit: ""
+  },
+  {
+    description: "Host Count",
+    value: clientStats.UserCount,
+    unit: ""
+  }, {
+    description: "Joined Duration",
+    value: clientStats.Duration,
+    unit: "s"
+  }, {
+    description: "Bitrate receive",
+    value: (Number(clientStats2.RecvBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
+  }, {
+    description: "Bitrate sent",
+    value: (Number(clientStats.SendBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
+  }, {
+    description: "Outgoing B/W",
+    value: (Number(clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
+    unit: "Mbps"
+  }, {
+    description: "RTT to SD-RTN Edge",
+    value: clientStats.RTT,
+    unit: "ms"
+  }];
+  $("#client-stats").html(`
+    ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
+  `);
+  chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
+  drawCurveTypes(chartArray);
 }
