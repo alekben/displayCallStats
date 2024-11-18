@@ -244,7 +244,7 @@ function handleConnectionState(cur, prev, reason) {
     console.log(`connection-state-changed: Current: ${cur}, Previous: ${prev}`);
     showPopup(`Connection State: ${cur}`);
     connectionState.isJoined = true;
-    client._p2pChannel.connection.onICEConnectionStateChange = () => {
+    client._p2pChannel.connection?.onICEConnectionStateChange = () => {
       console.log(`ice state changed: ${client._p2pChannel.connection.iceConnectionState}`);
       showPopup(`ICE State: ${client._p2pChannel.connection.iceConnectionState}`);
     };
