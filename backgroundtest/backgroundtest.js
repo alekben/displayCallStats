@@ -500,8 +500,8 @@ $("#ains").click(async e => {
     })();
     processor_ains = processor_ains || (() => {
       let processor_ains = denoiser.createProcessor();
-      processor_ains.onoverload = async () => {
-        console.log("overload!!!");
+      processor_ains.onoverload = async (elapsedTimeInMs) => {
+        console.log(`"overload!!! elapsed: ${elapsedTimeInMs}`);
         try {
           await processor_ains.disable();
           processorEnable = true;
@@ -520,7 +520,7 @@ $("#ains").click(async e => {
         await processor_ains.enable();
         showPopup("AINS enabled");
         processorEnable = false;
-        await processor_ains.setMode("STATIONARY_NS");
+        //await processor_ains.setMode("STATIONARY_NS");
         await processor_ains.setLevel("AGGRESSIVE");
       } catch (e) {
         console.error("enable AIDenoiser failure");

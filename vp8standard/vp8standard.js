@@ -749,7 +749,7 @@ function destructStats() {
   clearInterval(statsInterval);
   $("#session-stats").html("");
   $("#transport-stats").html("");
-  $("#local-stats").html("");
+  $("#client-stats").html("");
 }
 
 
