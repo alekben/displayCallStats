@@ -246,20 +246,17 @@ async function subscribe2(user, mediaType) {
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
+    user.audioTrack.setVolume(0);
   }
 }
 
 
 function handleUserPublished2(user, mediaType) {
   if (user.uid = options.uid) {
-    if (mediaType === 'video') {
       const id = user.uid;
       remoteUsers[id] = user;
       subscribe2(user, mediaType);
       loopback = true;
-    } else {
-      console.log('ignoring loopback mic');
-    }
   } else {
     console.log('some other user ignoring');
   }
