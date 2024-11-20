@@ -278,8 +278,12 @@ $("#join-form").submit(async function (e) {
  * Called when a user clicks Leave in order to exit a channel.
  */
 $("#screenOrCam").click(function (e) {
-  switchCamScreen();
+  setTimeout(()=>{
+    console.log("switch screen");
+    switchCamScreen();
+    }, 1000)
 });
+
 $("#stopScreenShare").click(function (e) {
   switchCamScreen();
 });
