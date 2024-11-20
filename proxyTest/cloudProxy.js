@@ -26,6 +26,10 @@ var localTracks = {
   audioTrack: null
 };
 
+var localTrackState = {
+  audioTrackMuted: false
+};
+
 var connectionState = {
   isJoined: null,
   mediaReceived: null,
@@ -73,6 +77,10 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
+  if (options.channel == null) {
+    options.channel = generateRandomString(10);
+    $("#channel").val(options.channel);
+  };
   if (options.appid && options.channel) {
     $("#uid").val(options.uid);
     $("#appid").val(options.appid);
@@ -102,12 +110,30 @@ $("#join-form").submit(async function (e) {
   } finally {
     $("#leave").attr("disabled", false);
     $("#channelSettings").css("display", "none");
+    $("#mute").text("Mute Mic Track");
+    $("#mute").attr("disabled", false);
+    if (!localTracks.audioTrack) {
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      encoderConfig: "music_standard", "AEC": true, "ANS": true, "AGC": true
+    });
+    };
+    await client.publish(localTracks.audioTrack);
+    console.log("publish mic success");
+    localTrackState.audioTrackMuted = false;
   }
 });
 
 $("#leave").click(function (e) {
   leave();
   $("#channelSettings").css("display", "");
+});
+
+$("#mute").click(function (e) {
+  if (!localTrackState.audioTrackMuted) {
+    muteAudio();
+  } else {
+    unmuteAudio();
+  }
 });
 
 async function join() {
@@ -121,9 +147,8 @@ async function join() {
   client2.on("user-published", handleUserPublished2);
   client2.on("user-unpublished", handleUserUnpublished2);
   client2.on("network-quality", handleNetworkQuality2);
-  client.on("connection-state-change", handleConnectionState2);
-
-
+  client2.on("connection-state-change", handleConnectionState2);
+  
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
     client.startProxyServer(value);
@@ -146,7 +171,7 @@ async function join() {
   $("#joined-setup").css("display", "flex");
 
   await client.publish(localTracks.videoTrack);
-  console.log("publish success");
+  console.log("publish cam success");
 
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
@@ -179,10 +204,27 @@ async function leave() {
   loopback = false;
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
+  $("#mute").text("Mute Mic Track");
+  $("#mute").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
 }
 
+async function muteAudio() {
+  if (!localTracks.audioTrack) return;
+  await localTracks.audioTrack.setMuted(true);
+  localTrackState.audioTrackMuted = true;
+  $("#mute").text("Unmute Mic Track");
+  showPopup("Mic Track Muted");
+}
+
+async function unmuteAudio() {
+  if (!localTracks.audioTrack) return;
+  await localTracks.audioTrack.setMuted(false);
+  localTrackState.audioTrackMuted = false;
+  $("#mute").text("Mute Mic Track");
+  showPopup("Mic Track Unmuted");
+}
 
 async function subscribe2(user, mediaType) {
   const uid = user.uid;
@@ -211,18 +253,24 @@ function handleUserPublished2(user, mediaType) {
       subscribe2(user, mediaType);
       loopback = true;
     } else {
-      console.log('some other user ignoring')
+      console.log('ignoring loopback mic');
     }
+  } else {
+    console.log('some other user ignoring');
   }
 }
 
 function handleUserUnpublished2(user, mediaType) {
-  if (mediaType === 'video') {
-    const id = user.uid;
-    delete remoteUsers[id];
-    $(`#player-wrapper-${id}`).remove();
+  if (user.uid = options.uid) {
+    if (mediaType === 'video') {
+      const id = user.uid;
+      delete remoteUsers[id];
+      $(`#player-wrapper-${id}`).remove();
+      loopback = false;
+    }
+  } else {
+    console.log('some other user ignoring');
   }
-  loopback = false;
 }
 
 function reportStreamTypeChanged(uid, streamType) {
@@ -512,4 +560,16 @@ function flushStats() {
   $(`#remote-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
+}
+
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+
+  return result;
 }

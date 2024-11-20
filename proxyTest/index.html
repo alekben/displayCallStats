@@ -86,7 +86,7 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
       <div id="channelSettings" class="row join-info-group">
         <div class="col-sm sso-hidden">
           <p class="join-info-text">APP ID</p>
-          <input id="appid" type="text" value="7c9a6773eb7b4650831ecdb3a0931dac">
+          <input id="appid" type="text" placeholder="Enter the appId">
           <p class="tips">You find your APP ID in the <a href="https://console.agora.io/projects">Agora Console</a></p>
         </div>
         <div class="col-sm sso-hidden">
@@ -97,7 +97,7 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
         </div>
         <div class="col-sm">
           <p class="join-info-text">Channel Name</p>
-          <input id="channel" type="text" value="CSPTEST" required>
+          <input id="channel" type="text" value="" required>
           <p class="tips">You create a channel when you create a temporary token. You guessed it, in <a
               href="https://console.agora.io/projects">Agora Console</a></p>
         </div>
@@ -123,6 +123,7 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
       <div class="button-group">
         <button id="join" type="submit" class="btn btn-primary btn-sm">Join</button>
         <button id="leave" type="button" class="btn btn-primary btn-sm" disabled>Leave</button>
+        <button id="mute" type="button" class="btn btn-primary btn-sm" disabled>Mute Mic</button>
       </div>
     </form>
     <!--
