@@ -27,7 +27,8 @@ var localTracks = {
 };
 
 var localTrackState = {
-  audioTrackMuted: false
+  audioTrackMuted: false,
+  audioTrackPublished: false
 };
 
 var connectionState = {
@@ -110,16 +111,15 @@ $("#join-form").submit(async function (e) {
   } finally {
     $("#leave").attr("disabled", false);
     $("#channelSettings").css("display", "none");
-    $("#mute").text("Mute Mic Track");
+    $("#mute").text("Unmute Mic Track");
     $("#mute").attr("disabled", false);
     if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       encoderConfig: "music_standard", "AEC": true, "ANS": true, "AGC": true
     });
     };
-    await client.publish(localTracks.audioTrack);
-    console.log("publish mic success");
-    localTrackState.audioTrackMuted = false;
+    localTrackState.audioTrackMuted = true;
+    localTrackState.audioTrackPublished = false;
   }
 });
 
@@ -220,6 +220,11 @@ async function muteAudio() {
 
 async function unmuteAudio() {
   if (!localTracks.audioTrack) return;
+  if (!localTrackState.audioTrackPublished) {
+    await client.publish(localTracks.audioTrack);
+    console.log("publish mic success");
+    localTrackState.audioTrackPublished = true;
+  }
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
   $("#mute").text("Mute Mic Track");
