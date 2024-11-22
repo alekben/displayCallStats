@@ -4,6 +4,9 @@ google.charts.load('current', {packages: ['corechart', 'line']});
 var chart;
 var chartArray = [];
 
+var chartFPS;
+var chartArrayFPS = [];
+
 let statsInterval;
 
 AgoraRTC.enableLogUpload();
@@ -50,9 +53,14 @@ var options = {
   channel: null,
   uid: null,
   uid2: null,
-  token: null
+  token: null,
 };
 
+//dual
+let dual = false;
+let lowStream = false;
+
+//proxy modes
 var modes = [{
   label: "Close",
   detail: "Disable Cloud Proxy",
@@ -68,11 +76,65 @@ var modes = [{
 }];
 var mode;
 
+//video profiles
+var videoProfiles = [{
+  label: "360p_1",
+  detail: "640x360, 15fps, 400Kbps",
+  value: "360p_1"
+}, {
+  label: "360p_4",
+  detail: "640x360, 30fps, 600Kbps",
+  value: "360p_4"
+}, {
+  label: "480p_8",
+  detail: "848×480, 15fps, 610Kbps",
+  value: "480p_8"
+}, {
+  label: "480p_9",
+  detail: "848×480, 30fps, 930Kbps",
+  value: "480p_9"
+}, {
+  label: "720p_1",
+  detail: "1280×720, 15fps, 1130Kbps",
+  value: "720p_1"
+}, {
+  label: "720p_2",
+  detail: "1280×720, 30fps, 2000Kbps",
+  value: "720p_2"
+}, {
+  label: "720p_auto",
+  detail: "1280×720, 30fps, 3000Kbps",
+  value: "720p_auto"
+}, {
+  label: "1080p_1",
+  detail: "1920×1080, 15fps, 2080Kbps",
+  value: "1080p_1"
+}, {
+  label: "1080p_2",
+  detail: "1920×1080, 30fps, 3000Kbps",
+  value: "1080p_2"
+}, {
+  label: "1080p_5",
+  detail: "1920×1080, 60fps, 4780Kbps",
+  value: "1080p_5"
+}];
+var curVideoProfile;
+var curCam;
+
 $(() => {
   initModes();
+  initProfiles();
+  initCams();
   $(".proxy-list").delegate("a", "click", function (e) {
     changeModes(this.getAttribute("label"));
   });
+  $(".cam-list").delegate("a", "click", function (e) {
+    switchCamera(this.text);
+  });
+  $(".profile-list").delegate("a", "click", function (e) {
+    changeProfiles(this.getAttribute("label"));
+  });
+
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
@@ -113,6 +175,7 @@ $("#join-form").submit(async function (e) {
     $("#channelSettings").css("display", "none");
     $("#mute").text("Unmute Mic Track");
     $("#mute").attr("disabled", false);
+    $("#dual").attr("disabled", false);
     if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       encoderConfig: "music_standard", "AEC": true, "ANS": true, "AGC": true
@@ -136,12 +199,20 @@ $("#mute").click(function (e) {
   }
 });
 
+$("#dual").click(function (e) {
+  changeDual();
+});
+
+$("#dualSwitch").click(function (e) {
+  changeRemoteStream();
+});
+
 async function join() {
   //client.on("user-published", handleUserPublished);
   //client.on("user-unpublished", handleUserUnpublished);
   client.on("is-using-cloud-proxy", reportProxyUsed);
   client.on("join-fallback-to-proxy", reportAutoFallback);
-  client.on("stream-type-changed", reportStreamTypeChanged)
+  client2.on("stream-type-changed", reportStreamTypeChanged)
   client.on("connection-state-change", handleConnectionState);
   client.on("network-quality", handleNetworkQuality);
   client2.on("user-published", handleUserPublished2);
@@ -159,26 +230,31 @@ async function join() {
     client2.stopProxyServer();
   }
 
+  if (dual) {
+    client.enableDualStream();
+    $("#dualSwitch").attr("disabled", false);
+  }
+
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   options.uid2 = await client2.join(options.appid, options.channel, options.token || null, null);
 
   if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: curVideoProfile.value, cameraId: curCam.deviceId, optimizationMode: "detail"});
   }
+  //await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
 
-  await localTracks.videoTrack.setEncoderConfiguration("720p_2");
   localTracks.videoTrack.play("local-player");
   $("#joined-setup").css("display", "flex");
-
   await client.publish(localTracks.videoTrack);
   console.log("publish cam success");
-
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
+  chartFPS = new google.visualization.LineChart(document.getElementById('chart-div-fps'));
   initStats();
 }
 
 async function leave() {
+  destructStats();
   for (trackName in localTracks) {
     var track = localTracks[trackName];
     if (track) {
@@ -188,26 +264,46 @@ async function leave() {
     }
   }
   remoteUsers = {};
-  $("#remote-player").html("");
-  //not a good way to do this it's hack but works
-  const rStats = $(`
-    <div id="remote-stats" class="stream-stats stats"></div>
-  `);
-  $("#remote-player").append(rStats);
-
-
+  if (dual) {
+    await client.disableDualStream();
+  };
   await client.leave();
   await client2.leave();
-  destructStats();
   chart.clearChart();
+  chartFPS.clearChart();
   chartArray.length = 0;
+  chartArrayFPS.length = 0;
   loopback = false;
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#mute").text("Mute Mic Track");
   $("#mute").attr("disabled", true);
+  $("#dual").attr("disabled", false);
+  $("#dual").text("Enable Dual Stream");
+  $("#dualSwitch").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
+}
+
+async function changeDual() {
+  if (dual) {
+    dual = false;
+    $("#dual").text("Enable Dual Stream");
+  } else {
+    dual = true;
+    $("#dual").text("Disable Dual Stream");
+    client.setLowStreamParameter({bitrate: 250, framerate: 15, height: 240, width: 320});
+  }
+}
+
+async function changeRemoteStream() {
+  if (lowStream) {
+    lowStream = false;
+    client2.setRemoteVideoStreamType(Number(options.uid), 0);
+  } else {
+    lowStream = true;
+    client2.setRemoteVideoStreamType(Number(options.uid), 1);
+  }
 }
 
 async function muteAudio() {
@@ -249,7 +345,6 @@ async function subscribe2(user, mediaType) {
     user.audioTrack.setVolume(0);
   }
 }
-
 
 function handleUserPublished2(user, mediaType) {
   if (user.uid = options.uid) {
@@ -345,6 +440,7 @@ function handleConnectionState(cur, prev, reason) {
     }
     }
 
+//proxy functions
 async function changeModes(label) {
   mode = modes.find(profile => profile.label === label);
   $(".proxy-input").val(`${mode.detail}`);
@@ -364,6 +460,43 @@ function initModes() {
   $(".proxy-input").val(`${mode.detail}`);
 }
 
+//video encoder functions
+
+async function changeProfiles(label) {
+  curVideoProfile = videoProfiles.find(profile => profile.label === label);
+  $(".profile-input").val(`${curVideoProfile.detail}`);
+  if (connectionState.isJoined) {
+    localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
+  }
+}
+
+function initProfiles() {
+  videoProfiles.forEach(profile => {
+    $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
+  });
+  curVideoProfile = videoProfiles[5];
+  $(".profile-input").val(`${curVideoProfile.detail}`);
+}
+
+//device functions
+async function initCams() {
+  cams = await AgoraRTC.getCameras();
+  curCam = cams[0];
+  $(".cam-input").val(curCam.label);
+  $(".cam-list").empty();
+  cams.forEach(cam => {
+    $(".cam-list").append(`<a class="dropdown-item" href="#">${cam.label}</a>`);
+  });
+}
+
+async function switchCamera(label) {
+  curCam = cams.find(cam => cam.label === label);
+  $(".cam-input").val(curCam.label);
+  if (connectionState.isJoined) {
+    await localTracks.videoTrack.setDevice(curCam.deviceId);
+  }
+}
+
 function showPopup(message) {
   const newPopup = popups + 1;
   console.log(`Popup count: ${newPopup}`);
@@ -374,7 +507,7 @@ function showPopup(message) {
   z = popups * 10;
   $(`#popup-${newPopup}`).css("left", `${z}%`);
   popups++;
-  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 5000);
 }
 
 async function drawCurveTypes(array) {
@@ -400,6 +533,29 @@ async function drawCurveTypes(array) {
   chart.draw(data, options);
 };
 
+async function drawCurveTypesFPS(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Send');
+  data.addColumn('number', 'Render');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'FPS'
+    },
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
+  };
+
+  chartFPS.draw(data, options);
+};
+
 function initStats() {
   statsInterval = setInterval(flushStats, 1000);
 }
@@ -408,6 +564,12 @@ function destructStats() {
   clearInterval(statsInterval);
   $("#client-stats").html("");
   $("#local-stats").html("");
+  $("#remote-player").html("");
+  //not a good way to do this it's hack but works
+  const rStats = $(`
+    <div id="remote-stats" class="stream-stats stats"></div>
+  `);
+  $("#remote-player").append(rStats);
 }
 
 function flushStats() {
@@ -462,6 +624,7 @@ function flushStats() {
   `);
   chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
   drawCurveTypes(chartArray);
+  
   const localStats = {
     video: client.getLocalVideoStats()
   };
@@ -562,6 +725,8 @@ function flushStats() {
   $(`#remote-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
+  chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.renderFrameRate]);
+  drawCurveTypesFPS(chartArrayFPS);
 }
 
 function generateRandomString(length) {

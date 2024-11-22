@@ -117,6 +117,25 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
         </div>
         <input type="text" class="proxy-input form-control" aria-label="Text input with dropdown button" readonly>
       </div>
+      <div id="camSettings">
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Video Camera</button>
+          <div class="cam-list dropdown-menu"></div>
+        </div>
+        <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button" readonly>
+      </div>
+
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" >Video Profile</button>
+          <div class="profile-list dropdown-menu"></div>
+        </div>
+        <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
+      </div>
+    </div>
       <!--
       Join or leave a Video Call channel.
     -->
@@ -124,6 +143,8 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
         <button id="join" type="submit" class="btn btn-primary btn-sm">Join</button>
         <button id="leave" type="button" class="btn btn-primary btn-sm" disabled>Leave</button>
         <button id="mute" type="button" class="btn btn-primary btn-sm" disabled>Unmute Mic</button>
+        <button id="dual" type="button" class="btn btn-primary btn-sm">Enable Dual Stream</button>
+        <button id="dualSwitch" type="button" class="btn btn-primary btn-sm" disabled>Switch Stream</button>
       </div>
     </form>
     <!--
@@ -139,6 +160,7 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
         <div id="remote-player" class="player">
           <div id="remote-stats" class="stream-stats stats"></div>
         </div>
+        <div id="chart-div-fps"></div>
       </div>
     </div>
   </div>
