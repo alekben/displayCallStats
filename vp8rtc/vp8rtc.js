@@ -431,8 +431,18 @@ async function join() {
   client.enableDualStream();
 
     if (publish) {
+      if (!localTracks.audioTrack) {
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+          encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+        });
+      }
+        await client.publish(localTracks.audioTrack);
+        console.log("Published mic track");
+        showPopup("Mic Track Published");
+        localTrackState.audioTrackMuted = false;
+        localTrackState.audioTrackEnabled = true;
       if (!localTracks.videoTrack) {
-        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({"facingMode":"environment"});
       };
       localTracks.videoTrack.play("local-player");
       await client.publish(localTracks.videoTrack);
