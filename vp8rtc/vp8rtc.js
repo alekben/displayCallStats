@@ -49,7 +49,7 @@ var dumbTempFix = "Selected";
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "live",
+  mode: "rtc",
   codec: "vp8"
 });
 
@@ -267,7 +267,7 @@ $("#join-form").submit(async function (e) {
   try {
     if (!client) {
       client = AgoraRTC.createClient({
-        mode: "live",
+        mode: "rtc",
         codec: "vp8"
       });
     }
@@ -426,11 +426,11 @@ async function join() {
   client.on("user-info-updated", handleUserInfoUpdated);
   client.on("network-quality", handleNetworkQuality);
 
-  if (publish) {
-    client.setClientRole("host");
-  } else {
-    client.setClientRole("audience");
-  }
+//  if (publish) {
+//    client.setClientRole("host");
+//  } else {
+//    client.setClientRole("audience");
+//  }
   
   client.enableDualStream();
   // join the channel
