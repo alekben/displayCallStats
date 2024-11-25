@@ -418,17 +418,18 @@ async function join() {
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
+  client.enableDualStream();
 
-    //if (!localTracks.videoTrack) {
-    //  localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "480p_1"});
-    //}
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    }
 
     // play local video track
-    //localTracks.videoTrack.play("local-player");
+    localTracks.videoTrack.play("local-player");
     $("#joined-setup").css("display", "flex");
 
     // publish local tracks to channel
-    //await client.publish(localTracks.videoTrack);
+    await client.publish(localTracks.videoTrack);
     //console.log("publish cam success");
     showPopup("Cam Track Published");
     $("#joined-setup").css("display", "flex");
