@@ -37,6 +37,8 @@ class Queue {
 //popup stuff
 var popups = 0;
 
+let publish = true;
+
 var localNetQuality = {uplink: 0, downlink: 0};
 
 //misc
@@ -292,9 +294,17 @@ $("#join-form").submit(async function (e) {
     $("#subscribe").attr("disabled", false);
     $("#unsubscribe").attr("disabled", false);
     $("#biggerView").attr("disabled", false);
+    $("#publish").attr("disabled", true);
     joined = true;
   }
 });
+
+$("#publish").click(function (e) {
+  if (publish) {
+    publish = false;
+  }
+});
+
 $("#leave").click(function (e) {
   leave();
 });
@@ -420,18 +430,15 @@ async function join() {
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   client.enableDualStream();
 
-    if (!localTracks.videoTrack) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    if (publish) {
+      if (!localTracks.videoTrack) {
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+      };
+      localTracks.videoTrack.play("local-player");
+      await client.publish(localTracks.videoTrack);
+      showPopup("Cam Track Published");
     }
 
-    // play local video track
-    localTracks.videoTrack.play("local-player");
-    $("#joined-setup").css("display", "flex");
-
-    // publish local tracks to channel
-    await client.publish(localTracks.videoTrack);
-    //console.log("publish cam success");
-    showPopup("Cam Track Published");
     $("#joined-setup").css("display", "flex");
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   initStats();
@@ -476,6 +483,7 @@ async function leave() {
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
   $("#biggerView").attr("disabled", true);
+  $("#publish").attr("disabled", false);
   remoteFocus = 0;
   bigRemote = 0;
   console.log("client leaves channel success");
