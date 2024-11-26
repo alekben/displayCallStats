@@ -1,181 +1,63 @@
-.sso-hidden {
-  display: block;
-}
 
-.banner {
-  padding: 0;
-  background-color: #52575c;
-  color: white;
-}
-
-.banner-text {
-  padding: 8px 20px;
+/* General UI Enhancements */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
   margin: 0;
+  padding: 0;
 }
 
-
-#join-form {
-  margin-top: 10px;
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
 }
 
-.tips {
-  font-size: 12px;
-  margin-bottom: 2px;
-  color: gray;
+/* Header Styles */
+header {
+  background: #4caf50;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.join-info-text {
-  margin-bottom: 2px;
+header h1 {
+  margin: 0;
+  font-size: 24px;
 }
 
-input {
-  width: 100%;
-  margin-bottom: 2px;
-}
-
-.player {
-  width: 480px;
-  height: 320px;
-  display:inline-block;
-}
-
-
-.player-name {
-  margin: 8px 0;
-}
-
-#success-alert, #success-alert-with-token {
-  display: none;
-}
-
-#client-stats {
-  margin-top: 10px;
-}
-
-.stats {
-  color: rgb(0, 255, 68);
-  margin-left: 10px;
-  position: absolute;
-  font-weight: bolder;
-}
-
-.stats2 {
-  color: rgb(0, 0, 0);
-  margin-left: 10px;
-  font-size: 12px;
-}
-
-.remoteStats {
-  color: rgb(0, 255, 30);
-  margin-left: 10px;
-  position: absolute;
-  font-weight: bolder;
-}
-
-.stats-row {
-  font-size: 12px;
-  margin-bottom: 2px;
-}
-
-.player-with-stats {
-  display: flex;
-  position: relative;
-}
-
-.stream-stats {
-  min-width: 260px;
-  z-index: 1;
-}
-
-@media (max-width: 640px) {
-  .player {
-    width: 320px;
-    height: 240px;
-  }
-}
-
-.popupHidden {
-  visibility: hidden; /* Hidden by default. Visible on click */
-  min-width: 250px; /* Set a default minimum width */
-  margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 0%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
-}
-
-
-.popupShow {
-  visibility: true; /* Hidden by default. Visible on click */
-  min-width: 10%; /* Set a default minimum width */
-  max-width: 10%;
-  margin-left: 0px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 0%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 10.0s;
-  animation: fadein 0.5s, fadeout 0.5s 10.0s;
-}
-
-/* Animations to fade the snackbar in and out */
-@-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-@keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-/* Enhanced Stats Overlay */
+/* Modern Stats Overlay */
 .stats-overlay {
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 300px;
-  background: rgba(0, 0, 0, 0.8);
+  width: 350px;
+  background: rgba(0, 0, 0, 0.7);
   color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   font-family: Arial, sans-serif;
   font-size: 14px;
 }
 
 .stats-overlay h3 {
   margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 16px;
+  margin-bottom: 15px;
+  font-size: 18px;
   color: #4caf50;
   text-align: center;
+  border-bottom: 1px solid #4caf50;
+  padding-bottom: 8px;
 }
 
 .stats-overlay .stat {
   display: flex;
   justify-content: space-between;
-  margin: 5px 0;
+  margin: 8px 0;
 }
 
 .stats-overlay .stat-title {
@@ -184,33 +66,63 @@ input {
 
 .stats-overlay .stat-value {
   font-style: italic;
-  color: #ccc;
+  color: #b2dfdb;
 }
 
-/* Tooltip style (optional for additional help icons) */
-.tooltip {
-  position: relative;
-  display: inline-block;
+/* Graph Styles */
+.graph-container {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.tooltip .tooltip-text {
-  visibility: hidden;
-  width: 150px;
-  background-color: #333;
-  color: #fff;
+.graph-title {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
   text-align: center;
-  padding: 5px;
-  border-radius: 4px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%; /* Position above the element */
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  transition: opacity 0.3s;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
 }
 
-.tooltip:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
+.graph-canvas {
+  width: 100%;
+  height: 300px;
+}
+
+/* Buttons */
+button {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+/* Input Fields */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 10px 0;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #aaa;
 }
