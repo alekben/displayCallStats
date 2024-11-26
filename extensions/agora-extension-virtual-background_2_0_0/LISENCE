@@ -1,0 +1,132 @@
+AGORA, INC. SDK LICENSE AGREEMENT
+
+This SDK License Agreement (the “Agreement”) is for the Agora, Inc. (“Agora”) software development kit and any associated tools and documentation made available by Agora (the “SDK”) to enable
+users to integrate their mobile applications with Agora’s proprietary voice call functionality. By downloading or using the SDK, you and any company, entity, or organization on behalf of which you are accepting this Agreement hereby agree
+to be bound by this Agreement. If you do not agree to this Agreement, do not download or use the SDK.
+
+If you are downloading, accessing. or using the SDK on behalf of a company, entity, or organization, then you represent and warrant that you are an authorized representative of such company, entity, or organization with the authority to bind such
+company, entity, or organization to this Agreement; and agree to be bound by this Agreement on behalf of such company, entity, or organization. You and, if applicable, such company, entity, or organization are referred to herein as “you.”
+
+1. In addition to those terms defined in the body of the Agreement, the following capitalized terms will have the meanings set forth below:
+“API” means application programming interface.
+“Application” means any application developed by you using the SDK.
+“Confidential Information” means any non-public information provided by Agora to you that is identified as confidential or should reasonably be considered confidential given the nature of the information and the circumstances of disclosure,
+including, without limitation, technical data, product plans, and financial information. Confidential Information includes the SDK and the terms and conditions of this Agreement.
+“SDK Modifications” means any modifications you make to sample code included in the SDK.
+“Agora Service” means Agora’ proprietary voice technology that allows developers to include voice calling functionality within their mobile applications using Agora’s APIs.
+“Usage Data” means information, analytics, and data that Agora collects in connection with your use of the SDK, including, but not limited to, the volume and length of calls that are made using the Agora Service.
+2. The SDK
+License to You. Subject to your compliance with the terms and conditions of the Agreement, Agora grants you a non-exclusive, non-transferable, and worldwide license during the Term of this Agreement to (a) use the object code libraries,
+APIs and documentation specified in the SDK solely to enable your Applications to access the Agora Service; and (b) modify any sample code included within the SDK solely as necessary to develop your Applications.
+You will not: (a) modify or delete any copyright, trademark, or other proprietary notices of Agora or its licensors in the SDK; (b) reverse engineer, decompile, disassemble, or otherwise tamper with the SDK (except and only to the extent
+that any such restrictions are prohibited by applicable law or, with respect to OSS (as defined below) included in the SDK, those acts permitted under the applicable OSS licenses); (c) use the SDK on behalf of your employer or for
+your employer’s products unless your employer is bound by the terms and conditions of the Agreement; (d) modify any of the APIs specified in the SDK or object code libraries included with the SDK; or (e) assert (or authorize, assist,
+or encourage any third party to assert) any intellectual property infringement claim against Agora or any of its affiliates, customers, or licensees regarding any portions of the SDK you have used. Except with Agora’ prior written
+permission, you may not use Agora APIs other than as documented in the SDK.
+IP Rights. The Agreement does not: (a) provide you with any right or license (whether expressly, by implication, by estoppel, or otherwise) under any of Agora’ intellectual property rights other than to use the SDK solely in the manner
+and solely to the extent authorized in Sections 2.1 and 2.2; or (b) impair the right of Agora to develop, make, use, procure, protect, and/or market any products or services. Agora reserves all rights not expressly granted to you.
+Modifications to the SDK. Except for sample code included in the SDK or as applicable to any OSS, you may not make any modifications to the SDK. As between you and Agora, and subject to Agora’ ownership of the SDK, you will own any SDK
+Modifications. You may only license or distribute SDK Modifications as part of your Application. You will provide all SDK Modifications to Agora and you hereby grant Agora a perpetual, irrevocable, non-exclusive, royalty-free, and
+worldwide license to reproduce, create derivative works from, distribute, publicly display, publicly perform, make, have made, offer for sale, sell or otherwise dispose of, import, use and otherwise commercialize the SDK Modifications
+in connection with Agora’ products and services, with the right to sublicense each and every right.
+Agora reserves the right, at any time, to change the features and functionality of the SDK and the Agora Service without liability to you. Such changes might include, without limitation, disabling APIs or limiting API calls. Agora will
+use commercially reasonable efforts to provide you with prior notice of such changes. If you do not agree to the changes, your sole course of action will be to stop using the SDK and terminate this agreement.
+Within the SDK, you may have received from Agora certain audio and video coding technology. This Agreement does not convey a license nor imply any rights to use any patents or other intellectual property rights of any third party. MPEG-LA
+have publicly represented having been appointed to administer implementation licenses on behalf of patent holders to audio and video coding technologies relating to MPEG-2, MPEG4, AAC, AVC/H.264, VC-1, MPEG-4 Visual and certain MPEG4
+video profiles, respectively. Consequently, a separate and independent license from one or more relevant patent holders for such use may be required and you shall be solely responsible to verify whether such license is needed in conjunction
+with the use of the Agora Service within your Application.
+3. Usage Data
+Agora will own and retain all right, title and interest in the Usage Data. You acknowledge and agree that Agora may collect the Usage Data arising out of your use of the SDK, including for performance analysis, improving the Agora Service,
+debugging, and billing purposes.
+
+4. SDK Development and Distribution
+Your use of the SDK must:
+
+comply with any guidelines set forth in the documentation included with or referenced in the SDK, as updated from time to time;
+comply with any applicable laws, rules, or regulations;
+not access, modify, delete, damage, or disable the Agora Service or any other Agora software; and
+not disrupt, interfere with, or access in an unauthorized manner the Agora Service or any Agora software or servers.
+Agora may (in its reasonable discretion) suspend access to the SDK and Agora Service at any time if Agora believes that (a) you are in breach of any obligations under the Agreement; (b) your use of the SDK poses a security risk; (c) there
+is a bug or performance issue with your use of the SDK; (d) your use of the SDK violates, misappropriates, or infringes the rights of Agora or a third party; or (e) your use of the SDK imposes unexpected or excessive demands on the Agora
+Service.
+
+5. THE SDK IS PROVIDED TO YOU AT NO COST, HOWEVER THE USE OF THE AGORA SERVICE WILL BE CHARGED TO YOU BASED ON THE RATES SET OUT ON THE AGORA WEBSITE WHERE YOU OBTAINED THE SDK, SEE ALSO HTTP://AGORA.IO/.
+AGORA RESERVES THE RIGHT TO INSTITUTE A FEE FOR THE USE OF THE SDK OR TO CHANGE THE RATES TO ACCESS THE AGORA SERVICE, AND WILL PROVIDE YOU WITH PRIOR NOTICE OF ANY SUCH CHANGES.
+6. Open Source
+Agora’ Use of Open Source. Certain components of the SDK may be covered by open source software (“OSS”) licenses. To the extent required by the license for any OSS: (a) the terms of such license will apply to such OSS instead of the terms
+of the Agreement; and (b) any restrictions prohibited by such license that are contained in the Agreement will not apply to such OSS.
+
+Your Use of Open Source. You will:
+
+comply with all applicable OSS licensing terms and obligations (including any notice and attribution requirements), and cooperate with all reasonable requests by Agora to verify such compliance;
+not use any OSS in the Applications in such a way that would (i) cause the non-OSS portions of any Agora software (including the SDK) to be subject to any OSS licensing terms or obligations, or (ii) purport to require Agora (or its agents)
+to disclose or make available any of the keys, authorization codes, methods, procedures, data or other information related to Agora technology; and
+not use any OSS in the Applications that is licensed under the GPLv3, LGPLv3, Affero GPLv3, or Sleepycat OSS licenses.
+7. Agora disclaims any confidentiality obligations or use restrictions related to any information or materials that you may provide to Agora, including anything related to the SDK, SDK Modifications, Applications, or any future products or services of Agora. Any such information and materials will be non-confidential, and if you provide any such information or materials to Agora, you grant Agora a perpetual, irrevocable, non-exclusive, royalty-free, and worldwide license to implement, use, modify or otherwise exploit, in any way, your idea, suggestion or materials (or any part thereof).
+8. Term and Termination
+The term of the Agreement will continue until terminated in accordance with Section 8.2 (the “Term”).
+Either you or Agora may terminate the Agreement at any time by sending notice to the other party.
+Effects of Termination. Upon termination of the Agreement: (i) Agora may immediately disable your use of the SDK and the Agora Service; (ii) you will immediately cease using the SDK and delete all copies you have in your possession or
+under your control; and (iii) you will immediately pay Agora all unpaid fees that accrued prior to the termination date, if any. This section and Sections 2 – 2.4, 3, 6-7, and 9-13 will survive termination of the Agreement.
+9.
+General Obligation. You, as a recipient of Confidential Information, will (a) hold the Confidential Information in strict confidence; (b) protect and safeguard the confidentiality of the Confidential Information with at least the same
+degree of care as you protect and safeguard your own confidential and proprietary information (but in no event with less than a reasonable degree of care); (c) immediately notify Agora of any unauthorized access, use, or disclosure
+of any of Confidential Information; and (d) cooperate with Agora’ efforts to prevent further breaches of the Agreement.
+Disclosure to Representatives. In addition to the obligations in Section 1, the receiving party will only disclose or disseminate the disclosing party’s Confidential Information to its employees and contractors (“Representatives”) who
+have a need to know and who have signed written agreements with (or are otherwise bound by confidentiality obligations owed to) the receiving party that require or permit such individuals to use, disclose, and protect the disclosing
+party’s Confidential Information only in a manner consistent with the provisions of the Agreement. The receiving party will be liable to the disclosing party for any failure by any Representatives to comply with obligations set forth
+in the Agreement.
+Press Releases. You may not issue any press releases or make any other public statements about the Agreement without Agora’ prior written approval.
+10.
+Disclaimer of Warranties. AGORA IS PROVIDING YOU WITH THE SDK AND ACCESS TO THE AGORA SERVICE “AS IS” WITHOUT WARRANTIES OF ANY KIND, AND YOUR USE OF THE SDK IS AT YOUR OWN RISK. TO THE GREATEST EXTENT PERMITTED BY LAW, AGORA AND ITS LICENSORS
+EXPRESSLY DISCLAIM ANY AND ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES REGARDING ACCURACY, OPERABILITY, USE, NON-INFRINGEMENT, TITLE, MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE.
+11.
+Limitation of Liability. EXCEPT WITH RESPECT TO INDEMNIFICATION AND CONFIDENTIALITY OBLIGATIONS, AND TO THE GREATEST EXTENT PERMITTED BY LAW, NEITHER PARTY WILL BE LIABLE TO THE OTHER PARTY UNDER ANY THEORY OF LIABILITY FOR ANY INDIRECT,
+INCIDENTAL, CONSEQUENTIAL, SPECIAL, OR EXEMPLARY DAMAGES (EVEN IF SUCH PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES AND/OR SUCH DAMAGES ARE FORESEEABLE) ARISING OUT OF OR RELATED TO THE AGREEMENT, INCLUDING, BUT NOT LIMITED
+TO, ANY LOSS OF REVENUE OR ANTICIPATED PROFITS OR LOST BUSINESS. IN NO EVENT WILL AGORA’S LIABILITY TO YOU ARISING OUT OF OR RELATED TO THE AGREEMENT EXCEED $50.00.
+12.
+To the greatest extent permitted by law, you will indemnify, defend, and hold harmless Agora and its officers, directors, employees, and agents from and against any and all third party claims, demands, damages, liabilities, costs, and
+expenses (including reasonable attorneys’ fees and court costs) arising out of or related to: (a) your use of the SDK and the Agora Service; (b) any third party’s use of your Applications; and (c) your breach of the Agreement or any
+failure by any of your affiliates to comply with any of the terms and conditions of the Agreement. Agora will use commercially reasonable efforts to provide you with prompt notification of any claim for which Agora seeks an indemnity,
+but Agora’ failure to provide such prompt notice will not limit your obligation to indemnify Agora unless you have been materially harmed by such failure of prompt notice. Agora will cooperate in your defense of any claim, at your
+sole expense. You may not settle any claim against Agora in a manner that adversely affects Agora without Agora’ prior written consent, which consent will not be unreasonably withheld, conditioned, or delayed. Agora may participate
+in the defense of a claim through counsel of its own choice at its own expense; provided, however, that if Agora reasonably determines that you are unwilling or unable to defend the interests of Agora, then Agora may assume the defense
+against any claims at your expense. Agora will not settle any claim for which you are obligated to indemnify Agora without your prior written consent, which consent will not be unreasonably withheld, conditioned, or delayed).
+13. General Legal Terms
+You may not assign or transfer the Agreement (or any of your rights or obligations under the Agreement) without (a) Agora’ prior written consent, and (b) where consent has been granted, by ensuring that any assignee or transferee agrees
+to be bound by the Agreement in the same manner as you (including with respect to any intellectual property rights). Any attempted assignment or transfer without complying with the preceding sentence will be void. Agora may freely
+assign or transfer the Agreement. The Agreement inures to the benefit of and is binding upon the parties and their respective legal representatives, successors, and permitted assigns.
+If you are using the SDK on behalf of your employer or for your employer’s products, you represent, warrant, and covenant that you have the right, power, and authority to enter into the Agreement on behalf of your employer.
+Electronic Communications. You consent to receive communications from Agora electronically. Agora will communicate with you by email, and you acknowledge that all agreements, notices, disclosures, and other communications that Agora provides
+to you electronically will satisfy any legal requirement that such communications be in writing.
+Entire Agreement; Amendments. The Agreement supersedes all prior discussions and writings regarding and constitutes the entire agreement between the parties with respect to the SDK. The parties may only amend the Agreement in writing.
+You will not (whether directly or indirectly) export or re-export the SDK to: (a) any countries that are subject to US export restrictions (such as, by way of example and not limitation, Iran, North Korea, Sudan, and Syria); (b) any third
+party who will utilize the SDK for prohibited end uses (such as, by way of example and not limitation, for the design, development or production of nuclear, chemical or biological weapons); or (c) any third party who has been prohibited
+from participating in U.S. export transactions by any federal agency of the U.S. government (such as someone on the U.S. Treasury Department’s list of Specially Designated Nationals or the U.S. Department of Commerce Denied Persons
+List or Entity List).
+Governing Law and Venue. The Agreement is to be governed by and construed in accordance with the laws of the United States and the State of California, excluding its conflict of law principles. You and Agora will: (a) bring any disputes
+arising out of or related to the Agreement exclusively in a state or federal court located in Santa Clara County, Texas; and (b) submit to the personal jurisdiction of such courts.
+Government End Users. The SDK and any associated documentation are “Commercial Items,” as such term is defined at 48 C.F.R. §2.101, consisting of “Commercial Computer Software” and “Commercial Computer Software Documentation,” as such
+terms are used in 48 C.F.R. §12.212 or 48 C.F.R. §227.7202 (as applicable). Consistent with 48 C.F.R. §12.212 or 48 C.F.R. §227.7202-1 through 227.7202-4 (as applicable), the Commercial Computer Software and Commercial Computer Software
+Documentation are being licensed to U.S. Government end-users only (a) as Commercial Items, and (b) with those rights that are granted to all other end-users under the Agreement.
+Irreparable Harm. You agree that any actual or threatened breach of the Agreement by you would cause immediate and irreparable harm to Agora, the value of which would be difficult or impossible to determine and for which monetary damages
+would be inadequate compensation. Accordingly, in addition to any other remedies (and notwithstanding Section 6), Agora will be entitled to obtain injunctive relief and/or specific performance from any court of competent jurisdiction
+to prevent any such breaches and you expressly waive: (a) the defense that monetary damages would be adequate compensation for Agora; (b) the defense that the harm to you and/or to others would outweigh the harm to Agora; and (c) any
+requirement that Agora post a bond or other security.
+To be valid, all notices permitted or required under the Agreement must be sent in writing by a party as follows (unless a party changes such information by giving notice in accordance with this section): (a) if to you, by Agora via email
+to the address associated with your developer account, and (b) if to Agora, by you via certified mail to Agora, Inc. 378 Cambridge Ave, Suite M, Palo Alto, CA 94036, attn.: Legal Department. Notices will be deemed given (i) if to you,
+when emailed, and (ii) if to Agora, on receipt by Agora.
+The Agreement does not confer any third party beneficiary rights (except as set forth in Section 12) and does not create a joint venture, agency, partnership, or other form of joint enterprise between the parties. Except as expressly provided
+herein, neither party has the right, power, or authority to create any obligation or duty, express or implied, on behalf of the other. Except as set forth in Section 12, there are no intended third party beneficiaries of the Agreement.
+Severability, Waiver, and Interpretation. If any provision of the Agreement is found to be unenforceable or invalid, such unenforceability or invalidity will not render the Agreement unenforceable or invalid as a whole and, in such event,
+such provision is to be changed and interpreted so as to best accomplish the objectives of such unenforceable or invalid provision within the limits of applicable law. No waiver of any breach of the Agreement will constitute a waiver
+of any other breach. In construing or interpreting the terms of the Agreement: (a) the headings in the Agreement are for convenience only, and are not to be considered, and (b) no presumption is to operate in either party’s favor as
+a result of its counsel’s role in drafting the Agreement.
+Representation by Counsel. You represent that you have had the opportunity to review the Agreement with legal counsel of your choosing prior to entering into the Agreement even if you have chosen not to seek such counsel.
+14. Agora Allstar Program
+The Agora Allstar Program (“the Program”) is a developer and customer advocacy program in which you are automatically enrolled when you register for an account through the Agora Website. You will earn points when you are opting in to participate in Challenges that are part of the program, and use the points to redeem any awards available on the Agora Allstar Program site.
+
+Requirements. To qualify for Program Awards, you will need to have an active Agora Account and be enrolled and play an active role in the plan.
+Limitations. Program Awards may be changed, cancelled, limited in number or otherwise removed from the program without notice and/or available for a limited time only or while supplies last. Some Program Awards may be available in limited geographies and limited languages. Agora may substitute Program Awards with a benefit of equal or greater value in the event supplies of a Program Awards are exhausted.
+Right to cancel, terminate, modify or suspend. Agora may, in its sole discretion, cancel, terminate, modify or suspend the Program, Program terms or any Program Awards, in whole or in part. A Program Award may be withheld, reduced, or terminated or you may be removed from the Program, at any time and in the sole discretion of Agora.
+Releases. As a condition of your participation in the Program, you agree to release and disclaim Agora from and against any and all liability, claims or actions of any kind whatsoever for injuries, damages, or losses to persons or property which may be sustained in connection with participating in any aspect of the Program, the receipt, ownership or use of any Program Awards, or while preparing for, participating in or traveling to or from any Program Awards-related activity (if applicable) or any typographical or other error in the Program terms and conditions. Agora makes no representations or warranties of any kind concerning the appearance, safety or performance of any Program Awards, except for any express manufacturer’s warranty as may be included with the Program Awards. Program Awards recipients bear all risk of loss or damage to any goods received as Program Awards.
