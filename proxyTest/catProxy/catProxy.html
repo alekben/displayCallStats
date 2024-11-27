@@ -1,0 +1,1519 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Meta Tags -->
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cat Cloud Proxy &mdash; Agora</title>
+        <!-- Bootstrap CSS -->
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        />
+        <!-- Custom CSS -->
+        <style>
+            /* General Styling */
+            :root { 
+            --cat_url: url("https://external-preview.redd.it/psbattle-this-silly-cat-v0-wBI0MzDN_yfD5jdY7ySASwg3KecJGGLa749_jiG5dVs.jpg?width=640&crop=smart&auto=webp&s=bc20d15296fadb878300018f1ec9cf8ddc8c1899");
+            }
+            body {
+                background-image: url("https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=cover&w=1500&q=80"); /* High-resolution cat-themed background */
+                background-size: cover;
+                background-attachment: fixed;
+                background-position: center;
+                font-family: "Paw Wow", sans-serif;
+                color: #4b2e83;
+            }
+            @font-face {
+                font-family: 'Paw Wow';
+                src: url('https://fonts.cdnfonts.com/s/14363/PawWow-Regular.woff') format('woff');
+            }
+            /* Navbar Styling */
+            .navbar-custom {
+                background-color: #ffcc99;
+                border-bottom: 3px solid #cc9966;
+            }
+            .navbar-brand,
+            .nav-link {
+                color: #4b2e83 !important;
+                font-weight: 700;
+            }
+            .navbar-brand img {
+                height: 30px;
+                margin-right: 10px;
+            }
+            /* Form Styling */
+            .container {
+                margin-top: 30px;
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 20px;
+                border-radius: 1rem;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            }
+            .form-label {
+                font-weight: 700;
+            }
+            .form-control {
+                border-radius: 1rem;
+                border: 2px solid #cc9966;
+                background-color: #fff0e6;
+            }
+            .form-control:focus {
+                border-color: #ffcc99;
+                box-shadow: none;
+                background-color: #fff5eb;
+            }
+            .btn-custom {
+                background-color: #ffcc99;
+                border-color: #cc9966;
+                color: #4b2e83;
+                border-radius: 2rem;
+                font-weight: 700;
+                padding: 10px 20px;
+                position: relative;
+                transition: background-color 0.3s;
+            }
+            .btn-custom:hover {
+                background-color: #f0b27a;
+                border-color: #cc9966;
+                color: #4b2e83;
+            }
+            .btn-custom::after {
+                content: '🐾';
+                position: absolute;
+                right: -20px;
+                top: -10px;
+                font-size: 24px;
+            }
+            .btn-secondary {
+                border-radius: 2rem;
+                font-weight: 700;
+                padding: 10px 20px;
+                background-color: #cc9966;
+                border-color: #b88a6f;
+                color: #fff;
+                position: relative;
+                transition: background-color 0.3s;
+            }
+            .btn-secondary:hover {
+                background-color: #b88a6f;
+                border-color: #a67c52;
+            }
+            .btn-secondary::after {
+                content: '🐾';
+                position: absolute;
+                right: -20px;
+                top: -10px;
+                font-size: 24px;
+            }
+            /* Video Player Styling */
+            .video-group {
+                margin-top: 50px;
+            }
+            .player {
+                width: 100%;
+                height: 360px;
+                background-color: #000;
+                position: relative;
+                overflow: hidden;
+                border-radius: 1rem;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                background-image: url("https://cdn.pixabay.com/photo/2017/02/20/18/03/cat-2083492_1280.jpg"); /* Cat silhouette overlay */
+                background-size: cover;
+                background-position: center;
+            }
+            .stream-stats {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                color: #fff;
+                font-weight: 500;
+                font-size: 12px;
+                z-index: 10;
+                background: rgba(75, 46, 131, 0.7);
+                padding: 5px 10px;
+                border-radius: 0.5rem;
+                line-height: 0.7; /* Reduced line spacing */
+            }
+            /* Client Stats Styling */
+            .stats2 {
+                color: #4b2e83;
+                font-size: 14px;
+                margin-bottom: 20px;
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                grid-template-rows: repeat(2, auto);
+                grid-gap: 10px;
+            }
+            .stat-item {
+                background: rgba(255, 204, 153, 0.9);
+                padding: 10px;
+                border-radius: 1rem;
+                text-align: center;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                font-weight: 600;
+                position: relative;
+            }
+            .stat-item::before {
+                content: '🐱';
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                font-size: 20px;
+            }
+            /* Alert Styling */
+            .alert-custom {
+                margin-top: 30px;
+                border-radius: 1rem;
+                background-color: rgba(255, 204, 153, 0.95);
+                color: #4b2e83;
+                border: 2px solid #cc9966;
+                position: relative;
+            }
+            .alert-custom::before {
+                content: '😺';
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                font-size: 24px;
+            }
+            /* Popup Notifications */
+            #popup-section {
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                z-index: 1000;
+            }
+            .popup {
+                visibility: hidden;
+                min-width: 250px;
+                background-color: rgba(255, 204, 153, 0.95);
+                color: #4b2e83;
+                text-align: center;
+                border-radius: 1rem;
+                padding: 16px;
+                margin-top: 10px;
+                font-weight: 600;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                position: relative;
+            }
+            .popup.show {
+                visibility: visible;
+                animation: fadein 0.5s, fadeout 0.5s 4.5s;
+            }
+            .popup::before {
+                content: '🐾';
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                font-size: 24px;
+            }
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes fadeout {
+                from {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+            }
+            /* Footer Styling */
+            footer {
+                background-color: #ffcc99;
+                color: #4b2e83;
+                padding: 15px 0;
+                margin-top: 50px;
+                border-top: 3px solid #cc9966;
+                position: relative;
+            }
+            footer::before {
+                content: '🐾';
+                position: absolute;
+                top: -10px;
+                left: calc(50% - 12px);
+                font-size: 24px;
+            }
+            footer p {
+                margin: 0;
+                font-weight: 600;
+            }
+            /* Input Group Styling */
+            .input-group-text {
+                background-color: #fff0e6;
+                border: 2px solid #cc9966;
+                border-right: 0;
+                border-radius: 1rem 0 0 1rem;
+            }
+            .input-group .form-control {
+                border-left: 0;
+            }
+            /* Dropdown Menu Styling */
+            .dropdown-menu {
+                border-radius: 1rem;
+                background-color: #ffebcc;
+                border: 2px solid #cc9966;
+            }
+            .dropdown-item {
+                font-weight: 600;
+                color: #4b2e83;
+            }
+            .dropdown-item:hover {
+                background-color: #ffe0b3;
+            }
+            /* Chart Styling */
+            #chart-div,
+            #chart-div-fps {
+                background-color: rgba(255, 255, 255, 0.9);
+                padding: 20px;
+                border-radius: 1rem;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+                position: relative;
+            }
+            #chart-div::after,
+            #chart-div-fps::after {
+                content: '🐱';
+                position: absolute;
+                bottom: -10px;
+                right: -10px;
+                font-size: 24px;
+            }
+            /* Stats Row Styling */
+            .stats-row {
+                margin-bottom: 5px;
+            }
+            /* Custom Cursor */
+            button,
+            .form-control,
+            .dropdown-item {
+                cursor: url('https://i.imgur.com/dHj0eZp.png'), auto; /* Cat paw cursor */
+            }
+            /* Responsive Adjustments */
+            @media (max-width: 767.98px) {
+                .stats2 {
+                    grid-template-columns: repeat(2, 1fr);
+                    grid-template-rows: repeat(5, auto);
+                }
+            }
+        </style>
+        <!-- Google Fonts -->
+        <link
+            href="https://fonts.googleapis.com/css?family=Comic+Sans+MS:400,500,700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="https://external-preview.redd.it/psbattle-this-silly-cat-v0-wBI0MzDN_yfD5jdY7ySASwg3KecJGGLa749_jiG5dVs.jpg?width=640&crop=smart&auto=webp&s=bc20d15296fadb878300018f1ec9cf8ddc8c1899" alt="Cat Logo" />
+                    Cat Cloud Proxy
+                </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#navbarNav"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div
+                    class="collapse navbar-collapse justify-content-end"
+                    id="navbarNav"
+                >
+                    <a
+                        class="nav-link"
+                        href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo"
+                        target="_blank"
+                    >
+                        <img
+                            src="https://external-preview.redd.it/psbattle-this-silly-cat-v0-wBI0MzDN_yfD5jdY7ySASwg3KecJGGLa749_jiG5dVs.jpg?width=640&crop=smart&auto=webp&s=bc20d15296fadb878300018f1ec9cf8ddc8c1899"
+                            alt="GitHub Cat Icon"
+                            height="30"
+                        />
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Alerts -->
+        <div class="container">
+            <div
+                id="success-alert"
+                class="alert alert-success alert-dismissible fade show alert-custom"
+                role="alert"
+                style="display: none"
+            >
+                <strong>Meow!</strong> You can invite others to join this channel by clicking
+                <a href="#" target="_blank">here</a>.
+                <button type="button" class="close" data-dismiss="alert">
+                    &times;
+                </button>
+            </div>
+
+            <div
+                id="success-alert-with-token"
+                class="alert alert-success alert-dismissible fade show alert-custom"
+                role="alert"
+                style="display: none"
+            >
+                <strong>Purrfect!</strong> Joined room successfully.
+                <button type="button" class="close" data-dismiss="alert">
+                    &times;
+                </button>
+            </div>
+        </div>
+
+        <!-- Join Form -->
+        <div class="container">
+            <form id="join-form">
+                <div id="channelSettings" class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="appid" class="form-label">APP ID</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="appid"
+                            value="7c9a6773eb7b4650831ecdb3a0931dac"
+                        />
+                        <small class="form-text text-muted"
+                            >You can find your APP ID in the
+                            <a
+                                href="https://console.agora.io/projects"
+                                target="_blank"
+                                >Agora Console</a
+                            >.</small
+                        >
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="token" class="form-label">Token (optional)</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="token"
+                            placeholder="Enter the app token"
+                        />
+                        <small class="form-text text-muted"
+                            >To create a temporary token,
+                            <a
+                                href="https://console.agora.io/projects"
+                                target="_blank"
+                                >edit your project</a
+                            >
+                            in Agora Console.</small
+                        >
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="channel" class="form-label">Channel Name</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="channel"
+                            required
+                        />
+                        <small class="form-text text-muted"
+                            >You create a channel when you create a temporary
+                            token in the
+                            <a
+                                href="https://console.agora.io/projects"
+                                target="_blank"
+                                >Agora Console</a
+                            >.</small
+                        >
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="uid" class="form-label">User ID (optional)</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="uid"
+                            placeholder="Enter the user ID"
+                            onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                        />
+                    </div>
+                </div>
+
+                <!-- Proxy and Device Settings -->
+                <div class="row mt-4">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Cloud Proxy</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button
+                                    class="btn btn-outline-secondary dropdown-toggle"
+                                    type="button"
+                                    data-toggle="dropdown"
+                                >
+                                    Select Mode
+                                </button>
+                                <div class="dropdown-menu proxy-list">
+                                    <!-- Proxy options will be populated here -->
+                                </div>
+                            </div>
+                            <input
+                                type="text"
+                                class="form-control proxy-input"
+                                readonly
+                            />
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Video Camera</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button
+                                    class="btn btn-outline-secondary dropdown-toggle"
+                                    type="button"
+                                    data-toggle="dropdown"
+                                >
+                                    Select Camera
+                                </button>
+                                <div class="dropdown-menu cam-list">
+                                    <!-- Camera options will be populated here -->
+                                </div>
+                            </div>
+                            <input
+                                type="text"
+                                class="form-control cam-input"
+                                readonly
+                            />
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Video Profile</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button
+                                    class="btn btn-outline-secondary dropdown-toggle"
+                                    type="button"
+                                    data-toggle="dropdown"
+                                >
+                                    Select Profile
+                                </button>
+                                <div class="dropdown-menu profile-list">
+                                    <!-- Profile options will be populated here -->
+                                </div>
+                            </div>
+                            <input
+                                type="text"
+                                class="form-control profile-input"
+                                readonly
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-4">
+                    <button
+                        id="join"
+                        type="submit"
+                        class="btn btn-custom btn-lg"
+                    >
+                        Join
+                    </button>
+                    <button
+                        id="leave"
+                        type="button"
+                        class="btn btn-secondary btn-lg"
+                        disabled
+                    >
+                        Leave
+                    </button>
+                    <button
+                        id="mute"
+                        type="button"
+                        class="btn btn-secondary btn-lg"
+                        disabled
+                    >
+                        Unmute Mic
+                    </button>
+                    <button
+                        id="dual"
+                        type="button"
+                        class="btn btn-secondary btn-lg"
+                    >
+                        Enable Dual Stream
+                    </button>
+                    <button
+                        id="dualSwitch"
+                        type="button"
+                        class="btn btn-secondary btn-lg"
+                        disabled
+                    >
+                        Switch Stream
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Video Players and Stats -->
+        <div class="container video-group">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="client-stats" class="stats2"></div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div id="local-player" class="player">
+                        <div id="local-stats" class="stream-stats"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 mb-4">
+                    <div id="remote-player" class="player">
+                        <div id="remote-stats" class="stream-stats"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="chart-div"></div>
+                </div>
+                <div class="col-md-6">
+                    <div id="chart-div-fps"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popup Notifications -->
+        <div id="popup-section"></div>
+
+        <!-- Footer -->
+        <footer class="text-center">
+            <div class="container">
+                <p>&copy; 2023 Cat Cloud Proxy Demo. All rights reserved.</p>
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <!-- Popper.js and Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- Agora RTC SDK -->
+        <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+        <!-- Google Charts -->
+        <script src="https://www.gstatic.com/charts/loader.js"></script>
+        <!-- Custom Script -->
+        <script>
+            // JavaScript code from your original file, ensuring all functionality remains intact
+
+            var popups = 0;
+
+            google.charts.load("current", { packages: ["corechart", "line"] });
+            var chart;
+            var chartArray = [];
+
+            var chartFPS;
+            var chartArrayFPS = [];
+
+            let statsInterval;
+
+            AgoraRTC.enableLogUpload();
+
+            var client = AgoraRTC.createClient({
+                mode: "rtc",
+                codec: "vp8",
+            });
+
+            var client2 = AgoraRTC.createClient({
+                mode: "rtc",
+                codec: "vp8",
+            });
+
+            var localTracks = {
+                videoTrack: null,
+                audioTrack: null,
+            };
+
+            var localTrackState = {
+                audioTrackMuted: false,
+                audioTrackPublished: false,
+            };
+
+            var connectionState = {
+                isJoined: null,
+                mediaReceived: null,
+                isProxy: null,
+                isTURN: null,
+            };
+
+            var localNetQuality = { uplink: 0, downlink: 0 };
+            var local2NetQuality = { uplink: 0, downlink: 0 };
+
+            var remoteUsers = {};
+            let loopback = false;
+
+            var options = {
+                appid: null,
+                channel: null,
+                uid: null,
+                uid2: null,
+                token: null,
+            };
+
+            //dual
+            let dual = false;
+            let lowStream = false;
+
+            //proxy modes
+            var modes = [
+                {
+                    label: "Close",
+                    detail: "Disable Cloud Proxy",
+                    value: "0",
+                },
+                {
+                    label: "UDP Mode",
+                    detail: "Enable Cloud Proxy via UDP protocol",
+                    value: "3",
+                },
+                {
+                    label: "TCP Mode",
+                    detail: "Enable Cloud Proxy via TCP/TLS port 443",
+                    value: "5",
+                },
+            ];
+            var mode;
+
+            //video profiles
+            var videoProfiles = [
+                {
+                    label: "360p_1",
+                    detail: "640x360, 15fps, 400Kbps",
+                    value: "360p_1",
+                },
+                {
+                    label: "360p_4",
+                    detail: "640x360, 30fps, 600Kbps",
+                    value: "360p_4",
+                },
+                {
+                    label: "480p_8",
+                    detail: "848×480, 15fps, 610Kbps",
+                    value: "480p_8",
+                },
+                {
+                    label: "480p_9",
+                    detail: "848×480, 30fps, 930Kbps",
+                    value: "480p_9",
+                },
+                {
+                    label: "720p_1",
+                    detail: "1280×720, 15fps, 1130Kbps",
+                    value: "720p_1",
+                },
+                {
+                    label: "720p_2",
+                    detail: "1280×720, 30fps, 2000Kbps",
+                    value: "720p_2",
+                },
+                {
+                    label: "720p_auto",
+                    detail: "1280×720, 30fps, 3000Kbps",
+                    value: "720p_auto",
+                },
+                {
+                    label: "1080p_1",
+                    detail: "1920×1080, 15fps, 2080Kbps",
+                    value: "1080p_1",
+                },
+                {
+                    label: "1080p_2",
+                    detail: "1920×1080, 30fps, 3000Kbps",
+                    value: "1080p_2",
+                },
+                {
+                    label: "1080p_5",
+                    detail: "1920×1080, 60fps, 4780Kbps",
+                    value: "1080p_5",
+                },
+            ];
+            var curVideoProfile;
+            var curCam;
+
+            $(() => {
+                initModes();
+                initProfiles();
+                initCams();
+                $(".proxy-list").delegate("a", "click", function (e) {
+                    changeModes(this.getAttribute("label"));
+                });
+                $(".cam-list").delegate("a", "click", function (e) {
+                    switchCamera(this.text);
+                });
+                $(".profile-list").delegate("a", "click", function (e) {
+                    changeProfiles(this.getAttribute("label"));
+                });
+
+                var urlParams = new URL(location.href).searchParams;
+                options.appid = urlParams.get("appid");
+                options.channel = urlParams.get("channel");
+                options.token = urlParams.get("token");
+                options.uid = urlParams.get("uid");
+                if (options.channel == null) {
+                    options.channel = generateRandomString(10);
+                    $("#channel").val(options.channel);
+                }
+                if (options.appid && options.channel) {
+                    $("#uid").val(options.uid);
+                    $("#appid").val(options.appid);
+                    $("#token").val(options.token);
+                    $("#channel").val(options.channel);
+                    $("#join-form").submit();
+                }
+            });
+
+            $("#join-form").submit(async function (e) {
+                e.preventDefault();
+                $("#join").attr("disabled", true);
+                try {
+                    options.channel = $("#channel").val();
+                    options.uid = Number($("#uid").val());
+                    options.appid = $("#appid").val();
+                    options.token = $("#token").val();
+                    await join();
+                    if (options.token) {
+                        $("#success-alert-with-token").css("display", "block");
+                    } else {
+                        $("#success-alert a").attr(
+                            "href",
+                            `index.html?appid=${options.appid}&channel=${options.channel}&token=${options.token}`,
+                        );
+                        $("#success-alert").css("display", "block");
+                    }
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    $("#leave").attr("disabled", false);
+                    $("#channelSettings").css("display", "none");
+                    $("#mute").text("Unmute Mic Track");
+                    $("#mute").attr("disabled", false);
+                    $("#dual").attr("disabled", false);
+                    if (!localTracks.audioTrack) {
+                        localTracks.audioTrack =
+                            await AgoraRTC.createMicrophoneAudioTrack({
+                                encoderConfig: "music_standard",
+                                AEC: true,
+                                ANS: true,
+                                AGC: true,
+                            });
+                    }
+                    localTrackState.audioTrackMuted = true;
+                    localTrackState.audioTrackPublished = false;
+                }
+            });
+
+            $("#leave").click(function (e) {
+                leave();
+                $("#channelSettings").css("display", "");
+            });
+
+            $("#mute").click(function (e) {
+                if (!localTrackState.audioTrackMuted) {
+                    muteAudio();
+                } else {
+                    unmuteAudio();
+                }
+            });
+
+            $("#dual").click(function (e) {
+                changeDual();
+            });
+
+            $("#dualSwitch").click(function (e) {
+                changeRemoteStream();
+            });
+
+            async function join() {
+                client.on("is-using-cloud-proxy", reportProxyUsed);
+                client.on("join-fallback-to-proxy", reportAutoFallback);
+                client2.on("stream-type-changed", reportStreamTypeChanged);
+                client.on("connection-state-change", handleConnectionState);
+                client.on("network-quality", handleNetworkQuality);
+                client2.on("user-published", handleUserPublished2);
+                client2.on("user-unpublished", handleUserUnpublished2);
+                client2.on("network-quality", handleNetworkQuality2);
+                client2.on("connection-state-change", handleConnectionState2);
+
+                const value = Number(mode.value);
+                if ([3, 5].includes(value)) {
+                    client.startProxyServer(value);
+                    client2.startProxyServer(value);
+                }
+                if (value === 0) {
+                    client.stopProxyServer();
+                    client2.stopProxyServer();
+                }
+
+                if (dual) {
+                    client.enableDualStream();
+                    $("#dualSwitch").attr("disabled", false);
+                }
+
+                options.uid = await client.join(
+                    options.appid,
+                    options.channel,
+                    options.token || null,
+                    options.uid || null,
+                );
+                options.uid2 = await client2.join(
+                    options.appid,
+                    options.channel,
+                    options.token || null,
+                    null,
+                );
+
+                if (!localTracks.videoTrack) {
+                    localTracks.videoTrack =
+                        await AgoraRTC.createCameraVideoTrack({
+                            encoderConfig: curVideoProfile.value,
+                            cameraId: curCam.deviceId,
+                            optimizationMode: "detail",
+                        });
+                }
+
+                localTracks.videoTrack.play("local-player");
+                $("#joined-setup").css("display", "flex");
+                await client.publish(localTracks.videoTrack);
+                console.log("publish cam success");
+                showPopup(
+                    `Joined to channel ${options.channel} with UID ${options.uid}`,
+                );
+                chart = new google.visualization.LineChart(
+                    document.getElementById("chart-div"),
+                );
+                chartFPS = new google.visualization.LineChart(
+                    document.getElementById("chart-div-fps"),
+                );
+                initStats();
+            }
+
+            async function leave() {
+                destructStats();
+                for (trackName in localTracks) {
+                    var track = localTracks[trackName];
+                    if (track) {
+                        track.stop();
+                        track.close();
+                        localTracks[trackName] = undefined;
+                    }
+                }
+                remoteUsers = {};
+                if (dual) {
+                    await client.disableDualStream();
+                }
+                await client.leave();
+                await client2.leave();
+                chart.clearChart();
+                chartFPS.clearChart();
+                chartArray.length = 0;
+                chartArrayFPS.length = 0;
+                loopback = false;
+                $("#join").attr("disabled", false);
+                $("#leave").attr("disabled", true);
+                $("#mute").text("Mute Mic Track");
+                $("#mute").attr("disabled", true);
+                $("#dual").attr("disabled", false);
+                $("#dual").text("Enable Dual Stream");
+                $("#dualSwitch").attr("disabled", true);
+                $("#joined-setup").css("display", "none");
+                console.log("client leaves channel success");
+            }
+
+            async function changeDual() {
+                if (dual) {
+                    dual = false;
+                    $("#dual").text("Enable Dual Stream");
+                } else {
+                    dual = true;
+                    $("#dual").text("Disable Dual Stream");
+                    client.setLowStreamParameter({
+                        bitrate: 250,
+                        framerate: 15,
+                        height: 240,
+                        width: 320,
+                    });
+                }
+            }
+
+            async function changeRemoteStream() {
+                if (lowStream) {
+                    lowStream = false;
+                    client2.setRemoteVideoStreamType(Number(options.uid), 0);
+                } else {
+                    lowStream = true;
+                    client2.setRemoteVideoStreamType(Number(options.uid), 1);
+                }
+            }
+
+            async function muteAudio() {
+                if (!localTracks.audioTrack) return;
+                await localTracks.audioTrack.setMuted(true);
+                localTrackState.audioTrackMuted = true;
+                $("#mute").text("Unmute Mic Track");
+                showPopup("Mic Track Muted");
+            }
+
+            async function unmuteAudio() {
+                if (!localTracks.audioTrack) return;
+                if (!localTrackState.audioTrackPublished) {
+                    await client.publish(localTracks.audioTrack);
+                    console.log("publish mic success");
+                    localTrackState.audioTrackPublished = true;
+                }
+                await localTracks.audioTrack.setMuted(false);
+                localTrackState.audioTrackMuted = false;
+                $("#mute").text("Mute Mic Track");
+                showPopup("Mic Track Unmuted");
+            }
+
+            async function subscribe2(user, mediaType) {
+                const uid = user.uid;
+                await client2.subscribe(user, mediaType);
+                console.log("subscribe success");
+                if (mediaType === "video") {
+                    const player = $(`
+              <div id="player-wrapper-${uid}">
+                <div id="player-${uid}" class="player"></div>
+              </div>
+            `);
+                    $("#remote-player").append(player);
+                    user.videoTrack.play(`player-${uid}`);
+                }
+                if (mediaType === "audio") {
+                    user.audioTrack.play();
+                    user.audioTrack.setVolume(0);
+                }
+            }
+
+            function handleUserPublished2(user, mediaType) {
+                if ((user.uid = options.uid)) {
+                    const id = user.uid;
+                    remoteUsers[id] = user;
+                    subscribe2(user, mediaType);
+                    loopback = true;
+                } else {
+                    console.log("some other user ignoring");
+                }
+            }
+
+            function handleUserUnpublished2(user, mediaType) {
+                if ((user.uid = options.uid)) {
+                    if (mediaType === "video") {
+                        const id = user.uid;
+                        delete remoteUsers[id];
+                        $(`#player-wrapper-${id}`).remove();
+                        loopback = false;
+                    }
+                } else {
+                    console.log("some other user ignoring");
+                }
+            }
+
+            function reportStreamTypeChanged(uid, streamType) {
+                console.log(
+                    `Receive Stream for remote UID ${uid} changed to ${streamType}`,
+                );
+            }
+
+            function reportAutoFallback(proxyServer) {
+                console.log(
+                    `AutoFallback proxy being used detected, server is: ${proxyServer}`,
+                );
+            }
+
+            function reportProxyUsed(isProxyUsed) {
+                let ms = Date.now();
+                console.log(
+                    `${ms} - is-cloud-proxy-used reports: ${isProxyUsed}`,
+                );
+                showPopup(`is-cloud-proxy-used reports: ${isProxyUsed}`);
+            }
+
+            function handleNetworkQuality(stats) {
+                localNetQuality.uplink = stats.uplinkNetworkQuality;
+                localNetQuality.downlink = stats.downlinkNetworkQuality;
+            }
+
+            function handleNetworkQuality2(stats) {
+                local2NetQuality.uplink = stats.uplinkNetworkQuality;
+                local2NetQuality.downlink = stats.downlinkNetworkQuality;
+            }
+
+            function handleConnectionState(cur, prev, reason) {
+                if (cur == "DISCONNECTED") {
+                    console.log(
+                        `Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`,
+                    );
+                    showPopup(
+                        `Sender: Connection State: ${cur}, Reason: ${reason}`,
+                    );
+                    if (reason == "FALLBACK") {
+                        console.log(
+                            `Sender: Autofallback TCP Proxy being attempted.`,
+                        );
+                        showPopup(`Sender: Autofallback TCP Proxy Attempted`);
+                    }
+                } else if (cur == "CONNECTED") {
+                    console.log(
+                        `Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`,
+                    );
+                    showPopup(`Sender: Connection State: ${cur}`);
+                    connectionState.isJoined = true;
+                    client._p2pChannel.connection.onICEConnectionStateChange =
+                        () => {
+                            console.log(
+                                `Sender: ice state changed: ${client._p2pChannel.connection.iceConnectionState}`,
+                            );
+                            showPopup(
+                                `Sender: ICE State: ${client._p2pChannel.connection.iceConnectionState}`,
+                            );
+                        };
+                } else {
+                    console.log(
+                        `Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`,
+                    );
+                    showPopup(`Sender: Connection State: ${cur}`);
+                    connectionState.isJoined = false;
+                }
+            }
+
+            function handleConnectionState2(cur, prev, reason) {
+                if (cur == "DISCONNECTED") {
+                    console.log(
+                        `Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`,
+                    );
+                    showPopup(
+                        `Receiver: Connection State: ${cur}, Reason: ${reason}`,
+                    );
+                    if (reason == "FALLBACK") {
+                        console.log(
+                            `Receiver: Autofallback TCP Proxy being attempted.`,
+                        );
+                        showPopup(`Receiver: Autofallback TCP Proxy Attempted`);
+                    }
+                } else if (cur == "CONNECTED") {
+                    console.log(
+                        `Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`,
+                    );
+                    showPopup(`Receiver: Connection State: ${cur}`);
+                    connectionState.isJoined = true;
+                    client2._p2pChannel.connection.onICEConnectionStateChange =
+                        () => {
+                            console.log(
+                                `Receiver: ice state changed: ${client2._p2pChannel.connection.iceConnectionState}`,
+                            );
+                            showPopup(
+                                `Receiver: ICE State: ${client2._p2pChannel.connection.iceConnectionState}`,
+                            );
+                        };
+                } else {
+                    console.log(
+                        `Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`,
+                    );
+                    showPopup(`Receiver: Connection State: ${cur}`);
+                    connectionState.isJoined = false;
+                }
+            }
+
+            //proxy functions
+            async function changeModes(label) {
+                mode = modes.find((profile) => profile.label === label);
+                $(".proxy-input").val(`${mode.detail}`);
+                if (connectionState.isJoined) {
+                    await leave();
+                    await join();
+                    $("#join").attr("disabled", true);
+                    $("#leave").attr("disabled", false);
+                }
+            }
+
+            function initModes() {
+                modes.forEach((profile) => {
+                    $(".proxy-list").append(
+                        `<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`,
+                    );
+                });
+                mode = modes[0];
+                $(".proxy-input").val(`${mode.detail}`);
+            }
+
+            //video encoder functions
+
+            async function changeProfiles(label) {
+                curVideoProfile = videoProfiles.find(
+                    (profile) => profile.label === label,
+                );
+                $(".profile-input").val(`${curVideoProfile.detail}`);
+                if (connectionState.isJoined) {
+                    localTracks.videoTrack.setEncoderConfiguration(
+                        curVideoProfile.value,
+                    );
+                }
+            }
+
+            function initProfiles() {
+                videoProfiles.forEach((profile) => {
+                    $(".profile-list").append(
+                        `<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`,
+                    );
+                });
+                curVideoProfile = videoProfiles[5];
+                $(".profile-input").val(`${curVideoProfile.detail}`);
+            }
+
+            //device functions
+            async function initCams() {
+                cams = await AgoraRTC.getCameras();
+                curCam = cams[0];
+                $(".cam-input").val(curCam.label);
+                $(".cam-list").empty();
+                cams.forEach((cam) => {
+                    $(".cam-list").append(
+                        `<a class="dropdown-item" href="#">${cam.label}</a>`,
+                    );
+                });
+            }
+
+            async function switchCamera(label) {
+                curCam = cams.find((cam) => cam.label === label);
+                $(".cam-input").val(curCam.label);
+                if (connectionState.isJoined) {
+                    await localTracks.videoTrack.setDevice(curCam.deviceId);
+                }
+            }
+
+            function showPopup(message) {
+                const newPopup = popups + 1;
+                console.log(`Popup count: ${newPopup}`);
+                const y = $(`
+                    <div id="popup-${newPopup}" class="popup">${message}</div>
+                `);
+                $("#popup-section").append(y);
+                var x = document.getElementById(`popup-${newPopup}`);
+                x.className = "popup show";
+                popups++;
+                setTimeout(function () {
+                    $(`#popup-${newPopup}`).remove();
+                    popups--;
+                }, 5000);
+            }
+
+            async function drawCurveTypes(array) {
+                var data = new google.visualization.DataTable();
+                data.addColumn("number", "X");
+                data.addColumn("number", "Up");
+                data.addColumn("number", "Down");
+
+                data.addRows(array);
+
+                var options = {
+                    hAxis: {
+                        title: "Time (sec)",
+                    },
+                    vAxis: {
+                        title: "Kbits/s",
+                    },
+                };
+
+                chart.draw(data, options);
+            }
+
+            async function drawCurveTypesFPS(array) {
+                var data = new google.visualization.DataTable();
+                data.addColumn("number", "X");
+                data.addColumn("number", "Send");
+                data.addColumn("number", "Render");
+
+                data.addRows(array);
+
+                var options = {
+                    hAxis: {
+                        title: "Time (sec)",
+                    },
+                    vAxis: {
+                        title: "FPS",
+                    },
+                };
+
+                chartFPS.draw(data, options);
+            }
+
+            function initStats() {
+                statsInterval = setInterval(flushStats, 1000);
+            }
+
+            function destructStats() {
+                clearInterval(statsInterval);
+                $("#client-stats").html("");
+                $("#local-stats").html("");
+                $("#remote-player").html("");
+                const rStats = $(`
+                    <div id="remote-stats" class="stream-stats"></div>
+                `);
+                $("#remote-player").append(rStats);
+            }
+
+            function flushStats() {
+                // get the client stats message
+                const clientStats = client.getRTCStats();
+                const clientStats2 = client2.getRTCStats();
+                const status = navigator.onLine;
+                const clientStatsList = [
+                    {
+                        description: "Local UID",
+                        value: options.uid,
+                        unit: "",
+                    },
+                    {
+                        description: "Host Count",
+                        value: clientStats.UserCount,
+                        unit: "",
+                    },
+                    {
+                        description: "Joined Duration",
+                        value: clientStats.Duration,
+                        unit: "s",
+                    },
+                    {
+                        description: "Bitrate receive",
+                        value: (
+                            Number(clientStats2.RecvBitrate) * 0.000001
+                        ).toFixed(4),
+                        unit: "Mbps",
+                    },
+                    {
+                        description: "Bitrate sent",
+                        value: (
+                            Number(clientStats.SendBitrate) * 0.000001
+                        ).toFixed(4),
+                        unit: "Mbps",
+                    },
+                    {
+                        description: "Outgoing B/W",
+                        value: (
+                            Number(clientStats.OutgoingAvailableBandwidth) *
+                            0.001
+                        ).toFixed(4),
+                        unit: "Mbps",
+                    },
+                    {
+                        description: "RTT to SD-RTN Edge",
+                        value: clientStats.RTT,
+                        unit: "ms",
+                    },
+                    {
+                        description: "Uplink Stat",
+                        value: localNetQuality.uplink,
+                        unit: "",
+                    },
+                    {
+                        description: "Downlink Stat",
+                        value: local2NetQuality.downlink,
+                        unit: "",
+                    },
+                    {
+                        description: "Link Status",
+                        value: status,
+                        unit: "",
+                    },
+                ];
+                $("#client-stats").html(`
+                    ${clientStatsList
+                        .map(
+                            (stat) =>
+                                `<div class="stat-item">${stat.description}: ${stat.value} ${stat.unit}</div>`,
+                        )
+                        .join("")}
+                `);
+                chartArray.push([
+                    clientStats.Duration,
+                    clientStats.SendBitrate,
+                    clientStats2.RecvBitrate,
+                ]);
+                drawCurveTypes(chartArray);
+
+                const localStats = {
+                    video: client.getLocalVideoStats(),
+                };
+                const localStatsList = [
+                    {
+                        description: "Capture FPS",
+                        value: localStats.video.captureFrameRate,
+                        unit: "",
+                    },
+                    {
+                        description: "Send FPS",
+                        value: localStats.video.sendFrameRate,
+                        unit: "",
+                    },
+                    {
+                        description: "Video encode delay",
+                        value: Number(localStats.video.encodeDelay).toFixed(2),
+                        unit: "ms",
+                    },
+                    {
+                        description: "Video send resolution height",
+                        value: localStats.video.sendResolutionHeight,
+                        unit: "",
+                    },
+                    {
+                        description: "Video send resolution width",
+                        value: localStats.video.sendResolutionWidth,
+                        unit: "",
+                    },
+                    {
+                        description: "Send video bit rate",
+                        value: (
+                            Number(localStats.video.sendBitrate) * 0.000001
+                        ).toFixed(4),
+                        unit: "Mbps",
+                    },
+                    {
+                        description: "Send Jitter",
+                        value: Number(localStats.video.sendJitterMs),
+                        unit: "ms",
+                    },
+                    {
+                        description: "Send RTT",
+                        value: Number(localStats.video.sendRttMs),
+                        unit: "ms",
+                    },
+                    {
+                        description: "Video packet loss rate",
+                        value: Number(
+                            localStats.video.currentPacketLossRate,
+                        ).toFixed(3),
+                        unit: "%",
+                    },
+                ];
+                $("#local-stats").html(`
+                    ${localStatsList
+                        .map(
+                            (stat) =>
+                                `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`,
+                        )
+                        .join("")}
+                `);
+
+                const remoteTracksStats = {
+                    video: client2.getRemoteVideoStats()[options.uid],
+                };
+                const remoteTracksStatsList = [
+                    {
+                        description: "Receive FPS",
+                        value: remoteTracksStats.video.receiveFrameRate,
+                        unit: "",
+                    },
+                    {
+                        description: "Decode FPS",
+                        value: remoteTracksStats.video.decodeFrameRate,
+                        unit: "",
+                    },
+                    {
+                        description: "Render FPS",
+                        value: remoteTracksStats.video.renderFrameRate,
+                        unit: "",
+                    },
+                    {
+                        description: "Video received height",
+                        value: remoteTracksStats.video.receiveResolutionHeight,
+                        unit: "",
+                    },
+                    {
+                        description: "Video received width",
+                        value: remoteTracksStats.video.receiveResolutionWidth,
+                        unit: "",
+                    },
+                    {
+                        description: "Recv video bitrate",
+                        value: (
+                            Number(
+                                remoteTracksStats.video.receiveBitrate,
+                            ) * 0.000001
+                        ).toFixed(4),
+                        unit: "Mbps",
+                    },
+                    {
+                        description: "Video receive delay",
+                        value: Number(
+                            remoteTracksStats.video.receiveDelay,
+                        ).toFixed(0),
+                        unit: "ms",
+                    },
+                    {
+                        description: "Video packets lost",
+                        value: remoteTracksStats.video.receivePacketsLost,
+                        unit: "",
+                    },
+                    {
+                        description: "E2E Delay",
+                        value: remoteTracksStats.video.end2EndDelay,
+                        unit: "",
+                    },
+                    {
+                        description: "Transport Delay",
+                        value: remoteTracksStats.video.transportDelay,
+                        unit: "",
+                    },
+                    {
+                        description: "Freeze Rate",
+                        value: Number(
+                            remoteTracksStats.video.freezeRate,
+                        ).toFixed(3),
+                        unit: "%",
+                    },
+                    {
+                        description: "Total video freeze time",
+                        value: remoteTracksStats.video.totalFreezeTime,
+                        unit: "s",
+                    },
+                ];
+                $(`#remote-stats`).html(`
+                    ${remoteTracksStatsList
+                        .map(
+                            (stat) =>
+                                `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`,
+                        )
+                        .join("")}
+                `);
+                chartArrayFPS.push([
+                    clientStats.Duration,
+                    localStats.video.sendFrameRate,
+                    remoteTracksStats.video.renderFrameRate,
+                ]);
+                drawCurveTypesFPS(chartArrayFPS);
+            }
+
+            function generateRandomString(length) {
+                const characters =
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                let result = "";
+
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(
+                        Math.random() * characters.length,
+                    );
+                    result += characters.charAt(randomIndex);
+                }
+
+                return result;
+            }
+        </script>
+    </body>
+</html>
