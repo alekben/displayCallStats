@@ -741,7 +741,7 @@
                     // Apply Geo-Fence Region
                     if (selectedRegion) {
                         console.log(`Setting Geo-Fence Region: ${selectedRegion.value}`);
-                        await AgoraRTC.setArea([selectedRegion.value]);
+                        await AgoraRTC.setArea(selectedRegion.value);
                     }
 
                     await join();
