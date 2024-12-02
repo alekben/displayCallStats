@@ -761,6 +761,8 @@
             // Initialize Regions
             $(document).ready(() => {
                 initRegions();
+                $("#vb").attr("disabled", true);
+                $("#ains").attr("disabled", true);
             });
 
             //proxy modes
@@ -984,6 +986,11 @@
                 $("#joined-setup").css("display", "flex");
                 await client.publish(localTracks.videoTrack);
                 console.log("publish cam success");
+
+                // Enable VB and AINS buttons
+                $("#vb").attr("disabled", false);
+                $("#ains").attr("disabled", false);
+
                 showPopup(
                     `Joined to channel ${options.channel} with UID ${options.uid}`,
                 );
@@ -1016,7 +1023,10 @@
                 chartFPS.clearChart();
                 chartArray.length = 0;
                 chartArrayFPS.length = 0;
-                loopback = false;
+                loopback = false;    
+                // Disable VB and AINS buttons
+                $("#vb").attr("disabled", true);
+                $("#ains").attr("disabled", true);
                 $("#join").attr("disabled", false);
                 $("#leave").attr("disabled", true);
                 $("#mute").text("Mute Mic Track");
