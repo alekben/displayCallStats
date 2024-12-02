@@ -1338,17 +1338,17 @@
                             });
                     AgoraRTC.registerExtensions([ains]);
                 }
-
+                
                 if (!ainsProcessor) {
                     ainsProcessor = await ains.createProcessor();
-                    ainsProcessor.setLevel("AGGRESSIVE");
                 }
 
                 pipeAIDenosier(localTracks.audioTrack, ainsProcessor);
-                
+
                 if (!ainsEnabled) {
                     try {
                         await ainsProcessor.enable();
+                        ainsProcessor.setLevel("AGGRESSIVE");
                         ainsEnabled = true;
                         document.getElementById("ains").innerText = "AINS Off";
                     } catch (error) {
