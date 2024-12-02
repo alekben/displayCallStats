@@ -1346,8 +1346,8 @@
 
                 if (!ainsEnabled) {
                     try {
-                        await ainsProcessor.enable();
                         pipeAIDenosier(localTracks.audioTrack, ainsProcessor);
+                        await ainsProcessor.enable();
                         ainsEnabled = true;
                         document.getElementById("ains").innerText = "AINS Off";
                     } catch (error) {
