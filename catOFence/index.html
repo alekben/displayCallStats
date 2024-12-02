@@ -544,47 +544,28 @@
 
                 <!-- Action Buttons -->
                 <div class="mt-4">
-                    <button
-                        id="join"
-                        type="submit"
-                        class="btn btn-custom btn-lg"
-                    >
+                    <button id="join" type="submit" class="btn btn-custom btn-lg">
                         Join
                     </button>
-                    <button
-                        id="leave"
-                        type="button"
-                        class="btn btn-secondary btn-lg"
-                        disabled
-                    >
+                    <button id="leave" type="button" class="btn btn-secondary btn-lg" disabled>
                         Leave
                     </button>
-                    <button
-                        id="mute"
-                        type="button"
-                        class="btn btn-secondary btn-lg"
-                        disabled
-                    >
+                    <button id="mute" type="button" class="btn btn-secondary btn-lg" disabled>
                         Unmute Mic
                     </button>
-                    <button
-                        id="dual"
-                        type="button"
-                        class="btn btn-secondary btn-lg"
-                    >
+                    <button id="dual" type="button" class="btn btn-secondary btn-lg">
                         Enable Dual Stream
                     </button>
-                    <button
-                        id="dualSwitch"
-                        type="button"
-                        class="btn btn-secondary btn-lg"
-                        disabled
-                    >
+                    <button id="dualSwitch" type="button" class="btn btn-secondary btn-lg" disabled>
                         Switch Stream
                     </button>
+                    <button id="vb" type="button" class="btn btn-secondary btn-lg">
+                        Virtual Background On
+                    </button>
+                    <button id="ains" type="button" class="btn btn-secondary btn-lg">
+                        AINS On
+                    </button>
                 </div>
-            </form>
-        </div>
 
         <!-- Video Players and Stats -->
         <div class="container video-group">
@@ -1307,6 +1288,88 @@
                     await localTracks.videoTrack.setDevice(curCam.deviceId);
                 }
             }
+
+            //Virtual Background and AINS
+            let vb = null;
+            let vbProcessor = null;
+            let vbEnabled = false;
+
+            let ains = null;
+            let ainsProcessor = null;
+            let ainsEnabled = false;
+
+            async function toggleVirtualBackground() {
+                if (!vb) {
+                    vb = new VirtualBackgroundExtension();
+                    AgoraRTC.registerExtensions([vb]);
+                }
+
+                if (!vbProcessor) {
+                    vbProcessor = await vb.createProcessor();
+                    vbProcessor.setOptions({ type: "blur", blurDegree: 3 });
+                }
+
+                if (!vbEnabled) {
+                    try {
+                        await vbProcessor.enable();
+                        pipeProcessor(localTracks.videoTrack, vbProcessor);
+                        vbEnabled = true;
+                        document.getElementById("vb").innerText = "Virtual Background Off";
+                    } catch (error) {
+                        console.error("Error enabling Virtual Background:", error);
+                    }
+                } else {
+                    try {
+                        await vbProcessor.disable();
+                        vbEnabled = false;
+                        document.getElementById("vb").innerText = "Virtual Background On";
+                    } catch (error) {
+                        console.error("Error disabling Virtual Background:", error);
+                    }
+                }
+            }
+
+            async function toggleAINS() {
+                if (!ains) {
+                    ains = new AIDenoiserExtension();
+                    AgoraRTC.registerExtensions([ains]);
+                }
+
+                if (!ainsProcessor) {
+                    ainsProcessor = await ains.createProcessor();
+                    ainsProcessor.setLevel("AGGRESSIVE");
+                }
+
+                if (!ainsEnabled) {
+                    try {
+                        await ainsProcessor.enable();
+                        pipeAIDenosier(localTracks.audioTrack, ainsProcessor);
+                        ainsEnabled = true;
+                        document.getElementById("ains").innerText = "AINS Off";
+                    } catch (error) {
+                        console.error("Error enabling AINS:", error);
+                    }
+                } else {
+                    try {
+                        await ainsProcessor.disable();
+                        ainsEnabled = false;
+                        document.getElementById("ains").innerText = "AINS On";
+                    } catch (error) {
+                        console.error("Error disabling AINS:", error);
+                    }
+                }
+            }
+
+            function pipeProcessor(track, processor) {
+                track.pipe(processor).pipe(track.processorDestination);
+            }
+
+            function pipeAIDenosier(track, processor) {
+                track.pipe(processor).pipe(track.processorDestination);
+            }
+
+            document.getElementById("vb").addEventListener("click", toggleVirtualBackground);
+            document.getElementById("ains").addEventListener("click", toggleAINS);
 
             function showPopup(message) {
                 const newPopup = popups + 1;
