@@ -1333,7 +1333,9 @@
 
             async function toggleAINS() {
                 if (!ains) {
-                    ains = new AIDenoiser.AIDenoiserExtension();
+                    ains = new AIDenoiser.AIDenoiserExtension({
+                                assetsPath: '../audiotrackconfig/aiDenoiserExtension/external'
+                            });
                     AgoraRTC.registerExtensions([ains]);
                 }
 
