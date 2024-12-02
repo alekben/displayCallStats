@@ -1344,9 +1344,10 @@
                     ainsProcessor.setLevel("AGGRESSIVE");
                 }
 
+                pipeAIDenosier(localTracks.audioTrack, ainsProcessor);
+                
                 if (!ainsEnabled) {
                     try {
-                        pipeAIDenosier(localTracks.audioTrack, ainsProcessor);
                         await ainsProcessor.enable();
                         ainsEnabled = true;
                         document.getElementById("ains").innerText = "AINS Off";
