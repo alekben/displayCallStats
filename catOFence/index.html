@@ -612,7 +612,7 @@
         <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
         <!-- Google Charts -->
         <script src="https://www.gstatic.com/charts/loader.js"></script>
-        <script src="../extensions/agora-extension-virtual-background_1_2_0/agora-extension-virtual-background.js"></script>
+        <script src="../extensions/agora-extension-virtual-background_2_0_0/agora-extension-virtual-background.js"></script>
         <script src="../audiotrackconfig/aiDenoiserExtension/index.js"></script>
         <!-- Custom Script -->
         <script>
@@ -1318,13 +1318,13 @@
 
                 if (!vbProcessor) {
                     vbProcessor = await vb.createProcessor();
-                    vbProcessor.setOptions({ type: "blur", blurDegree: 3 });
                 }
 
                 if (!vbEnabled) {
                     try {
                         await vbProcessor.enable();
                         pipeProcessor(localTracks.videoTrack, vbProcessor);
+                        vbProcessor.setOptions({ type: "blur", blurDegree: 3 });
                         vbEnabled = true;
                         document.getElementById("vb").innerText = "Virtual Background Off";
                     } catch (error) {
