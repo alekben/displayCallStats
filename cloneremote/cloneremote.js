@@ -54,7 +54,7 @@ $(() => {
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
   options.autoclone = urlParams.get("autoclone");
-  if (options.autoclone == null) {options.autoclone = "false"};
+  if (options.autoclone == null) {options.autoclone = false} else {options.autoclone = true; document.getElementById("autoclone").checked = true};
   if (options.appid && options.channel) {
     $("#uid").val(options.uid);
     $("#appid").val(options.appid);
@@ -69,6 +69,7 @@ $("#join-form").submit(async function (e) {
   $("#join").attr("disabled", true);
   $("#subscribe").attr("disabled", false);
   $("#unsubscribe").attr("disabled", false);
+  $("#autoclone").attr("disabled", true);
   try {
     if (!client) {
       client = AgoraRTC.createClient({
@@ -80,7 +81,10 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    client.setClientRole("audience");  
+    client.setClientRole("audience");
+    if (document.getElementById("autoclone").checked == true) {
+      options.autoclone = true;
+    } else { options.autoclone = false};  
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -147,6 +151,7 @@ async function leave() {
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
+  $("#autoclone").attr("disabled", false);
   console.log("client leaves channel success");
 }
 
@@ -169,7 +174,7 @@ async function subscribe(user, mediaType) {
     $("#remote-playerlist").append(player);
     user.videoTrack.play(`player-${uid}`);
     $(`#clone-${uid}`).click(() => cloneRemote(uid));
-    if (options.autoclone) {
+    if (options.autoclone == true) {
       cloneRemote(uid);
     }
   }
