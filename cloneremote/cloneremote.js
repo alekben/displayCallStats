@@ -11,7 +11,8 @@ var options = {
   appid: null,
   channel: null,
   uid: null,
-  token: null
+  token: null,
+  autoclone: false
 };
 
 async function changeTargetUID(label) {
@@ -52,6 +53,8 @@ $(() => {
   options.channel = urlParams.get("channel");
   options.token = urlParams.get("token");
   options.uid = urlParams.get("uid");
+  options.autoclone = urlParams.get("autoclone");
+  if (options.autoclone == null) {options.autoclone = "false"};
   if (options.appid && options.channel) {
     $("#uid").val(options.uid);
     $("#appid").val(options.appid);
@@ -165,8 +168,10 @@ async function subscribe(user, mediaType) {
     `);
     $("#remote-playerlist").append(player);
     user.videoTrack.play(`player-${uid}`);
-
     $(`#clone-${uid}`).click(() => cloneRemote(uid));
+    if (options.autoclone) {
+      cloneRemote(uid);
+    }
   }
   if (mediaType === "audio") {
     user.audioTrack.play();
@@ -208,7 +213,7 @@ async function cloneRemote(uid) {
     console.log(`clone triggered for ${uid}`);
     const stream = remoteUsers[uid].videoTrack.getMediaStreamTrack();
     clonedTracks[uid] = await AgoraRTC.createCustomVideoTrack({"mediaStreamTrack": stream});
-    clonedTracks[uid].play(`player-${uid}-cloned`, {"config": {"fit": "cover"}});
+    clonedTracks[uid].play(`player-${uid}-cloned`, {"fit": "cover"});
     $(`#clone-${uid}`).text("Stop");
   }
 
