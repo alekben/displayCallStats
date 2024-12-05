@@ -190,19 +190,29 @@ async function subscribe(user, mediaType) {
       $(`#decodeTime-${this.uid}`).text(`Time to decode: ${timeTaken}ms`);
     }.bind(user));
 
-    user.videoTrack.on("video-state-changed", function (reason) {
-      if (reason == 2) {
-        const d2 = new Date();
-        let time2 = d2.getTime();
-        console.log(`remote track for ${this.uid} has played at ${time2}`);
-        let timeTaken = time2 - timeStart;
-        console.log(`remote track for ${this.uid} took ${timeTaken} to render`);
-        $(`#renderTime-${this.uid}`).text(`Time to render: ${timeTaken}ms`);
-      }
-    }.bind(user));
+    //user.videoTrack.on("video-state-changed", function (reason) {
+    //  if (reason == 2) {
+    //    const d2 = new Date();
+    //    let time2 = d2.getTime();
+    //    console.log(`remote track for ${this.uid} video state changed playing at ${time2}`);
+    //    let timeTaken = time2 - timeStart;
+    //    console.log(`remote track for ${this.uid} took ${timeTaken} to change state to playing`);
+    //    //$(`#renderTime-${this.uid}`).text(`Time to render: ${timeTaken}ms`);
+    //  }
+    //}.bind(user));
 
     $(`#clone-${uid}`).click(() => cloneRemote(uid));
     user.videoTrack.play(`player-${uid}`);
+    
+    user.videoTrack._player.videoElement.addEventListener("playing", function () {
+      const d2 = new Date();
+      let time2 = d2.getTime();
+      console.log(`remote track for ${this.uid} playing at ${time2}`);
+      let timeTaken = time2 - timeStart;
+      console.log(`remote track for ${this.uid} took ${timeTaken} to change state to playing`);
+      $(`#renderTime-${this.uid}`).text(`Time to render: ${timeTaken}ms`);
+    }.bind(user));
+
     if (options.autoclone == true) {
       cloneRemote(uid);
     }
