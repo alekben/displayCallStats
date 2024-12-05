@@ -2,10 +2,11 @@
 var client;
 AgoraRTC.enableLogUpload();
 
-
 var remoteUsers = {};
 var remotesArray = [];
 var clonedTracks = {};
+
+var timeStart = 0;
 
 var options = {
   appid: null,
@@ -161,27 +162,38 @@ async function subscribe(user, mediaType) {
   await client.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === "video") {
+    const d = new Date();
+    timeStart = d.getTime();
     const player = $(`
     <div id="player-wrapper-${uid}">
     <div class="container-controls">
-      <p class="player-name">remoteUser(${uid})</p>
-      <button id="clone-${uid}" type="button" class="btn btn-primary btn-sm">Clone and Play</button>
+      <p style="display: inline-block;float: left">remoteUser(${uid})</p>
+      <p id="renderTime-${uid}" style="display: inline-block;float: left;padding-left:30px">Time to render:</p>
+      <p id="decodeTime-${uid}" style="display: inline-block;float: left;padding-left:30px">Time to decode:</p>
+      <button id="clone-${uid}" type="button" class="btn btn-primary btn-sm" style="float: right;padding-right:10px">Clone and Play</button>
+      <p id="renderTime-${uid}-cloned" style="display: inline-block;float: right;padding-right:30px">Time to render:</p>
+      <p id="decodeTime-${uid}-cloned" style="display: inline-block;float: right;padding-right:30px">Time to decode:</p>
     </div> 
     <div id="player-${uid}" data-size-variant="sm" class="player"></div>
-    <div id="player-${uid}-cloned" data-size-variant="sm" class="player-cloned">
-    <video id="clonedtrack-${uid}" autoplay muted playsinline></video></div>
+    <div id="player-${uid}-cloned" data-size-variant="sm" class="player-cloned"></div>
   </div>
     `);
     $("#remote-playerlist").append(player);
-    user.videoTrack.play(`player-${uid}`);
+    trackid = user.videoTrack._userId;
+    //user.videoTrack.on("video-state-changed", handleVideoStateChanged);
+    user.videoTrack.on("first-frame-decoded", () => {
+      console.log(`remote track for ${trackid} has decoded`);
+    });
+    user.videoTrack.on("first-frame-decoded", handleFirstFrame);
     $(`#clone-${uid}`).click(() => cloneRemote(uid));
+    //user.videoTrack.play(`player-${uid}`);
     if (options.autoclone == true) {
       cloneRemote(uid);
     }
   }
-  if (mediaType === "audio") {
-    user.audioTrack.play();
-  }
+  //if (mediaType === "audio") {
+  //  user.audioTrack.play();
+  //}
 }
 
 function handleUserPublished(user, mediaType) {
@@ -211,16 +223,68 @@ function removeItemOnce(arr, value) {
 
 async function cloneRemote(uid) {
   if (document.getElementById(`clone-${uid}`).innerHTML == "Stop") {
-    console.log(`clone stopped for ${uid}`);
-    document.getElementById(`clonedtrack-${uid}`).stop();
+    console.log(`play and clone stopped for ${uid}`);
+    remoteUsers[uid].videoTrack.stop();
+    clonedTracks[uid].stop();
+    clonedTracks[uid] = "";
     $(`#clone-${uid}`).text("Clone and Play");
+    $(`#decodeTime-${uid}`).text(`Time to decode:`);
+    $(`#renderTime-${uid}`).text(`Time to render:`);
   } else {
-    console.log(`clone triggered for ${uid}`);
+    const d = new Date();
+    timeStart = d.getTime();
+    console.log(`play and clone triggered for ${uid} at ${timeStart}`);
+    remoteUsers[uid].videoTrack.play(`player-${uid}`);
+    const id = remoteUsers[uid].videoTrack.getTrackId().split("track-video-")[1];
+    $(`#agora-video-player-track-video-${id}`).css("background-color", "red");
     const stream = remoteUsers[uid].videoTrack.getMediaStreamTrack();
-    document.getElementById(`clonedtrack-${uid}`).srcObject = stream;
-    document.getElementById(`clonedtrack-${uid}`).play();
+    clonedTracks[uid] = await AgoraRTC.createCustomVideoTrack({"mediaStreamTrack": stream});
+    const idCus = clonedTracks[uid].getTrackId().split("track-cus-")[1];
+    //clonedTracks[uid].on("video-state-changed", handleVideoStateChanged);
+    //clonedTracks[uid].on("first-frame-decoded", handleFirstFrame);
+    clonedTracks[uid].play(`player-${uid}-cloned`, {"fit": "cover"});
+    $(`#agora-video-player-track-cus-${idCus}`).css("background-color", "red");
     $(`#clone-${uid}`).text("Stop");
   }
-
 }
+
+async function handleFirstFrame() {
+    console.log(`first frame decoded fired`);
+    //const d2 = new Date();
+    //let time2 = d2.getTime();
+    //console.log(`clone track for ${uid} has decoded at ${time2}`);
+    //let timeTaken = time2 - timeStart;
+    //console.log(`clone track for ${uid} took ${timeTaken} to decode`);
+    //$(`#decodeTime-${uid}`).text(`Time to decode: ${timeTaken}ms`);
+};
+
+async function handleVideoStateChanged(vstate) {
+  console.log(`videostatechanged`);
+  //const d2 = new Date();
+  //let time2 = d2.getTime();
+  //console.log(`clone track for ${uid} has decoded at ${time2}`);
+  //let timeTaken = time2 - timeStart;
+  //console.log(`clone track for ${uid} took ${timeTaken} to render`);
+  //$(`#renderTime-${uid}`).text(`Time to render: ${timeTaken}ms`);
+};
+
+async function handleFirstFrameCloned() {
+  console.log(`first frame decoded fired`);
+  //const d2 = new Date();
+  //let time2 = d2.getTime();
+  //console.log(`clone track for ${uid} has decoded at ${time2}`);
+  //let timeTaken = time2 - timeStart;
+  //console.log(`clone track for ${uid} took ${timeTaken} to decode`);
+  //$(`#decodeTime-${uid}`).text(`Time to decode: ${timeTaken}ms`);
+};
+
+async function handleVideoStateChangedCloned(vstate) {
+console.log(`videostatechanged`);
+//const d2 = new Date();
+//let time2 = d2.getTime();
+//console.log(`clone track for ${uid} has decoded at ${time2}`);
+//let timeTaken = time2 - timeStart;
+//console.log(`clone track for ${uid} took ${timeTaken} to render`);
+//$(`#renderTime-${uid}`).text(`Time to render: ${timeTaken}ms`);
+};
 

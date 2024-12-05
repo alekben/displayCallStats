@@ -37,6 +37,7 @@
   width: 480px;
   height: 320px;
   display: inline-block;
+  background-color:black;
 }
 
 .player-cloned {
@@ -44,6 +45,7 @@
   height: 320px;
   display: inline-block;
   background-color:black;
+  float: right;
 }
 
 .player-name {
