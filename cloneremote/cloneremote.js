@@ -169,26 +169,26 @@ async function subscribe(user, mediaType) {
     <div class="container-controls">
       <p style="display: inline-block;float: left">remoteUser(${uid})</p>
       <p id="renderTime-${uid}" style="display: inline-block;float: left;padding-left:30px">Time to render:</p>
-      <p id="decodeTime-${uid}" style="display: inline-block;float: left;padding-left:30px">Time to decode:</p>
-      <button id="clone-${uid}" type="button" class="btn btn-primary btn-sm" style="float: right;padding-right:10px">Clone and Play</button>
+      <button id="clone-${uid}" type="button" class="btn btn-primary btn-sm" style="display: inline-block;float: right;padding-right:10px">Clone and Play</button>
       <p id="renderTime-${uid}-cloned" style="display: inline-block;float: right;padding-right:30px">Time to render:</p>
-      <p id="decodeTime-${uid}-cloned" style="display: inline-block;float: right;padding-right:30px">Time to decode:</p>
     </div> 
+    <div id="players" class="players">
     <div id="player-${uid}" data-size-variant="sm" class="player"></div>
     <div id="player-${uid}-cloned" data-size-variant="sm" class="player-cloned"></div>
+    </div>
   </div>
     `);
     $("#remote-playerlist").append(player);
     trackid = user.videoTrack._userId;
 
-    user.videoTrack.on("first-frame-decoded", function () {
-      const d2 = new Date();
-      let time2 = d2.getTime();
-      console.log(`remote track for ${this.uid} has decoded at ${time2}`);
-      let timeTaken = time2 - timeStart;
-      console.log(`clone track for ${this.uid} took ${timeTaken} to decode`);
-      $(`#decodeTime-${this.uid}`).text(`Time to decode: ${timeTaken}ms`);
-    }.bind(user));
+  //  user.videoTrack.on("first-frame-decoded", function () {
+  //    const d2 = new Date();
+  //    let time2 = d2.getTime();
+  //    console.log(`remote track for ${this.uid} has decoded at ${time2}`);
+  //    let timeTaken = time2 - timeStart;
+  //    console.log(`clone track for ${this.uid} took ${timeTaken} to decode`);
+  //    $(`#decodeTime-${this.uid}`).text(`Time to decode: ${timeTaken}ms`);
+  //  }.bind(user));
 
     //user.videoTrack.on("video-state-changed", function (reason) {
     //  if (reason == 2) {
@@ -203,7 +203,7 @@ async function subscribe(user, mediaType) {
 
     $(`#clone-${uid}`).click(() => cloneRemote(uid));
     user.videoTrack.play(`player-${uid}`);
-    
+
     user.videoTrack._player.videoElement.addEventListener("playing", function () {
       const d2 = new Date();
       let time2 = d2.getTime();
@@ -253,8 +253,7 @@ async function cloneRemote(uid) {
     clonedTracks[uid].stop();
     clonedTracks[uid] = "";
     $(`#clone-${uid}`).text("Clone and Play");
-    $(`#decodeTime-${uid}`).text(`Time to decode:`);
-    $(`#renderTime-${uid}`).text(`Time to render:`);
+    $(`#renderTime-${uid}-cloned`).text(`Time to render:`);
   } else {
     const d = new Date();
     timeStart = d.getTime();
@@ -262,9 +261,15 @@ async function cloneRemote(uid) {
     const stream = remoteUsers[uid].videoTrack.getMediaStreamTrack();
     clonedTracks[uid] = await AgoraRTC.createCustomVideoTrack({"mediaStreamTrack": stream});
     const id = clonedTracks[uid].getTrackId().split("track-cus-")[1];
-    //clonedTracks[uid].on("video-state-changed", handleVideoStateChanged);
-    //clonedTracks[uid].on("first-frame-decoded", handleFirstFrame);
     clonedTracks[uid].play(`player-${uid}-cloned`, {"fit": "cover"});
+    clonedTracks[uid]._player.videoElement.addEventListener("playing", function () {
+      const d = new Date();
+      time2 = d.getTime();
+      console.log(`cloned track for ${uid} playing at ${time2}`);
+      let timeTaken = time2 - timeStart;
+      console.log(`cloned track for ${uid} took ${timeTaken} to render`);
+      $(`#renderTime-${uid}-cloned`).text(`Time to render: ${timeTaken}ms`);
+    });
     $(`#agora-video-player-track-cus-${id}`).css("background-color", "red");
     $(`#clone-${uid}`).text("Stop");
   }

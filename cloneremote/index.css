@@ -36,7 +36,6 @@
 .player {
   width: 480px;
   height: 320px;
-  display: inline-block;
 }
 
 .player-cloned {
