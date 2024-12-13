@@ -1,8 +1,12 @@
 var popups = 0;
+let settingsHide = true;
 
 google.charts.load('current', {packages: ['corechart', 'line']});
 var chart;
 var chartArray = [];
+
+var chartJitter;
+var chartArrayJitter = [];
 
 var chartFPS;
 var chartArrayFPS = [];
@@ -228,6 +232,8 @@ $("#join-form").submit(async function (e) {
     $("#mute").text("Unmute Mic Track");
     $("#mute").attr("disabled", false);
     $("#dual").attr("disabled", false);
+    $("#showSettings").attr("disabled", false);
+    $("#settings").css("display", "none");
     if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       encoderConfig: "music_standard", "AEC": true, "ANS": true, "AGC": true
@@ -241,6 +247,18 @@ $("#join-form").submit(async function (e) {
 $("#leave").click(function (e) {
   leave();
   $("#channelSettings").css("display", "");
+  $("#settings").css("display", "");
+});
+
+$("#showSettings").click(function (e) {
+  if (settingsHide) {
+    $("#settings").css("display", "");
+    settingsHide = false;
+  } else {
+    $("#settings").css("display", "none");
+    settingsHide = true;
+  }
+  
 });
 
 $("#mute").click(function (e) {
@@ -304,6 +322,7 @@ async function join() {
   console.log("publish cam success");
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
+  chartJitter = new google.visualization.LineChart(document.getElementById('chart-div-jitter'));
   chartFPS = new google.visualization.LineChart(document.getElementById('chart-div-fps'));
   initStats();
 }
@@ -325,8 +344,10 @@ async function leave() {
   await client.leave();
   await client2.leave();
   chart.clearChart();
+  chartJitter.clearChart();
   chartFPS.clearChart();
   chartArray.length = 0;
+  chartArrayJitter.length = 0;
   chartArrayFPS.length = 0;
   loopback = false;
   $("#join").attr("disabled", false);
@@ -336,6 +357,7 @@ async function leave() {
   $("#dual").attr("disabled", false);
   $("#dual").text("Enable Dual Stream");
   $("#dualSwitch").attr("disabled", true);
+  $("#showSettings").attr("disabled", true);
   $("#joined-setup").css("display", "none");
   console.log("client leaves channel success");
 }
@@ -605,6 +627,29 @@ async function drawCurveTypes(array) {
   chart.draw(data, options);
 };
 
+async function drawCurveTypesJitter(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Send');
+  data.addColumn('number', 'Receive');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'Jitter'
+    },
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
+  };
+
+  chartJitter.draw(data, options);
+};
+
 async function drawCurveTypesFPS(array) {
   var data = new google.visualization.DataTable();
   data.addColumn('number', 'X');
@@ -659,15 +704,11 @@ function flushStats() {
     value: options.channel,
     unit: ""
   }, {
-    description: "Host Count",
-    value: clientStats.UserCount,
-    unit: ""
-  }, {
     description: "Joined Duration",
     value: clientStats.Duration,
     unit: "s"
   }, {
-    description: "Bitrate receive",
+    description: "Bitrate recv",
     value: (Number(clientStats2.RecvBitrate) * 0.000001).toFixed(4),
     unit: "Mbps"
   }, {
@@ -675,7 +716,7 @@ function flushStats() {
     value: (Number(clientStats.SendBitrate) * 0.000001).toFixed(4),
     unit: "Mbps"
   }, {
-    description: "Outgoing B/W",
+    description: "BWE",
     value: (Number(clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
     unit: "Mbps"
   }, {
@@ -696,8 +737,15 @@ function flushStats() {
     unit: ""
   }];
   $("#client-stats").html(`
-    ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
-  `);
+    ${clientStatsList
+        .map(
+            (stat) =>
+                `<div class="stat-item">${stat.description}: ${stat.value} ${stat.unit}</div>`,
+        )
+        .join("")}
+`);
+
+  console.log(`pushing bitrate values ${clientStats.Duration}, ${clientStats.SendBitrate}, ${clientStats2.RecvBitrate}`);
   chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
   drawCurveTypes(chartArray);
   
@@ -801,8 +849,12 @@ function flushStats() {
   $(`#remote-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
+  console.log(`pushing fps values ${clientStats.Duration}, ${localStats.video.sendFrameRate}, ${remoteTracksStats.video.renderFrameRate}`);
   chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.renderFrameRate]);
   drawCurveTypesFPS(chartArrayFPS);
+  console.log(`pushing jitter values ${clientStats.Duration}, ${localStats.video.sendJitterMs}, ${remoteTracksStats.video.receiveDelay}`);
+  chartArrayJitter.push([clientStats.Duration, localStats.video.sendJitterMs, remoteTracksStats.video.receiveDelay]);
+  drawCurveTypesJitter(chartArrayJitter);
 }
 
 function generateRandomString(length) {

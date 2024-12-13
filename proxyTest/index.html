@@ -79,101 +79,103 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
 
   <div class="container">
 
-    <!--
-    Input fields so the user can securely join a Video Call channel.
-  -->
-    <form id="join-form">
-      <div id="channelSettings" class="row join-info-group">
-        <div class="col-sm sso-hidden">
-          <p class="join-info-text">APP ID</p>
-          <input id="appid" type="text" value="7c9a6773eb7b4650831ecdb3a0931dac">
-          <p class="tips">You find your APP ID in the <a href="https://console.agora.io/projects">Agora Console</a></p>
-        </div>
-        <div class="col-sm sso-hidden">
-          <p class="join-info-text">Token(optional)</p>
-          <input id="token" type="text" placeholder="Enter the app token">
-          <p class="tips">To create a temporary token, <a href="https://console.agora.io/projects">edit your project</a>
+    <div id="settings">
+      <form id="join-form">
+        <div id="channelSettings" class="row join-info-group">
+          <div class="col-sm sso-hidden">
+            <p class="join-info-text">APP ID</p>
+            <input id="appid" type="text" value="7c9a6773eb7b4650831ecdb3a0931dac">
+            <p class="tips">You find your APP ID in the <a href="https://console.agora.io/projects">Agora Console</a></p>
+          </div>
+          <div class="col-sm sso-hidden">
+            <p class="join-info-text">Token(optional)</p>
+            <input id="token" type="text" placeholder="Enter the app token">
+            <p class="tips">To create a temporary token, <a href="https://console.agora.io/projects">edit your project</a>
             in Agora Console.</p>
-        </div>
-        <div class="col-sm">
-          <p class="join-info-text">Channel Name</p>
-          <input id="channel" type="text" value="" required>
-          <p class="tips">You create a channel when you create a temporary token. You guessed it, in <a
+          </div>
+          <div class="col-sm">
+            <p class="join-info-text">Channel Name</p>
+            <input id="channel" type="text" value="" required>
+            <p class="tips">You create a channel when you create a temporary token. You guessed it, in <a
               href="https://console.agora.io/projects">Agora Console</a></p>
-        </div>
-        <div class="col-sm">
-          <p class="join-info-text">User ID(optional)</p>
-          <input id="uid" type="text" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+          </div>
+          <div class="col-sm">
+            <p class="join-info-text">User ID(optional)</p>
+            <input id="uid" type="text" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
             onafterpaste="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="Enter the user ID">
+          </div>
         </div>
-      </div>
 
-      <div id="proxySettings">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+        <div id="proxySettings">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">Cloud Proxy</button>
-          <div class="proxy-list dropdown-menu"></div>
+            <div class="proxy-list dropdown-menu"></div>
+          </div>
+          <input type="text" class="proxy-input form-control" aria-label="Text input with dropdown button" readonly>
         </div>
-        <input type="text" class="proxy-input form-control" aria-label="Text input with dropdown button" readonly>
-      </div>
 
-      <div id="areaCode">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+        <div id="areaCode">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">Area Code</button>
-          <div class="area-list dropdown-menu"></div>
+            <div class="area-list dropdown-menu"></div>
+          </div>
+          <input type="text" class="area-input form-control" aria-label="Text input with dropdown button" readonly>
         </div>
-        <input type="text" class="area-input form-control" aria-label="Text input with dropdown button" readonly>
-      </div>
 
-      <div id="camSettings">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+        <div id="camSettings">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">Video Camera</button>
-            <div class="cam-list dropdown-menu"></div>
+              <div class="cam-list dropdown-menu"></div>
+            </div>
+            <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button" readonly>
           </div>
-          <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button" readonly>
         </div>
-      </div>
 
-      <div id="resSettings">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+        <div id="resSettings">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false" >Video Profile</button>
-            <div class="profile-list dropdown-menu"></div>
+              <div class="profile-list dropdown-menu"></div>
+            </div>
+            <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
           </div>
-          <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
         </div>
-      </div>
-      <!--
-      Join or leave a Video Call channel.
-    -->
-      <div class="button-group">
-        <button id="join" type="submit" class="btn btn-primary btn-sm">Join</button>
-        <button id="leave" type="button" class="btn btn-primary btn-sm" disabled>Leave</button>
-        <button id="mute" type="button" class="btn btn-primary btn-sm" disabled>Unmute Mic</button>
-        <button id="dual" type="button" class="btn btn-primary btn-sm">Enable Dual Stream</button>
-        <button id="dualSwitch" type="button" class="btn btn-primary btn-sm" disabled>Switch Stream</button>
-      </div>
-    </form>
-    <!--
-    This local media splayer is enabled when the user has successfully joined a Video Call channel.
-  -->
+
+        <div class="button-group">
+          <button id="join" type="submit" class="btn btn-primary btn-sm">Join</button>
+          <button id="leave" type="button" class="btn btn-primary btn-sm" disabled>Leave</button>
+          <button id="mute" type="button" class="btn btn-primary btn-sm" disabled>Unmute Mic</button>
+          <button id="dual" type="button" class="btn btn-primary btn-sm">Enable Dual Stream</button>
+          <button id="dualSwitch" type="button" class="btn btn-primary btn-sm" disabled>Switch Stream</button>
+        </div>
+      </form>
+
+    </div>
+    </div>
+    </div>
+    <button id="showSettings" type="button" class="btn btn-primary btn-sm" disabled>Toggle Settings</button>
+
     <div class="row video-group">
       <div class="col">
-        <div id="client-stats" class="stream-stats stats2"></div>
-        <div id="chart-div"></div>
-        <div id="local-player" class="player">
-          <div id="local-stats" class="stream-stats stats"></div>
+        <div class="col-md-12">
+          <div id="client-stats" class="stats2"></div>
         </div>
-        <div id="remote-player" class="player">
-          <div id="remote-stats" class="stream-stats stats"></div>
-        </div>
-        <div id="chart-div-fps"></div>
+          <div id="chart-div"></div>
+          <div id="local-player" class="player">
+            <div id="local-stats" class="stream-stats stats"></div>
+          </div>
+          <div id="remote-player" class="player">
+            <div id="remote-stats" class="stream-stats stats"></div>
+          </div>
+          <div id="chart-div-jitter"></div>
+          <div id="chart-div-fps"></div>
       </div>
     </div>
   </div>
