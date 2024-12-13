@@ -76,6 +76,54 @@ var modes = [{
 }];
 var mode;
 
+//areas
+var areas = [{
+  label: "AFRICA",
+  detail: "AFRICA",
+  value: "AFRICA"
+}, {
+  label: "ASIA",
+  detail: "ASIA",
+  value: "ASIA"
+}, {
+  label: "CHINA",
+  detail: "CHINA",
+  value: "CHINA"
+}, {
+  label: "EUROPE",
+  detail: "EUROPE",
+  value: "EUROPE"
+}, {
+  label: "GLOBAL",
+  detail: "GLOBAL",
+  value: "GLOBAL"
+}, {
+  label: "INDIA",
+  detail: "INDIA",
+  value: "INDIA"
+}, {
+  label: "JAPAN",
+  detail: "JAPAN",
+  value: "JAPAN"
+}, {
+  label: "KOREA",
+  detail: "KOREA",
+  value: "KOREA"
+}, {
+  label: "NORTH AMERICA",
+  detail: "NORTH AMERICA",
+  value: "NORTH_AMERICA"
+}, {
+  label: "OVERSEA",
+  detail: "OVERSEA",
+  value: "OVERSEA"
+}, {
+  label: "US",
+  detail: "US",
+  value: "US"
+}];
+var area;
+
 //video profiles
 var videoProfiles = [{
   label: "360p_1",
@@ -123,10 +171,14 @@ var curCam;
 
 $(() => {
   initModes();
+  initAreas();
   initProfiles();
   initCams();
   $(".proxy-list").delegate("a", "click", function (e) {
     changeModes(this.getAttribute("label"));
+  });
+  $(".area-list").delegate("a", "click", function (e) {
+    changeArea(this.getAttribute("label"));
   });
   $(".cam-list").delegate("a", "click", function (e) {
     switchCamera(this.text);
@@ -219,6 +271,9 @@ async function join() {
   client2.on("user-unpublished", handleUserUnpublished2);
   client2.on("network-quality", handleNetworkQuality2);
   client2.on("connection-state-change", handleConnectionState2);
+
+  AgoraRTC.setArea(area.value);
+  showPopup(`Area Code set to ${area.label}.`);
   
   const value = Number(mode.value);
   if ([3, 5].includes(value)) {
@@ -460,6 +515,23 @@ function initModes() {
   $(".proxy-input").val(`${mode.detail}`);
 }
 
+//areas
+function initAreas() {
+  areas.forEach(area => {
+    $(".area-list").append(`<a class="dropdown-item" label="${area.label}" href="#">${area.label}</a>`);
+  });
+  area = areas[4];
+  $(".area-input").val(`${area.detail}`);
+}
+
+async function changeArea(label) {
+  area = areas.find(areas => areas.label === label);
+  $(".area-input").val(`${area.detail}`);
+  if (connectionState.isJoined) {
+    showPopup("Already joined so no effect until next join!");
+  }
+}
+
 //video encoder functions
 
 async function changeProfiles(label) {
@@ -581,6 +653,10 @@ function flushStats() {
   {
     description: "Local UID",
     value: options.uid,
+    unit: ""
+  }, {
+    description: "Channel",
+    value: options.channel,
     unit: ""
   }, {
     description: "Host Count",

@@ -108,34 +108,47 @@ content="default-src 'none'; script-src 'self' *.agora.io; connect-src 'self' *.
         </div>
       </div>
 
-
-      <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+      <div id="proxySettings">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">Cloud Proxy</button>
           <div class="proxy-list dropdown-menu"></div>
         </div>
         <input type="text" class="proxy-input form-control" aria-label="Text input with dropdown button" readonly>
       </div>
-      <div id="camSettings">
-      <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">Video Camera</button>
-          <div class="cam-list dropdown-menu"></div>
+
+      <div id="areaCode">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Area Code</button>
+          <div class="area-list dropdown-menu"></div>
         </div>
-        <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button" readonly>
+        <input type="text" class="area-input form-control" aria-label="Text input with dropdown button" readonly>
       </div>
 
-      <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false" >Video Profile</button>
-          <div class="profile-list dropdown-menu"></div>
+      <div id="camSettings">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Video Camera</button>
+            <div class="cam-list dropdown-menu"></div>
+          </div>
+          <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button" readonly>
         </div>
-        <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
       </div>
-    </div>
+
+      <div id="resSettings">
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" >Video Profile</button>
+            <div class="profile-list dropdown-menu"></div>
+          </div>
+          <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
+        </div>
+      </div>
       <!--
       Join or leave a Video Call channel.
     -->
