@@ -11,6 +11,10 @@ var chartArrayJitter = [];
 var chartFPS;
 var chartArrayFPS = [];
 
+var chartBWE;
+var chartArrayBWE = [];
+
+
 let statsInterval;
 
 AgoraRTC.enableLogUpload();
@@ -59,6 +63,9 @@ var options = {
   uid2: null,
   token: null,
 };
+
+//random
+let leftOnce = false;
 
 //dual
 let dual = false;
@@ -217,6 +224,8 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
+    $("#local-player").css("display", "");
+    $("#remote-player").css("display", "");
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -248,6 +257,9 @@ $("#leave").click(function (e) {
   leave();
   $("#channelSettings").css("display", "");
   $("#settings").css("display", "");
+  settingsHide = true;
+  $("#local-player").css("display", "none");
+  $("#remote-player").css("display", "none");
 });
 
 $("#showSettings").click(function (e) {
@@ -321,14 +333,28 @@ async function join() {
   await client.publish(localTracks.videoTrack);
   console.log("publish cam success");
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+  if (leftOnce == true) {
+    destructStats();
+    chart.clearChart();
+    chartJitter.clearChart();
+    chartFPS.clearChart();
+    chartBWE.clearChart();
+    chartArray.length = 0;
+    chartArrayJitter.length = 0;
+    chartArrayFPS.length = 0;
+    chartArrayBWE.length = 0;
+  }
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
   chartJitter = new google.visualization.LineChart(document.getElementById('chart-div-jitter'));
   chartFPS = new google.visualization.LineChart(document.getElementById('chart-div-fps'));
+  chartBWE = new google.visualization.LineChart(document.getElementById('chart-div-bwe'));
   initStats();
 }
 
 async function leave() {
-  destructStats();
+  leftOnce = true;
+  clearInterval(statsInterval);
+  //destructStats();
   for (trackName in localTracks) {
     var track = localTracks[trackName];
     if (track) {
@@ -343,12 +369,14 @@ async function leave() {
   };
   await client.leave();
   await client2.leave();
-  chart.clearChart();
-  chartJitter.clearChart();
-  chartFPS.clearChart();
-  chartArray.length = 0;
-  chartArrayJitter.length = 0;
-  chartArrayFPS.length = 0;
+  //chart.clearChart();
+  //chartJitter.clearChart();
+  //chartFPS.clearChart();
+  //chartBWE.clearChart();
+  //chartArray.length = 0;
+  //chartArrayJitter.length = 0;
+  //chartArrayFPS.length = 0;
+  //chartArrayBWE.length = 0;
   loopback = false;
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
@@ -640,7 +668,7 @@ async function drawCurveTypesJitter(array) {
       title: 'Time (sec)'
     },
     vAxis: {
-      title: 'Jitter'
+      title: 'Ms'
     },
     //series: {
     //  1: {curveType: 'function'}
@@ -673,12 +701,35 @@ async function drawCurveTypesFPS(array) {
   chartFPS.draw(data, options);
 };
 
+async function drawCurveTypesBWE(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Available Tx');
+
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'Mbits/s'
+    },
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
+  };
+
+  chartBWE.draw(data, options);
+};
+
 function initStats() {
   statsInterval = setInterval(flushStats, 1000);
 }
 
 function destructStats() {
-  clearInterval(statsInterval);
+  //clearInterval(statsInterval);
   $("#client-stats").html("");
   $("#local-stats").html("");
   $("#remote-player").html("");
@@ -717,7 +768,7 @@ function flushStats() {
     unit: "Mbps"
   }, {
     description: "BWE",
-    value: (Number(clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
+    value: Number((clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
     unit: "Mbps"
   }, {
     description: "RTT to SD-RTN Edge",
@@ -745,7 +796,7 @@ function flushStats() {
         .join("")}
 `);
 
-  console.log(`pushing bitrate values ${clientStats.Duration}, ${clientStats.SendBitrate}, ${clientStats2.RecvBitrate}`);
+  //console.log(`pushing bitrate values ${clientStats.Duration}, ${clientStats.SendBitrate}, ${clientStats2.RecvBitrate}`);
   chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
   drawCurveTypes(chartArray);
   
@@ -849,12 +900,16 @@ function flushStats() {
   $(`#remote-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
-  console.log(`pushing fps values ${clientStats.Duration}, ${localStats.video.sendFrameRate}, ${remoteTracksStats.video.renderFrameRate}`);
-  chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.renderFrameRate]);
-  drawCurveTypesFPS(chartArrayFPS);
-  console.log(`pushing jitter values ${clientStats.Duration}, ${localStats.video.sendJitterMs}, ${remoteTracksStats.video.receiveDelay}`);
+  console.log(`pushing bwe value ${clientStats.Duration}, ${clientStatsList[5].value}`);
+  chartArrayBWE.push([clientStats.Duration, (clientStats.OutgoingAvailableBandwidth * 0.001)]);
+  drawCurveTypesBWE(chartArrayBWE);
+  //console.log(`pushing jitter values ${clientStats.Duration}, ${localStats.video.sendJitterMs}, ${remoteTracksStats.video.receiveDelay}`);
   chartArrayJitter.push([clientStats.Duration, localStats.video.sendJitterMs, remoteTracksStats.video.receiveDelay]);
   drawCurveTypesJitter(chartArrayJitter);
+  //console.log(`pushing fps values ${clientStats.Duration}, ${localStats.video.sendFrameRate}, ${remoteTracksStats.video.renderFrameRate}`);
+  chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.renderFrameRate]);
+  drawCurveTypesFPS(chartArrayFPS);
+
 }
 
 function generateRandomString(length) {

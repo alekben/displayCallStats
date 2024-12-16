@@ -476,21 +476,33 @@ async function switchCamScreen() {
   //method 1 - create new track, extract stream, replace currently published track
   if (localTrackState.camPublished) {
     console.log("cam is currently published, switching to screenshare.");
-    let encoderConfig = "720p_2";
+    let encoderConf = {name: "720p_2", value: "720p_2"};
     if (document.getElementById("30fps").checked == true) {
       if (document.getElementById("1080p").checked == true) {
-        encoderConf = "1080p_2";
+        encoderConf = {name: "1080p_2", value: "1080p_2"};
       } else {
-        encoderConf = "720p_2";
+        encoderConf = {name: "720p_2", value: "720p_2"};
       }
     } else { 
       if (document.getElementById("1080p").checked == true) {
-        encoderConf = "1080p";
+        encoderConf = {name: "1080p", value: {
+          width: 1920,
+          height: 1080,
+          frameRate: {min: 10, max: 10},
+          bitrateMin: 100,
+          bitrateMax: 1000
+        }};
       } else {
-        encoderConf = "720p";
+        encoderConf = {name: "720p", value: {
+          width: 1280,
+          height: 720,
+          frameRate: {min: 10, max: 10},
+          bitrateMin: 100,
+          bitrateMax: 500
+        }};
       }
     }; 
-      screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: encoderConf}, "disabled");
+      screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: encoderConf.value}, "disabled");
         if (screenTrack instanceof Array) {
           localTracks.screenVideoTrack = screenTrack[0];
           localTracks.screenAudioTrack = screenTrack[1];
