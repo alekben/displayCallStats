@@ -66,6 +66,8 @@ var options = {
 
 //random
 let leftOnce = false;
+var timeStart = 0;
+var timeTaken = 0;
 
 //dual
 let dual = false;
@@ -434,6 +436,8 @@ async function unmuteAudio() {
 
 async function subscribe2(user, mediaType) {
   const uid = user.uid;
+  const d = new Date();
+  timeStart = d.getTime();
   await client2.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === 'video') {
@@ -444,6 +448,17 @@ async function subscribe2(user, mediaType) {
     `);
     $("#remote-player").append(player);
     user.videoTrack.play(`player-${uid}`);
+    remoteUsers[uid]._videoTrack._player.videoElement.addEventListener("playing", function () {
+      const d = new Date();
+      const time2 = d.getTime();
+      //console.log(`cloned track for ${uid} playing at ${time2}`);
+      timeTaken = time2 - timeStart;
+      //console.log(`cloned track for ${uid} took ${timeTaken} to render`);
+      showPopup(`Subscribe to Render took ${timeTaken}`)
+      //$(`#renderTime-${uid}-cloned`).text(`Time to render: ${timeTaken}ms`);
+    });
+    const player2 = remoteUsers[uid]._videoTrack._player.trackId;
+    $(`#agora-video-player-${player2}`).css("background-color", "red");
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
@@ -896,11 +911,15 @@ function flushStats() {
     description: "Total video freeze time",
     value: remoteTracksStats.video.totalFreezeTime,
     unit: "s"
+  }, {
+    description: "Time Taken to Render",
+    value: timeTaken,
+    unit: "ms"
   }];
   $(`#remote-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
-  console.log(`pushing bwe value ${clientStats.Duration}, ${clientStatsList[5].value}`);
+  //console.log(`pushing bwe value ${clientStats.Duration}, ${clientStatsList[5].value}`);
   chartArrayBWE.push([clientStats.Duration, (clientStats.OutgoingAvailableBandwidth * 0.001)]);
   drawCurveTypesBWE(chartArrayBWE);
   //console.log(`pushing jitter values ${clientStats.Duration}, ${localStats.video.sendJitterMs}, ${remoteTracksStats.video.receiveDelay}`);
