@@ -715,7 +715,7 @@ async function shareScreen() {
   if (!screenClient) {
     screenClient = AgoraRTC.createClient({
       mode: "live",
-      codec: "vp9",
+      codec: "vp8",
       role: "host"
     });
     screenClient.startProxyServer(3);
