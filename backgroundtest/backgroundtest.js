@@ -36,7 +36,7 @@ var client = AgoraRTC.createClient({
   codec: "vp9"
 });
 AgoraRTC.enableLogUpload();
-//client.startProxyServer(5);
+client.startProxyServer(3);
 client.enableDualStream();
 
 var screenClient;
@@ -718,7 +718,7 @@ async function shareScreen() {
       codec: "vp9",
       role: "host"
     });
-    //screenClient.startProxyServer(5);
+    screenClient.startProxyServer(3);
   }
   if (localTrackState.screenTrackPublished) {
     console.log('unpublishing screen track');
