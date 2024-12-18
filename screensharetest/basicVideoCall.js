@@ -472,6 +472,27 @@ async function join() {
   //console.log("publish success");
 }
 
+function toggleCustom() {
+  var checkbox = document.getElementById('custom');
+  if (checkbox.checked = true) {
+    $("#Width").attr("disabled", false);
+    $("#Height").attr("disabled", false);
+    $("#FPS").attr("disabled", false);
+    $("#Bitrate").attr("disabled", false);
+    $("#30fps").attr("disabled", true);
+    $("#1080p").attr("disabled", true);
+    $("#30fps").prop("checked", false);
+    $("#1080p").prop("checked", false);
+  } else {
+    $("#Width").attr("disabled", true);
+    $("#Height").attr("disabled", true);
+    $("#FPS").attr("disabled", true);
+    $("#Bitrate").attr("disabled", true);
+    $("#30fps").attr("disabled", false);
+    $("#1080p").attr("disabled", false);
+  }
+}
+
 async function switchCamScreen() {
   //method 1 - create new track, extract stream, replace currently published track
   if (localTrackState.camPublished) {
@@ -488,7 +509,7 @@ async function switchCamScreen() {
         encoderConf = {name: "1080p", value: {
           width: 1920,
           height: 1080,
-          frameRate: {min: 10, max: 10},
+          frameRate: 10,
           bitrateMin: 100,
           bitrateMax: 1000
         }};
@@ -496,12 +517,22 @@ async function switchCamScreen() {
         encoderConf = {name: "720p", value: {
           width: 1280,
           height: 720,
-          frameRate: {min: 10, max: 10},
+          frameRate: 10,
           bitrateMin: 100,
           bitrateMax: 500
         }};
       }
     }; 
+    if (document.getElementById("custom").checked == true) {
+      encoderConf = {name: "customConf", value: {
+        width: $("#Width").val() || 1280,
+        height: $("#Height").val() || 720,
+        frameRate: $("#FPS").val() || 15,
+        bitrateMax: $("#Bitrate").val() || 500,
+        bitrateMin: 100
+      }
+    };
+  }
       screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: encoderConf.value}, "disabled");
         if (screenTrack instanceof Array) {
           localTracks.screenVideoTrack = screenTrack[0];

@@ -130,6 +130,12 @@
             <label for="30fps">30FPS screenshare</label>
             <input type="checkbox" id="1080p" name="1080p" value="true">
             <label for="1080p">1080p screenshare</label>
+            <input type="checkbox" id="custom" name="custom" value="true" onclick="toggleCustom()">
+            <label for="custom">Custom EncodeConf:</label>
+            <input id="Width" type="text" placeholder="Width" style="max-width:150px" disabled>
+            <input id="Height" type="text" placeholder="Height" style="max-width:150px" disabled>
+            <input id="FPS" type="text" placeholder="FPS" style="max-width:150px" disabled>
+            <input id="Bitrate" type="text" placeholder="Bitrate" style="max-width:150px" disabled>
         </div>
 
         <div class="collapse-wrapper" style="height: 30px;">

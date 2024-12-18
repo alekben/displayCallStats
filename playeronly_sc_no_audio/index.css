@@ -108,19 +108,19 @@ input {
 }
 
 .stats {
-  color: rgb(255, 255, 255);
+  color: rgb(1, 249, 63);
   margin-left: 10px;
   position: absolute;
 }
 
 .stats2 {
-  color: rgb(0, 0, 0);
+  color: rgb(51, 254, 5);
   margin-left: 10px;
   font-size: 12px;
 }
 
 .remoteStats {
-  color: rgb(255, 255, 255);
+  color: rgb(76, 235, 8);
   margin-left: 10px;
   position: absolute;
 }
