@@ -438,16 +438,16 @@ async function join() {
   
 
     if (publish) {
-      if (!localTracks.audioTrack) {
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-        });
-      }
-        await client.publish(localTracks.audioTrack);
-        console.log("Published mic track");
-        showPopup("Mic Track Published");
-        localTrackState.audioTrackMuted = false;
-        localTrackState.audioTrackEnabled = true;
+      //if (!localTracks.audioTrack) {
+      //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+      //    encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+      //  });
+      //}
+      //  await client.publish(localTracks.audioTrack);
+      //  console.log("Published mic track");
+      //  showPopup("Mic Track Published");
+      //  localTrackState.audioTrackMuted = false;
+      //  localTrackState.audioTrackEnabled = true;
       if (!localTracks.videoTrack) {
         localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({"facingMode":"environment"});
       };
@@ -590,6 +590,52 @@ async function subscribe(user, mediaType) {
     user.videoTrack.play(`player-${uid}`);
   }
   if (mediaType === 'audio') {
+    if (uid == 123) {
+      const player = $(`
+        <div id="player-wrapper-${uid}">
+          <div class="player-with-stats">
+            <p>Inbound Phone UID: ${uid}</p>
+            <div id="player-${uid}" class="remotePlayerSip"></div>
+          </div>
+        </div>
+    `);
+      switch (userCount) {
+        case 0:
+          $("#remote-playerlist-row1").append(player);
+          console.log(`Adding remote to row 1 - User Count: ${userCount}`);
+          break;
+        case 1:
+          $("#remote-playerlist-row1").append(player);
+          console.log(`Adding remote to row 1 - User Count: ${userCount}`);
+          break;
+        case 2:
+          $("#remote-playerlist-row2").append(player);
+          console.log(`Adding remote to row 2 - User Count: ${userCount}`);
+          break;
+        case 3:
+          $("#remote-playerlist-row2").append(player);
+          console.log(`Adding remote to row 2 - User Count: ${userCount}`);
+          break;
+        case 4:
+          $("#remote-playerlist-row3").append(player);
+          console.log(`Adding remote to row 3 - User Count: ${userCount}`);
+          break;
+        case 5:
+          $("#remote-playerlist-row3").append(player);
+          console.log(`Adding remote to row 3 - User Count: ${userCount}`);
+          break;
+        case 6:
+          $("#remote-playerlist-row4").append(player);
+          console.log(`Adding remote to row 4 - User Count: ${userCount}`);
+          break;
+        case 7:
+          $("#remote-playerlist-row4").append(player);
+          console.log(`Adding remote to row 4 - User Count: ${userCount}`);
+          break;
+        default:
+          console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
+      }
+    }
     user.audioTrack.play();
   }
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);

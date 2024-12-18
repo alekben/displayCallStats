@@ -57,6 +57,16 @@ input {
   display: flex;
 }
 
+.remotePlayerSip {
+  width: 200px;
+  height: 200px;
+  margin-right: 10px;
+  display: flex;
+  background-color: black;
+  background-image: url("phone.jpg");
+  background-size: contain;
+}
+
 .remotePlayerSelected {
   width: 200px;
   height: 200px;
