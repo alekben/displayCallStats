@@ -70,9 +70,8 @@ let optionsRTM = {
   uid: "",
   token: ""
 }
-
 var clientRTM;
-
+var rtmChannel;
 var rtmStateNow = "DISCONNECTED";
 
 
@@ -283,6 +282,10 @@ $("#join-form").submit(async function (e) {
       rtmStateNow = state;
       });
     await clientRTM.login(optionsRTM);
+    rtmChannel = clientRTM.createChannel(options.channel);
+    await rtmChannel.join().then (() => {
+      console.log("You have successfully joined channel " + options.channel);
+    });
 
     await join();
     if (options.token) {
@@ -413,6 +416,7 @@ async function join() {
 
 async function leave() {
   leftOnce = true;
+  await channel.leave()
   await clientRTM.logout();
   rtmStateNow = "DISCONNECTED"
   clearInterval(statsInterval);
@@ -429,8 +433,8 @@ async function leave() {
   if (dual) {
     await client.disableDualStream();
   };
-  await client.leave();
   await client2.leave();
+  await client.leave();
   //chart.clearChart();
   //chartJitter.clearChart();
   //chartFPS.clearChart();
