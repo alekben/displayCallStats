@@ -416,7 +416,7 @@ async function join() {
 
 async function leave() {
   leftOnce = true;
-  await channel.leave()
+  await rtmChannel.leave();
   await clientRTM.logout();
   rtmStateNow = "DISCONNECTED"
   clearInterval(statsInterval);
