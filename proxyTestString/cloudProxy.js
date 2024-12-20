@@ -276,7 +276,7 @@ $("#join-form").submit(async function (e) {
     if (value === 0) {
       optionsRTM.proxy = false;
     };
-    clientRTM = AgoraRTM.createInstance(options.appid, { enableCloudProxy: optionsRTM.proxy });
+    clientRTM = AgoraRTM.createInstance(options.appid, { enableCloudProxy: optionsRTM.proxy, enableLogUpload: true });
     optionsRTM.uid = options.uid;
     clientRTM.on('ConnectionStateChanged', function (state, reason) {
       rtmStateNow = state;
