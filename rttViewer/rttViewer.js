@@ -129,12 +129,20 @@ $("#join-form").submit(async function (e) {
 
     options.channel = $("#channel").val();
     options.uid = $("#uid").val();
+    options.rttUid = $("#uidrtt").val();
     if (isNaN(options.uid)) {
       console.log('uid is string');
       options.uid = String(options.uid);
     } else {
       console.log('uid is int');
       options.uid = Number(options.uid);
+    }
+    if (isNaN(options.rttUid)) {
+      console.log('uidrtt is string');
+      options.rttUid = String(options.rttUid);
+    } else {
+      console.log('uidrtt is int');
+      options.rttUid = Number(options.rttUid);
     }
     options.appid = $("#appid").val();
     options.token = $("#token").val();
