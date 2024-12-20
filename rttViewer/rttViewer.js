@@ -202,7 +202,7 @@ async function join() {
 
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
   showPopup(`RTC video/audio client joined to ${options.channel} as ${options.uid}`);
-  options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, null);
+  options.rttUid = await rttClient.join(options.appid, options.channel, options.token || null, options.rttUid || null);
   showPopup(`RTT stream message client joined to ${options.channel} as ${options.rttUid}`);
   rttClientJoined = true;
 
