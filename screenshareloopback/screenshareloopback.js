@@ -834,6 +834,10 @@ function flushStats() {
     value: "Local Track",
     unit: ""
     }, {
+    description: "Codec",
+    value: localStats.video.codecType,
+    unit: ""
+    }, {
     description: "Capture FPS",
     value: localStats.video.captureFrameRate,
     unit: ""
@@ -853,9 +857,13 @@ function flushStats() {
     description: "Video send resolution width",
     value: localStats.video.sendResolutionWidth,
     unit: ""
-    },  {
-    description: "Send video bit rate",
+    }, {
+    description: "Send video bitrate",
     value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
+    }, {
+    description: "Target video bitrate",
+    value: (Number(localStats.video.targetSendBitrate) * 0.000001).toFixed(4),
     unit: "Mbps"
     }, {
     description: "Send Jitter",
@@ -866,7 +874,7 @@ function flushStats() {
     value: (Number(localStats.video.sendRttMs)),
     unit: "ms"
     }, {
-    description: "Video packet loss rate",
+    description: "Video packetloss rate",
     value: Number(localStats.video.currentPacketLossRate).toFixed(3),
     unit: "%"
   }];
