@@ -3,7 +3,6 @@ AgoraRTC.registerExtensions([extension]);
 
 const context = {
   uid: undefined,
-  //client: undefined,
   track: undefined,
   processor: undefined,
 };
