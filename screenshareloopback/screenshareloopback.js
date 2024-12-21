@@ -559,7 +559,7 @@ function handleConnectionState(cur, prev, reason) {
     };
   } else {
     console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-    showPopup(`Sender: Connection State: ${cur}`);
+    //showPopup(`Sender: Connection State: ${cur}`);
     connectionState.isJoined = false;
   }
   }
@@ -578,14 +578,14 @@ function handleConnectionState(cur, prev, reason) {
       connectionState.isJoined = true;
       client2._p2pChannel.connection.onICEConnectionStateChange = () => {
         console.log(`Receiver: ice state changed: ${client2._p2pChannel.connection.iceConnectionState}`);
-        if (client._p2pChannel.connection.iceConnectionState == "connected") {
+        if (client2._p2pChannel.connection.iceConnectionState == "connected") {
           showPopup(`Receiver: ICE State: ${client2._p2pChannel.connection.iceConnectionState}`);
           connectionState.mediaReceived = true;
         }
       };
     } else {
       console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
-      showPopup(`Receiver: Connection State: ${cur}`);
+      //showPopup(`Receiver: Connection State: ${cur}`);
       connectionState.isJoined = false;
     }
     }
