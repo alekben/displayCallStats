@@ -470,10 +470,10 @@ async function subscribe2(user, mediaType) {
       //console.log(`cloned track for ${uid} took ${timeTaken} to render`);
       showPopup(`Render of Remote Stream took ${timeTaken}`);
       $(`#agora-video-player-${player2}`).css("background-color", "black");
-      document.getElementById('remote-player').addEventListener('click', function() {
-        toggleClass('remote-player', 'remote', 'playerSm', 'playerLg');
-      });
       //$(`#renderTime-${uid}-cloned`).text(`Time to render: ${timeTaken}ms`);
+    });
+    document.getElementById('remote-player').addEventListener('click', function() {
+      toggleClass('remote-player', 'remote', 'playerSm', 'playerLg');
     });
     player2 = remoteUsers[uid]._videoTrack._player.trackId;
     $(`#agora-video-player-${player2}`).css("background-color", "red");
