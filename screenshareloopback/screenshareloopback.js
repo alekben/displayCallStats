@@ -461,7 +461,7 @@ async function subscribe2(user, mediaType) {
       console.log("plugin error:", msg);
     });
     context.processor.on("stats", (stats) => {
-      console.log("plugin stats:", Date.now(), stats);
+      //console.log("plugin stats:", Date.now(), stats);
       context.cost = stats.cost;
       connectionState.sc = stats.enabled;
     });
