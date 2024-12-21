@@ -39,7 +39,8 @@ var connectionState = {
   mediaReceived: null,
   isProxy: null,
   isTURN: null,
-  sc: false
+  sc: false,
+  optMode: "detail"
 };
 
 var localNetQuality = {uplink: 0, downlink: 0};
@@ -145,45 +146,47 @@ var area;
 
 //video profiles
 var videoProfiles = [{
-  label: "360p_1",
-  detail: "640x360, 15fps, 400Kbps",
-  value: "360p_1"
-}, {
-  label: "360p_4",
-  detail: "640x360, 30fps, 600Kbps",
-  value: "360p_4"
-}, {
-  label: "480p_8",
-  detail: "848×480, 15fps, 610Kbps",
-  value: "480p_8"
-}, {
-  label: "480p_9",
-  detail: "848×480, 30fps, 930Kbps",
-  value: "480p_9"
+  label: "720p",
+  detail: "1280×720, 5fps",
+  value: "720p"
 }, {
   label: "720p_1",
-  detail: "1280×720, 15fps, 1130Kbps",
+  detail: "1280×720, 5fps",
   value: "720p_1"
 }, {
+  label: "720p_3",
+  detail: "1280×720, 15fps",
+  value: "720p_3"
+}, {
   label: "720p_2",
-  detail: "1280×720, 30fps, 2000Kbps",
+  detail: "1280×720, 30fps",
   value: "720p_2"
 }, {
-  label: "720p_auto",
-  detail: "1280×720, 30fps, 3000Kbps",
-  value: "720p_auto"
+  label: "1080p",
+  detail: "1920×1080, 5fps",
+  value: "1080p"
 }, {
   label: "1080p_1",
-  detail: "1920×1080, 15fps, 2080Kbps",
+  detail: "1920×1080, 5fps",
   value: "1080p_1"
 }, {
+  label: "1080p_3",
+  detail: "1920×1080, 15fps",
+  value: "1080p_3"
+}, {
   label: "1080p_2",
-  detail: "1920×1080, 30fps, 3000Kbps",
+  detail: "1920×1080, 30fps",
   value: "1080p_2"
 }, {
-  label: "1080p_5",
-  detail: "1920×1080, 60fps, 4780Kbps",
-  value: "1080p_5"
+  label: "Custom",
+  detail: "1920x1080, 10fps, 1Mbps",
+  value: {
+    width: 1920,
+    height: 1080,
+    frameRate: 10,
+    bitrateMax: 1000,
+    bitrateMin: 100
+  }
 }];
 var curVideoProfile;
 
@@ -281,6 +284,10 @@ $("#sc").click(function (e) {
   toggleSC();
 });
 
+$("#opt").click(function (e) {
+  toggleOpt();
+});
+
 async function join() {
   client.on("is-using-cloud-proxy", reportProxyUsed);
   client2.on("stream-type-changed", reportStreamTypeChanged)
@@ -305,24 +312,8 @@ async function join() {
   }
 
   client.setLowStreamParameter({bitrate: 500, framerate: 10, height: 720, width: 1280});
-
-  //const encoderConf = {name: "customConf", value: {
-  //  width: $("#Width").val() || 1920,
-  //  height: $("#Height").val() || 1080,
-  //  frameRate: $("#FPS").val() || 10,
-  //  bitrateMax: $("#Bitrate").val() || 1000,
-  //  bitrateMin: 100
-  //}};
-
-  const encoderConf = {name: "customConf", value: {
-    width: 1920,
-    height: 1080,
-    frameRate: 10,
-    bitrateMax: 1000,
-    bitrateMin: 100
-  }};
-
-  localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: encoderConf.value, displaySurface: "monitor", optimizationMode: "detail", selfBrowserSurface: "exclude", systemAudio: "exclude"}, "disabled");
+  //optimizationMode starts detail
+  localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: curVideoProfile.value, displaySurface: "monitor", optimizationMode: connectionState.optMode, selfBrowserSurface: "exclude", systemAudio: "exclude"}, "disabled");
 
   if (dual) {
     client.enableDualStream();
@@ -431,6 +422,22 @@ async function toggleSC() {
     context.processor.disable();
     $("#sc").text("Enable SuperClarity");
     connectionState.sc = false;
+  }
+}
+
+async function toggleOpt() {
+  if (connectionState.optMode == "detail") {
+    if (localTracks.screenTrack) {
+      localTracks.screenTrack.setOptimizationMode("motion");
+    }
+    connectionState.optMode = "motion";
+    $("#opt").text("Maintatin FPS Set");
+  } else {
+    if (localTracks.screenTrack) {
+      localTracks.screenTrack.setOptimizationMode("detail");
+    }
+    connectionState.optMode = "detail";
+    $("#opt").text("Maintatin Resolution Set");
   }
 }
 
@@ -626,7 +633,7 @@ async function changeProfiles(label) {
   curVideoProfile = videoProfiles.find(profile => profile.label === label);
   $(".profile-input").val(`${curVideoProfile.detail}`);
   if (connectionState.isJoined) {
-    localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
+    localTracks.screenTrack.setEncoderConfiguration(curVideoProfile.value);
   }
 }
 
@@ -634,7 +641,7 @@ function initProfiles() {
   videoProfiles.forEach(profile => {
     $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
-  curVideoProfile = videoProfiles[5];
+  curVideoProfile = videoProfiles[8];
   $(".profile-input").val(`${curVideoProfile.detail}`);
 }
 
