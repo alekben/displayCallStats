@@ -78,6 +78,7 @@ const context = {
   uid: undefined,
   track: undefined,
   processor: undefined,
+  cost: 0
 };
 
 //proxy modes
@@ -343,6 +344,7 @@ async function join() {
     chartArrayJitter.length = 0;
     chartArrayFPS.length = 0;
     chartArrayBWE.length = 0;
+    context.cost = 0;
   }
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
   chartJitter = new google.visualization.LineChart(document.getElementById('chart-div-jitter'));
@@ -373,6 +375,7 @@ async function leave() {
   connectionState.mediaReceived = false;
   connectionState.isProxy = false;
   connectionState.isTURN = false;
+  connectionState.sc = false;
   //chart.clearChart();
   //chartJitter.clearChart();
   //chartFPS.clearChart();
@@ -422,6 +425,7 @@ async function toggleSC() {
     context.processor.disable();
     $("#sc").text("Enable SuperClarity");
     connectionState.sc = false;
+    context.cost = 0;
   }
 }
 
@@ -458,6 +462,8 @@ async function subscribe2(user, mediaType) {
     });
     context.processor.on("stats", (stats) => {
       console.log("plugin stats:", Date.now(), stats);
+      context.cost = stats.cost;
+      connectionState.sc = stats.enabled;
     });
     context.track.pipe(context.processor).pipe(context.track.processorDestination);
     //await context.processor.enable();
@@ -471,7 +477,7 @@ async function subscribe2(user, mediaType) {
       showPopup(`Render of Remote Stream took ${timeTaken}`);
       $(`#agora-video-player-${player2}`).css("background-color", "black");
       //$(`#renderTime-${uid}-cloned`).text(`Time to render: ${timeTaken}ms`);
-    });
+    }, {once: true });
     document.getElementById('remote-player').addEventListener('click', function() {
       toggleClass('remote-player', 'remote', 'playerSm', 'playerLg');
     });
@@ -506,6 +512,7 @@ function handleUserUnpublished2(user, mediaType) {
       };
       context.processor.release();
       context.processor = undefined;
+      context.cost = 0;
       context.track.stop();
       context.track = undefined;
       delete remoteUsers[id];
@@ -801,12 +808,12 @@ function flushStats() {
     value: clientStats.RTT,
     unit: "ms"
   }, {
-    description: "Uplink Stat",
-    value: localNetQuality.uplink,
+    description: "Up/Down Stat",
+    value: (localNetQuality.uplink + "/" + local2NetQuality.downlink),
     unit: ""
   }, {
-    description: "Downlink Stat",
-    value: local2NetQuality.downlink,
+    description: "Super Clarity",
+    value: (connectionState.sc + " - " + context.cost),
     unit: ""
   }, {
     description: "Link Status",
