@@ -785,12 +785,12 @@ function flushStats() {
     value: clientStats.Duration,
     unit: "s"
   }, {
-    description: "Bitrate recv",
-    value: (Number(clientStats2.RecvBitrate) * 0.000001).toFixed(4),
-    unit: "Mbps"
-  }, {
     description: "Bitrate sent",
     value: (Number(clientStats.SendBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
+  }, {
+    description: "Bitrate recv",
+    value: (Number(clientStats2.RecvBitrate) * 0.000001).toFixed(4),
     unit: "Mbps"
   }, {
     description: "BWE",
