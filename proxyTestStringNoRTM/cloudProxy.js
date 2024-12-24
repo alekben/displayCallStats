@@ -235,8 +235,8 @@ $(() => {
   if (options.uid == null) {
     options.uid = "testuser";
   }
-  optionsRTM.uid = options.uid;
-  optionsRTM.token = urlParams.get("rtmtoken");
+  //optionsRTM.uid = options.uid;
+  //optionsRTM.token = urlParams.get("rtmtoken");
   //if (optionsRTM.token != null) {
   //  optionsRTM.token = optionsRTM.token.replace(/ /g,'+');
   //};
