@@ -420,7 +420,7 @@ sendPeerMessageButton.onclick = function () {
         msg: peerMessage           // The message content
     };
     
-    let msg = message.create(option); 
+    let msg = WebIM.message.create(option); 
     conn.send(msg)
         .then((res) => {
             console.log('Send private text success');
