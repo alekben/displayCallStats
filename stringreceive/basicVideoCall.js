@@ -85,7 +85,10 @@ $("#join-form").submit(async function (e) {
 
     client.setClientRole("audience");
 
-
+    if (options.uid == null) {
+      options.uid = generateRandomString(10);
+    }
+   
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -251,4 +254,16 @@ function removeItemOnce(arr, value) {
     arr.splice(index, 1);
   }
   return arr;
+}
+
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+
+  return result;
 }
