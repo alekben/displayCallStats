@@ -99,26 +99,30 @@ async function getTokens() {
         endpoint: "getToken"
     }
 
-    try {
-      const res = await fetch(
-        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
-          method: "POST",
-          headers: {
-              "X-Requested-With": "XMLHttpRequest",
-              "Accept": "application/json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-            "tokenType": "chat",
-            "uid": username,
-            "expire": 3600
-            })});
-      const response = await res.json();
-      console.log("Chat token fetched from server: ", response.token);
-      storage.tokenReturned = true;
-      storage.token = response.token;
-    } catch (err) {
-      console.log(err);
+    if (storage.token != null) {
+        return
+    } else {
+        try {
+            const res = await fetch(
+                localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                    body: JSON.stringify({
+                    "tokenType": "chat",
+                    "uid": username,
+                    "expire": 3600
+                })});
+        const response = await res.json();
+        console.log("Chat token fetched from server: ", response.token);
+        storage.tokenReturned = true;
+        storage.token = response.token;
+        } catch (err) {
+        console.log(err);
+        }
     }
 }
 
