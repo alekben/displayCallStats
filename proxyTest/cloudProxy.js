@@ -242,7 +242,6 @@ $("#join-form").submit(async function (e) {
     $("#channelSettings").css("display", "none");
     $("#mute").text("Unmute Mic Track");
     $("#mute").attr("disabled", false);
-    $("#dual").attr("disabled", false);
     $("#showSettings").attr("disabled", false);
     $("#settings").css("display", "none");
     if (!localTracks.audioTrack) {
@@ -384,8 +383,6 @@ async function leave() {
   $("#leave").attr("disabled", true);
   $("#mute").text("Mute Mic Track");
   $("#mute").attr("disabled", true);
-  $("#dual").attr("disabled", false);
-  $("#dual").text("Enable Dual Stream");
   $("#dualSwitch").attr("disabled", true);
   $("#showSettings").attr("disabled", true);
   $("#joined-setup").css("display", "none");
