@@ -396,6 +396,7 @@ async function changeDual() {
     }
     dual = false;
     $("#dual").text("Enable Dual Stream");
+    $("#dualSwitch").attr("disabled", true);
   } else {
     dual = true;
     client.setLowStreamParameter({bitrate: 250, framerate: 15, height: 240, width: 320});
@@ -403,6 +404,7 @@ async function changeDual() {
       client.enableDualStream();
     }
     $("#dual").text("Disable Dual Stream"); 
+    $("#dualSwitch").attr("disabled", false);
   }
 }
 
