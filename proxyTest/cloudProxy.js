@@ -495,6 +495,7 @@ function handleUserUnpublished2(user, mediaType) {
 
 function reportStreamTypeChanged(uid, streamType) {
     console.log(`Receive Stream for remote UID ${uid} changed to ${streamType}`);
+    showPopup(`stream-type-changed for remote ${uid} to ${streamType}`);
 }
 
 function reportAutoFallback(proxyServer) {
