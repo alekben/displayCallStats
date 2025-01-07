@@ -394,12 +394,18 @@ async function leave() {
 
 async function changeDual() {
   if (dual) {
+    if (connectionState.isJoined == true) {
+      client.disableDualStream();
+    }
     dual = false;
     $("#dual").text("Enable Dual Stream");
   } else {
     dual = true;
-    $("#dual").text("Disable Dual Stream");
     client.setLowStreamParameter({bitrate: 250, framerate: 15, height: 240, width: 320});
+    if (connectionState.isJoined == true) {
+      client.enableDualStream();
+    }
+    $("#dual").text("Disable Dual Stream"); 
   }
 }
 
