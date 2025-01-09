@@ -22,12 +22,6 @@ AgoraRTC.enableLogUpload();
 //AgoraRTC.setArea("EUROPE");
 //AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
 
-
-AgoraRTC.setParameter("WEBCS_DOMAIN", ["webrtc2-ap-web-1.agora.io"]);
-AgoraRTC.setParameter("GATEWAY_DOMAINS", ["edge.agora.io"]);
-AgoraRTC.setParameter("PROXY_SERVER_TYPE3", ["webrtc-cloud-proxy.agora.io"]);
-AgoraRTC.setParameter("CDS_AP", ["cds-ap-web-1.agora.io", "cds-ap-web-3.agora.io"]);
-
 var client = AgoraRTC.createClient({
   mode: "rtc",
   codec: "vp8"
@@ -71,38 +65,14 @@ var options = {
   proxy: 0
 };
 
-// RTM2
-const { RTM } = AgoraRTM;
-var clientRTM;
-
-var rtmConfig = {
-  //2.1.x or below
-  //token : null,
-  presenceTimeout : 30,
-  logUpload : true,
-  logLevel : "debug",
-  cloudProxy : false,
-  useStringUserId : true,
-  //encryptionMode: "AES_128_GCM",
-  //cipherKey: "",
-  //salt: ""
-};
-var rtmStateNow = "DISCONNECTED";
-
-let state = {
-  client: false,
-  loggedin: false,
-  subscribed: false,
-}
-
-// RTM1
+// RTM
 let optionsRTM = {
   uid: "",
   token: ""
 }
-//var clientRTM;
+var clientRTM;
 var rtmChannel;
-
+var rtmStateNow = "DISCONNECTED";
 
 
 
@@ -298,58 +268,26 @@ $("#join-form").submit(async function (e) {
     $("#local-player").css("display", "");
     $("#remote-player").css("display", "");
 
-    //rtm2 first
+    await join();
+
+    //do RTM here
     const value = Number(mode.value);
     if ([3, 5].includes(value)) {
-      rtmConfig.cloudProxy = true;
+      optionsRTM.proxy = true;
     }
     if (value === 0) {
-      rtmConfig.cloudProxy = false;
+      optionsRTM.proxy = false;
     };
-
-    if (!state.client) {
-      try {
-        rtmClient = new RTM(options.appid, options.uid, rtmConfig); 
-        } catch (status) {
-            console.log(status); 
-            console.log(state);
-        } finally {
-          state.client = true;
-        };
-    }
-
-    // Connection State Change
-    rtmClient.addEventListener("status", event => {
-      showPopup(`RTM2: State changed To: ${event.state} Reason: ${event.reason}`);
-      rtmStateNow = event.state;
-    });
-
-    if (!state.loggedin) {
-      try {
-        const result = await rtmClient.login({token: optionsRTM.token});
-        console.log(result);
-        console.log(state);
-      } catch (status) {
-      console.log(status);
-      } finally {
-        state.loggedin = true;
-      };
-    }
-
-    try {
-      const result = await rtmClient.subscribe(options.channel, {
-        withMessage: true,
-        withPresence: true, 
-        withMetadata: true,
-        withLock: false,
+    clientRTM = AgoraRTM.createInstance(options.appid, { enableCloudProxy: optionsRTM.proxy, enableLogUpload: true });
+    optionsRTM.uid = options.uid;
+    clientRTM.on('ConnectionStateChanged', function (state, reason) {
+      rtmStateNow = state;
       });
-      console.log("SIGNALING: rtm channel sub result: ", result.channelName);
-      state.subscribed = true;
-    } catch (status) {
-      console.log(status);
-    };
-
-    await join();
+    await clientRTM.login(optionsRTM);
+    rtmChannel = clientRTM.createChannel(options.channel);
+    await rtmChannel.join().then (() => {
+      console.log("You have successfully joined channel " + options.channel);
+    });
 
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -479,21 +417,8 @@ async function join() {
 
 async function leave() {
   leftOnce = true;
-  //rtm2
-  try {
-    const result = await rtmClient.unsubscribe("demoChannel");
-    console.log("SIGNALING: rtm channel unsub result: ", result.channelName);
-    state.subscribed = false;
-  } catch (status) {
-    console.log(status);
-  };
-
-  await rtmClient.logout();
-  state.loggedin = false;
-  state.subscribed = false;
-  console.log(state);
-  //await rtmChannel.leave();
-  //await clientRTM.logout();
+  await rtmChannel.leave();
+  await clientRTM.logout();
   rtmStateNow = "DISCONNECTED"
   clearInterval(statsInterval);
   //destructStats();

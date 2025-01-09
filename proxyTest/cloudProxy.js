@@ -532,9 +532,9 @@ function handleConnectionState(cur, prev, reason) {
     console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
     showPopup(`Sender: Connection State: ${cur}`);
     connectionState.isJoined = true;
-    client._p2pChannel.connection.onICEConnectionStateChange = () => {
-      console.log(`Sender: ice state changed: ${client._p2pChannel.connection.iceConnectionState}`);
-      showPopup(`Sender: ICE State: ${client._p2pChannel.connection.iceConnectionState}`);
+    client._p2pChannel.connection.onICEConnectionStateChange = (state) => {
+      console.log(`Sender: ice state changed: ${state}`);
+      showPopup(`Sender: ICE State: ${state}`);
     };
   } else {
     console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
@@ -555,9 +555,9 @@ function handleConnectionState(cur, prev, reason) {
       console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
       showPopup(`Receiver: Connection State: ${cur}`);
       connectionState.isJoined = true;
-      client2._p2pChannel.connection.onICEConnectionStateChange = () => {
-        console.log(`Receiver: ice state changed: ${client2._p2pChannel.connection.iceConnectionState}`);
-        showPopup(`Receiver: ICE State: ${client2._p2pChannel.connection.iceConnectionState}`);
+      client2._p2pChannel.connection.onICEConnectionStateChange = (state) => {
+        console.log(`Receiver: ice state changed: ${state}`);
+        showPopup(`Receiver: ICE State: ${state}`);
       };
     } else {
       console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
