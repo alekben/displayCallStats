@@ -337,7 +337,7 @@ $("#setRole").click(function (e) {
 
 async function setHost() {
   options.host = "true";
-  if (client.store.uid) {
+  if (client?.store.uid) {
     client.setClientRole("host");
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
@@ -372,7 +372,7 @@ async function setHost() {
 
   async function setAudience() {
     options.host = "false";
-    if (client.store.uid) {
+    if (client?.store.uid) {
       await client.unpublish();
       await client.setClientRole("audience");
       $("#local-player-name").text("");
