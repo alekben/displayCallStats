@@ -337,17 +337,18 @@ $("#setRole").click(function (e) {
 
 async function setHost() {
   options.host = "true";
-  client.setClientRole("host");
-  if (!localTracks.audioTrack) {
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: "music_standard"
-    });
-  }
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-      encoderConfig: curVideoProfile.value
-    });
-  }
+  if (client.store.uid) {
+    client.setClientRole("host");
+    if (!localTracks.audioTrack) {
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+        encoderConfig: "music_standard"
+      });
+    }
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: curVideoProfile.value
+      });
+    }
 
   localTracks.videoTrack.play("local-player");
   $("#local-player-name").text(`localVideo(${options.intUid} ${options.uid})`);
@@ -363,30 +364,39 @@ async function setHost() {
   localTrackState.videoPublished = true;
 
   await client.publish(Object.values(localTracks));
-  } 
+  }
+  $("#setRole").text("Set Role As Audience");
+  var x = document.getElementById("popup");
+  $("#popup").text(`Role Set to Host`);
+}
 
   async function setAudience() {
     options.host = "false";
-    await client.unpublish();
-    await client.setClientRole("audience");
-
-    for (trackName in localTracks) {
-      var track = localTracks[trackName];
-      if (track) {
-        track.stop();
-        track.close();
-        localTracks[trackName] = undefined;
+    if (client.store.uid) {
+      await client.unpublish();
+      await client.setClientRole("audience");
+      $("#local-player-name").text("");
+      for (trackName in localTracks) {
+        var track = localTracks[trackName];
+        if (track) {
+          track.stop();
+          track.close();
+          localTracks[trackName] = undefined;
+        }
       }
-    }
-  
-    localTrackState.audioTrackMuted = false;
-    localTrackState.audioTrackEnabled = false;
-    localTrackState.audioPublished = false;
-    localTrackState.videoTrackMuted = false;
-    localTrackState.videoTrackEnabled = false;
-    localTrackState.videoPublished = false;
+    
+      localTrackState = {
+        audioTrackMuted: false,
+        audioTrackEnabled: false,
+        audioPublished: false,
+        videoTrackMuted: false,
+        videoTrackEnabled: false,
+        videoTrackPublished: false
+      };
 
     $("#local-player-name").text("");
+    }
+
     $("#setRole").text("Set Role As Host");
     var x = document.getElementById("popup");
     $("#popup").text(`Role Set to Audience`);

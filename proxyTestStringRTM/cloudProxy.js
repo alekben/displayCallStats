@@ -18,6 +18,7 @@ var chartArrayBWE = [];
 let statsInterval;
 
 AgoraRTC.enableLogUpload();
+AgoraRTC.setParameter("PROXY_SERVER_TYPE3", ["webrtc-cloud-proxy.agora.io", "webrtc-cloud-proxy.agora.io"]);
 //AgoraRTC.setArea("NORTH_AMERICA");
 //AgoraRTC.setArea("EUROPE");
 //AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
@@ -268,7 +269,9 @@ $("#join-form").submit(async function (e) {
     $("#local-player").css("display", "");
     $("#remote-player").css("display", "");
 
-    await join();
+    console.log("TEST: Starting RTC join");
+    await join().then(() => console.log(`TEST: join promise returned and string UID ${options.uid}`));
+    console.log(`TEST: Now start RTM`);
 
     //do RTM here
     const value = Number(mode.value);
@@ -278,12 +281,14 @@ $("#join-form").submit(async function (e) {
     if (value === 0) {
       optionsRTM.proxy = false;
     };
+    //AgoraRTM.setParameter("PROXY_SERVER_TYPE3", ["webrtc-cloud-proxy.agora.io", "webrtc-cloud-proxy.agora.io"]);
     clientRTM = AgoraRTM.createInstance(options.appid, { enableCloudProxy: optionsRTM.proxy, enableLogUpload: true });
     optionsRTM.uid = options.uid;
     clientRTM.on('ConnectionStateChanged', function (state, reason) {
       rtmStateNow = state;
       });
-    await clientRTM.login(optionsRTM);
+    await clientRTM.login(optionsRTM).then(() => console.log(`TEST: promise for login to RTM succeeded`));
+
     rtmChannel = clientRTM.createChannel(options.channel);
     await rtmChannel.join().then (() => {
       console.log("You have successfully joined channel " + options.channel);
