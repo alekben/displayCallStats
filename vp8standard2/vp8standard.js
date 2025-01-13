@@ -1,93 +1,29 @@
-//MediaRecorder
 
-let recording = document.getElementById("recording");
-let startButton = document.getElementById("record");
-let downloadButton = document.getElementById("download");
-let logElement = document.getElementById("log");
-let recordingTimeMS = 10000;
+//chart stuff
+google.charts.load('current', {packages: ['corechart', 'line']});
+var chart;
+var chartArray = [];
 
+var host = true;
+//popup stuff
+var popups = 0;
 
-function log(msg) {
-  logElement.innerHTML += msg + "\n";
-}
+var localNetQuality = {uplink: 0, downlink: 0};
 
-function wait(delayInMS) {
-  return new Promise(resolve => setTimeout(resolve, delayInMS));
-}
+//misc
+var bigRemote = 0;
+var remoteFocus = 0;
+var dumbTempFix = "Selected";
 
-function stop(stream) {
-  stream.getTracks().forEach(track => track.stop());
-  $("#download").attr("hidden", false);
-  log("Done recording.");
-}
-
-//Handles startRecording being triggered by start button
-startButton.addEventListener("click", function() {
-      let stream = localTracks.videoTrack.getMediaStreamTrack();
-      const vstream = new MediaStream();
-      vstream.addTrack(stream);
-      streamname = "video_" + localTracks.videoTrack.getTrackId();
-      let vvstream = document.getElementById(`${streamname}`);
-      download.href = localTracks.videoTrack;
-      vvstream.captureStream = vvstream.captureStream || vvstream.mozCaptureStream;
-      startRecording(vstream, recordingTimeMS)
-      .then (recordedChunks => {
-      let recordedBlob = new Blob(recordedChunks, { type: "video/webm; codecs=vp8,opus" });
-      vvstream.src = URL.createObjectURL(recordedBlob);
-      download.href = URL.createObjectURL(recordedBlob);
-      download.download = "RecordedTrack.webm";
-      log("Successfully recorded " + recordedBlob.size + " bytes of " + recordedBlob.type + " media.");
-      $("#download").attr("hidden", false);
-      localTracks.videoTrack.play("local-player");
-      })
-});
-
-//creates a MediaRecorder, whatever data is available from the defined stream is converted to a data array and returned after the duration
-
-function startRecording(stream, lengthInMS) {
-  $("#download").attr("hidden", true);
-  let recorder = new MediaRecorder(stream);
-  let data = [];
-
-  recorder.ondataavailable = event => data.push(event.data);
-  recorder.start();
-  log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
-
-  let stopped = new Promise((resolve, reject) => {
-    recorder.onstop = resolve;
-    recorder.onerror = event => reject(event.name);
-  });
-
-  let recorded = wait(lengthInMS).then(
-    () => recorder.state == "recording" && recorder.stop()
-  );
-
-  return Promise.all([
-    stopped,
-    recorded
-  ])
-  .then(() => data);
-}
-
-
+//AgoraRTC.setParameter("AG_DEGRADATION_PREFERENCE", 1);
 
 
 // create Agora client
 var client = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp9"
+  mode: "live",
+  codec: "vp8"
 });
-AgoraRTC.setParameter("ENABLE_SVC", true);
 
-//var loopback_client = AgoraRTC.createClient({
-//  mode: "rtc",
-//  codec: "vp9"
-//});
-
-AgoraRTC.setParameter("RESTRICTION_SET_PLAYBACK_DEVICE", false);
-//AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-//console.log("Start with Web Audio OFF");
-var webAudioOff = false;
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -97,16 +33,15 @@ var localTracks = {
 
 var localTrackState = {
   audioTrackMuted: false,
-  audioTrackEnabled: false,
-  videoTrackMuted: false,
-  videoTrackEnabled: false
-}
+  audioTrackEnabled: false
+};
 
 var joined = false;
-//var loopback = false;
+
+
 
 var remoteUsers = {};
-//var remoteUsersLoopback = {};
+var remotesArray = [];
 var userCount = 0;
 
 // Agora client options
@@ -115,8 +50,41 @@ var options = {
   channel: null,
   uid: null,
   token: null,
-  //uidLoopback: null
 };
+
+var videoProfiles = [{
+  label: "360p_7",
+  detail: "480×360, 15fps, 320Kbps",
+  value: "360p_7"
+}, {
+  label: "360p_8",
+  detail: "480×360, 30fps, 490Kbps",
+  value: "360p_8"
+}, {
+  label: "480p_1",
+  detail: "640×480, 15fps, 500Kbps",
+  value: "480p_1"
+}, {
+  label: "480p_2",
+  detail: "640×480, 30fps, 1000Kbps",
+  value: "480p_2"
+}, {
+  label: "720p_1",
+  detail: "1280×720, 15fps, 1130Kbps",
+  value: "720p_1"
+}, {
+  label: "720p_2",
+  detail: "1280×720, 30fps, 2000Kbps",
+  value: "720p_2"
+}, {
+  label: "1080p_1",
+  detail: "1920×1080, 15fps, 2080Kbps",
+  value: "1080p_1"
+}, {
+  label: "1080p_2",
+  detail: "1920×1080, 30fps, 3000Kbps",
+  value: "1080p_2"
+}];
 
 var audioProfiles = [{
   label: "speech_low_quality",
@@ -153,6 +121,7 @@ var audioProfiles = [{
   }
 }];
 var curMicProfile;
+var curVideoProfile;
 
 AgoraRTC.onAutoplayFailed = () => {
   alert("click to start autoplay!");
@@ -167,6 +136,16 @@ AgoraRTC.onMicrophoneChanged = async changedDevice => {
   } else if (changedDevice.device.label === localTracks.audioTrack.getTrackLabel()) {
     const oldMicrophones = await AgoraRTC.getMicrophones();
     oldMicrophones[0] && localTracks.audioTrack.setDevice(oldMicrophones[0].deviceId);
+  }
+};
+AgoraRTC.onCameraChanged = async changedDevice => {
+  // When plugging in a device, switch to a device that is newly plugged in.
+  if (changedDevice.state === "ACTIVE") {
+    localTracks.videoTrack.setDevice(changedDevice.device.deviceId);
+    // Switch to an existing device when the current device is unplugged.
+  } else if (changedDevice.device.label === localTracks.videoTrack.getTrackLabel()) {
+    const oldCameras = await AgoraRTC.getCameras();
+    oldCameras[0] && localTracks.videoTrack.setDevice(oldCameras[0].deviceId);
   }
 };
 
@@ -194,7 +173,26 @@ async function initDevices() {
       localTrackState.audioTrackMuted = false;
       }
     }
+     // if (!localTracks.videoTrack) {
+     //   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+     //     encoderConfig: curVideoProfile.value
+     //   });
+     // } else {
+     //   console.log("cam track already exists, replacing.");
+     //   await client.unpublish(localTracks.videoTrack);
+     //   await localTracks.videoTrack.stop();
+     //   await localTracks.videoTrack.close();
+     //   localTracks.videoTrack = undefined;
+     //   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+     //     encoderConfig: curVideoProfile.value
+     //   });
+     //   await client.publish(localTracks.videoTrack);;
+     //   localTrackState.videoTrackEnabled = true;
+     //   localTrackState.videoTrackMuted = false;
+     // }
+    //}
 
+  //if (localTracks.audioTrack) {
   // get mics
   mics = await AgoraRTC.getMicrophones();
   const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
@@ -204,6 +202,26 @@ async function initDevices() {
   mics.forEach(mic => {
     $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
   });
+  //}
+
+  if (localTracks.videoTrack) {
+    //get cams
+    cams = await AgoraRTC.getCameras();
+    const videoTrackLabel = localTracks.videoTrack.getTrackLabel();
+    currentCam = cams.find(item => item.label === videoTrackLabel);
+    $(".cam-input").val(currentCam.label);
+    $(".cam-list").empty();
+    cams.forEach(cam => {
+      $(".cam-list").append(`<a class="dropdown-item" href="#">${cam.label}</a>`);
+    });
+  }
+}
+
+async function switchCamera(label) {
+  currentCam = cams.find(cam => cam.label === label);
+  $(".cam-input").val(currentCam.label);
+  // switch device of local video track.
+  await localTracks.videoTrack.setDevice(currentCam.deviceId);
 }
 
 async function switchMicrophone(label) {
@@ -228,13 +246,72 @@ async function changeMicProfile(label) {
   initDevices();
 }
 
+function initVideoProfiles() {
+  videoProfiles.forEach(profile => {
+    $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
+  });
+  curVideoProfile = videoProfiles.find(item => item.label == '480p_1');
+  $(".profile-input").val(`${curVideoProfile.detail}`);
+}
+async function changeVideoProfile(label) {
+  curVideoProfile = videoProfiles.find(profile => profile.label === label);
+  $(".profile-input").val(`${curVideoProfile.detail}`);
+  // change the local video track`s encoder configuration
+  localTracks.videoTrack && (await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value));
+}
+
+async function changeTargetUID(label) {
+  $(".uid-input").val(`${label}`);
+  if (remoteFocus != 0) {
+    var x = document.getElementById(`player-${remoteFocus}`);
+    x.className = "remotePlayer";
+  }
+  var x = document.getElementById(`player-${label}`);
+  if (x) {
+    x.className = "remotePlayerSelected";
+    remoteFocus = Number(label);
+  }
+}
+
+
+function updateUIDs(id, action) {
+  if (remotesArray.length == 0 && action == "remove") {
+    $(".uid-list").empty();
+    $(".uid-input").val(``);
+  } else {
+  let i = 0;
+  while (i < remotesArray.length) {
+    if (remotesArray[i] == id) {
+      console.log("UID already in list");
+      return;
+    }
+    i++;
+  }
+
+  $(".uid-list").empty();
+  remotesArray.push(id);
+
+  //repopulate
+  let j = 0;
+  while (j < remotesArray.length) {
+    $(".uid-list").append(`<a class="dropdown-item" label="${remotesArray[j]}" href="#">${remotesArray[j]}</a>`);
+    j++;
+  } 
+  $(".uid-input").val(`${remotesArray[0]}`);
+}
+}
+
 let statsInterval;
 
 // the demo can auto join channel with params in url
 $(() => {
   initMicProfiles();
-  $(".profile-list").delegate("a", "click", function (e) {
+  $(".profile-mic-list").delegate("a", "click", function (e) {
     changeMicProfile(this.getAttribute("label"));
+  });
+  initVideoProfiles();
+  $(".profile-cam-list").delegate("a", "click", function (e) {
+    changeVideoProfile(this.getAttribute("label"));
   });
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
@@ -254,18 +331,20 @@ $("#join-form").submit(async function (e) {
   $("#join").attr("disabled", true);
   try {
     if (!client) {
-      client = await AgoraRTC.createClient({
-        mode: "rtc",
-        codec: "vp9"
+      client = AgoraRTC.createClient({
+        mode: "live",
+        codec: "vp8"
       });
-      //await client.enableDualStream();
-      AgoraRTC.setParameter("ENABLE_SVC", true);
     }
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    
+    if (host) {
+      client.setClientRole("host");
+    } else {
+      client.setClientRole("audience");
+    }
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -277,20 +356,25 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
-    $("#record").attr("disabled", false);
+    $("#role").attr("disabled", true);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
-    //$("#startLoopback").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
     $("#setEnabled").attr("disabled", true);
-    $("#setMutedCam").attr("disabled", false);
-    $("#setEnabledCam").attr("disabled", false);
+    $("#subscribe").attr("disabled", false);
+    $("#unsubscribe").attr("disabled", false);
+    $("#biggerView").attr("disabled", false);
     joined = true;
   }
 });
 $("#leave").click(function (e) {
   leave();
 });
+
+$(".uid-list").delegate("a", "click", function (e) {
+  changeTargetUID(this.getAttribute("label"));
+});
+
 
 $("#createTrack").click(function (e) {
   initDevices();
@@ -301,21 +385,10 @@ $("#createTrack").click(function (e) {
 $("#publishTrack").click(function (e) {
   publishMic();
   $("#publishTrack").attr("disabled", true);
-  //$("#startLoopback").attr("disabled", false);
   $("#setMuted").attr("disabled", false);
   $("#setEnabled").attr("disabled", false);
 });
 
-//$("#startLoopback").click(function (e) {
-//  if (!loopback) {
-//    startLoopbackClient();
-//    loopback = true;
-//  } else {
-//    stopLoopbackClient();
-//    loopback = false;
-//  }
-//  
-//});
 
 $("#setMuted").click(function (e) {
   if (!localTrackState.audioTrackMuted) {
@@ -333,24 +406,11 @@ $("#setEnabled").click(function (e) {
   }
 });
 
-$("#setMutedCam").click(function (e) {
-  if (!localTrackState.videoTrackMuted) {
-    muteVideo();
-  } else {
-    unmuteVideo();
-  }
+$("#subscribe").click(function (e) {
+  manualSub();
 });
-
-$("#setEnabledCam").click(function (e) {
-  if (localTrackState.videoTrackEnabled) {
-    disableVideo();
-  } else {
-    enableVideo();
-  }
-});
-
-$("#webAudio").click(function (e) {
-  toggleWebAudio();
+$("#unsubscribe").click(function (e) {
+  manualUnsub();
 });
 
 $('#agora-collapse').on('show.bs.collapse	', function () {
@@ -360,19 +420,20 @@ $(".mic-list").delegate("a", "click", function (e) {
   switchMicrophone(this.text);
 });
 
-async function toggleWebAudio() {
-  if (webAudioOff) {
-    console.log("Turning WebAudio back ON.");
-    webAudioOff = false;
-    AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
-    $("#webAudio").text("Disable WebAudio");
+$("#biggerView").click(function (e) {
+  handleExpand();
+});
+
+$("#role").click(function (e) {
+  if (host) {
+    host = false;
+    $("#role").text("Role: Audience");
   } else {
-    console.log("Turning WebAudio OFF.");
-    webAudioOff = true;
-    AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-    $("#webAudio").text("Enable WebAudio");
+    host = true;
+    $("#role").text("Role: Host");
   }
-}
+});
+
 
 async function publishMic() {
   if (!localTracks.audioTrack) {
@@ -382,15 +443,21 @@ async function publishMic() {
   }
     await client.publish(localTracks.audioTrack);
     console.log("Published mic track");
+    showPopup("Mic Track Published");
     localTrackState.audioTrackMuted = false;
     localTrackState.audioTrackEnabled = true;
 }
 
 async function muteAudio() {
   if (!localTracks.audioTrack) return;
+  /**
+   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
+   * Calling setEnabled to disable a track, the SDK stops audio or video capture
+   */
   await localTracks.audioTrack.setMuted(true);
   localTrackState.audioTrackMuted = true;
   $("#setMuted").text("Unmute Mic Track");
+  showPopup("Mic Track Muted");
 }
 
 async function unmuteAudio() {
@@ -398,13 +465,18 @@ async function unmuteAudio() {
   await localTracks.audioTrack.setMuted(false);
   localTrackState.audioTrackMuted = false;
   $("#setMuted").text("Mute Mic Track");
+  showPopup("Mic Track Unmuted");
 }
 
 async function disableAudio() {
   if (!localTracks.audioTrack) return;
-
+  /**
+   * After calling setMuted to mute an audio or video track, the SDK stops sending the audio or video stream. Users whose tracks are muted are not counted as users sending streams.
+   * Calling setEnabled to disable a track, the SDK stops audio or video capture
+   */
   await localTracks.audioTrack.setEnabled(false);
   localTrackState.audioTrackEnabled = false;
+  showPopup("Mic Track Disabled");
   $("#setEnabled").text("Enable Mic Track");
 }
 
@@ -412,68 +484,47 @@ async function enableAudio() {
   if (!localTracks.audioTrack) return;
   await localTracks.audioTrack.setEnabled(true);
   localTrackState.audioTrackEnabled = true;
+  showPopup("Mic Track Enabled");
   $("#setEnabled").text("Disable Mic Track");
-}
-
-async function muteVideo() {
-  if (!localTracks.videoTrack) return;
-  await localTracks.videoTrack.setMuted(true);
-  localTrackState.videoTrackMuted = true;
-  $("#setMutedCam").text("Unmute Cam Track");
-}
-
-async function unmuteVideo() {
-  if (!localTracks.videoTrack) return;
-  await localTracks.videoTrack.setMuted(false);
-  localTrackState.videoTrackMuted = false;
-  $("#setMutedCam").text("Mute Cam Track");
-}
-
-async function disableVideo() {
-  if (!localTracks.videoTrack) return;
-
-  await localTracks.videoTrack.setEnabled(false);
-  localTrackState.videoTrackEnabled = false;
-  $("#setEnabledCam").text("Enable Cam Track");
-}
-
-async function enableVideo() {
-  if (!localTracks.videoTrack) return;
-  await localTracks.videoTrack.setEnabled(true);
-  localTrackState.videoTrackEnabled = true;
-  $("#setEnabledCam").text("Disable Cam Track");
 }
 
 async function join() {
   // add event listener to play remote tracks when remote user publishs.
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
-  client.on("exception", handleLowInput);
-  //client.enableDualStream();
-  //AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+  client.on("user-joined", handleUserJoined);
+  client.on("user-left", handleUserLeft);
+  client.on("user-info-updated", handleUserInfoUpdated);
+  client.on("network-quality", handleNetworkQuality);
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-  //if (!localTracks.audioTrack) {
-  //  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-  //    encoderConfig: "speech_low_quality"
-  //  });
-  //}
-  if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: {width:1280, height:720, bitrateMax:1200, bitrateMin:100, frameRate:30}, optimizationMode: "detail"});
-  }
-  // play local video track
-  localTracks.videoTrack.play("local-player");
-  $("#joined-setup").css("display", "flex");
 
-  // publish local tracks to channel
-  await client.publish(localTracks.videoTrack);
-  console.log("publish cam success");
-  localTrackState.videoTrackEnabled = true;
-  localTrackState.videoTrackMuted = true;
+  if (host) {
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: "720p_2"
+      });
+    }
+
+    //localTracks.videoTrack.contentHint = "ptz";
+    // play local video track
+    localTracks.videoTrack.play("local-player");
+    $("#joined-setup").css("display", "flex");
+
+    // publish local tracks to channel
+    await client.publish(localTracks.videoTrack);
+    console.log("publish cam success");
+    showPopup("Cam Track Published");
+  } else {
+    $("#joined-setup").css("display", "flex");
+  }
+  showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+  chart = new google.visualization.LineChart(document.getElementById('chart-div'));
   initStats();
+  notifyReady();
 }
+
 async function leave() {
   for (trackName in localTracks) {
     var track = localTracks[trackName];
@@ -487,51 +538,61 @@ async function leave() {
   joined = false;
 
   // remove remote users and player views
-  remoteUsers = {};
   $("#remote-playerlist-row1").html("");
   $("#remote-playerlist-row2").html("");
   $("#remote-playerlist-row3").html("");
   $("#remote-playerlist-row4").html("");
 
+  // Remove remote users and player views.
+  remoteUsers = {};
+  $("#remote-playerlist").html("");
+  
+  remotesArray = [];
+  $(".uid-list").empty();
+  $(".uid-input").val(``);
+
   // leave the channel
   await client.leave();
+  showPopup(`Left channel ${options.channel}`);
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
+  $("#role").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);
-  $("#record").attr("disabled", true);
-  //$("#startLoopback").attr("disabled", true);
-  $("#setMuted").text("Mute Mic Track");
-  $("#setEnabled").text("Disable Mic Track");
-  $("#setMuted").attr("disabled", true);
-  $("#setEnabled").attr("disabled", true);
-  $("#setMutedCam").text("Mute Cam Track");
-  $("#setEnabledCam").text("Disable Cam Track");
   $("#setMuted").attr("disabled", true);
   $("#setEnabled").attr("disabled", true);
   $("#joined-setup").css("display", "none");
+  $("#subscribe").attr("disabled", true);
+  $("#unsubscribe").attr("disabled", true);
+  $("#biggerView").attr("disabled", true);
+  remoteFocus = 0;
+  bigRemote = 0;
+  //clear chart
+  chart.clearChart();
+  chartArray.length = 0;
   console.log("client leaves channel success");
-  //if (loopback) {
-  //  stopLoopbackClient();
-  //}
+
 }
 
-//async function startLoopbackClient() {
-  // add event listener to play remote tracks when remote user publishs.
-//  loopback_client.on("user-published", handleUserPublishedLoopback);
-//  loopback_client.on("user-unpublished", handleUserUnpublishedLoopback);
+async function manualSub() {
+  //get value of of uid-input
+  const id = $(".uid-input").val();
+  let user = remoteUsers[id];
+  showPopup(`Manually subscribed to UID ${id}`);
+  await subscribe(user, "video");
+  await subscribe(user, "audio");
+}
 
-  // join the channel
-//  options.uidLoopback = await loopback_client.join(options.appid, options.channel, options.token || null, null);
-//  $("#startLoopback").text("Stop Loopback");
-//}
+async function manualUnsub() {
+  //get value of of uid-input
+  const id = $(".uid-input").val();
+  let user = remoteUsers[id];
+  await client.unsubscribe(user, "");
+  $(`#player-wrapper-${id}`).remove();
+  showPopup(`Manually unsubscribed from UID ${id}`);
+}
 
-//async function stopLoopbackClient() {
-//  await loopback_client.leave();
-//  remoteUsersLoopback = {};
-//  $("#startLoopback").text("Start Loopback");
-//}
 
 async function subscribe(user, mediaType) {
   const uid = user.uid;
@@ -539,14 +600,20 @@ async function subscribe(user, mediaType) {
   await client.subscribe(user, mediaType);
   console.log("subscribe success");
   if (mediaType === 'video') {
+    if (remoteFocus != 0) {
+      dumbTempFix = "";
+    } else {
+      dumbTempFix = "Selected";
+      remoteFocus = uid;
+    }
     const player = $(`
-        <div id="player-wrapper-${uid}">
-          <div class="player-with-stats">
-            <div id="player-${uid}" class="remotePlayer"></div>
-            <div class="track-stats remoteStats"></div>
-          </div>
+      <div id="player-wrapper-${uid}">
+        <div class="player-with-stats">
+          <div id="player-${uid}" class="remotePlayer${dumbTempFix}"></div>
+          <div class="track-stats remoteStats"></div>
         </div>
-    `);
+      </div>
+  `);
     switch (userCount) {
       case 1:
         $("#remote-playerlist-row1").append(player);
@@ -583,21 +650,19 @@ async function subscribe(user, mediaType) {
       default:
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
+    user.videoTrack.on("first-frame-decoded", handleFirstFrame);
     user.videoTrack.play(`player-${uid}`);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
   }
+  showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
 }
 
-//async function subscribeLoopback(user, mediaType) {
-//  console.log("Trying loopback subscription");
-//  await loopback_client.subscribe(user, mediaType);
-//  console.log("subscribe success");
-//  if (mediaType === 'audio') {
-//    user.audioTrack.play();
-//  }
-//}
+function handleFirstFrame() {
+  console.log(`first frame decoded`);
+}
+
 
 function handleUserPublished(user, mediaType) {
   if (userCount >= 8 ) {
@@ -606,50 +671,63 @@ function handleUserPublished(user, mediaType) {
   } else {
     const id = user.uid;
     remoteUsers[id] = user;
+    updateUIDs(id, "add");
     if (mediaType === 'video') {
       userCount = getRemoteCount(remoteUsers);
       console.log(`Remote User Video Count now: ${userCount}`);
     }
     subscribe(user, mediaType);
+    showPopup(`UID ${id} published ${mediaType}`);
+    showPopup(`Remote User Count now: ${userCount}`);
   }
 }
 
-//function handleUserPublishedLoopback(user, mediaType) {
-//    const id = user.uid;
-//    if (id === options.uid) {
-//      if (mediaType === "audio") {
-//        remoteUsersLoopback[id] = user;
-//        subscribeLoopback(user, mediaType);    
-//      }
-//    }
-//}
 
-//function handleUserUnpublishedLoopback(user, mediaType) {
-//  if (mediaType === 'audio') {
-//    if (options.uid = user.uid) {
-//      delete remoteUsersLoopback[user.uid];
-//    }    
-//  }
-//}
-
-function handleLowInput(event) {
-  if (event == 2001) {
-    console.log("audio input low trigger, reset track");
-    localTracks.audioTrack.setEnabled(false).then(() => {
-      localTracks.audioTrack.setEnabled(true);
-    });
-  }
-}
 
 function handleUserUnpublished(user, mediaType) {
+  const id = user.uid;
   if (mediaType === 'video') {
-    const id = user.uid;
+    removeItemOnce(remotesArray, id);
+    updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
   }
   userCount = getRemoteCount(remoteUsers);
   console.log(`Remote User Count now: ${userCount}`);
+  showPopup(`UID ${id} unpublished ${mediaType}`);
+  showPopup(`Remote User Count now: ${userCount}`);
 }
+
+function handleUserJoined(user) {
+  const id = user.uid;
+  updateUIDs(id, "add");
+  showPopup(`UID ${id} user-joined`);
+}
+
+function handleUserLeft(user) {
+  const id = user.uid;
+  removeItemOnce(remotesArray, id);
+  updateUIDs(id, "remove");
+  showPopup(`UID ${id} user-left`);
+}
+
+function handleUserInfoUpdated(uid, message) {
+  console.log(`User Info Updated for ${uid}, new state is: ${message}`);
+  showPopup(`UID ${uid} new state: ${message}`);
+}
+
+function handleNetworkQuality(stats) {
+  localNetQuality.uplink = stats.uplinkNetworkQuality;
+  localNetQuality.downlink = stats.downlinkNetworkQuality;
+  const d = new Date();
+  let time = d.getTime();
+  //console.log(`${time} - ${localNetQuality.downlink}d - ${localNetQuality.uplink}u`);
+  //client.sendCustomReportMessage({
+  //  reportId: "50", category: "netstats", event: "netstats", label: String("stats"), value: String(`$//{localNetQuality.uplink}u ${localNetQuality.downlink}d`)});
+}
+
+
+
 
 function getRemoteCount( object ) {
   var length = 0;
@@ -671,14 +749,26 @@ function destructStats() {
   clearInterval(statsInterval);
   $("#session-stats").html("");
   $("#transport-stats").html("");
-  $("#local-stats").html("");
+  $("#client-stats").html("");
+}
+
+
+function notifyReady() {
+  if (typeof window.navigator.notifyReady === 'function')
+      window.navigator.notifyReady();
 }
 
 // flush stats views
 function flushStats() {
   // get the client stats message
+  const status = navigator.onLine;
   const clientStats = client.getRTCStats();
-  const clientStatsList = [{
+  const clientStatsList = [
+  {
+    description: "Local UID",
+    value: options.uid,
+    unit: ""
+  }, {
     description: "Host Count",
     value: clientStats.UserCount,
     unit: ""
@@ -688,24 +778,38 @@ function flushStats() {
     unit: "s"
   }, {
     description: "Bitrate receive",
-    value: clientStats.RecvBitrate,
-    unit: "bps"
+    value: (Number(clientStats.RecvBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Bitrate sent",
-    value: clientStats.SendBitrate,
-    unit: "bps"
+    value: (Number(clientStats.SendBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Outgoing B/W",
-    value: clientStats.OutgoingAvailableBandwidth.toFixed(3),
-    unit: "kbps"
+    value: (Number(clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "RTT to SD-RTN Edge",
     value: clientStats.RTT,
     unit: "ms"
+  }, {
+    description: "Uplink Stat",
+    value: localNetQuality.uplink,
+    unit: ""
+  }, {
+    description: "Downlink Stat",
+    value: localNetQuality.downlink,
+    unit: ""
+  }, {
+    description: "Link Status",
+    value: status,
+    unit: ""
   }];
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
   `);
+  chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats.RecvBitrate]);
+  drawCurveTypes(chartArray);
 
 // get the local track stats message
 const localStats = {
@@ -713,6 +817,10 @@ const localStats = {
   //audio: client.getLocalAudioStats()
 };
 const localStatsList = [{
+  description: "Codec",
+  value: localStats.video.codecType,
+  unit: ""
+  }, {
   description: "Capture FPS",
   value: localStats.video.captureFrameRate,
   unit: ""
@@ -734,16 +842,12 @@ const localStatsList = [{
   unit: ""
   },  {
   description: "Send video bit rate",
-  value: localStats.video.sendBitrate,
-  unit: "bps"
+  value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
+  unit: "Mbps"
   }, {
   description: "Total video packets loss",
   value: localStats.video.sendPacketsLost,
   unit: ""
-  }, {
-  description: "Total video freeze time",
-  value: localStats.video.totalFreezeTime,
-  unit: "s"
 }];
 $("#local-stats").html(`
   ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
@@ -752,9 +856,16 @@ Object.keys(remoteUsers).forEach(uid => {
   // get the remote track stats message
   const remoteTracksStats = {
     video: client.getRemoteVideoStats()[uid],
+    net: client.getRemoteNetworkQuality()[uid]
     //audio: client.getRemoteAudioStats()[uid]
   };
-  const remoteTracksStatsList = [{
+  const remoteTracksStatsList = [
+    {
+      description: "UID",
+      value: uid,
+      unit: ""
+    },
+    {
     description: "Codec",
     value: remoteTracksStats.video.codecType,
     unit: ""
@@ -775,28 +886,113 @@ Object.keys(remoteUsers).forEach(uid => {
     value: remoteTracksStats.video.receiveResolutionWidth,
     unit: ""
   }, {
-    description: "Receiving video bitrate",
-    value: remoteTracksStats.video.receiveBitrate,
-    unit: "bps"
-  }, {
-    description: "Video receive delay",
-    value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
-    unit: "ms"
-  }, {
-    description: "Video packet lossrate",
-    value: Number(remoteTracksStats.video.receivePacketsLost).toFixed(3),
-    unit: "%"
+    description: "Recv video bitrate",
+    value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
+    unit: "Mbps"
   }, {
     description: "Total video freeze time",
     value: remoteTracksStats.video.totalFreezeTime,
     unit: "s"
   }, {
-    description: "video freeze rate",
-    value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
-    unit: "%"
+    description: "Remote Uplink",
+    value: remoteTracksStats.net.uplinkNetworkQuality,
+    unit: ""
+  }, {
+    description: "Remote Downlink",
+    value: remoteTracksStats.net.downlinkNetworkQuality,
+    unit: ""
   }];
   $(`#player-wrapper-${uid} .track-stats`).html(`
     ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
 });
 }
+
+function handleExpand() {
+  const id = $(".uid-input").val();
+  if (bigRemote == id) {
+    shrinkRemote(id);
+    bigRemote = 0;
+    console.log("shrinking");
+    setTimeout(handleMin, 500, id);
+  } else if (bigRemote == 0) {
+    expandRemote(id);
+    bigRemote = id;
+    console.log("expanding");
+    setTimeout(handleMax, 500, id);
+  } else {
+    shrinkRemote(id);
+    expandRemote(id);
+    setTimeout(handleMax, 500, id);
+    bigRemote = id;
+  }
+}
+
+
+function expandRemote(uid) {
+  var x = document.getElementById(`player-${uid}`);
+  if (uid == remoteFocus) {
+    x.className = "remotePlayerLargeSelected";
+    bigRemote = uid;
+  } else {
+    x.className = "remotePlayerLarge";
+    bigRemote = uid;
+  }
+
+}
+
+function shrinkRemote(uid) {
+  var x = document.getElementById(`player-${uid}`);
+  if (uid == remoteFocus) {
+    x.className = "remotePlayerSelected";
+    bigRemote = 0;
+  } else {
+    x.className = "remotePlayer";
+    bigRemote = 0;
+  }
+}
+
+
+function showPopup(message) {
+  const newPopup = popups + 1;
+  console.log(`Popup count: ${newPopup}`);
+  const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+  $("#popup-section").append(y);
+  var x = document.getElementById(`popup-${newPopup}`);
+  x.className = "popupShow";
+  z = popups * 10;
+  $(`#popup-${newPopup}`).css("left", `${z}%`);
+  popups++;
+  setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 10000);
+}
+
+function removeItemOnce(arr, value) {
+  var index = arr.indexOf(value);
+  if (index > -1) {
+    arr.splice(index, 1);
+  }
+  return arr;
+}
+
+async function drawCurveTypes(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Up');
+  data.addColumn('number', 'Down');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'Kbits/s'
+    },
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
+  };
+
+  chart.draw(data, options);
+};
