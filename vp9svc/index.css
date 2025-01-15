@@ -92,12 +92,14 @@ input {
   color: rgb(255, 0, 0);
   margin-left: 10px;
   position: absolute;
+  font-weight: bolder;
 }
 
 .stats2 {
   color: rgb(0, 0, 0);
   margin-left: 10px;
   font-size: 12px;
+  font-weight: bolder;
 }
 
 .remoteStats {
