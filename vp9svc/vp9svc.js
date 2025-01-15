@@ -3,6 +3,7 @@ google.charts.load('current', {packages: ['corechart', 'line']});
 var chart;
 var chartArray = [];
 
+
 //SVC stuff
 var layers = {};
 
@@ -22,11 +23,9 @@ var client = AgoraRTC.createClient({
 });
 
 
-//AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
 AgoraRTC.setParameter("SVC",["vp9"]);
 //AgoraRTC.setParameter("ENABLE_SVC", true);
-//console.log("Start with Web Audio OFF");
-var webAudioOff = false;
+
 
 AgoraRTC.enableLogUpload();
 var localTracks = {
@@ -265,10 +264,16 @@ $("#join-form").submit(async function (e) {
     $("#setEnabled").attr("disabled", true);
     $("#subscribe").attr("disabled", false);
     $("#unsubscribe").attr("disabled", false);
-    $("#pickSLayer").attr("disabled", false);
-    $("#pickTLayer").attr("disabled", false);
     $("#biggerView").attr("disabled", false);
     joined = true;
+    $(".s-list").append(`<a class="dropdown-item" label="3" href="#">S3</a>`);
+    $(".s-list").append(`<a class="dropdown-item" label="2" href="#">S2</a>`);
+    $(".s-list").append(`<a class="dropdown-item" label="1" href="#">S1</a>`);
+    $(".s-list").append(`<a class="dropdown-item" label="0" href="#">S0</a>`);
+    $(".t-list").append(`<a class="dropdown-item" label="3" href="#">T3</a>`);
+    $(".t-list").append(`<a class="dropdown-item" label="2" href="#">T2</a>`);
+    $(".t-list").append(`<a class="dropdown-item" label="1" href="#">T1</a>`);
+    $(".t-list").append(`<a class="dropdown-item" label="0" href="#">T0</a>`);
   }
 });
 $("#leave").click(function (e) {
@@ -277,7 +282,17 @@ $("#leave").click(function (e) {
 
 $(".uid-list").delegate("a", "click", function (e) {
   changeTargetUID(this.getAttribute("label"));
-  updateLayersButtons();
+  updateLayersDropdowns();
+});
+
+$(".s-list").delegate("a", "click", function (e) {
+  $(".s-input").val(this.getAttribute("label"));
+  changeSLayer();
+});
+
+$(".t-list").delegate("a", "click", function (e) {
+  $(".t-input").val(this.getAttribute("label"));
+  changeTLayer();
 });
 
 
@@ -318,23 +333,12 @@ $("#unsubscribe").click(function (e) {
   manualUnsub();
 });
 
-$("#webAudio").click(function (e) {
-  toggleWebAudio();
-});
 
 $('#agora-collapse').on('show.bs.collapse	', function () {
   initDevices();
 });
 $(".mic-list").delegate("a", "click", function (e) {
   switchMicrophone(this.text);
-});
-
-$("#pickSLayer").click(function (e) {
-    pickS();
-});
-
-$("#pickTLayer").click(function (e) {
-    pickT();
 });
 
 $("#biggerView").click(function (e) {
@@ -349,6 +353,7 @@ function setSTMin(uid) {
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     const id = Number(uid);
     client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    updateLayersDropdowns();
 }
 
 function setSTMax(uid) {
@@ -358,89 +363,45 @@ function setSTMax(uid) {
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     const id = Number(uid);
     client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+    updateLayersDropdowns();
 }
 
-async function pickS() {
+async function changeSLayer() {
   //get value of of uid-input
   const id = Number($(".uid-input").val());
-  if (layers[id].spatialLayer == 3) {
-    $("#pickSLayer").text("S2");
-    layers[id].spatialLayer = 2;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
-  else if (layers[id].spatialLayer == 2) {
-    $("#pickSLayer").text("S1");
-    layers[id].spatialLayer = 1;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
-  else if (layers[id].spatialLayer == 1) {
-    $("#pickSLayer").text("S0");
-    layers[id].spatialLayer = 0;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
-  else if (layers[id].spatialLayer == 0) {
-    $("#pickSLayer").text("S3");
-    layers[id].spatialLayer = 3;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
+  //get value of s layer to use
+  const valLayer = Number($(".s-input").val());
+  layers[id].spatialLayer = valLayer;
+  client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+  showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+  console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
 }
 
-async function pickT() {
+async function changeTLayer() {
   //get value of of uid-input
   const id = Number($(".uid-input").val());
-  if (layers[id].temporalLayer == 3) {
-    $("#pickTLayer").text("T2");
-    layers[id].temporalLayer = 2;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
-  else if (layers[id].temporalLayer == 2) {
-    $("#pickTLayer").text("T1");
-    layers[id].temporalLayer = 1;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
-  else if (layers[id].temporalLayer == 1) {
-    $("#pickTLayer").text("T0");
-    layers[id].temporalLayer = 0;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
-  else if (layers[id].temporalLayer == 0) {
-    $("#pickTLayer").text("T3");
-    layers[id].temporalLayer = 3;
-    client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
-    showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-    console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
-  }
+  //get value of s layer to use
+  const valLayer = Number($(".t-input").val());
+  layers[id].temporalLayer = valLayer;
+  client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+  showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+  console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
 }
 
-async function toggleWebAudio() {
-  if (webAudioOff) {
-    console.log("Turning WebAudio back ON.");
-    webAudioOff = false;
-    AgoraRTC.setParameter("DISABLE_WEBAUDIO", false);
-    $("#webAudio").text("Disable WebAudio");
-    showPopup("WebAudio Enabled");
-  } else {
-    console.log("Turning WebAudio OFF.");
-    webAudioOff = true;
-    AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-    $("#webAudio").text("Enable WebAudio");
-    showPopup("WebAudio Disabled");
-  }
+async function changeBothLayers() {
+  //get value of of uid-input
+  const id = Number($(".uid-input").val());
+  //get value of s layer to use
+  const valSLayer = Number($(".s-input").val());
+  //get value of t layer to use
+  const valTLayer = Number($(".t-input").val());
+  layers[id].temporalLayer = valSLayer;
+  layers[id].temporalLayer = valTLayer;
+  client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+  showPopup(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
+  console.log(`Setting S${layers[id].spatialLayer} T${layers[id].temporalLayer} for UID ${id}`);
 }
+
 
 async function publishMic() {
   if (!localTracks.audioTrack) {
@@ -549,6 +510,10 @@ async function leave() {
   remotesArray = [];
   $(".uid-list").empty();
   $(".uid-input").val(``);
+  $(".s-list").empty();
+  $(".s-input").val(``);
+  $(".t-list").empty();
+  $(".t-input").val(``);
 
   // leave the channel
   await client.leave();
@@ -563,10 +528,6 @@ async function leave() {
   $("#joined-setup").css("display", "none");
   $("#subscribe").attr("disabled", true);
   $("#unsubscribe").attr("disabled", true);
-  $("#pickSLayer").attr("disabled", true);
-  $("#pickTLayer").attr("disabled", true);
-  $("#pickSLayer").text("S3");
-  $("#pickTLayer").text("T3");
   $("#biggerView").attr("disabled", true);
   remoteFocus = 0;
   bigRemote = 0;
@@ -584,8 +545,9 @@ async function manualSub() {
   let user = remoteUsers[id];
   showPopup(`Manually subscribed to UID ${id}`);
   await subscribe(user, "video");
+  updateLayersDropdowns();
+  changeBothLayers();
   await setSTMin(id);
-  updateLayersButtons();
   await subscribe(user, "audio");
 }
 
@@ -688,8 +650,14 @@ function handleUserPublished(user, mediaType) {
   } else {
     const id = user.uid;
     remoteUsers[id] = user;
-    layers[id] = {uid: id, spatialLayer: 1, temporalLayer: 1};
+    if (layers[id]) {
+      console.log(`not changing layers values for ${id}, already have them.`);
+    } else {
+      layers[id] = {uid: id, spatialLayer: 3, temporalLayer: 3};
+    }
     updateUIDs(id, "add");
+    changeTargetUID(id);
+    updateLayersDropdowns();
     if (mediaType === 'video') {
       userCount = getRemoteCount(remoteUsers);
       console.log(`Remote User Video Count now: ${userCount}`);
@@ -699,8 +667,6 @@ function handleUserPublished(user, mediaType) {
     showPopup(`Remote User Count now: ${userCount}`);
   }
 }
-
-
 
 function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
@@ -720,7 +686,6 @@ function handleUserUnpublished(user, mediaType) {
 
 function handleUserJoined(user) {
   const id = user.uid;
-  updateUIDs(id, "add");
   showPopup(`UID ${id} user-joined`);
 }
 
@@ -728,7 +693,6 @@ function handleUserLeft(user) {
   const id = user.uid;
   removeItemOnce(remotesArray, id);
   updateUIDs(id, "remove");
-  updateLayersButtons();
   showPopup(`UID ${id} user-left`);
 }
 
@@ -736,8 +700,6 @@ function handleUserInfoUpdated(uid, message) {
   console.log(`User Info Updated for ${uid}, new state is: ${message}`);
   showPopup(`UID ${uid} new state: ${message}`);
 }
-
-
 
 
 function getRemoteCount( object ) {
@@ -944,12 +906,10 @@ function shrinkRemote(uid) {
   }
 }
 
-function updateLayersButtons() {
+function updateLayersDropdowns() {
   const id = $(".uid-input").val();
-  const sVal = layers[id].spatialLayer;
-  const tVal = layers[id].temporalLayer;
-  $("#pickSLayer").text(`S${sVal}`);
-  $("#pickTLayer").text(`T${tVal}`);
+  $(".s-input").val(`${layers[id].spatialLayer}`);
+  $(".t-input").val(`${layers[id].temporalLayer}`);
 }
 
 function showPopup(message) {

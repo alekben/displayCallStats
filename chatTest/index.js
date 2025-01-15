@@ -504,13 +504,13 @@ function fetchJoinedGroups() {
 async function getTokens() {
     console.log('getting token...');
     const localTokenUrls = {
-        host: "https://18-118-241-12.nip.io/aleksey",
+        host: "https://ynmthlsyhpilcnyvxoxhrxw4w40uxnim.lambda-url.us-east-2.on.aws",
         endpoint: "getToken"
     }
 
     try {
       const res = await fetch(
-        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+        localTokenUrls.host + "/", {
           method: "POST",
           headers: {
               "X-Requested-With": "XMLHttpRequest",

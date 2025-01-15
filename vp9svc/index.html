@@ -85,23 +85,41 @@
         <button id="leave" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Leave</button>
         <button id="createTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Create Mic Track</button>
         <button id="publishTrack" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Publish Mic Track</button>
-        <!--<button id="startLoopback" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Start Loopback</button>-->
         <button id="setMuted" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Mute Mic Track</button>
         <button id="setEnabled" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Disable Mic Track</button>
-        <button id="webAudio" type="button" class="btn btn-primary btn-sm" style="height: 30px;">Enable Web Audio</button>
-        <!--<button id="record" type="button" class="btn btn-primary btn-sm" disabled>Record</button>
-        <a id="download" type="button" class="btn btn-primary btn-sm" hidden>Download</a>-->
         <button id="subscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Subscribe</button>
         <button id="unsubscribe" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Unsubscribe</button>
-        <button id="pickSLayer" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>S3</button>
-        <button id="pickTLayer" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>T3</button>
         <button id="biggerView" type="button" class="btn btn-primary btn-sm" style="height: 30px;" disabled>Expand Video</button>
+        <br>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">UIDs</button>
+            <div class="uid-list dropdown-menu"></div>
+            <input type="text" class="uid-input form-control" aria-label="Text input with dropdown button"
+            readonly>
+          </div>
+        </div>
 
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-        aria-haspopup="true" aria-expanded="false">UIDs</button>
-      <div class="uid-list dropdown-menu"></div>
-    <input type="text" class="uid-input form-control" aria-label="Text input with dropdown button"
-      readonly>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Spatial</button>
+            <div class="s-list dropdown-menu"></div>
+            <input type="text" class="s-input form-control" aria-label="Text input with dropdown button"
+            readonly>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Temporal</button>
+            <div class="t-list dropdown-menu"></div>
+            <input type="text" class="t-input form-control" aria-label="Text input with dropdown button"
+            readonly>
+          </div>
+        </div>
 
         <div class="collapse-wrapper" style="height: 30px;">
           <div class="collapse-content">
