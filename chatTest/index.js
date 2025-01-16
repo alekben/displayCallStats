@@ -521,7 +521,7 @@ async function getTokens() {
             body: JSON.stringify({
             "tokenType": "chat",
             "uid": storage.username,
-            "expire": 900 
+            "expire": "900" 
             })});
       const response = await res.json();
       console.log("chat token fetched from server: ", response.token);
