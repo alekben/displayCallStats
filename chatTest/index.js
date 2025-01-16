@@ -516,6 +516,7 @@ async function getTokens() {
               //"X-Requested-With": "XMLHttpRequest",
               //"Accept": "application/json",
               //"Content-Type": "application/json"
+              "content-type": "application/json"
             },
             body: JSON.stringify({
             "tokenType": "chat",
