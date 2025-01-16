@@ -504,7 +504,7 @@ function fetchJoinedGroups() {
 async function getTokens() {
     console.log('getting token...');
     const localTokenUrls = {
-        host: "https://ynmthlsyhpilcnyvxoxhrxw4w40uxnim.lambda-url.us-east-2.on.aws",
+        host: "https://3gd53vjzm37f45yxlm2fk3mufa0grfvb.lambda-url.us-east-2.on.aws",
         endpoint: "getToken"
     }
 
@@ -513,9 +513,9 @@ async function getTokens() {
         localTokenUrls.host + "/", {
           method: "POST",
           headers: {
-              "X-Requested-With": "XMLHttpRequest",
-              "Accept": "application/json",
-              "Content-Type": "application/json"
+              //"X-Requested-With": "XMLHttpRequest",
+              //"Accept": "application/json",
+              //"Content-Type": "application/json"
             },
             body: JSON.stringify({
             "tokenType": "chat",
