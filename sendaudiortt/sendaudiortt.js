@@ -404,3 +404,14 @@ async function stopTranscription() {
   });
   taskId = null;
 }
+
+function downloadTxt() {
+  const text = document.getElementById("stt-transcribe").innerText;
+  const blob = new Blob([text], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "transcription.txt";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
