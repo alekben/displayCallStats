@@ -523,9 +523,9 @@ async function getTokens() {
             "uid": storage.username,
             "expire": "900" 
             })});
-      const response = await res.json();
-      console.log("chat token fetched from server: ", response.token);
-      storage.token = response.token;
+      const response = await res.text();
+      console.log("chat token fetched from server: ", response);
+      storage.token = response;
     } catch (err) {
       console.log(err);
     }

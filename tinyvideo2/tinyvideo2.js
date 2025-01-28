@@ -21,9 +21,14 @@ denyButton.addEventListener("click", () => {
 
 //token server url
 
-const localTokenUrls = {
-  host: "https://18-118-241-12.nip.io",
-  endpoint: "getToken"
+const localTokenUrlsRTC = {
+  host: "https://ynmthlsyhpilcnyvxoxhrxw4w40uxnim.lambda-url.us-east-2.on.aws",
+  endpoint: ""
+}
+
+const localTokenUrlsRTM = {
+  host: "https://ynmthlsyhpilcnyvxoxhrxw4w40uxnim.lambda-url.us-east-2.on.aws",
+  endpoint: ""
 }
 
 //create RTC client variables on script load
@@ -848,7 +853,7 @@ async function getTokens() {
   if (options.rtcToken == null) {
     try {
       const res = await fetch(
-        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+        localTokenUrlsRTC.host + "/" + localTokenUrlsRTC.endpoint, {
           method: "POST",
           headers: {
               "X-Requested-With": "XMLHttpRequest",
@@ -856,11 +861,9 @@ async function getTokens() {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-            "tokenType": "rtc",
-            "channel": options.channel,
-            "role": "publisher",  // "publisher" or "subscriber"
+            "cname": options.channel,
             "uid": options.uid,
-            "expire": 3600 // optional: expiration time in seconds (default: 3600)})
+            "expiration": 3600
             })});
       const response = await res.json();
       console.log("RTC token fetched from server: ", response.token);
@@ -873,7 +876,7 @@ async function getTokens() {
   if (options.rtmToken == null) {
     try {
       const res = await fetch(
-        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+        localTokenUrlsRTM.host + "/" + localTokenUrlsRTM.endpoint, {
           method: "POST",
           headers: {
               "X-Requested-With": "XMLHttpRequest",
@@ -897,7 +900,7 @@ async function getTokens() {
 if (options.nostream = false) {
     try {
       const res = await fetch(
-        localTokenUrls.host + "/" + localTokenUrls.endpoint, {
+        localTokenUrlsRTM.host + "/" + localTokenUrlsRTM.endpoint, {
           method: "POST",
           headers: {
               "X-Requested-With": "XMLHttpRequest",

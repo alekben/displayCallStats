@@ -1,0 +1,219 @@
+.sso-hidden {
+  display: block;
+}
+
+.banner {
+  padding: 0;
+  background-color: #52575c;
+  color: white;
+}
+
+.banner-text {
+  padding: 8px 20px;
+  margin: 0;
+}
+
+
+#join-form {
+  margin-top: 10px;
+}
+
+.tips {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color: gray;
+}
+
+.join-info-text {
+  margin-bottom: 2px;
+}
+
+.join-info-group input {
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.player {
+  width: 480px;
+  height: 320px;
+}
+
+.player-name {
+  margin: 8px 0;
+}
+
+#success-alert, #success-alert-with-token {
+  display: none;
+}
+
+.input-group {
+  display: inline-flex;
+  width: auto;
+  vertical-align: middle;
+}
+
+.button-group {
+  margin-bottom: 10px;
+}
+
+.button-group .btn {
+  vertical-align: middle;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 640px) {
+  .player {
+    width: 320px;
+    height: 240px;
+  }
+  .audio-bar {
+    width: 60% !important;
+  }
+}
+
+.play-button {
+  display: inline-block;
+  vertical-align: middle;
+  width: 30px;
+  height: 30px;
+}
+
+.audio-bar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 320px;
+}
+
+.audio-volume-bar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 320px;
+  height: 30px;
+}
+
+.audio-volume-controls {
+  margin: 20px 0;
+}
+
+.audio-time {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.progress-bar {
+  transition: none;
+}
+
+.play {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 12px solid #2c3e50;
+  transform: translate(10px, 5px);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  left: 2px;
+}
+.play:before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: -23px;
+  bottom: -15px;
+  right: -7px;
+  border-radius: 50%;
+  border: 2px solid #2c3e50;
+  z-index: 2;
+  transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  box-sizing: content-box;
+}
+.play:after {
+  box-sizing: content-box;
+  content: "";
+  opacity: 0;
+  transition: opacity 0.6s;
+  -webkit-transition: opacity 0.6s;
+  -moz-transition: opacity 0.6s;
+}
+.play:hover:before {
+  transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+}
+.play.active {
+  border-color: transparent;
+}
+.play.active:after {
+  content: "";
+  opacity: 1;
+  width: 10px;
+  height: 16px;
+  background: #2c3e50;
+  position: absolute;
+  right: 1px;
+  top: -8px;
+  border-left: 4px solid #2c3e50;
+  box-shadow: inset 6px 0 0 0 #f9f9f9;
+}
+
+.popupHidden {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 0%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+
+.popupShow {
+  visibility: true; /* Hidden by default. Visible on click */
+  min-width: 10%; /* Set a default minimum width */
+  max-width: 10%;
+  margin-left: 0px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 0%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 10.0s;
+  animation: fadein 0.5s, fadeout 0.5s 10.0s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
