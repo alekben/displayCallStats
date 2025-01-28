@@ -405,6 +405,10 @@ async function stopTranscription() {
   taskId = null;
 }
 
+/**
+ * Downloads the transcribed text from the element with id "stt-transcribe"
+ * as a plain text file named "transcription.txt".
+ */
 function downloadTxt() {
   const text = document.getElementById("stt-transcribe").innerText;
   const blob = new Blob([text], { type: "text/plain" });
