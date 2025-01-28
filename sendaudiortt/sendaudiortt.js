@@ -294,8 +294,8 @@ async function startTranscription() {
   const pushUid = '444';
   const speakingLanguage = 'en-US'
   const s3Bucket = 'dev-generic';
-  const AccessKey = 'AKIAZI' + '2LH7B7M' + 'Q2XWELL';
-  const SecretKey= 'EnkQyzx2' + '8Vgpg9bV1' + 'kW9JifV' + 'i4VYYvpw' + '66PU2yqS';
+  const AKey = 'AKIAZI' + '2LH7B7M' + 'Q2XWELL';
+  const SKey= 'EnkQyzx2' + '8Vgpg9bV1' + 'kW9JifV' + 'i4VYYvpw' + '66PU2yqS';
   const s3Vendor = Number(1);
   const s3Region = Number(1);
   const s3FileNamePrefix = options.channel;
@@ -315,8 +315,8 @@ async function startTranscription() {
       body.captionConfig =
             {
               "storage":{
-                  "accessKey": AccessKey,
-                  "secretKey": SecretKey,
+                  "accessKey": AKey,
+                  "secretKey": SKey,
                   "bucket": s3Bucket,
                   "vendor": s3Vendor,
                   "region": s3Region
