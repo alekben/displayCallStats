@@ -231,3 +231,52 @@
   from {bottom: 30px; opacity: 1;}
   to {bottom: 0; opacity: 0;}
 }
+
+#state-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+#state-indicator span {
+  margin-right: 5px;
+}
+
+#bouncing-dots {
+  display: none;
+}
+
+.state-offline {
+  color: red;
+}
+
+.state-transcribing {
+  color: green;
+}
+
+.state-transcribing #bouncing-dots {
+  display: inline-flex;
+}
+
+#bouncing-dots span {
+  animation: bounce 1.5s infinite;
+  margin: 0 2px;
+}
+
+#bouncing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+#bouncing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}

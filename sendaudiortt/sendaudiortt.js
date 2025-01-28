@@ -190,6 +190,7 @@ function handleUserJoined(user) {
     showPopup(`STT bot ${user.uid} joined.`);
     sttState.state = "TRANSCRIBING";
     //indicate STT bot joined
+    updateStateIndicator();
   } else {
     showPopup(`Some user other than pubBot joined.`);
   }
@@ -201,6 +202,7 @@ function handleUserLeft(user) {
     showPopup(`STT bot ${user.uid} left.`);
     //indicate STT bot left
     sttState.state = "OFFLINE";
+    updateStateIndicator();
     leave();
   } else {
     showPopup(`Some user other than pubBot left.`);
@@ -423,4 +425,20 @@ function downloadTxt() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+function updateStateIndicator() {
+  const stateIndicator = document.getElementById("state-indicator");
+  const stateText = document.getElementById("state-text");
+  const bouncingDots = document.getElementById("bouncing-dots");
+
+  if (sttState.state === "OFFLINE") {
+    stateIndicator.className = "state-offline";
+    stateText.textContent = "Offline";
+    bouncingDots.style.display = "none";
+  } else if (sttState.state === "TRANSCRIBING") {
+    stateIndicator.className = "state-transcribing";
+    stateText.textContent = "Transcribing";
+    bouncingDots.style.display = "inline-flex";
+  }
 }
