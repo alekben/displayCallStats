@@ -163,6 +163,20 @@
   box-shadow: inset 6px 0 0 0 #f9f9f9;
 }
 
+.item {
+  opacity: 0; /* Start invisible */
+  animation: fadeIn 2s ease-in forwards; /* 2-second fade-in animation */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0; /* Start with 0 opacity */
+  }
+  to {
+    opacity: 1; /* End with full opacity */
+  }
+}
+
 .popupHidden {
   visibility: hidden; /* Hidden by default. Visible on click */
   min-width: 250px; /* Set a default minimum width */

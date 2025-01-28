@@ -533,6 +533,7 @@ async function startTranscription() {
   taskId = res.taskId;
   return res;
 }
+
 async function queryTranscription() {
   if (!taskId) {
     return
@@ -552,6 +553,7 @@ async function queryTranscription() {
   );
   // Log output from get in console json {createTs, status, and taskId}
 }
+
 async function stopTranscription() {
   if (!taskId) {
     return;

@@ -33,8 +33,11 @@ var audioMixing = {
 };
 
 var sttState = {
-  state: "OFFLINE"
+  state: "OFFLINE",
+  pubBot: "444"
 }
+
+let transcribeIndex = 0;
 
 const playButton = $(".play");
 playButton.click(function () {
@@ -65,6 +68,7 @@ $("#join-form").submit(async function (e) {
     $("#join").attr("disabled", true);
     $("#leave").attr("disabled", false);
     //$("#local-audio-mixing").attr("disabled", true);
+    await startTranscription();
     startAudioMixing(file);
   }
 });
@@ -184,6 +188,7 @@ function handleUserJoined(user) {
   const id = user.uid;
   if (id == sttState.pubBot) {
     showPopup(`STT bot ${user.uid} joined.`);
+    sttState.state = "TRANSCRIBING";
     //indicate STT bot joined
   } else {
     showPopup(`Some user other than pubBot joined.`);
@@ -195,6 +200,7 @@ function handleUserLeft(user) {
   if (id == sttState.pubBot) {
     showPopup(`STT bot ${user.uid} left.`);
     //indicate STT bot left
+    sttState.state = "OFFLINE";
     leave();
   } else {
     showPopup(`Some user other than pubBot left.`);
@@ -204,7 +210,6 @@ function handleUserLeft(user) {
 function handleSTT(msgUid, data) {
   // use protobuf decode data
   const msg = $protobufRoot.lookup("Text").decode(data) || {};
-  console.log("handleStreammessage", msg);
   const {
     words,
     data_type,
@@ -222,15 +227,14 @@ function handleSTT(msgUid, data) {
         }
         text += item?.text;
       });
-      addTranscribeItem(uid, text);
+      //addTranscribeItem(uid, text);
       if (isFinal) {
-        addToCaptions(text);
+        addTranscribeItem(duration_ms, text);
         transcribeIndex++;
       }
     }
   } 
 }
-
 
 function addTranscribeItem(uid, msg) {
   if ($(`#transcribe-${transcribeIndex}`)[0]) {
@@ -240,7 +244,7 @@ function addTranscribeItem(uid, msg) {
     <span class="uid">${uid}</span>:
     <span class="msg">${msg}</span>
   </div>`);
-    $("#stt-transcribe .content").prepend($item);
+    $("#stt-transcribe .content").append($item);
   }
 }
 
@@ -265,4 +269,138 @@ function showPopup(message) {
   $(`#popup-${newPopup}`).css("left", `${z}%`);
   popups++;
   setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 5000);
+}
+
+//STT variables
+var gatewayAddress = "https://api.agora.io";
+let taskId = '';
+let tokenName = '';
+
+function GetAuthorization() {
+  const authorization = 'Basic M2ZjOTQ4MGU2YWFhNDIwY2I3NjZmNDQ0ZDY2N2IyMjY6ZDI2N2Y1YzMxZDNkNGJkZmFmZTA0ODJmYTQ4ZDA3ZmI=';
+  return authorization;
+}
+
+//STT functions
+async function startTranscription() {
+  const authorization = GetAuthorization();
+  if (!authorization) {
+    throw new Error("key or secret is empty");
+  }
+  const data = await acquireToken();
+  tokenName = data.tokenName;
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks?builderToken=${tokenName}`;
+  const pullUid = '333';
+  const pushUid = '444';
+  const speakingLanguage = 'en-US'
+  const s3Bucket = 'dev-generic';
+  const s3AccessKey = 'AKIAZI2LH7B7MQ2XWELL';
+  const s3SecretKey= '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';
+  const s3Vendor = Number(1);
+  const s3Region = Number(1);
+  const s3FileNamePrefix = options.channel;
+  
+    let body = {
+      "languages": [
+        speakingLanguage
+      ],
+      "maxIdleTime": 60,
+      "rtcConfig": {
+          "channelName": options.channel,
+          "subBotUid": pullUid,
+          "pubBotUid": pushUid,
+      }
+    };
+    if (s3Bucket != "") {
+      body.captionConfig =
+            {
+              "storage":{
+                  "accessKey": s3AccessKey,
+                  "secretKey": s3SecretKey,
+                  "bucket": s3Bucket,
+                  "vendor": s3Vendor,
+                  "region": s3Region
+              }
+            };
+     }   
+
+
+    if (s3FileNamePrefix) {
+      body.captionConfig.storage = {
+        ...body.captionConfig.storage,fileNamePrefix: [
+            s3FileNamePrefix
+        ]
+      }
+    }
+
+  let res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    },
+    body: JSON.stringify(body)
+  });
+  res = await res.json();
+  taskId = res.taskId;
+  return res;
+}
+
+async function acquireToken() {
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/builderTokens`;
+  const data = {
+    instanceId: options.channel
+  };
+  let res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    },
+    body: JSON.stringify(data)
+  });
+  if (res.status == 200) {
+    res = await res.json();
+    console.log()
+    return res;
+  } else {
+    // status: 504
+    // please enable the realtime transcription service for this appid
+    console.error(res.status, res);
+    throw new Error(res);
+  }
+}
+
+async function queryTranscription() {
+  if (!taskId) {
+    return
+  }
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks/${taskId}?builderToken=${tokenName}`;
+  await fetch(url, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    }
+})
+  .then(response => response.json())
+    .then(json => {
+      console.log(json);
+    }
+  );
+}
+
+async function stopTranscription() {
+  if (!taskId) {
+    return;
+  }
+  const url = `${gatewayAddress}/v1/projects/${options.appid}/rtsc/speech-to-text/tasks/${taskId}?builderToken=${tokenName}`;
+  let res = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": GetAuthorization()
+    }
+  });
+  taskId = null;
 }
