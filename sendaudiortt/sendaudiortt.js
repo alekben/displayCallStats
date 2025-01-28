@@ -229,7 +229,12 @@ function handleSTT(msgUid, data) {
       });
       //addTranscribeItem(uid, text);
       if (isFinal) {
-        addTranscribeItem(duration_ms, text);
+        const currPlaybackTime = localTracks.audioMixingTrack.getCurrentTime();
+        const sentStartTime = (currPlaybackTime * 1000) - duration_ms;
+
+        const formattedStartTime = toMMSS(sentStartTime / 1000);
+
+        addTranscribeItem(formattedStartTime, text);
         transcribeIndex++;
       }
     }
