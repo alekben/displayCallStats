@@ -267,7 +267,7 @@ async function leave() {
   //$("#audio-controls").attr("hidden", true);
   //$("#audio-volume").attr("hidden", true);
   //$("#audio-speed").attr("hidden", true);
-  $("speed").attr("disabled", true); // Disable speed control
+  $("#speed").attr("disabled", true); // Disable speed control
 }
 
 function handleUserJoined(user) {
