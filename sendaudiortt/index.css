@@ -1,306 +1,132 @@
-.sso-hidden {
-  display: block;
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 .banner {
-  padding: 0;
-  background-color: #52575c;
+  background: #007bff;
+  padding: 15px;
   color: white;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px 8px 0 0;
 }
 
-.banner-text {
-  padding: 8px 20px;
-  margin: 0;
-}
-
-
-#join-form {
-  margin-top: 10px;
-}
-
-.tips {
-  font-size: 12px;
-  margin-bottom: 2px;
-  color: gray;
-}
-
-.join-info-text {
-  margin-bottom: 2px;
-}
-
-.join-info-group input {
-  width: 100%;
-  margin-bottom: 2px;
-}
-
-.player {
-  width: 480px;
-  height: 320px;
-}
-
-.player-name {
-  margin: 8px 0;
-}
-
+/* Success Alerts - Hide by Default */
 #success-alert, #success-alert-with-token {
   display: none;
-}
-
-.input-group {
-  display: inline-flex;
-  width: auto;
-  vertical-align: middle;
-}
-
-.button-group {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #c3e6cb;
   margin-bottom: 10px;
 }
 
+/* Buttons */
 .button-group .btn {
-  vertical-align: middle;
-  margin-bottom: 2px;
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.3s;
 }
 
-@media (max-width: 640px) {
-  .player {
-    width: 320px;
-    height: 240px;
-  }
-  .audio-bar {
-    width: 60% !important;
-  }
+.button-group .btn:hover {
+  background: #0056b3;
 }
 
-.play-button {
-  display: inline-block;
-  vertical-align: middle;
-  width: 30px;
-  height: 30px;
+/* Inputs */
+input[type='file'] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* Audio Controls */
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
 }
 
 .audio-bar {
-  display: inline-block;
-  vertical-align: middle;
-  width: 320px;
-}
-
-.audio-volume-bar {
-  display: inline-block;
-  vertical-align: middle;
-  width: 320px;
-  height: 30px;
-}
-
-.audio-speed-bar {
-  display: inline-block;
-  vertical-align: middle;
-  width: 320px;
-  height: 30px;
-}
-
-.audio-volume-controls {
-  margin: 20px 0;
-}
-
-.audio-time {
-  display: inline-block;
-  vertical-align: middle;
+  flex-grow: 1;
+  height: 5px;
+  background: #ddd;
+  position: relative;
+  border-radius: 5px;
 }
 
 .progress-bar {
-  transition: none;
+  height: 5px;
+  background: #007bff;
+  width: 0%;
+  transition: width 0.3s;
 }
 
-.play {
-  display: block;
-  width: 0;
-  height: 0;
-  border-top: 10px solid transparent;
-  border-bottom: 10px solid transparent;
-  border-left: 12px solid #2c3e50;
-  transform: translate(10px, 5px);
-  position: relative;
-  z-index: 1;
-  transition: all 0.3s;
-  -webkit-transition: all 0.3s;
-  -moz-transition: all 0.3s;
-  left: 2px;
+.audio-time {
+  font-size: 14px;
+  font-weight: bold;
 }
-.play:before {
-  content: "";
-  position: absolute;
-  top: -15px;
-  left: -23px;
-  bottom: -15px;
-  right: -7px;
-  border-radius: 50%;
-  border: 2px solid #2c3e50;
-  z-index: 2;
-  transition: all 0.3s;
-  -webkit-transition: all 0.3s;
-  -moz-transition: all 0.3s;
-  box-sizing: content-box;
+
+/* Transcription */
+.title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 20px;
 }
-.play:after {
-  box-sizing: content-box;
-  content: "";
-  opacity: 0;
-  transition: opacity 0.6s;
-  -webkit-transition: opacity 0.6s;
-  -moz-transition: opacity 0.6s;
-}
-.play:hover:before {
-  transform: scale(1.1);
-  -webkit-transform: scale(1.1);
-  -moz-transform: scale(1.1);
-}
-.play.active {
-  border-color: transparent;
-}
-.play.active:after {
-  content: "";
-  opacity: 1;
-  width: 10px;
-  height: 16px;
-  background: #2c3e50;
-  position: absolute;
-  right: 1px;
-  top: -8px;
-  border-left: 4px solid #2c3e50;
-  box-shadow: inset 6px 0 0 0 #f9f9f9;
+
+#stt-transcribe {
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 4px;
+  min-height: 50px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
 }
 
 .item {
-  opacity: 0; /* Start invisible */
-  animation: fadeIn 2s ease-in forwards; /* 2-second fade-in animation */
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s;
 }
 
-.level {
-  width: 300px;
-  height: 20px;
-  background-color: lightgray;
-  position: relative;
-  margin-top: 5px;
-}
-.level-inner {
-  height: 100%;
-  background-color: green;
-  width: 0%;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0; /* Start with 0 opacity */
-  }
-  to {
-    opacity: 1; /* End with full opacity */
-  }
-}
-
-.popupHidden {
-  visibility: hidden; /* Hidden by default. Visible on click */
-  min-width: 250px; /* Set a default minimum width */
-  margin-left: -125px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 0%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
-}
-
-
-.popupShow {
-  visibility: true; /* Hidden by default. Visible on click */
-  min-width: 10%; /* Set a default minimum width */
-  max-width: 10%;
-  margin-left: 0px; /* Divide value of min-width by 2 */
-  background-color: #333; /* Black background color */
-  color: #fff; /* White text color */
-  text-align: center; /* Centered text */
-  border-radius: 2px; /* Rounded borders */
-  padding: 16px; /* Padding */
-  position: fixed; /* Sit on top of the screen */
-  z-index: 1; /* Add a z-index if needed */
-  left: 0%; /* Center the snackbar */
-  bottom: 30px; /* 30px from the bottom */
-  -webkit-animation: fadein 0.5s, fadeout 0.5s 10.0s;
-  animation: fadein 0.5s, fadeout 0.5s 10.0s;
-}
-
-/* Animations to fade the snackbar in and out */
-@-webkit-keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@keyframes fadein {
-  from {bottom: 0; opacity: 0;}
-  to {bottom: 30px; opacity: 1;}
-}
-
-@-webkit-keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
-@keyframes fadeout {
-  from {bottom: 30px; opacity: 1;}
-  to {bottom: 0; opacity: 0;}
-}
-
+/* State Indicator */
 #state-indicator {
-  display: flex;
-  align-items: center;
-  font-size: 1.2em;
   margin-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
-#state-indicator span {
-  margin-right: 5px;
-}
+.state-offline { color: red; }
+.state-transcribing { color: green; }
+.state-paused { color: orange; }
 
-#bouncing-dots {
-  display: none;
-}
-
-.state-offline {
-  color: red;
-}
-
-.state-transcribing {
-  color: green;
-}
-
-.state-paused {
-  color: orange;
-}
-
-.state-transcribing #bouncing-dots {
-  display: inline-flex;
-}
-
-#bouncing-dots span {
-  animation: bounce 1.5s infinite;
-  margin: 0 2px;
-}
-
-#bouncing-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-#bouncing-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
