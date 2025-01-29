@@ -67,10 +67,11 @@ $("#join-form").submit(async function (e) {
     //start rtt
     $("#join").attr("disabled", true);
     $("#leave").attr("disabled", false);
-    $("#audio-controls").attr("hidden", false);
+    //$("#audio-controls").attr("hidden", false);
     //$("#audio-volume").attr("hidden", false);
-    $("#audio-speed").attr("hidden", false);
+    //$("#audio-speed").attr("hidden", false);
     //$("#local-audio-mixing").attr("disabled", true);
+    $("#speed").attr("disabled", false); // Enable speed control
     await startTranscription();
     startAudioMixing(file);
   }
@@ -263,9 +264,10 @@ async function leave() {
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
-  $("#audio-controls").attr("hidden", true);
+  //$("#audio-controls").attr("hidden", true);
   //$("#audio-volume").attr("hidden", true);
-  $("#audio-speed").attr("hidden", true);
+  //$("#audio-speed").attr("hidden", true);
+  $("speed").attr("disabled", true); // Disable speed control
 }
 
 function handleUserJoined(user) {
@@ -344,6 +346,7 @@ function addTranscribeItem(uid, msg) {
     <span class="msg">${msg}</span>
   </div>`);
     $("#stt-transcribe .content").append($item);
+    document.querySelector("#stt-transcribe").scrollTop = document.querySelector("#stt-transcribe").scrollHeight;
   }
 }
 
