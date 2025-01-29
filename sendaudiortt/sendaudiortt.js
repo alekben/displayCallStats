@@ -109,6 +109,12 @@ async function startAudioMixing(file) {
       playButton.toggleClass('active', true);
       setAudioMixingProgress();
       audioMixing.state = "PLAYING";
+
+      sttState.state = "TRANSCRIBING"; // Set state to transcribing
+      updateStateIndicator();
+
+      $("#download").attr("disabled", true); // Disable download button while transcribing
+      
       console.log("start audio mixing");
     } catch (e) {
       audioMixing.state = "IDLE";
@@ -127,12 +133,18 @@ function toggleAudioMixing() {
     // resume audio mixing
     localTracks.audioMixingTrack.resumeProcessAudioBuffer();
     audioMixing.state = "PLAYING";
+
+    sttState.state = "TRANSCRIBING"; // Set state back to transcribing
+    updateStateIndicator();
   } else {
     playButton.toggleClass('active', false);
 
     // pause audio mixing
     localTracks.audioMixingTrack.pauseProcessAudioBuffer();
     audioMixing.state = "PAUSE";
+
+    sttState.state = "PAUSED"; // Set state to paused
+    updateStateIndicator();
   }
 }
 
@@ -147,6 +159,11 @@ function stopAudioMixing() {
   $(".audio-duration").text(toMMSS(0));
   playButton.toggleClass('active', false);
   cancelAnimationFrame(audioMixingProgressAnimation);
+
+  sttState.state = "OFFLINE"; // Set state to offline
+  updateStateIndicator();
+
+  $("#download").attr("disabled", false); // Enable download button
 }
 
 function setAudioMixingProgress() {
@@ -203,6 +220,7 @@ function handleUserLeft(user) {
     //indicate STT bot left
     sttState.state = "OFFLINE";
     updateStateIndicator();
+    $("#download").attr("disabled", false); // Enable download button
     leave();
   } else {
     showPopup(`Some user other than pubBot left.`);
@@ -440,5 +458,9 @@ function updateStateIndicator() {
     stateIndicator.className = "state-transcribing";
     stateText.textContent = "Transcribing";
     bouncingDots.style.display = "inline-flex";
+  } else if (sttState.state === "PAUSED") {
+    stateIndicator.className = "state-paused";
+    stateText.textContent = "Paused";
+    bouncingDots.style.display = "none";
   }
 }

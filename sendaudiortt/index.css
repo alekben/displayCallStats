@@ -255,6 +255,10 @@
   color: green;
 }
 
+.state-paused {
+  color: orange;
+}
+
 .state-transcribing #bouncing-dots {
   display: inline-flex;
 }
