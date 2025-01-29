@@ -125,16 +125,23 @@ async function startAudioMixing(file) {
   }
 }
 
+let pendingPause = false; 
 function toggleAudioMixing() {
   if (audioMixing.state === "PAUSE") {
     playButton.toggleClass('active', true);
 
+    if (!pendingPause) {
     // resume audio mixing
     localTracks.audioMixingTrack.resumeProcessAudioBuffer();
     audioMixing.state = "PLAYING";
 
     sttState.state = "TRANSCRIBING"; // Set state back to transcribing
     updateStateIndicator();
+    }
+    else {
+      pendingPause = true;
+      console.log("Pending pause...");
+    }
   } else {
     playButton.toggleClass('active', false);
 
@@ -250,11 +257,18 @@ function handleSTT(msgUid, data) {
       if (isFinal) {
         const currPlaybackTime = localTracks.audioMixingTrack.getCurrentTime();
         const sentStartTime = (currPlaybackTime * 1000) - duration_ms;
-
         const formattedStartTime = toMMSS(sentStartTime / 1000);
-
         addTranscribeItem(formattedStartTime, text);
         transcribeIndex++;
+
+        if (pendingPause) {
+          console.log("Pausing audio after final STT...");
+          localTracks.audioMixingTrack.pauseProcessAudioBuffer();
+          audioMixing.state = "PAUSE";
+          sttState.state = "PAUSED"; // Set state to paused
+          updateStateIndicator();
+          pendingPause = false; // Reset the pause flag
+        }
       }
     }
   } 
