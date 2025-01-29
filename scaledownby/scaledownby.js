@@ -182,6 +182,8 @@ async function setScale(label) {
   const videosender = rtpconnections.find((val) => val?.track?.kind === 'video');
   const params = videosender.getParameters();
   params.encodings[0].scaleResolutionDownBy = label;
+  const bitrate = Math.floor(1710000 / label);
+  params.encodings[0].maxBitrate = bitrate;
   videosender.setParameters(params);
   } else {
     showPopup("Join first");

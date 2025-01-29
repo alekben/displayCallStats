@@ -43,8 +43,8 @@ input {
 }
 
 .player {
-  width: 210px;
-  height: 210px;
+  width: 1280px;
+  height: 720px;
   margin-right: 10px;
   display: flex;
   position: relative;

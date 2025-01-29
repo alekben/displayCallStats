@@ -14,6 +14,11 @@ var chartArrayFPS = [];
 var chartBWE;
 var chartArrayBWE = [];
 
+const scaleValues = [1.0, 1.3, 1.6, 1.8, 2.0, 2.3, 2.6, 2.8, 3.0];
+scaleValues.forEach(k => {
+  $(".scale-list").append(`<a class="dropdown-item" href="#">${k}</a>`);
+});
+$(".scale-input").val(scaleValues[0]);
 
 let statsInterval;
 
@@ -414,6 +419,11 @@ $("#dual").click(function (e) {
 $("#dualSwitch").click(function (e) {
   changeRemoteStream();
 });
+
+$(".scale-list").delegate("a", "click", function (e) {
+  setScale(this.text);
+});
+
 
 async function join() {
   //client.on("user-published", handleUserPublished);
@@ -1085,4 +1095,20 @@ function generateRandomString(length) {
   }
 
   return result;
+}
+
+async function setScale(label) {
+  if (connectionState.isJoined == true ) {
+  $(".scale-input").val(`${label}`);
+  const rtpconnections = client._p2pChannel.connection.peerConnection.getSenders();
+  const videosender = rtpconnections.find((val) => val?.track?.kind === 'video');
+  const params = videosender.getParameters();
+  params.encodings[0].scaleResolutionDownBy = label;
+  const bitrate = Math.floor((localTracks.videoTrack._config.encoderConfig.bitrateMax / label) * 1000);
+  params.encodings[0].maxBitrate = bitrate;
+  console.log(`setting rtpsender to scale ${label} and bitrate ${bitrate}`);
+  videosender.setParameters(params);
+  } else {
+    showPopup("Join first");
+  }
 }
