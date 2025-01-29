@@ -95,6 +95,7 @@ async function startAudioMixing(file) {
   if (audioMixing.state === "PLAYING" || audioMixing.state === "LOADING") return;
   const options = {};
   if (file) {
+    clearTranscription(); // Clear the previous transcription
     options.source = file;
     try {
       audioMixing.state = "LOADING";
@@ -108,13 +109,11 @@ async function startAudioMixing(file) {
       $(".audio-duration").text(toMMSS(audioMixing.duration));
       playButton.toggleClass('active', true);
       setAudioMixingProgress();
-      audioMixing.state = "PLAYING";
 
+      audioMixing.state = "PLAYING";
       sttState.state = "TRANSCRIBING"; // Set state to transcribing
       updateStateIndicator();
-
       $("#download").attr("disabled", true); // Disable download button while transcribing
-      
       console.log("start audio mixing");
     } catch (e) {
       audioMixing.state = "IDLE";
@@ -463,4 +462,9 @@ function updateStateIndicator() {
     stateText.textContent = "Paused";
     bouncingDots.style.display = "none";
   }
+}
+
+function clearTranscription() {
+  $("#stt-transcribe .content").empty(); // Clear the content area
+  transcribeIndex = 0; // Reset the transcription index
 }
