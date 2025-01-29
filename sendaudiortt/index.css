@@ -15,7 +15,8 @@
 
 
 #join-form {
-  margin-top: 10px;
+  margin-top: 15px;
+  margin-bottom: 5px;
 }
 
 .tips {
@@ -141,8 +142,16 @@ input[type='file'] {
 .audio-time {
   display: inline-block;
   vertical-align: middle;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
+}
+
+.audio-volume {
+  padding-top: 8px;
+}
+
+.audio-speed {
+  padding-top: 8px;
 }
 
 .progress-bar {
@@ -212,7 +221,7 @@ input[type='file'] {
 .title {
   font-size: 16px;
   font-weight: bold;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 #stt-transcribe {
