@@ -91,6 +91,13 @@
   height: 30px;
 }
 
+.audio-speed-bar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 320px;
+  height: 30px;
+}
+
 .audio-volume-controls {
   margin: 20px 0;
 }

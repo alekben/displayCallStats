@@ -68,7 +68,7 @@ $("#join-form").submit(async function (e) {
     $("#join").attr("disabled", true);
     $("#leave").attr("disabled", false);
     $("#audio-controls").attr("hidden", false);
-    $("#audio-volume").attr("hidden", false);
+    //$("#audio-volume").attr("hidden", false);
     $("#audio-speed").attr("hidden", false);
     //$("#local-audio-mixing").attr("disabled", true);
     await startTranscription();
@@ -103,7 +103,7 @@ function setVolume(value) {
 
 function setSpeed(value) {
   // set the audio mixing speed
-  localTracks.audioMixingTrack.setAudioBufferPlaybackSpeed(parseInt(value));
+  localTracks.audioMixingTrack.setAudioBufferPlaybackSpeed(parseInt(value)*10);
 }
 
 function setAudioMixingPosition(clickPosX) {
@@ -264,7 +264,7 @@ async function leave() {
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
   $("#audio-controls").attr("hidden", true);
-  $("#audio-volume").attr("hidden", true);
+  //$("#audio-volume").attr("hidden", true);
   $("#audio-speed").attr("hidden", true);
 }
 
