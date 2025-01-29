@@ -38,34 +38,34 @@
       </div>
     </div>
 
-    <div class="audio-controls" id="audio-controls" hidden>
-      <div class="play-button"><a href="#" title="play audio mixing" class="play"></a></div>
-      <div class="audio-bar">
-        <div class="progress">
-          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="audio" id="audio">
+      <div class="audio-controls" id="audio-controls" disabled>
+        <div class="play-button"><a href="#" title="play audio mixing" class="play"></a></div>
+        <div class="audio-bar">
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+        <div class="audio-time"><span class="audio-current-time">00:00</span>/<span class="audio-duration">00:00</span></div>
+      </div>
+
+      <div class="audio-volume" id="audio-volume" hidden>
+        <div class="audio-volume-bar">
+          <label for="volume">Audio Mixing Volume</label>
+          <input id="volume" type="range" value="100" min="0" max="100" />
         </div>
       </div>
-      <div class="audio-time"><span class="audio-current-time">00:00</span>/<span class="audio-duration">00:00</span></div>
-    </div>
 
-    <div class="audio-volume" id="audio-volume" hidden>
-      <div class="audio-volume-bar">
-        <label for="volume">Audio Mixing Volume</label>
-        <input id="volume" type="range" class="custom-range" value="100" min="0" max="100" />
-      </div>
-    </div>
-
-    <div class="audio-speed" id="audio-speed" hidden>
-      <div class="audio-speed-bar" style="width:300px">
-        <label for="speed">Audio Playback Speed</label>
-        <input id="speed" type="range" class="custom-range" value="10" min="5" max="15" />
+      <div class="audio-speed" id="audio-speed" disabled>
+        <div class="audio-speed-bar" style="width:300px">
+          <label for="speed">Audio Playback Speed</label>
+          <input id="speed" type="range" value="10" min="5" max="15"/>
+        </div>
       </div>
     </div>
 
     <div class="level" id="level" hidden></div>
 
-    <br>
-    <br>
     <form id="join-form">
       <div class="button-group">
         <button id="join" type="submit" class="btn btn-primary btn-sm">Start</button>
