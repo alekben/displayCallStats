@@ -67,11 +67,16 @@ $("#join-form").submit(async function (e) {
     //start rtt
     $("#join").attr("disabled", true);
     $("#leave").attr("disabled", false);
+    $("#audio-controls").attr("hidden", false);
+    $("#audio-volume").attr("hidden", false);
+    $("#audio-speed").attr("hidden", false);
     //$("#local-audio-mixing").attr("disabled", true);
     await startTranscription();
     startAudioMixing(file);
   }
 });
+
+
 
 $("#leave").click(async function (e) {
   leave();
@@ -82,6 +87,24 @@ $(".audio-bar .progress").click(function (e) {
   return false;
 });
 
+$("#volume").click(function (e) {
+  setVolume($("#volume").val());
+});
+
+$("#speed").click(function (e) {
+  setSpeed($("#speed").val());
+});
+
+
+function setVolume(value) {
+  // set the audio mixing playing position
+  localTracks.audioMixingTrack.setVolume(parseInt(value));
+}
+
+function setSpeed(value) {
+  // set the audio mixing speed
+  localTracks.audioMixingTrack.setAudioBufferPlaybackSpeed(parseInt(value));
+}
 
 function setAudioMixingPosition(clickPosX) {
   if (audioMixing.state === "IDLE" || audioMixing.state === "LOADING") return;
@@ -115,6 +138,41 @@ async function startAudioMixing(file) {
       updateStateIndicator();
       $("#download").attr("disabled", true); // Disable download button while transcribing
       console.log("start audio mixing");
+
+      //const levelBox = document.getElementById('level');
+
+      //const levelContainer = document.createElement('div');
+      //levelContainer.className = 'level';
+
+      //const levelBar = document.createElement('div');
+      //levelBar.className = 'level-inner';
+
+      //levelContainer.appendChild(levelBar);
+      //levelBox.appendChild(levelContainer);
+
+      //const audioContext = new AudioContext();
+      //const analyser = audioContext.createAnalyser();
+      //const sttSource = audioContext.createMediaStreamSource(localTracks.audioMixingTrack.);
+      //microphone.connect(analyser);
+    
+      //analyser.fftSize = 256;
+      //const bufferLength = analyser.frequencyBinCount;
+      //const dataArray = new Uint8Array(bufferLength);
+    
+      //function updateLevel() {
+      //  analyser.getByteFrequencyData(dataArray);
+      //  let sum = 0;
+      //  for (let i = 0; i < bufferLength; i++) {
+      //    sum += dataArray[i];
+      //  }
+      //  const average = sum / bufferLength;
+      //
+      //  levelBar.style.width = `${average}%`;
+      //
+      //  requestAnimationFrame(updateLevel);
+      //}
+      //
+      //updateLevel();
     } catch (e) {
       audioMixing.state = "IDLE";
       console.error(e);
@@ -205,6 +263,9 @@ async function leave() {
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
+  $("#audio-controls").attr("hidden", true);
+  $("#audio-volume").attr("hidden", true);
+  $("#audio-speed").attr("hidden", true);
 }
 
 function handleUserJoined(user) {
