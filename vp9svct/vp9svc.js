@@ -350,7 +350,7 @@ $("#biggerView").click(function (e) {
 
 function setSTMin(uid) {
     layers[uid].spatialLayer = 1;
-    layers[uid].temporalLayer = 1;
+    layers[uid].temporalLayer = 3;
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     const id = Number(uid);
