@@ -25,6 +25,8 @@ var client = AgoraRTC.createClient({
 
 AgoraRTC.setParameter("SVC",["vp9"]);
 AgoraRTC.setParameter("ENABLE_SVC", true);
+AgoraRTC.setParameter("ENABLE_AUT_CC", true);
+
 
 
 AgoraRTC.enableLogUpload();
