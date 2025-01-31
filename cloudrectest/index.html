@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Agora Cloud Recording</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      overflow-y: auto;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen py-10 px-4">
+<div class="max-w-6xl mx-auto">
+
+  <!-- Button to open the API Credentials popup -->
+  <button onclick="toggleAuthPopup()" class="mb-6 bg-gray-600 hover:bg-gray-700 p-2 rounded font-bold">
+    Set API Credentials
+  </button>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- Recording Control Panel -->
+    <div id="leftPanel" class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h1 class="text-xl font-bold mb-4 text-center">Agora Cloud Recording</h1>
+      <div class="space-y-4">
+        <!-- Basic fields -->
+        <input id="cname" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Channel Name (cname)" />
+        <input id="uid" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="UID (Recording UID)" />
+
+        <label class="block mb-2">Recording Mode:</label>
+        <select id="modeSelect" class="w-full p-2 rounded bg-gray-700 text-white">
+          <option value="composite">Composite</option>
+          <option value="individual">Individual</option>
+          <option value="web">Web</option>
+        </select>
+
+        <!-- Dynamic fields for each mode -->
+        <div id="dynamicFields" class="space-y-2"></div>
+
+        <!-- MP4 Checkbox -->
+        <div class="flex items-center">
+          <input type="checkbox" id="mp4Checkbox" class="mr-2 h-4 w-4" checked />
+          <label for="mp4Checkbox" class="text-sm">Include MP4 in recordingFileConfig?</label>
+        </div>
+
+        <!-- Buttons to Acquire, Start, Update, Stop -->
+        <div class="grid grid-cols-2 gap-2">
+          <button id="acquireBtn" class="bg-green-600 hover:bg-green-700 p-2 rounded font-bold">Acquire</button>
+          <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold">Start</button>
+          <button id="updateBtn" class="bg-yellow-600 hover:bg-yellow-700 p-2 rounded font-bold">Update</button>
+          <button id="stopBtn" class="bg-red-600 hover:bg-red-700 p-2 rounded font-bold">Stop</button>
+        </div>
+      </div>
+      <!-- Response panel -->
+      <pre id="response" class="mt-4 p-2 bg-gray-700 rounded text-sm"></pre>
+    </div>
+
+    <!-- Query Panel -->
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h1 class="text-xl font-bold mb-4 text-center">Query Recording</h1>
+      <input id="resourceId" class="w-full p-2 mb-2 rounded bg-gray-700 text-white" placeholder="Resource ID" />
+      <input id="sid" class="w-full p-2 mb-2 rounded bg-gray-700 text-white" placeholder="Session ID (SID)" />
+      <button id="queryBtn" class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold mb-2">Query</button>
+      <pre id="queryResult" class="p-2 bg-gray-700 rounded text-sm min-h-[200px]"></pre>
+    </div>
+  </div>
+
+  <!-- Auth Popup -->
+  <div id="authPopup" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm">
+      <h2 class="text-lg font-bold mb-2">RESTful API Credentials</h2>
+      <p class="text-sm mb-4">Enter your Agora Customer ID and Secret for authentication.</p>
+      <input id="customerId" class="w-full p-2 mb-2 rounded bg-gray-700 text-white" placeholder="Customer ID" />
+      <input id="customerSecret" class="w-full p-2 mb-4 rounded bg-gray-700 text-white" placeholder="Customer Secret" type="password" />
+      <input id="appid" class="w-full p-2 mb-4 rounded bg-gray-700 text-white" placeholder="App ID" />
+      <button onclick="onCloseAuth()" class="w-full bg-red-600 hover:bg-red-700 p-2 rounded font-bold">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Global variables
+  let globalResourceId = "";
+  let globalSid = "";
+  let globalMode = "composite"; // default
+
+  let queryIntervalId = null;
+  let isAutoQueryActive = false;
+
+  /* ---------------- INIT & CREDENTIALS ---------------- */
+  window.onload = () => {
+    // Load stored credentials (if any) from localStorage
+    loadCredentialsFromStorage();
+    // Setup initial mode and fields
+    updateFields();
+    // Attach event handlers
+    document.getElementById("modeSelect").addEventListener("change", onModeChange);
+    document.getElementById("acquireBtn").addEventListener("click", onAcquireClick);
+    document.getElementById("startBtn").addEventListener("click", onStartClick);
+    document.getElementById("updateBtn").addEventListener("click", onUpdateClick);
+    document.getElementById("stopBtn").addEventListener("click", onStopClick);
+    document.getElementById("queryBtn").addEventListener("click", onQueryClick);
+    // Listen for any changes in the left panel to stop auto-query
+    attachStopAutoQueryListeners();
+  };
+
+  function toggleAuthPopup() {
+    document.getElementById("authPopup").classList.toggle("hidden");
+  }
+
+  function onCloseAuth() {
+    const cid = document.getElementById("customerId").value.trim();
+    const csecret = document.getElementById("customerSecret").value.trim();
+    const aid = document.getElementById("appid").value.trim();
+
+    localStorage.setItem("customerId", cid);
+    localStorage.setItem("customerSecret", csecret);
+    localStorage.setItem("appid", aid);
+
+    toggleAuthPopup();
+  }
+
+  function loadCredentialsFromStorage() {
+    const cid = localStorage.getItem("customerId") || "";
+    const csecret = localStorage.getItem("customerSecret") || "";
+    const aid = localStorage.getItem("appid") || "";
+    document.getElementById("customerId").value = cid;
+    document.getElementById("customerSecret").value = csecret;
+    document.getElementById("appid").value = aid;
+  }
+
+  function getAuthHeaders() {
+    const customerId = document.getElementById("customerId").value.trim();
+    const customerSecret = document.getElementById("customerSecret").value.trim();
+    return "Basic " + btoa(customerId + ":" + customerSecret);
+  }
+
+  /* ---------------- MODE & UI ---------------- */
+  function onModeChange() {
+    stopAutoQuery();
+    globalMode = document.getElementById("modeSelect").value;
+    updateFields();
+  }
+
+  function updateFields() {
+    const fieldsContainer = document.getElementById("dynamicFields");
+    if (globalMode === "composite") {
+      fieldsContainer.innerHTML = getCompositeFieldsHTML();
+    } else if (globalMode === "individual") {
+      fieldsContainer.innerHTML = getIndividualFieldsHTML();
+    } else {
+      fieldsContainer.innerHTML = getWebFieldsHTML();
+    }
+  }
+
+  function getCompositeFieldsHTML() {
+    return `
+      <!-- Composite-specific Inputs -->
+      <p class="text-sm font-semibold">Start Configs (Composite):</p>
+      <input id="compositeToken" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Token (optional)"/>
+      <input id="compositeMaxIdleTime" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Max Idle Time (default=30)"/>
+      <input id="compositeStreamTypes" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Stream Types (1=Audio,2=Audio+Video) (default=2)"/>
+
+      <!-- Audio UIDs (subscribe/unsubscribe) -->
+      <p class="text-sm font-semibold mt-2">Audio UIDs (comma-separated):</p>
+      <input id="compositeSubscribeAudioUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Subscribe Audio UIDs"/>
+      <input id="compositeUnsubscribeAudioUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Unsubscribe Audio UIDs"/>
+
+      <!-- Video UIDs (subscribe/unsubscribe) -->
+      <p class="text-sm font-semibold mt-2">Video UIDs (comma-separated):</p>
+      <input id="compositeSubscribeVideoUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Subscribe Video UIDs"/>
+      <input id="compositeUnsubscribeVideoUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Unsubscribe Video UIDs"/>
+
+      <input id="compositeSubscribeUidGroup" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Subscribe UID Group (0 or 1)"/>
+
+      <p class="text-sm font-semibold">Transcoding (for Start):</p>
+      <input id="compositeAudioProfile" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Audio Profile (default=1)"/>
+      <input id="compositeChannelType" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Channel Type (0=communication,1=broadcast) (default=0)"/>
+      <input id="compositeVideoStreamType" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Video Stream Type (0=high,1=low) (default=0)"/>
+      <input id="compositeTranscodingWidth" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Width (default=360)"/>
+      <input id="compositeTranscodingHeight" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Height (default=640)"/>
+      <input id="compositeTranscodingBitrate" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Bitrate (default=500)"/>
+      <input id="compositeTranscodingFps" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="FPS (default=15)"/>
+      <input id="compositeTranscodingLayout" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Mixed Video Layout (default=1)"/>
+      <input id="compositeTranscodingBgColor" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Background Color (#FFFFFF)"/>
+
+      <p class="text-sm font-semibold">Storage (for Start only):</p>
+      <input id="compositeAccessKey" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Access Key"/>
+      <input id="compositeSecretKey" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Secret Key"/>
+      <input id="compositeRegion" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Region (default=2)"/>
+      <input id="compositeVendor" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Vendor (1=AWS) (default=1)"/>
+      <input id="compositeBucket" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Bucket"/>
+      <input id="compositeFileNamePrefix" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="File Name Prefix (comma-separated)"/>
+
+      <hr class="border-gray-600 my-2" />
+      <p class="text-sm font-semibold">Update (Composite):</p>
+      <p class="text-sm">Update will only modify subscribe/unsubscribe UIDs for Audio/Video.</p>
+    `;
+  }
+
+  function getIndividualFieldsHTML() {
+    return `
+      <!-- Individual-specific Inputs -->
+      <p class="text-sm font-semibold">Start Configs (Individual):</p>
+      <input id="individualToken" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Token (optional)"/>
+      <input id="individualMaxIdleTime" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Max Idle Time (default=30)"/>
+      <input id="individualStreamTypes" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Stream Types (default=2)"/>
+
+      <!-- Audio UIDs (subscribe/unsubscribe) -->
+      <p class="text-sm font-semibold mt-2">Audio UIDs (comma-separated):</p>
+      <input id="individualSubscribeAudioUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Subscribe Audio UIDs"/>
+      <input id="individualUnsubscribeAudioUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Unsubscribe Audio UIDs"/>
+
+      <!-- Video UIDs (subscribe/unsubscribe) -->
+      <p class="text-sm font-semibold mt-2">Video UIDs (comma-separated):</p>
+      <input id="individualSubscribeVideoUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Subscribe Video UIDs"/>
+      <input id="individualUnsubscribeVideoUids" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Unsubscribe Video UIDs"/>
+
+      <input id="individualSubscribeUidGroup" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Subscribe UID Group (0 or 1)"/>
+
+      <input id="individualChannelType" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Channel Type (0=communication) (default=0)"/>
+      <input id="individualVideoStreamType" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Video Stream Type (0=high) (default=0)"/>
+
+      <p class="text-sm font-semibold">Storage (for Start only):</p>
+      <input id="individualAccessKey" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Access Key"/>
+      <input id="individualSecretKey" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Secret Key"/>
+      <input id="individualRegion" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Region (default=2)"/>
+      <input id="individualVendor" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Vendor (1=AWS) (default=1)"/>
+      <input id="individualBucket" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Bucket"/>
+      <input id="individualFileNamePrefix" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="File Name Prefix (comma-separated)"/>
+
+      <hr class="border-gray-600 my-2" />
+      <p class="text-sm font-semibold">Update (Individual):</p>
+      <p class="text-sm">Update will only modify subscribe/unsubscribe UIDs for Audio/Video.</p>
+    `;
+  }
+
+  function getWebFieldsHTML() {
+    return `
+      <!-- Web-specific Inputs -->
+      <p class="text-sm font-semibold">Start Configs (Web):</p>
+      <input id="webToken" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Token (optional)"/>
+      <input id="webUrl" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Web URL"/>
+      <input id="webMaxRecordingHour" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Max Recording Hour (default=3)"/>
+
+      <p class="text-sm font-semibold">Web Recorder Service Config:</p>
+      <input id="webAudioProfile" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Audio Profile (0=default)"/>
+      <input id="webVideoWidth" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Video Width (1280)"/>
+      <input id="webVideoHeight" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Video Height (720)"/>
+
+      <p class="text-sm font-semibold">Storage (for Start only):</p>
+      <input id="webAccessKey" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Access Key"/>
+      <input id="webSecretKey" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Secret Key"/>
+      <input id="webRegion" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Region (default=2)"/>
+      <input id="webVendor" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Vendor (1=AWS) (default=1)"/>
+      <input id="webBucket" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Storage Bucket"/>
+      <input id="webFileNamePrefix" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="File Name Prefix (comma-separated)"/>
+
+      <hr class="border-gray-600 my-2" />
+      <p class="text-sm font-semibold">Update (Web):</p>
+      <p class="text-sm">Only toggles onHold (true/false).</p>
+      <div class="flex items-center">
+        <input type="checkbox" id="webOnHoldCheckbox" class="mr-2 h-4 w-4" />
+        <label for="webOnHoldCheckbox" class="text-sm">onHold?</label>
+      </div>
+    `;
+  }
+
+  function getUrlMode() {
+    return globalMode === "composite" ? "mix" : globalMode;
+  }
+
+  // Parse integer with default
+  function intVal(id, def) {
+    const str = document.getElementById(id)?.value.trim() || "";
+    const val = parseInt(str, 10);
+    return isNaN(val) ? def : val;
+  }
+
+  // Convert comma-separated string to array
+  function arrayVal(id) {
+    const str = document.getElementById(id)?.value.trim() || "";
+    if (!str) return [];
+    return str.split(",").map(s => s.trim()).filter(Boolean);
+  }
+
+  /* ---------------- STOP AUTO QUERY ON LEFT PANEL ACTIVITY ---------------- */
+  function attachStopAutoQueryListeners() {
+    const leftPanel = document.getElementById("leftPanel");
+    leftPanel.addEventListener("input", stopAutoQuery);
+    leftPanel.addEventListener("click", stopAutoQuery);
+  }
+
+  /* ---------------- ACQUIRE ---------------- */
+  async function acquireRecording() {
+    // If we're re-acquiring, reset the query panel, sid, etc.
+    document.getElementById("queryResult").textContent = "";
+    globalSid = "";
+    document.getElementById("sid").value = "";
+
+    const responseEl = document.getElementById("response");
+    responseEl.textContent = "Acquiring resource...";
+
+    const cname = document.getElementById("cname").value.trim();
+    const uid = document.getElementById("uid").value.trim();
+    const appid = document.getElementById("appid").value.trim();
+
+    const body = {
+      cname,
+      uid,
+      clientRequest: {}
+    };
+
+    // If mode is web, add extra fields for acquire
+    if (globalMode === "web") {
+      body.clientRequest.resourceExpiredHour = 24;
+      body.clientRequest.scene = 1;
+    }
+
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/acquire`;
+
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthHeaders()
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await resp.json();
+      globalResourceId = data.resourceId || "";
+
+      document.getElementById("resourceId").value = globalResourceId;
+      responseEl.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      responseEl.textContent = error.toString();
+    }
+  }
+
+  /* ---------------- SHOULD INCLUDE MP4? ---------------- */
+  function shouldIncludeMp4() {
+    return document.getElementById("mp4Checkbox").checked;
+  }
+
+  /* ---------------- START ---------------- */
+  function buildStartBodyComposite() {
+    // Basic
+    const cname = document.getElementById("cname").value.trim();
+    const uid = document.getElementById("uid").value.trim();
+    const token = document.getElementById("compositeToken").value.trim();
+    const maxIdleTime = intVal("compositeMaxIdleTime", 30);
+    const streamTypes = intVal("compositeStreamTypes", 2);
+
+    // Subscriptions
+    const subscribeVideoUids = arrayVal("compositeSubscribeVideoUids");
+    const unsubscribeVideoUids = arrayVal("compositeUnsubscribeVideoUids");
+    const subscribeAudioUids = arrayVal("compositeSubscribeAudioUids");
+    const unsubscribeAudioUids = arrayVal("compositeUnsubscribeAudioUids");
+    const subscribeUidGroup = intVal("compositeSubscribeUidGroup", 0);
+
+    // Transcoding
+    const audioProfile = intVal("compositeAudioProfile", 1);
+    const channelType = intVal("compositeChannelType", 0);
+    const videoStreamType = intVal("compositeVideoStreamType", 0);
+    const width = intVal("compositeTranscodingWidth", 360);
+    const height = intVal("compositeTranscodingHeight", 640);
+    const bitrate = intVal("compositeTranscodingBitrate", 500);
+    const fps = intVal("compositeTranscodingFps", 15);
+    const mixedVideoLayout = intVal("compositeTranscodingLayout", 1);
+    const bgColor = document.getElementById("compositeTranscodingBgColor").value.trim() || "#FFFFFF";
+
+    // Storage
+    const accessKey = document.getElementById("compositeAccessKey").value.trim();
+    const secretKey = document.getElementById("compositeSecretKey").value.trim();
+    const region = intVal("compositeRegion", 2);
+    const vendor = intVal("compositeVendor", 1);
+    const bucket = document.getElementById("compositeBucket").value.trim();
+    const fileNamePrefix = arrayVal("compositeFileNamePrefix");
+
+    const request = {
+      cname,
+      uid,
+      clientRequest: {
+        token: token || "",
+        recordingConfig: {
+          maxIdleTime,
+          streamTypes,
+          audioProfile,
+          channelType,
+          videoStreamType,
+          transcodingConfig: {
+            width,
+            height,
+            bitrate,
+            fps,
+            mixedVideoLayout,
+            backgroundColor: bgColor
+          },
+          subscribeVideoUids,
+          unsubscribeVideoUids,
+          subscribeAudioUids,
+          unsubscribeAudioUids,
+          subscribeUidGroup
+        },
+        storageConfig: {
+          accessKey,
+          secretKey,
+          region,
+          vendor,
+          bucket,
+          fileNamePrefix
+        }
+      }
+    };
+
+    // Conditionally add recordingFileConfig if MP4 is checked
+    if (shouldIncludeMp4()) {
+      request.clientRequest.recordingFileConfig = {
+        avFileType: ["hls", "mp4"]
+      };
+    }
+    return request;
+  }
+
+  function buildStartBodyIndividual() {
+    const cname = document.getElementById("cname").value.trim();
+    const uid = document.getElementById("uid").value.trim();
+    const token = document.getElementById("individualToken").value.trim();
+    const maxIdleTime = intVal("individualMaxIdleTime", 30);
+    const streamTypes = intVal("individualStreamTypes", 2);
+
+    const subscribeVideoUids = arrayVal("individualSubscribeVideoUids");
+    const unsubscribeVideoUids = arrayVal("individualUnsubscribeVideoUids");
+    const subscribeAudioUids = arrayVal("individualSubscribeAudioUids");
+    const unsubscribeAudioUids = arrayVal("individualUnsubscribeAudioUids");
+    const subscribeUidGroup = intVal("individualSubscribeUidGroup", 0);
+
+    const channelType = intVal("individualChannelType", 0);
+    const videoStreamType = intVal("individualVideoStreamType", 0);
+
+    const accessKey = document.getElementById("individualAccessKey").value.trim();
+    const secretKey = document.getElementById("individualSecretKey").value.trim();
+    const region = intVal("individualRegion", 2);
+    const vendor = intVal("individualVendor", 1);
+    const bucket = document.getElementById("individualBucket").value.trim();
+    const fileNamePrefix = arrayVal("individualFileNamePrefix");
+
+    const request = {
+      cname,
+      uid,
+      clientRequest: {
+        token: token || "",
+        recordingConfig: {
+          maxIdleTime,
+          streamTypes,
+          channelType,
+          videoStreamType,
+          subscribeVideoUids,
+          unsubscribeVideoUids,
+          subscribeAudioUids,
+          unsubscribeAudioUids,
+          subscribeUidGroup
+        },
+        storageConfig: {
+          accessKey,
+          secretKey,
+          region,
+          vendor,
+          bucket,
+          fileNamePrefix
+        }
+      }
+    };
+
+    if (shouldIncludeMp4()) {
+      request.clientRequest.recordingFileConfig = {
+        avFileType: ["hls", "mp4"]
+      };
+    }
+    return request;
+  }
+
+  function buildStartBodyWeb() {
+    const cname = document.getElementById("cname").value.trim();
+    const uid = document.getElementById("uid").value.trim();
+    const token = document.getElementById("webToken").value.trim();
+    const webUrl = document.getElementById("webUrl").value.trim();
+    const maxRecordingHour = intVal("webMaxRecordingHour", 3);
+
+    const audioProfile = intVal("webAudioProfile", 0);
+    const videoWidth = intVal("webVideoWidth", 1280);
+    const videoHeight = intVal("webVideoHeight", 720);
+
+    const accessKey = document.getElementById("webAccessKey").value.trim();
+    const secretKey = document.getElementById("webSecretKey").value.trim();
+    const region = intVal("webRegion", 2);
+    const vendor = intVal("webVendor", 1);
+    const bucket = document.getElementById("webBucket").value.trim();
+    const fileNamePrefix = arrayVal("webFileNamePrefix");
+
+    const request = {
+      cname,
+      uid,
+      clientRequest: {
+        token: token || "",
+        extensionServiceConfig: {
+          errorHandlePolicy: "error_abort",
+          extensionServices: [
+            {
+              serviceName: "web_recorder_service",
+              errorHandlePolicy: "error_abort",
+              serviceParam: {
+                url: webUrl,
+                audioProfile,
+                videoWidth,
+                videoHeight,
+                maxRecordingHour
+              }
+            }
+          ]
+        },
+        storageConfig: {
+          vendor,
+          region,
+          bucket,
+          accessKey,
+          secretKey,
+          fileNamePrefix
+        }
+      }
+    };
+
+    if (shouldIncludeMp4()) {
+      request.clientRequest.recordingFileConfig = {
+        avFileType: ["hls", "mp4"]
+      };
+    }
+    return request;
+  }
+
+  function buildStartRequestBody() {
+    if (globalMode === "composite") return buildStartBodyComposite();
+    if (globalMode === "individual") return buildStartBodyIndividual();
+    if (globalMode === "web") return buildStartBodyWeb();
+    return {};
+  }
+
+  async function startRecording() {
+    const responseEl = document.getElementById("response");
+    responseEl.textContent = "Starting recording...";
+
+    const appid = document.getElementById("appid").value.trim();
+    if (!globalResourceId) {
+      responseEl.textContent = "Error: resourceId is empty. Acquire first.";
+      return;
+    }
+
+    const body = buildStartRequestBody();
+    const urlMode = getUrlMode();
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${globalResourceId}/mode/${urlMode}/start`;
+
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthHeaders()
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await resp.json();
+      globalSid = data.sid || "";
+
+      document.getElementById("sid").value = globalSid;
+      responseEl.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      responseEl.textContent = error.toString();
+    }
+  }
+
+  /* ---------------- UPDATE (POST) ---------------- */
+  // For Composite/Individual:
+  // {
+  //   "cname": "string",
+  //   "uid": "string",
+  //   "clientRequest": {
+  //     "streamSubscribe": {
+  //       "audioUidList": {
+  //         "subscribeAudioUids": [...],
+  //         "unsubscribeAudioUids": [...]
+  //       },
+  //       "videoUidList": {
+  //         "subscribeVideoUids": [...],
+  //         "unsubscribeVideoUids": [...]
+  //       }
+  //     }
+  //   }
+  // }
+  //
+  // For Web:
+  // {
+  //   "cname": "string",
+  //   "uid": "string",
+  //   "clientRequest": {
+  //     "webRecordingConfig": {
+  //       "onhold": false
+  //     }
+  //   }
+  // }
+
+  function buildUpdateBodyCompositeOrIndividual(cname, uid, subVid, unsubVid, subAud, unsubAud) {
+    return {
+      cname,
+      uid,
+      clientRequest: {
+        streamSubscribe: {
+          audioUidList: {
+            subscribeAudioUids: subAud,
+            unsubscribeAudioUids: unsubAud
+          },
+          videoUidList: {
+            subscribeVideoUids: subVid,
+            unsubscribeVideoUids: unsubVid
+          }
+        }
+      }
+    };
+  }
+
+  function buildUpdateBody() {
+    const cname = document.getElementById("cname").value.trim();
+    const uid = document.getElementById("uid").value.trim();
+
+    if (globalMode === "composite") {
+      const subscribeVideoUids = arrayVal("compositeSubscribeVideoUids");
+      const unsubscribeVideoUids = arrayVal("compositeUnsubscribeVideoUids");
+      const subscribeAudioUids = arrayVal("compositeSubscribeAudioUids");
+      const unsubscribeAudioUids = arrayVal("compositeUnsubscribeAudioUids");
+      return buildUpdateBodyCompositeOrIndividual(
+        cname,
+        uid,
+        subscribeVideoUids,
+        unsubscribeVideoUids,
+        subscribeAudioUids,
+        unsubscribeAudioUids
+      );
+    }
+    else if (globalMode === "individual") {
+      const subscribeVideoUids = arrayVal("individualSubscribeVideoUids");
+      const unsubscribeVideoUids = arrayVal("individualUnsubscribeVideoUids");
+      const subscribeAudioUids = arrayVal("individualSubscribeAudioUids");
+      const unsubscribeAudioUids = arrayVal("individualUnsubscribeAudioUids");
+      return buildUpdateBodyCompositeOrIndividual(
+        cname,
+        uid,
+        subscribeVideoUids,
+        unsubscribeVideoUids,
+        subscribeAudioUids,
+        unsubscribeAudioUids
+      );
+    }
+    else if (globalMode === "web") {
+      const webOnHold = document.getElementById("webOnHoldCheckbox").checked;
+      return {
+        cname,
+        uid,
+        clientRequest: {
+          webRecordingConfig: {
+            onhold: webOnHold
+          }
+        }
+      };
+    }
+    return { cname, uid, clientRequest: {} };
+  }
+
+  async function updateRecording() {
+    const responseEl = document.getElementById("response");
+    responseEl.textContent = "Updating recording...";
+
+    const appid = document.getElementById("appid").value.trim();
+    if (!globalResourceId || !globalSid) {
+      responseEl.textContent = "Error: resourceId or sid is empty. Start a recording first.";
+      return;
+    }
+
+    const body = buildUpdateBody();
+    const urlMode = getUrlMode();
+    // POST for update
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${globalResourceId}/sid/${globalSid}/mode/${urlMode}/update`;
+
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthHeaders()
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await resp.json();
+      responseEl.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      responseEl.textContent = error.toString();
+    }
+  }
+
+  /* ---------------- STOP ---------------- */
+  async function stopRecording() {
+    const responseEl = document.getElementById("response");
+    responseEl.textContent = "Stopping recording...";
+
+    const cname = document.getElementById("cname").value.trim();
+    const uid = document.getElementById("uid").value.trim();
+    const appid = document.getElementById("appid").value.trim();
+
+    if (!globalResourceId || !globalSid) {
+      responseEl.textContent = "Error: resourceId or sid is empty. Start a recording first.";
+      return;
+    }
+
+    const urlMode = getUrlMode();
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${globalResourceId}/sid/${globalSid}/mode/${urlMode}/stop`;
+    const body = {
+      cname,
+      uid,
+      clientRequest: {}
+    };
+
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthHeaders()
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await resp.json();
+      responseEl.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      responseEl.textContent = error.toString();
+    }
+  }
+
+  /* ---------------- QUERY with AUTO-REFRESH ---------------- */
+  async function queryRecording() {
+    const queryResultEl = document.getElementById("queryResult");
+    const appid = document.getElementById("appid").value.trim();
+    const resourceId = document.getElementById("resourceId").value.trim() || globalResourceId;
+    const sid = document.getElementById("sid").value.trim() || globalSid;
+
+    if (!resourceId || !sid) {
+      queryResultEl.textContent = "Error: resourceId or sid is empty.";
+      stopAutoQuery();
+      return;
+    }
+
+    // Skip if tab is not visible
+    if (document.hidden) return;
+
+    queryResultEl.textContent = "Querying recording...";
+    const urlMode = getUrlMode();
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/${urlMode}/query`;
+
+    try {
+      const resp = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": getAuthHeaders()
+        }
+      });
+      const data = await resp.json();
+      queryResultEl.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      queryResultEl.textContent = error.toString();
+    }
+  }
+
+  function startAutoQuery() {
+    stopAutoQuery();
+    isAutoQueryActive = true;
+    queryRecording(); // immediate
+    queryIntervalId = setInterval(() => {
+      if (isAutoQueryActive) queryRecording();
+    }, 10000);
+  }
+
+  function stopAutoQuery() {
+    isAutoQueryActive = false;
+    if (queryIntervalId) {
+      clearInterval(queryIntervalId);
+      queryIntervalId = null;
+    }
+  }
+
+  /* ---------------- BUTTON HANDLERS ---------------- */
+  function onAcquireClick() {
+    stopAutoQuery();
+    acquireRecording();
+  }
+  function onStartClick() {
+    stopAutoQuery();
+    startRecording();
+  }
+  function onUpdateClick() {
+    stopAutoQuery();
+    updateRecording();
+  }
+  function onStopClick() {
+    stopAutoQuery();
+    stopRecording();
+  }
+  function onQueryClick() {
+    startAutoQuery();
+  }
+</script>
+</body>
+</html>
