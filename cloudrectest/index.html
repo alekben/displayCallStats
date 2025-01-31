@@ -4,7 +4,27 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Agora Cloud Recording</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS CDN (leave this alone) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Put your custom JS in a separate script tag -->
+    <script>
+    function animateText(text, elementId) {
+        const outputElement = document.getElementById(elementId);
+        if (!outputElement) return; // Safety check
+
+        outputElement.innerText = ""; // Clear previous output
+        let index = 0;
+        const intervalId = setInterval(() => {
+        if (index < text.length) {
+            outputElement.innerText += text.charAt(index);
+            index++;
+        } else {
+            clearInterval(intervalId);
+        }
+        }, 30); // Adjust typing speed here
+    }
+    </script>
   <style>
     body {
       overflow-y: auto;
@@ -14,6 +34,12 @@
       word-wrap: break-word;
       overflow-x: auto;
     }
+    .matrixify {
+      color:#54ff00;
+      background-color: black;
+      font-family: monospace;
+    }
+
   </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen py-10 px-4">
@@ -28,6 +54,10 @@
     <!-- Recording Control Panel -->
     <div id="leftPanel" class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h1 class="text-xl font-bold mb-4 text-center">Agora Cloud Recording</h1>
+      <p class="text-sm text-gray-400 mb-4">
+        <b>Note:</b> Channel name, UID, and S3 credentials are required. For Web Page Recording, URL is also required.
+        All other fields will use recommended defaults if left blank.
+      </p>
       <div class="space-y-4">
         <!-- Basic fields -->
         <input id="cname" class="w-full p-2 rounded bg-gray-700 text-white" placeholder="Channel Name (cname)" />
@@ -58,16 +88,35 @@
         </div>
       </div>
       <!-- Response panel -->
-      <pre id="response" class="mt-4 p-2 bg-gray-700 rounded text-sm"></pre>
+      <pre id="response" class="mt-4 p-2 rounded text-sm matrixify"></pre>
     </div>
 
     <!-- Query Panel -->
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h1 class="text-xl font-bold mb-4 text-center">Query Recording</h1>
+      
+      <p class="text-sm text-gray-400 mb-3">
+        If you enter Resource ID and SID here, they will also be used for Update and Stop requests if the checkbox below is checked. 
+        Otherwise, the system will use the IDs from the previously acquired or started session.
+      </p>
+
+      <!-- Resource ID / SID -->
       <input id="resourceId" class="w-full p-2 mb-2 rounded bg-gray-700 text-white" placeholder="Resource ID" />
       <input id="sid" class="w-full p-2 mb-2 rounded bg-gray-700 text-white" placeholder="Session ID (SID)" />
-      <button id="queryBtn" class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold mb-2">Query</button>
-      <pre id="queryResult" class="p-2 bg-gray-700 rounded text-sm min-h-[200px]"></pre>
+      
+      <!-- Checkbox to pick which IDs to use for Update/Stop -->
+      <label class="flex items-center mb-2 text-sm">
+        <input type="checkbox" id="useManualResSid" class="mr-2 h-4 w-4" />
+        Use these values for Update/Stop calls?
+      </label>
+
+      <!-- Query button -->
+      <button id="queryBtn" class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold mb-2">
+        Query
+      </button>
+      
+      <!-- Query results -->
+      <pre id="queryResult" class="p-2 rounded text-sm min-h-[200px] matrixify"></pre>
     </div>
   </div>
 
@@ -139,6 +188,26 @@
     const customerId = document.getElementById("customerId").value.trim();
     const customerSecret = document.getElementById("customerSecret").value.trim();
     return "Basic " + btoa(customerId + ":" + customerSecret);
+  }
+
+  /* ---------------- GET ACTIVE RESOURCE & SID ---------------- */
+  // This will check if the user wants to use manual ResourceId/SID from the query panel
+  // or the globally stored resourceId/sid (globalResourceId, globalSid).
+  function getActiveResourceAndSid() {
+    const useManual = document.getElementById("useManualResSid").checked;
+    if (useManual) {
+      const manualResId = document.getElementById("resourceId").value.trim();
+      const manualSid = document.getElementById("sid").value.trim();
+      return {
+        resourceId: manualResId,
+        sid: manualSid
+      };
+    } else {
+      return {
+        resourceId: globalResourceId,
+        sid: globalSid
+      };
+    }
   }
 
   /* ---------------- MODE & UI ---------------- */
@@ -276,14 +345,13 @@
     return globalMode === "composite" ? "mix" : globalMode;
   }
 
-  // Parse integer with default
+  // parse integer with default
   function intVal(id, def) {
     const str = document.getElementById(id)?.value.trim() || "";
     const val = parseInt(str, 10);
     return isNaN(val) ? def : val;
   }
-
-  // Convert comma-separated string to array
+  // convert comma-separated string to array
   function arrayVal(id) {
     const str = document.getElementById(id)?.value.trim() || "";
     if (!str) return [];
@@ -338,9 +406,9 @@
       globalResourceId = data.resourceId || "";
 
       document.getElementById("resourceId").value = globalResourceId;
-      responseEl.textContent = JSON.stringify(data, null, 2);
+      animateText(JSON.stringify(data, null, 2), "response");
     } catch (error) {
-      responseEl.textContent = error.toString();
+      animateText(error.toString(), "response");
     }
   }
 
@@ -579,9 +647,9 @@
       globalSid = data.sid || "";
 
       document.getElementById("sid").value = globalSid;
-      responseEl.textContent = JSON.stringify(data, null, 2);
+      animateText(JSON.stringify(data, null, 2), "response");
     } catch (error) {
-      responseEl.textContent = error.toString();
+      animateText(error.toString(), "response");
     }
   }
 
@@ -686,7 +754,10 @@
     responseEl.textContent = "Updating recording...";
 
     const appid = document.getElementById("appid").value.trim();
-    if (!globalResourceId || !globalSid) {
+
+    // Decide which resourceId / sid to use
+    const { resourceId, sid } = getActiveResourceAndSid();
+    if (!resourceId || !sid) {
       responseEl.textContent = "Error: resourceId or sid is empty. Start a recording first.";
       return;
     }
@@ -694,7 +765,7 @@
     const body = buildUpdateBody();
     const urlMode = getUrlMode();
     // POST for update
-    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${globalResourceId}/sid/${globalSid}/mode/${urlMode}/update`;
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/${urlMode}/update`;
 
     try {
       const resp = await fetch(url, {
@@ -706,9 +777,9 @@
         body: JSON.stringify(body)
       });
       const data = await resp.json();
-      responseEl.textContent = JSON.stringify(data, null, 2);
+      animateText(JSON.stringify(data, null, 2), "response");
     } catch (error) {
-      responseEl.textContent = error.toString();
+      animateText(error.toString(), "response");
     }
   }
 
@@ -721,13 +792,15 @@
     const uid = document.getElementById("uid").value.trim();
     const appid = document.getElementById("appid").value.trim();
 
-    if (!globalResourceId || !globalSid) {
+    // Decide which resourceId / sid to use
+    const { resourceId, sid } = getActiveResourceAndSid();
+    if (!resourceId || !sid) {
       responseEl.textContent = "Error: resourceId or sid is empty. Start a recording first.";
       return;
     }
 
     const urlMode = getUrlMode();
-    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${globalResourceId}/sid/${globalSid}/mode/${urlMode}/stop`;
+    const url = `https://api.agora.io/v1/apps/${appid}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/${urlMode}/stop`;
     const body = {
       cname,
       uid,
@@ -744,9 +817,9 @@
         body: JSON.stringify(body)
       });
       const data = await resp.json();
-      responseEl.textContent = JSON.stringify(data, null, 2);
+      animateText(JSON.stringify(data, null, 2), "response");
     } catch (error) {
-      responseEl.textContent = error.toString();
+      animateText(error.toString(), "response");
     }
   }
 
@@ -754,6 +827,8 @@
   async function queryRecording() {
     const queryResultEl = document.getElementById("queryResult");
     const appid = document.getElementById("appid").value.trim();
+
+    // For queries, we'll always read from the Query panel fields first, or fallback to global
     const resourceId = document.getElementById("resourceId").value.trim() || globalResourceId;
     const sid = document.getElementById("sid").value.trim() || globalSid;
 
@@ -779,9 +854,9 @@
         }
       });
       const data = await resp.json();
-      queryResultEl.textContent = JSON.stringify(data, null, 2);
+      animateText(JSON.stringify(data, null, 2), "queryResult");
     } catch (error) {
-      queryResultEl.textContent = error.toString();
+      animateText(error.toString(), "queryResult");
     }
   }
 
