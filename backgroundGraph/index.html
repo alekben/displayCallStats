@@ -526,7 +526,8 @@
       data.forEach((item) => {
         const opt = document.createElement("option");
         opt.value = item.label;
-        opt.innerText = item.label + " : " + item.detail;
+        //opt.innerText = item.label + " : " + item.detail;
+        opt.innerText = item.detail;
         sel.appendChild(opt);
       });
     }
