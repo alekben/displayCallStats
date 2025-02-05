@@ -296,7 +296,7 @@
           <!-- Friendly labels -->
           <div class="'form-item">
             <label for="appid">App ID</label>
-            <input id="appid" type="text" value="" />
+            <input id="appid" type="text" value="a9a4b25e4e8b4a558aa39780d1a84342" />
             <p class="tips">
               Enter your Agora App ID
             </p>
@@ -479,6 +479,7 @@
       const duration = (client.getRTCStats().Duration || 0);
       chartArrayCost.push([duration, costValue]);
       drawCostChart(chartArrayCost);
+      console.log(costValue);
     });
 
     let modes = [
