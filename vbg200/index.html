@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0"/>
+  <title>Agora Proxy and Blur</title>
+
+  <!-- Remove Bootstrap references -->
+  <!-- <link rel="stylesheet" href="../bootstrap.min.css"> -->
+  <!-- <script src="../bootstrap.bundle.min.js"></script> -->
+
+  <!-- jQuery if you need it -->
+  <script src="../jquery-3.4.1.min.js"></script>
+
+  <!-- Agora RTC SDK and extension -->
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <script src="../extensions/agora-extension-virtual-background_2_0_0/agora-extension-virtual-background.js"></script>
+
+  <!-- Google Charts for stats and cost graph -->
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <!-- Minimal modern styling -->
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background: #52575c;
+      color: #fff;
+      padding: 1rem;
+      position: relative;
+    }
+    header p {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+    .github-link {
+      position: absolute;
+      right: 10px; top: 8px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .main-container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 1rem auto;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
+    .form-grid {
+    /* 2 equal-width columns with a 1rem gap */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    }
+
+    .form-item {
+      /* Stack label, input, tips in a column */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Make text inputs and selects fill their column width. */
+    .form-item input,
+    .form-item select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.4rem;
+      margin-bottom: 0.25rem; /* optional spacing */
+    }
+
+  .tips {
+    font-size: 0.85rem;
+    color: #777;
+    margin: 0; /* or margin-top: 2px if you prefer */
+  }
+    label {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .tips {
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    .button-row {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    button {
+      background: #4b2e83;
+      color: #fff;
+      padding: 0.5rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      margin: 0.5rem 0;
+      padding: 0.75rem;
+      border-left: 4px solid #155724;
+      border-radius: 4px;
+    }
+    .close {
+      float: right;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    #client-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .stat-item {
+      background: rgba(255, 204, 153, 0.9);
+      padding: 10px;
+      border-radius: 1rem;
+      text-align: center;
+      font-weight: 600;
+      position: relative;
+      font-size: 0.85rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .video-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .player {
+      width: 480px;
+      height: 320px;
+      background: #000;
+      position: relative;
+    }
+    @media (max-width: 640px) {
+      .player {
+        width: 320px;
+        height: 240px;
+      }
+    }
+
+    .stream-stats {
+      color: #00ff44;
+      font-weight: bolder;
+      position: absolute;
+      top: 0; left: 0;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+    .stats-row {
+      margin: 2px 0;
+    }
+
+    .popupHidden {
+      visibility: hidden;
+      min-width: 250px;
+      margin-left: -125px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 2px;
+      padding: 16px;
+      position: fixed;
+      z-index: 9999;
+      left: 0%;
+      bottom: 30px;
+    }
+    .popupShow {
+      visibility: visible;
+      min-width: 10%;
+      max-width: 90%;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 2px;
+      padding: 16px;
+      position: fixed;
+      z-index: 9999;
+      left: 0%;
+      bottom: 30px;
+      animation: fadein 0.5s, fadeout 0.5s 10s;
+    }
+    @keyframes fadein {
+      from { bottom: 0; opacity: 0; }
+      to { bottom: 30px; opacity: 1; }
+    }
+    @keyframes fadeout {
+      from { bottom: 30px; opacity: 1; }
+      to { bottom: 0; opacity: 0; }
+    }
+
+    /* [CHANGED] Constrain #settings width so it’s smaller */
+    #settings {
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 1rem;
+      display: none;
+      max-width: 600px; /* narrower than the .main-container */
+    }
+
+    /* [CHANGED] Hide these charts by default until joined */
+    #chart-div,
+    #chart-div-bwe,
+    #chart-div-jitter,
+    #chart-div-fps,
+    #chart-div-cost {
+      display: none; /* show only after join or blur */
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <p>Agora Proxy and Blur</p>
+    <a class="github-link"
+       href="https://github.com/alekben/displaycallstats"
+       target="_blank">
+      <svg height="26" viewBox="0 0 16 16" version="1.1"
+           width="26" aria-hidden="true" fill="#fff">
+        <path fill-rule="evenodd"
+              d="M8 0C3.58 0 0 3.58 
+                 0 8c0 3.54 2.29 6.53 
+                 5.47 7.59.4.07.55-.17.55-.38 
+                 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53
+                 .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 
+                 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02
+                 .08-2.12 0 0 .67-.21 2.2.82.64-.18 
+                 1.32-.27 2-.27.68 0 1.36.09 
+                 2 .27 1.53-1.04 2.2-.82 
+                 2.2-.82.44 1.1.16 1.92 
+                 .08 2.12.51.56.82 1.27.82 2.15 
+                 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 
+                 0 1.07-.01 1.93-.01 2.2 
+                 0 .21.15.46.55.38A8.013 8.013 
+                 0 0016 8c0-4.42-3.58-8-8-8z">
+        </path>
+      </svg>
+    </a>
+  </header>
+
+  <div id="success-alert" class="alert-success hidden">
+    <span><strong>Congratulations!</strong>
+      You can invite others to join the channel by clicking
+      <a href="" target="_blank" id="invite-link">here</a>
+    </span>
+    <span class="close" onclick="this.parentElement.classList.add('hidden')">&times;</span>
+  </div>
+  <div id="success-alert-with-token" class="alert-success hidden">
+    <strong>Congratulations!</strong>
+    <span> Joined room successfully. </span>
+    <span class="close" onclick="this.parentElement.classList.add('hidden')">&times;</span>
+  </div>
+
+  <div class="main-container">
+    <!-- Toggle Settings button is always enabled now. -->
+    <button id="showSettings" type="button" style="margin-bottom:1rem;">Toggle Settings</button>
+
+    <div id="settings">
+      <form id="join-form">
+        <div class="form-grid" id="channelSettings">
+
+          <!-- Friendly labels -->
+          <div class="'form-item">
+            <label for="appid">App ID</label>
+            <input id="appid" type="text" value="a9a4b25e4e8b4a558aa39780d1a84342" />
+            <p class="tips">
+              Enter your Agora App ID
+            </p>
+          </div>
+
+          <div class="'form-item">
+            <label for="token">Token (optional)</label>
+            <input id="token" type="text" placeholder="Enter the app token" />
+            <p class="tips">
+              Obtain a token from the
+              <a href="https://console.agora.io/projects" target="_blank">Agora Console</a>.
+            </p>
+          </div>
+
+          <div class="'form-item">
+            <label for="channel">Channel Name</label>
+            <input id="channel" type="text" required />
+            <p class="tips">Pick any channel name you like.</p>
+          </div>
+
+          <div class="'form-item">
+            <label for="uid">User ID (optional)</label>
+            <input id="uid" type="text"
+                   onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"
+                   placeholder="numbers only"/>
+          </div>
+        </div>
+
+        <!-- Proxy Settings -->
+        <div class="'form-item">
+          <label>Proxy Mode</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <select id="proxy-select" style="padding: 0.4rem; border-radius:4px;"></select>
+            <input type="text" class="proxy-input"
+                   style="flex: 1; padding:0.4rem;" readonly/>
+          </div>
+        </div>
+
+        <!-- Area Code (Region) -->
+        <div class="'form-item">
+          <label>Region</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <select id="area-select" style="padding: 0.4rem; border-radius:4px;"></select>
+            <input type="text" class="area-input"
+                   style="flex: 1; padding:0.4rem;" readonly/>
+          </div>
+        </div>
+
+        <!-- Camera Settings -->
+        <div class="'form-item">
+          <label>Camera</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <select id="cam-select" style="padding: 0.4rem; border-radius:4px;"></select>
+            <input type="text" class="cam-input"
+                   style="flex: 1; padding:0.4rem;" readonly/>
+          </div>
+        </div>
+
+        <!-- Video Profile Settings (Resolution) -->
+        <div class="'form-item">
+          <label>Resolution</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <select id="profile-select" style="padding:0.4rem; border-radius:4px;"></select>
+            <input type="text" class="profile-input"
+                   style="flex: 1; padding:0.4rem;" readonly/>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-row">
+          <button id="join" type="submit">Join</button>
+          <button id="leave" type="button" disabled>Leave</button>
+          <button id="mute" type="button" disabled>Unmute Mic Track</button>
+          <button id="dual" type="button">Enable Dual Stream</button>
+          <button id="dualSwitch" type="button" disabled>Switch Stream</button>
+        </div>
+
+        <!-- Single button to toggle blur on/off -->
+        <div style="margin-top:1.5rem;">
+          <label style="font-weight:bold;">Virtual Background (Blur)</label>
+          <div class="button-row">
+            <button id="toggleBlur" type="button">Enable Blur</button>
+          </div>
+
+          <!-- Blur intensity slider -->
+          <div style="margin-top: 0.5rem;">
+            <label for="blur-intensity">Blur Intensity</label>
+            <input type="range" id="blur-intensity" min="1" max="3" step="1" value="2" />
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stats area -->
+    <div id="client-stats"></div>
+
+    <!-- Graph placeholders (all hidden by default). 
+         We'll show them after join or blur. -->
+    <div style="margin-top:1rem; color:#4b2e83; font-weight:bold;">
+      <p>Bitrate Up / Down Graph</p>
+    </div>
+    <div id="chart-div" style="width:100%; height:200px;"></div>
+
+    <div style="margin-top:1rem; color:#4b2e83; font-weight:bold;">
+      <p>Bandwidth Estimation Graph</p>
+    </div>
+    <div id="chart-div-bwe" style="width:100%; height:200px;"></div>
+
+    <div style="margin-top:1rem; color:#4b2e83; font-weight:bold;">
+      <p>Send / Receive Jitter Graph</p>
+    </div>
+    <div id="chart-div-jitter" style="width:100%; height:200px;"></div>
+
+    <div style="margin-top:1rem; color:#4b2e83; font-weight:bold;">
+      <p>Send / Render FPS Graph</p>
+    </div>
+    <div id="chart-div-fps" style="width:100%; height:200px;"></div>
+
+    <!-- Cost Graph placeholder -->
+    <div style="margin-top:1rem; color:#4b2e83; font-weight:bold;">
+      <p>Virtual Background Cost Graph</p>
+    </div>
+    <div id="chart-div-cost" style="width:100%; height:200px;"></div>
+
+    <!-- Video group -->
+    <div class="video-group">
+      <div id="local-player" class="player" style="display:none;">
+        <div id="local-stats" class="stream-stats"></div>
+      </div>
+      <div id="remote-player" class="player" style="display:none;">
+        <div id="remote-stats" class="stream-stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="popup-section"></div>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart', 'line'] });
+
+    let chart, chartJitter, chartFPS, chartBWE, chartCost;
+    let chartArray = [];
+    let chartArrayJitter = [];
+    let chartArrayFPS = [];
+    let chartArrayBWE = [];
+    let chartArrayCost = [];
+
+    AgoraRTC.enableLogUpload();
+    let client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+    let client2 = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+
+    let localTracks = { videoTrack: null, audioTrack: null };
+    let localTrackState = { audioTrackMuted: false, audioTrackPublished: false };
+    let connectionState = { isJoined: null };
+    let localNetQuality = { uplink: 0, downlink: 0 };
+    let local2NetQuality = { uplink: 0, downlink: 0 };
+    let remoteUsers = {};
+    let loopback = false;
+    let leftOnce = false;
+    let timeStart = 0;
+    let timeTaken = 0;
+    let dual = false;
+    let lowStream = false;
+    let options = { appid: null, channel: null, uid: null, uid2: null, token: null };
+    let statsInterval;
+    let popups = 0;
+    let settingsHide = true;
+
+    // Whether we currently have blur turned on
+    let isBlurred = false;
+
+    // Virtual Background Extension
+    const { VirtualBackgroundExtension } = window;
+    const extension = new VirtualBackgroundExtension();
+    AgoraRTC.registerExtensions([extension]);
+    const processor = extension.createProcessor();    
+
+    // “cost” event for the cost graph
+    processor.eventBus.on("cost", (costValue) => {
+      const duration = (client.getRTCStats().Duration || 0);
+      chartArrayCost.push([duration, costValue]);
+      drawCostChart(chartArrayCost);
+      console.log(costValue);
+    });
+
+    let modes = [
+      { label: "Close", detail: "Disable Cloud Proxy", value: "0" },
+      { label: "UDP Mode", detail: "Enable UDP Proxy", value: "3" },
+      { label: "TCP Mode", detail: "Enable TCP/TLS Proxy", value: "5" }
+    ];
+    let mode = modes[0];
+
+    let areas = [
+      { label: "AFRICA",      detail: "AFRICA",       value: "AFRICA" },
+      { label: "ASIA",        detail: "ASIA",         value: "ASIA" },
+      { label: "CHINA",       detail: "CHINA",        value: "CHINA" },
+      { label: "EUROPE",      detail: "EUROPE",       value: "EUROPE" },
+      { label: "GLOBAL",      detail: "GLOBAL",       value: "GLOBAL" },
+      { label: "INDIA",       detail: "INDIA",        value: "INDIA" },
+      { label: "JAPAN",       detail: "JAPAN",        value: "JAPAN" },
+      { label: "KOREA",       detail: "KOREA",        value: "KOREA" },
+      { label: "NORTH AMERICA", detail: "NORTH AMERICA", value: "NORTH_AMERICA" },
+      { label: "OVERSEA",     detail: "OVERSEA",      value: "OVERSEA" },
+      { label: "US",          detail: "US",           value: "US" }
+    ];
+    let area = areas[4]; // default = GLOBAL
+
+    let videoProfiles = [
+      { label: "360p_1",   detail: "640x360, 15fps, 400Kbps",  value: "360p_1" },
+      { label: "360p_4",   detail: "640x360, 30fps, 600Kbps",  value: "360p_4" },
+      { label: "480p_8",   detail: "848×480, 15fps, 610Kbps",  value: "480p_8" },
+      { label: "480p_9",   detail: "848×480, 30fps, 930Kbps",  value: "480p_9" },
+      { label: "720p_1",   detail: "1280×720, 15fps, 1130Kbps",value: "720p_1" },
+      { label: "720p_2",   detail: "1280×720, 30fps, 2000Kbps",value: "720p_2" },
+      { label: "720p_auto",detail: "1280×720, 30fps, 3000Kbps",value: "720p_auto"},
+      { label: "1080p_1",  detail: "1920×1080,15fps,2080Kbps", value: "1080p_1" },
+      { label: "1080p_2",  detail: "1920×1080,30fps,3000Kbps", value: "1080p_2" },
+      { label: "1080p_5",  detail: "1920×1080,60fps,4780Kbps", value: "1080p_5" }
+    ];
+    let curVideoProfile = videoProfiles[1];
+
+    let cams = [];
+    let curCam;
+
+    function populateSelect(id, data) {
+      const sel = document.getElementById(id);
+      sel.innerHTML = "";
+      data.forEach((item) => {
+        const opt = document.createElement("option");
+        opt.value = item.label;
+        //opt.innerText = item.label + " : " + item.detail;
+        opt.innerText = item.detail;
+        sel.appendChild(opt);
+      });
+    }
+
+    function initModes() {
+      populateSelect("proxy-select", modes);
+      mode = modes[0];
+      $(".proxy-input").val(mode.detail);
+    }
+    function changeModes(label) {
+      mode = modes.find((m)=>m.label === label);
+      $(".proxy-input").val(mode.detail);
+    }
+
+    function initAreas() {
+      populateSelect("area-select", areas);
+      area = areas[4];
+      $(".area-input").val(area.detail);
+    }
+    function changeArea(label) {
+      area = areas.find((a)=>a.label === label);
+      $(".area-input").val(area.detail);
+    }
+
+    function initProfiles() {
+      populateSelect("profile-select", videoProfiles);
+      curVideoProfile = videoProfiles[5];
+      $(".profile-input").val(curVideoProfile.detail);
+    }
+    function changeProfiles(label) {
+      curVideoProfile = videoProfiles.find((vp)=> vp.label === label);
+      $(".profile-input").val(curVideoProfile.detail);
+      if (connectionState.isJoined) {
+        localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
+      }
+    }
+
+    async function initCams() {
+      cams = await AgoraRTC.getCameras();
+      const sel = document.getElementById("cam-select");
+      sel.innerHTML = "";
+      cams.forEach((cam) => {
+        const opt = document.createElement("option");
+        opt.value = cam.label;
+        opt.innerText = cam.label;
+        sel.appendChild(opt);
+      });
+      curCam = cams[0];
+      $(".cam-input").val(curCam.label);
+    }
+    async function switchCamera(label) {
+      curCam = cams.find((c) => c.label === label);
+      $(".cam-input").val(curCam.label);
+      if (connectionState.isJoined && localTracks.videoTrack) {
+        await localTracks.videoTrack.setDevice(curCam.deviceId);
+      }
+    }
+
+    $(async () => {
+      initModes();
+      initAreas();
+      initProfiles();
+      await initCams();
+
+      // Hook up the selects
+      $("#proxy-select").on("change", function(){
+        changeModes(this.value);
+      });
+      $("#area-select").on("change", function(){
+        changeArea(this.value);
+      });
+      $("#cam-select").on("change", function(){
+        switchCamera(this.value);
+      });
+      $("#profile-select").on("change", function(){
+        changeProfiles(this.value);
+      });
+
+      // If URL has ?appid=, etc.
+      const urlParams = new URL(location.href).searchParams;
+      options.appid   = urlParams.get("appid");
+      options.channel = urlParams.get("channel");
+      options.token   = urlParams.get("token");
+      options.uid     = urlParams.get("uid");
+
+      if (!options.channel) {
+        options.channel = generateRandomString(8);
+        $("#channel").val(options.channel);
+      }
+      if (options.appid && options.channel) {
+        $("#appid").val(options.appid);
+        $("#channel").val(options.channel);
+        $("#token").val(options.token || "");
+        if (options.uid) $("#uid").val(options.uid);
+        $("#join-form").submit();
+      }
+    });
+
+    // Toggle the Settings panel
+    $("#showSettings").click(function(){
+      settingsHide = !settingsHide;
+      if (!settingsHide) {
+        $("#settings").show();
+      } else {
+        $("#settings").hide();
+      }
+    });
+
+    // Single button to toggle blur on/off
+    $("#toggleBlur").click(function(){
+      toggleBlur();
+    });
+
+    // On slider input, if the blur is active, update intensity
+    document.getElementById("blur-intensity").addEventListener("input", function(e){
+      const val = Number(e.target.value) || 2;
+      if (isBlurred) {
+        processor.setOptions({ type: 'blur', blurDegree: val });
+        showPopup("Blur intensity changed to " + val);
+      }
+    });
+
+    async function toggleBlur(){
+      if (!localTracks.videoTrack) {
+        showPopup("No video track yet—join first!");
+        return;
+      }
+      if (!isBlurred) {
+        // Turn it ON
+        try {
+          await processor.enable();
+          const val = Number($("#blur-intensity").val()) || 2;
+          processor.setOptions({ type: 'blur', blurDegree: val });
+          isBlurred = true;
+          $("#toggleBlur").text("Disable Blur");
+
+          // [CHANGED] Show the cost chart when blur is ON
+          $("#chart-div-cost").show();
+
+          showPopup("Blur enabled at intensity=" + val);
+        } catch(e) {
+          console.error(e);
+          showPopup("Error enabling blur: " + e.message);
+        }
+      } else {
+        // Turn it OFF
+        try {
+          await processor.disable();
+          isBlurred = false;
+          $("#toggleBlur").text("Enable Blur");
+
+          // [CHANGED] Hide cost chart again
+          //$("#chart-div-cost").hide();
+
+          showPopup("Blur disabled");
+        } catch(e) {
+          console.error(e);
+          showPopup("Error disabling blur: " + e.message);
+        }
+      }
+    }
+
+    $("#join-form").submit(async function(e){
+      e.preventDefault();
+      $("#join").attr("disabled", true);
+
+      try {
+        options.appid   = $("#appid").val();
+        options.channel = $("#channel").val();
+        options.token   = $("#token").val();
+        const maybeUid  = $("#uid").val();
+        options.uid     = maybeUid ? Number(maybeUid) : null;
+
+        $("#local-player").show();
+        $("#remote-player").show();
+
+        await join();
+
+        if (options.token) {
+          $("#success-alert-with-token").removeClass("hidden");
+        } else {
+          $("#invite-link").attr(
+            "href",
+            `index.html?appid=${options.appid}&channel=${options.channel}&token=${options.token}`
+          );
+          $("#success-alert").removeClass("hidden");
+        }
+      } catch(err) {
+        console.error(err);
+        showPopup("Join error: " + err.message);
+      } finally {
+        $("#leave").attr("disabled", false);
+        $("#channelSettings").hide();
+        $("#mute").text("Unmute Mic Track");
+        $("#mute").attr("disabled", false);
+
+        // If no mic track yet, create it
+        if (!localTracks.audioTrack) {
+          localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+            encoderConfig: "music_standard", AEC: true, ANS: true, AGC: true
+          });
+        }
+        localTrackState.audioTrackMuted = true;
+        localTrackState.audioTrackPublished = false;
+      }
+    });
+
+    $("#leave").click(function(){
+      if (isBlurred) {
+        toggleBlur();
+      }
+      leave();
+      $("#channelSettings").show();
+      $("#settings").show();
+      settingsHide = false;
+      $("#local-player").hide();
+      $("#remote-player").hide();
+    });
+
+    $("#mute").click(function(){
+      if (!localTrackState.audioTrackMuted) {
+        muteAudio();
+      } else {
+        unmuteAudio();
+      }
+    });
+
+    $("#dual").click(function(){
+      changeDual();
+    });
+
+    $("#dualSwitch").click(function(){
+      changeRemoteStream();
+    });
+
+    async function join() {
+      client.on("is-using-cloud-proxy", reportProxyUsed);
+      client.on("join-fallback-to-proxy", reportAutoFallback);
+      client2.on("stream-type-changed", reportStreamTypeChanged);
+      client.on("connection-state-change", handleConnectionState);
+      client.on("network-quality", handleNetworkQuality);
+      client2.on("user-published", handleUserPublished2);
+      client2.on("user-unpublished", handleUserUnpublished2);
+      client2.on("network-quality", handleNetworkQuality2);
+      client2.on("connection-state-change", handleConnectionState2);
+
+      AgoraRTC.setArea(area.value);
+
+      const val = Number(mode.value);
+      if ([3,5].includes(val)) {
+        client.startProxyServer(val);
+        client2.startProxyServer(val);
+      }
+      if (val === 0) {
+        client.stopProxyServer();
+        client2.stopProxyServer();
+      }
+
+      if (dual) {
+        client.enableDualStream();
+        $("#dualSwitch").attr("disabled", false);
+      }
+
+      options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid);
+      options.uid2= await client2.join(options.appid, options.channel, options.token || null, null);
+
+      if (!localTracks.videoTrack) {
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+          encoderConfig: curVideoProfile.value,
+          cameraId: curCam.deviceId,
+          optimizationMode: "detail"
+        });
+        await processor.init();
+        // Pipe track to processor once
+        localTracks.videoTrack.pipe(processor).pipe(localTracks.videoTrack.processorDestination);
+      }
+      localTracks.videoTrack.play("local-player");
+      await client.publish(localTracks.videoTrack);
+
+      showPopup(`Joined channel ${options.channel} with UID=${options.uid}`);
+
+      if (leftOnce) {
+        destructStats();
+        if(chart) chart.clearChart();
+        if(chartJitter) chartJitter.clearChart();
+        if(chartFPS) chartFPS.clearChart();
+        if(chartBWE) chartBWE.clearChart();
+        if(chartCost) chartCost.clearChart();
+        chartArray.length = 0;
+        chartArrayJitter.length = 0;
+        chartArrayFPS.length = 0;
+        chartArrayBWE.length = 0;
+        chartArrayCost.length = 0;
+      }
+
+      // [CHANGED] Show the standard 4 charts on join
+      $("#chart-div").show();
+      $("#chart-div-bwe").show();
+      $("#chart-div-jitter").show();
+      $("#chart-div-fps").show();
+      // The cost chart remains hidden until blur is enabled
+
+      chart       = new google.visualization.LineChart(document.getElementById('chart-div'));
+      chartJitter = new google.visualization.LineChart(document.getElementById('chart-div-jitter'));
+      chartFPS    = new google.visualization.LineChart(document.getElementById('chart-div-fps'));
+      chartBWE    = new google.visualization.LineChart(document.getElementById('chart-div-bwe'));
+      chartCost   = new google.visualization.LineChart(document.getElementById('chart-div-cost'));
+
+      initStats();
+    }
+
+    async function leave() {
+      leftOnce = true;
+      clearInterval(statsInterval);
+
+      // Turn off blur if it was on
+      try {
+        localTracks.videoTrack && localTracks.videoTrack.unpipe(processor);
+        isBlurred = false;
+        $("#toggleBlur").text("Enable Blur");
+        // [CHANGED] Hide cost chart in case it was shown
+        $("#chart-div-cost").hide();
+      } catch(e){
+        console.warn(e);
+      }
+
+      for (let trackName in localTracks) {
+        let track = localTracks[trackName];
+        if (track) {
+          track.stop();
+          track.close();
+          localTracks[trackName] = undefined;
+        }
+      }
+      remoteUsers = {};
+      if (dual) {
+        await client.disableDualStream();
+      }
+      await client.leave();
+      await client2.leave();
+
+      loopback = false;
+      $("#join").attr("disabled", false);
+      $("#leave").attr("disabled", true);
+      $("#mute").text("Mute Mic Track");
+      $("#mute").attr("disabled", true);
+      $("#dualSwitch").attr("disabled", true);
+
+      /* [CHANGED] Hide all charts again on leave
+      $("#chart-div").hide();
+      $("#chart-div-bwe").hide();
+      $("#chart-div-jitter").hide();
+      $("#chart-div-fps").hide();
+      $("#chart-div-cost").hide();*/
+
+      showPopup("Client has left the channel successfully");
+    }
+
+    async function muteAudio() {
+      if (!localTracks.audioTrack) return;
+      await localTracks.audioTrack.setMuted(true);
+      localTrackState.audioTrackMuted = true;
+      $("#mute").text("Unmute Mic Track");
+      showPopup("Mic Track Muted");
+    }
+
+    async function unmuteAudio() {
+      if (!localTracks.audioTrack) return;
+      if (!localTrackState.audioTrackPublished) {
+        await client.publish(localTracks.audioTrack);
+        localTrackState.audioTrackPublished = true;
+      }
+      await localTracks.audioTrack.setMuted(false);
+      localTrackState.audioTrackMuted = false;
+      $("#mute").text("Mute Mic Track");
+      showPopup("Mic Track Unmuted");
+    }
+
+    async function changeDual() {
+      if (dual) {
+        if (connectionState.isJoined) {
+          client.disableDualStream();
+        }
+        dual = false;
+        $("#dual").text("Enable Dual Stream");
+        $("#dualSwitch").attr("disabled", true);
+      } else {
+        dual = true;
+        client.setLowStreamParameter({bitrate:250, framerate:15, height:240, width:320});
+        if (connectionState.isJoined) {
+          client.enableDualStream();
+        }
+        $("#dual").text("Disable Dual Stream");
+        $("#dualSwitch").attr("disabled", false);
+      }
+    }
+
+    async function changeRemoteStream() {
+      if (!options.uid) return;
+      if (lowStream) {
+        lowStream = false;
+        client2.setRemoteVideoStreamType(Number(options.uid), 0);
+      } else {
+        lowStream = true;
+        client2.setRemoteVideoStreamType(Number(options.uid), 1);
+      }
+    }
+
+    async function subscribe2(user, mediaType) {
+      const uid = user.uid;
+      timeStart  = Date.now();
+      await client2.subscribe(user, mediaType);
+
+      if (mediaType === "video") {
+        const player = $(`
+          <div id="player-wrapper-${uid}">
+            <div id="player-${uid}" class="player"></div>
+          </div>
+        `);
+        $("#remote-player").append(player);
+        user.videoTrack.play(`player-${uid}`);
+        remoteUsers[uid]._videoTrack._player.videoElement
+          .addEventListener("playing", function(){
+            const t2 = Date.now();
+            timeTaken = t2 - timeStart;
+            showPopup("Subscribe->Render took " + timeTaken + "ms");
+          });
+      }
+      if (mediaType === "audio") {
+        user.audioTrack.play();
+        user.audioTrack.setVolume(0);
+      }
+    }
+
+    function handleUserPublished2(user, mediaType){
+      if (user.uid === options.uid) {
+        remoteUsers[user.uid] = user;
+        subscribe2(user, mediaType);
+        loopback = true;
+      }
+    }
+
+    function handleUserUnpublished2(user, mediaType){
+      if (user.uid === options.uid) {
+        if (mediaType === "video") {
+          delete remoteUsers[user.uid];
+          $(`#player-wrapper-${user.uid}`).remove();
+          loopback = false;
+        }
+      }
+    }
+
+    function reportStreamTypeChanged(uid, streamType) {
+      showPopup(`Remote ${uid} changed to streamType=${streamType}`);
+    }
+    function reportAutoFallback(proxyServer) {
+      console.log("AutoFallback to proxy: " + proxyServer);
+    }
+    function reportProxyUsed(isProxyUsed) {
+      showPopup("is-cloud-proxy-used: " + isProxyUsed);
+    }
+    function handleNetworkQuality(stats) {
+      localNetQuality.uplink = stats.uplinkNetworkQuality;
+      localNetQuality.downlink = stats.downlinkNetworkQuality;
+    }
+    function handleNetworkQuality2(stats) {
+      local2NetQuality.uplink = stats.uplinkNetworkQuality;
+      local2NetQuality.downlink = stats.downlinkNetworkQuality;
+    }
+    function handleConnectionState(cur, prev, reason) {
+      if (cur === "CONNECTED") {
+        connectionState.isJoined = true;
+      } else {
+        connectionState.isJoined = false;
+      }
+      showPopup(`Sender: Connection State changed to ${cur}, reason=${reason}`);
+    }
+    function handleConnectionState2(cur, prev, reason) {
+      if (cur === "CONNECTED") {
+        connectionState.isJoined = true;
+      } else {
+        connectionState.isJoined = false;
+      }
+      showPopup(`Receiver: Connection State changed to ${cur}, reason=${reason}`);
+    }
+
+    function initStats() {
+      statsInterval = setInterval(flushStats, 1000);
+    }
+    function destructStats() {
+      $("#client-stats").html("");
+      $("#local-stats").html("");
+      $("#remote-player").html(`<div id="remote-stats" class="stream-stats"></div>`);
+    }
+    function flushStats(){
+      const clientStats  = client.getRTCStats();
+      const clientStats2 = client2.getRTCStats();
+      const status = navigator.onLine;
+      const clientStatsList = [
+        { description: "Local UID",        value: options.uid,                     unit: "" },
+        { description: "Channel",          value: options.channel,                 unit: "" },
+        { description: "Joined Duration",  value: clientStats.Duration,            unit: "s" },
+        { description: "Bitrate recv",     value: (clientStats2.RecvBitrate*1e-6).toFixed(4),   unit: "Mbps" },
+        { description: "Bitrate sent",     value: (clientStats.SendBitrate*1e-6).toFixed(4),     unit: "Mbps" },
+        { description: "BWE",              value: (clientStats.OutgoingAvailableBandwidth*1e-3).toFixed(4), unit: "Mbps" },
+        { description: "RTT to Edge",      value: clientStats.RTT,                 unit: "ms" },
+        { description: "Uplink Stat",      value: localNetQuality.uplink,          unit: "" },
+        { description: "Downlink Stat",    value: local2NetQuality.downlink,       unit: "" },
+        { description: "Link Status",      value: status,                          unit: "" },
+      ];
+      $("#client-stats").html(`
+        ${clientStatsList.map(stat =>
+          `<div class="stat-item">
+             ${stat.description}: ${stat.value} ${stat.unit}
+           </div>`)
+           .join("")}
+      `);
+
+      chartArray.push([
+        clientStats.Duration,
+        clientStats.SendBitrate,
+        clientStats2.RecvBitrate
+      ]);
+      drawCurveTypes(chartArray);
+
+      const localVideoStats = client.getLocalVideoStats();
+      const localStatsList = [
+        { description: "Capture FPS", value: localVideoStats.captureFrameRate, unit: "" },
+        { description: "Send FPS", value: localVideoStats.sendFrameRate, unit: "" },
+        { description: "Video encode delay", value: Number(localVideoStats.encodeDelay).toFixed(2), unit: "ms" },
+        { description: "Send resolution", value: localVideoStats.sendResolutionWidth+"x"+localVideoStats.sendResolutionHeight, unit: "" },
+        { description: "Send bitrate", value: (localVideoStats.sendBitrate*1e-6).toFixed(4), unit: "Mbps" },
+        { description: "Send Jitter", value: localVideoStats.sendJitterMs, unit: "ms" },
+        { description: "Send RTT", value: localVideoStats.sendRttMs, unit: "ms" },
+        { description: "Packet loss", value: Number(localVideoStats.currentPacketLossRate).toFixed(3), unit: "%" }
+      ];
+      $("#local-stats").html(`
+        ${localStatsList.map(s=>
+          `<p class="stats-row">${s.description}: ${s.value} ${s.unit}</p>`
+        ).join("")}
+      `);
+
+      const remoteVideo = client2.getRemoteVideoStats()[options.uid] || {};
+      const remoteTracksStatsList = [
+        { description: "Receive FPS",    value: remoteVideo.receiveFrameRate, unit: "" },
+        { description: "Decode FPS",     value: remoteVideo.decodeFrameRate,  unit: "" },
+        { description: "Render FPS",     value: remoteVideo.renderFrameRate,  unit: "" },
+        { description: "Received size",  value: `${remoteVideo.receiveResolutionWidth}x${remoteVideo.receiveResolutionHeight}`, unit: "" },
+        { description: "Recv video bitrate",  value: (remoteVideo.receiveBitrate*1e-6).toFixed(4), unit: "Mbps" },
+        { description: "Video receive delay", value: Number(remoteVideo.receiveDelay).toFixed(0),  unit: "ms" },
+        { description: "Packet Lost",         value: remoteVideo.receivePacketsLost, unit: "" },
+        { description: "E2E Delay",           value: remoteVideo.end2EndDelay,       unit: "ms" },
+        { description: "Transport Delay",     value: remoteVideo.transportDelay,     unit: "ms" },
+        { description: "Freeze Rate",         value: Number(remoteVideo.freezeRate).toFixed(3), unit: "%" },
+        { description: "Total freeze time",   value: remoteVideo.totalFreezeTime,     unit: "s" },
+        { description: "TimeToRender",        value: timeTaken,                       unit: "ms" }
+      ];
+      $("#remote-stats").html(`
+        ${remoteTracksStatsList.map(s=>
+          `<p class="stats-row">${s.description}: ${s.value} ${s.unit}</p>`
+        ).join("")}
+      `);
+
+      chartArrayBWE.push([
+        clientStats.Duration,
+        (clientStats.OutgoingAvailableBandwidth*1e-3)
+      ]);
+      drawCurveTypesBWE(chartArrayBWE);
+
+      chartArrayJitter.push([
+        clientStats.Duration,
+        localVideoStats.sendJitterMs,
+        remoteVideo.receiveDelay
+      ]);
+      drawCurveTypesJitter(chartArrayJitter);
+
+      chartArrayFPS.push([
+        clientStats.Duration,
+        localVideoStats.sendFrameRate,
+        remoteVideo.renderFrameRate
+      ]);
+      drawCurveTypesFPS(chartArrayFPS);
+    }
+
+    function drawCurveTypes(array) {
+      if (!array.length) return;
+      let data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Up');
+      data.addColumn('number', 'Down');
+      data.addRows(array);
+      let options = { hAxis: { title: 'Time (sec)'}, vAxis: { title: 'Kbits/s'} };
+      chart.draw(data, options);
+    }
+    function drawCurveTypesJitter(array) {
+      if (!array.length) return;
+      let data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Send');
+      data.addColumn('number', 'Receive');
+      data.addRows(array);
+      let options = { hAxis: { title: 'Time (sec)'}, vAxis: { title: 'Ms'} };
+      chartJitter.draw(data, options);
+    }
+    function drawCurveTypesFPS(array) {
+      if (!array.length) return;
+      let data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Send');
+      data.addColumn('number', 'Render');
+      data.addRows(array);
+      let options = { hAxis: { title: 'Time (sec)'}, vAxis: { title: 'FPS'} };
+      chartFPS.draw(data, options);
+    }
+    function drawCurveTypesBWE(array) {
+      if (!array.length) return;
+      let data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Available Tx');
+      data.addRows(array);
+      let options = { hAxis: { title: 'Time (sec)'}, vAxis: { title: 'Mbits/s'} };
+      chartBWE.draw(data, options);
+    }
+    function drawCostChart(array) {
+      if (!array.length) return;
+      let data = new google.visualization.DataTable();
+      data.addColumn('number','Time');
+      data.addColumn('number','Cost');
+      data.addRows(array);
+      let options = {
+        hAxis: { title:'Time(s)' },
+        vAxis: { title:'Cost' }
+      };
+      chartCost.draw(data, options);
+    }
+
+    function showPopup(message) {
+      let newId = popups + 1;
+      let div = $(`<div id="popup-${newId}" class="popupHidden">${message}</div>`);
+      $("#popup-section").append(div);
+      let el = document.getElementById(`popup-${newId}`);
+      el.className = "popupShow";
+      let offset = popups * 10;
+      $(el).css("left", `${offset}%`);
+      popups++;
+      setTimeout(()=>{
+        $(`#popup-${newId}`).remove();
+        popups--;
+      }, 5000);
+    }
+
+    function generateRandomString(length) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+      for (let i=0; i<length; i++){
+        result += chars.charAt(Math.floor(Math.random()*chars.length));
+      }
+      return result;
+    }
+  </script>
+</body>
+</html>
