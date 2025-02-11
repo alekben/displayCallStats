@@ -280,6 +280,7 @@ input {
     };
     let processorIsDisable = true;
     let curCost = 0;
+    var avgCost = [];
 
     var popups = 0;
     
@@ -433,7 +434,11 @@ input {
         });
         processor.eventBus.on("cost", (cost) => {
           console.warn(`cost of vb is ${cost}`);
-          curCost = cost;
+          if (cost !== 0) {
+            curCost = cost;
+            avgCost.push(cost);
+          }
+  
         });
         processor.onoverload = async () => {
           console.log("overload!!!");
@@ -498,6 +503,15 @@ input {
       initStats();
     }
     
+    function getAvgCost() {
+      const nonZeroNumbers = avgCost.filter(number => number !== 0);
+      if (nonZeroNumbers.length === 0) {
+        return 0;
+      }
+      const sum = nonZeroNumbers.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+      return sum / nonZeroNumbers.length;
+    }
+
     async function leave() {
       leftOnce = true;
       clearInterval(statsInterval);
@@ -812,8 +826,12 @@ input {
         value: options.channel,
         unit: ""
       }, {
-        description: "VB Cost",
+        description: "VB Cost Now",
         value: curCost,
+        unit: "ms"
+      }, {
+        description: "VB Cost Avg",
+        value: getAvgCost(),
         unit: "ms"
       }, {
         description: "Bitrate recv",
@@ -827,10 +845,6 @@ input {
         description: "BWE",
         value: Number((clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
         unit: "Mbps"
-      }, {
-        description: "RTT to SD-RTN Edge",
-        value: clientStats.RTT,
-        unit: "ms"
       }, {
         description: "Uplink Stat",
         value: localNetQuality.uplink,
