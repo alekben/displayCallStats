@@ -763,6 +763,8 @@ async function leave() {
   await client.leave();
   showPopup(`Left channel ${options.channel}`);
   $("#local-player-name").text("");
+  $("#local-player").css("border", "");
+  $("#local-player").css("border-radius", "");
   $("#join").attr("disabled", false);
   $("#role").attr("disabled", false);
   $("#leave").attr("disabled", true);
@@ -954,6 +956,7 @@ function destructStats() {
   $("#session-stats").html("");
   $("#transport-stats").html("");
   $("#local-stats").html("");
+  $("#client-stats").html("");
 }
 
 function notifyReady() {
@@ -993,12 +996,11 @@ function flushStats() {
   const status = navigator.onLine;
   const clientStats = client.getRTCStats();
   const clientStatsList = [
-    {
-      description: "Local UID",
-      value: options.uid,
-      unit: ""
-    },
   {
+    description: "Local UID",
+    value: options.uid,
+    unit: ""
+  }, {
     description: "Host Count",
     value: clientStats.UserCount,
     unit: ""
