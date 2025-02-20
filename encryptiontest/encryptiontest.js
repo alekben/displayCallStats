@@ -289,7 +289,7 @@ $("#setEncryption").click(function (e) {
     } 
   } else {
     encryption = false;
-    client.setEncryptionConfig("none", "test");
+    client.setEncryptionConfig("none", "random");
     $("#setEncryption").text("Enable Encryption"); 
   }
 });

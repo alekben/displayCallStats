@@ -499,11 +499,11 @@ async function join() {
 
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
-
+//{"encoderConfig": {"width":720, "height":1280, "frameRate":30, "bitrate":3420, "bitrateMax":3428,"bitrateMin":857}}
   if (host) {
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: "720p_2"
+        encoderConfig: {"width":720, "height":1280, "frameRate":30, "bitrate":3420, "bitrateMax":3428,"bitrateMin":857}
       });
     }
 
