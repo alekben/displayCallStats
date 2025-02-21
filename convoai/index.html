@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Conversational AI Agent</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <style>
+    /* Your neon volume-indicator styles */
+    .ai-volume-indicator {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ai-avatar {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.5);
+    }
+    .ai-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+    .volume-ring {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: 4px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.8);
+      transition: transform 0.1s;
+    }
+    .ai-volume-indicator canvas {
+      width: 200px;
+      height: 60px;
+      margin-top: 16px;
+      background: linear-gradient(90deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.8), rgba(0, 255, 255, 0.3));
+      box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.6);
+      border-radius: 8px;
+    }
+
+    /* Floating widget in the top‐right */
+    #aiVolumeWidget {
+      position: fixed;
+      top: 6.5rem;
+      right: 1rem;
+      background: #111;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+      display: none; /* hidden by default */
+      z-index: 9999; 
+    }
+    #aiVolumeWidget h2 {
+      margin-bottom: 0.5rem;
+      text-align: center;
+      color: cyan;
+    }
+
+    /* Toggle button in the top‐right corner, slightly offset to not overlap the widget */
+    #toggleVolumeBtn {
+      position: fixed;
+      top: 1rem;
+      right: 8rem; /* so it doesn't overlap the widget itself */
+      background: cyan;
+      color: #111;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+      cursor: pointer;
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen py-10 px-4">
+  <div class="max-w-6xl mx-auto">
+    <!-- Button to open credentials modal -->
+    <button
+      onclick="openCredsModal()"
+      class="mb-6 bg-gray-600 hover:bg-gray-700 p-2 rounded font-bold"
+    >
+      Set API Credentials
+    </button>
+
+    <body class="bg-gray-900 text-white min-h-screen">    
+      <button id="toggleVolumeBtn" onclick="toggleVolumeWidget()">
+        Show AI Volume
+      </button>
+    
+      <!-- The floating volume widget in top‐right -->
+      <div id="aiVolumeWidget">
+        <h2>AI Speaker Volume</h2>
+        <div class="ai-volume-indicator">
+          <div class="ai-avatar">
+            <img src="https://mouseattack.s3.us-west-2.amazonaws.com/gi2.jpg" alt="AI Avatar">
+            <div class="volume-ring"></div>
+          </div>
+          <canvas id="audio-wave"></canvas>
+        </div>
+        <button onclick="joinChannel()" class="mt-4 px-3 py-2 bg-cyan-500 text-gray-900 rounded hover:bg-cyan-400">
+          Join Channel
+        </button>
+        <button onclick="leaveChannel()" class="mt-4 px-3 py-2 bg-cyan-500 text-gray-900 rounded hover:bg-cyan-400">
+          Leave Channel
+        </button>
+      </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Left panel: Create/Update/Stop -->
+      <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h1 class="text-xl font-bold mb-4 text-center">
+          Conversational AI Agent
+        </h1>
+
+        <!-- Text fields (required fields indicated via placeholder) -->
+        <div class="space-y-4">
+          <input
+            id="uniqueName"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="The unique identifier of the agent (Required)"
+            value="agent zero"
+          />
+          <input
+            id="agoraChannelName"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="Agora channel came (Required)"
+          />
+          <input
+            id="agoraRtcUid"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="Agora RTC UID (Required)"
+            value="8888"
+          />
+          <div class="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="enableStringUid"
+              class="mr-2 h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded"
+            />
+            <label for="enableStringUid" class="text-sm">
+              Enable String UID
+            </label>
+          </div>
+          <input
+            id="agoraRtcToken"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="Agora RTC token"
+          />
+          <input
+            id="llmModel"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="llmModel"
+            value="gpt-4o-mini"
+          />
+          <input
+            id="llmApiKey"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="LLM API Key (Required)"
+          />
+          <input
+            id="llmUrl"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="LLM URL (Required)"
+            value="https://api.openai.com/v1/chat/completions"
+          />
+
+          <!-- ASR dropdown (single label block) -->
+          <div class="w-full p-2 rounded bg-gray-700 text-white">
+            <span class="block mb-1 font-semibold">ASR Language</span>
+            <select
+              id="asrLang"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+            >
+              <option value="en-US">en-US (Default)</option>
+              <option value="es-ES">es-ES</option>
+              <option value="ja-JP">ja-JP</option>
+              <option value="ko-KR">ko-KR</option>
+              <option value="ar-AE">ar-AE</option>
+              <option value="hi-IN">hi-IN</option>
+            </select>
+          </div>
+
+          <!-- TTS Vendor block -->
+          <div class="w-full p-2 rounded bg-gray-700 text-white">
+            <span class="block mb-1 font-semibold">TTS Vendor</span>
+            <select
+              id="ttsVendor"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+              onchange="handleTtsVendorChange()"
+            >
+              <option value="microsoft">microsoft</option>
+              <option value="elevenlabs">elevenlabs</option>
+            </select>
+          </div>
+
+          <!-- If TTS vendor is microsoft, show region + language + voice -->
+          <div id="microsoftRegionBlock" class="w-full p-2 rounded bg-gray-700 text-white">
+            <span class="block mb-1 font-semibold">Microsoft TTS Region</span>
+            <select
+              id="ttsRegion"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+            >
+            <option value="australiaeast">australia east</option>
+            <option value="brazilsouth">brazil south</option>
+            <option value="canadacentral">canada central</option>
+            <option value="centralindia">central india</option>
+            <option value="centralus">central us</option>
+            <option value="eastasia">east asia</option>
+            <option value="eastus" selected>east us</option>
+            <option value="eastus2">east us2</option>
+            <option value="francecentral">France Central</option>
+            <option value="germanywestcentral">Germany West Central</option>
+            <option value="japaneast">japan east</option>
+            <option value="japanwest">japan west</option>
+            <option value="koreacentral">korea central</option>
+            <option value="northcentralus">north central us</option>
+            <option value="northeurope">north europe</option>
+            <option value="norwayeast">norway east</option>
+            <option value="qatarcentral">qatar central</option>
+            <option value="southafricanorth">south africa north</option>
+            <option value="southcentralus">south central us</option>
+            <option value="southeastasia">south east asia</option>
+            <option value="swedencentral">sweden central</option>
+            <option value="switzerlandnorth">switzerland north</option>
+            <option value="switzerlandwest">switzerland west</option>
+            <option value="uaenorth">uae north</option>
+            <option value="uksouth">uk south</option>
+            <option value="westcentralus">west central us</option>
+            <option value="westeurope">west europe</option>
+            <option value="westus">west us</option>
+            <option value="westus2">west us2</option>
+            <option value="westus3">west us3</option>
+            </select>
+          </div>
+
+          <div id="microsoftLangBlock" class="w-full p-2 rounded bg-gray-700 text-white">
+            <span class="block mb-1 font-semibold">Microsoft TTS Language</span>
+            <select
+              id="microsoftLangSelect"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+              onchange="handleMicrosoftLangChange()"
+            >
+              <!-- We'll populate in JS from the dictionary -->
+            </select>
+          </div>
+
+          <div id="microsoftVoiceBlock" class="w-full p-2 rounded bg-gray-700 text-white">
+            <span class="block mb-1 font-semibold">Microsoft TTS Voice</span>
+            <select
+              id="microsoftVoiceSelect"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+            >
+              <!-- We'll populate voices for the chosen language -->
+            </select>
+          </div>
+
+          <!-- If TTS vendor is elevenlabs, show model + voice + optional text input -->
+          <div id="elevenLabsModelBlock" class="w-full p-2 rounded bg-gray-700 text-white hidden">
+            <span class="block mb-1 font-semibold">ElevenLabs Model</span>
+            <select
+              id="elevenLabsModelId"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+            >
+              <option value="eleven_monolingual_v1">Eleven Monolingualv1</option>
+              <option value="eleven_multilingual_v1">Eleven Multilingualv1</option>
+              <option value="voice_lab_1">Voice Lab 1</option>
+              <option value="voice_conversion_1">Voice Conversion 1</option>
+              <option value="voice_conversion_2">Voice Conversion 2</option>
+            </select>
+          </div>
+
+          <div id="elevenLabsVoiceBlock" class="w-full p-2 rounded bg-gray-700 text-white hidden">
+            <span class="block mb-1 font-semibold">ElevenLabs Voice</span>
+            <select
+              id="elevenLabsVoiceSelect"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+              onchange="handleElevenLabsVoiceChange()"
+            >
+              <option value="">—</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div
+            id="elevenLabsVoiceIdBlock"
+            class="hidden"
+          >
+            <input
+              id="elevenLabsVoiceId"
+              class="w-full p-2 rounded bg-gray-700 text-white"
+              placeholder="Custom ElevenLabs Voice ID"
+            />
+          </div>
+
+          <input
+            id="ttsKey"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="ttsKey (Required)"
+          />
+        </div>
+
+        <!-- Create/Update/Stop in one row -->
+        <div class="mt-6 grid grid-cols-3 gap-2">
+          <button
+            onclick="createAgent()"
+            class="bg-green-600 hover:bg-green-700 p-2 rounded font-bold"
+          >
+            Create
+          </button>
+          <button
+            onclick="updateAgent()"
+            class="bg-yellow-600 hover:bg-yellow-700 p-2 rounded font-bold"
+          >
+            Update
+          </button>
+          <button
+            onclick="stopAgent()"
+            class="bg-red-600 hover:bg-red-700 p-2 rounded font-bold"
+          >
+            Stop
+          </button>
+        </div>
+        <pre
+          id="agentResponse"
+          class="mt-4 p-2 bg-gray-700 rounded text-sm min-h-[100px]"
+        ></pre>
+      </div>
+
+      <!-- Right panel: Query / List Agents -->
+      <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h1 class="text-xl font-bold mb-4 text-center">
+          Query / List Agents
+        </h1>
+        <div class="space-y-4">
+          <input
+            id="agentId"
+            class="w-full p-2 rounded bg-gray-700 text-white"
+            placeholder="Agent ID to Query"
+          />
+
+          <button
+            onclick="queryAgent()"
+            class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold"
+          >
+            Query Agent Status
+          </button>
+
+          <button
+            onclick="listAgents()"
+            class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold"
+          >
+            Retrieve Agent List
+          </button>
+
+          <pre
+            id="queryResponse"
+            class="mt-4 p-2 bg-gray-700 rounded text-sm min-h-[100px]"
+          ></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Credentials Modal -->
+  <div
+    id="credsModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+  >
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm">
+      <h2 class="text-lg font-bold mb-4">API Credentials</h2>
+      <input
+        id="customerId"
+        class="w-full p-2 mb-2 rounded bg-gray-700 text-white"
+        placeholder="Customer ID (Required)"
+      />
+      <input
+        id="customerSecret"
+        class="w-full p-2 mb-2 rounded bg-gray-700 text-white"
+        placeholder="Customer Secret (Required)"
+        type="password"
+      />
+      <input
+        id="appId"
+        class="w-full p-2 mb-4 rounded bg-gray-700 text-white"
+        placeholder="App ID (Required)"
+      />
+      <button
+        onclick="saveCreds()"
+        class="w-full bg-blue-600 hover:bg-blue-700 p-2 rounded font-bold"
+      >
+        Save & Close
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Toggle widget visibility
+    function toggleVolumeWidget() {
+      const widget = document.getElementById('aiVolumeWidget');
+      const btn    = document.getElementById('toggleVolumeBtn');
+      if (widget.style.display === 'none' || widget.style.display === '') {
+        widget.style.display = 'block';
+        btn.textContent = 'Hide AI Volume';
+      } else {
+        widget.style.display = 'none';
+        btn.textContent = 'Show AI Volume';
+      }
+    }
+
+
+    async function joinChannel() {
+      client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      
+
+      client.on("user-published", async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === "audio") {
+          const remoteAudioTrack = user.audioTrack;
+          remoteAudioTrack.play();
+          setupAudioProcessing(remoteAudioTrack);
+        }
+      });
+
+      await client.join(APP_ID, CHANNEL_NAME, TOKEN, null);
+
+      if (!localTracks.audioTrack) {
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+         encoderConfig: "music_standard"
+      });
+      }
+      await client.publish(localTracks.audioTrack);
+
+
+
+      console.log("Joined channel:", CHANNEL_NAME);
+    }
+
+    async function leaveChannel() {
+            if (!client) return;
+
+            // Leave Agora Channel
+            await client.leave();
+            console.log("Left the channel");
+
+            /*Stop animations
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }*/
+
+            // Reset UI effects
+            const volumeRing = document.querySelector(".volume-ring");
+            volumeRing.style.transform = `scale(1)`;
+            volumeRing.style.boxShadow = `0px 0px 30px rgba(0, 255, 255, 0.8)`;
+
+            const canvas = document.getElementById("audio-wave");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Close AudioContext
+            if (audioContext) {
+                audioContext.close().then(() => {
+                    console.log("Audio context closed.");
+                });
+            }
+
+            // Reset Agora client
+            client = null;
+        }
+
+    function setupAudioProcessing(remoteAudioTrack) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+
+      const mediaStream = new MediaStream([remoteAudioTrack.getMediaStreamTrack()]);
+      const source = audioContext.createMediaStreamSource(mediaStream);
+      source.connect(analyser);
+
+      visualizeAudio();
+    }
+
+    function visualizeAudio() {
+      const volumeRing = document.querySelector(".volume-ring");
+      const canvas = document.getElementById("audio-wave");
+      const ctx = canvas.getContext("2d");
+
+      function drawWave() {
+        requestAnimationFrame(drawWave);
+        analyser.getByteFrequencyData(dataArray);
+        let averageVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+        let volumeLevel = averageVolume / 128;
+
+        let bounceScale = 1 + (volumeLevel * 0.8);
+        volumeRing.style.transform = `scale(${bounceScale})`;
+        volumeRing.style.boxShadow = `0px 0px ${10 + volumeLevel * 20}px rgba(0, 255, 255, 0.8)`;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+
+        for (let i = 0; i < canvas.width; i += 10) {
+          let height = Math.sin(i * 0.05) * volumeLevel * 50;
+          ctx.lineTo(i, canvas.height / 2 - height);
+        }
+
+        ctx.strokeStyle = `rgba(0, 255, 255, ${0.3 + volumeLevel * 0.7})`;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+      }
+
+      drawWave();
+    }
+
+    /********************************************************
+     * 1) localStorage-based credentials
+     ********************************************************/
+    let storedCustomerId = localStorage.getItem("customerId") || "";
+    let storedCustomerSecret = localStorage.getItem("customerSecret") || "";
+    let storedAppId = localStorage.getItem("appId") || "";
+
+    let uniqueName;
+    let channel;
+    let rtcUid;
+    let llmApiKey;
+    let llmUrl;
+    let ttsKey;
+    let client;
+    var localTracks = { 
+        audioTrack: null
+    };
+    let audioContext, analyser, dataArray;
+    // Agora code from your snippet
+    let APP_ID;
+    let CHANNEL_NAME;
+    let TOKEN = null;
+
+
+
+    function openCredsModal() {
+      document.getElementById("customerId").value = storedCustomerId;
+      document.getElementById("customerSecret").value = storedCustomerSecret;
+      document.getElementById("appId").value = storedAppId;
+      document.getElementById("credsModal").classList.remove("hidden");
+    }
+
+    function saveCreds() {
+      const cid = document.getElementById("customerId").value.trim();
+      const csec = document.getElementById("customerSecret").value.trim();
+      const aid = document.getElementById("appId").value.trim();
+
+      if (!cid || !csec || !aid) {
+        alert("All fields required (CustomerID, CustomerSecret, AppID).");
+        return;
+      }
+      storedCustomerId = cid;
+      storedCustomerSecret = csec;
+      storedAppId = aid;
+      localStorage.setItem("customerId", cid);
+      localStorage.setItem("customerSecret", csec);
+      localStorage.setItem("appId", aid);
+
+      document.getElementById("credsModal").classList.add("hidden");
+    }
+
+    // If missing any creds, show popup on load
+    window.addEventListener("DOMContentLoaded", () => {
+      if (!storedCustomerId || !storedCustomerSecret || !storedAppId) {
+        openCredsModal();
+      }
+      // Required fields
+      populateMicrosoftLangList(); // fill in the ms languages
+    });
+
+    function getAuthHeaders() {
+      if (!storedCustomerId || !storedCustomerSecret || !storedAppId) {
+        alert("Please set API credentials first.");
+        return null;
+      }
+      const encoded = btoa(`${storedCustomerId}:${storedCustomerSecret}`);
+      return {
+        "Content-Type": "application/json",
+        "Authorization": `Basic ${encoded}`
+      };
+    }
+
+    /********************************************************
+     * 2) TTS Vendor logic
+     ********************************************************/
+    function handleTtsVendorChange() {
+      const vendor = document.getElementById("ttsVendor").value;
+
+      const msRegionBlk = document.getElementById("microsoftRegionBlock");
+      const msLangBlk   = document.getElementById("microsoftLangBlock");
+      const msVoiceBlk  = document.getElementById("microsoftVoiceBlock");
+
+      const elModelBlk  = document.getElementById("elevenLabsModelBlock");
+      const elVoiceBlk  = document.getElementById("elevenLabsVoiceBlock");
+      const elVoiceIdBlk= document.getElementById("elevenLabsVoiceIdBlock");
+
+      if (vendor === "microsoft") {
+        msRegionBlk.classList.remove("hidden");
+        msLangBlk.classList.remove("hidden");
+        msVoiceBlk.classList.remove("hidden");
+
+        elModelBlk.classList.add("hidden");
+        elVoiceBlk.classList.add("hidden");
+        elVoiceIdBlk.classList.add("hidden");
+      } else {
+        // elevenlabs
+        msRegionBlk.classList.add("hidden");
+        msLangBlk.classList.add("hidden");
+        msVoiceBlk.classList.add("hidden");
+
+        elModelBlk.classList.remove("hidden");
+        elVoiceBlk.classList.remove("hidden");
+        // check if user previously selected "other"
+        if (document.getElementById("elevenLabsVoiceSelect").value === "other") {
+          elVoiceIdBlk.classList.remove("hidden");
+        }
+      }
+    }
+
+    function handleElevenLabsVoiceChange() {
+      const voiceSel = document.getElementById("elevenLabsVoiceSelect").value;
+      const voiceIdBlk = document.getElementById("elevenLabsVoiceIdBlock");
+      if (voiceSel === "other") {
+        voiceIdBlk.classList.remove("hidden");
+      } else {
+        voiceIdBlk.classList.add("hidden");
+      }
+    }
+
+    /********************************************************
+     * 3) Microsoft TTS voice list (example)
+     *    Expand to your full data from the file you uploaded
+     ********************************************************/
+    const microsoftVoicesByLang = {
+  "Afrikaans (South Africa)": [
+    { "shortName": "af-ZA-AdriNeural",   "friendlyName": "Adri" },
+    { "shortName": "af-ZA-WillemNeural", "friendlyName": "Willem" }
+  ],
+  "Albanian (Albania)": [
+    { "shortName": "sq-AL-AnilaNeural",  "friendlyName": "Anila" },
+    { "shortName": "sq-AL-IlirNeural",   "friendlyName": "Ilir" }
+  ],
+  "Amharic (Ethiopia)": [
+    { "shortName": "am-ET-AmehaNeural",  "friendlyName": "Ameha" },
+    { "shortName": "am-ET-MekdesNeural", "friendlyName": "Mekdes" }
+  ],
+  "Arabic (Algeria)": [
+    { "shortName": "ar-DZ-MustafaNeural", "friendlyName": "Mustafa" },
+    { "shortName": "ar-DZ-FatimaNeural",  "friendlyName": "Fatima" }
+  ],
+  "Arabic (Bahrain)": [
+    { "shortName": "ar-BH-AliNeural",    "friendlyName": "Ali" },
+    { "shortName": "ar-BH-LailaNeural",  "friendlyName": "Laila" }
+  ],
+  "Arabic (Egypt)": [
+    { "shortName": "ar-EG-ShakirNeural", "friendlyName": "Shakir" },
+    { "shortName": "ar-EG-SalmaNeural",  "friendlyName": "Salma" }
+  ],
+  "Arabic (Iraq)": [
+    { "shortName": "ar-IQ-BasselNeural", "friendlyName": "Bassel" },
+    { "shortName": "ar-IQ-RanaNeural",   "friendlyName": "Rana" }
+  ],
+  "Arabic (Jordan)": [
+    { "shortName": "ar-JO-TaimNeural",   "friendlyName": "Taim" },
+    { "shortName": "ar-JO-SanaNeural",   "friendlyName": "Sana" }
+  ],
+  "Arabic (Kuwait)": [
+    { "shortName": "ar-KW-FahedNeural",  "friendlyName": "Fahed" },
+    { "shortName": "ar-KW-NouraNeural",  "friendlyName": "Noura" }
+  ],
+  "Arabic (Lebanon)": [
+    { "shortName": "ar-LB-NourNeural",   "friendlyName": "Nour" },
+    { "shortName": "ar-LB-ColetteNeural","friendlyName": "Colette" }
+  ],
+  "Arabic (Libya)": [
+    { "shortName": "ar-LY-OmarNeural",   "friendlyName": "Omar" },
+    { "shortName": "ar-LY-ImanNeural",   "friendlyName": "Iman" }
+  ],
+  "Arabic (Morocco)": [
+    { "shortName": "ar-MA-JamalNeural",  "friendlyName": "Jamal" },
+    { "shortName": "ar-MA-MeryemNeural", "friendlyName": "Meryem" }
+  ],
+  "Arabic (Oman)": [
+    { "shortName": "ar-OM-SalimNeural",  "friendlyName": "Salim" },
+    { "shortName": "ar-OM-AyshaNeural",  "friendlyName": "Aysha" }
+  ],
+  "Arabic (Qatar)": [
+    { "shortName": "ar-QA-MoazNeural",   "friendlyName": "Moaz" },
+    { "shortName": "ar-QA-AmalNeural",   "friendlyName": "Amal" }
+  ],
+  "Arabic (Saudi Arabia)": [
+    { "shortName": "ar-SA-HamedNeural",  "friendlyName": "Hamed" },
+    { "shortName": "ar-SA-ZariyahNeural","friendlyName": "Zariyah" }
+  ],
+  "Arabic (Syria)": [
+    { "shortName": "ar-SY-AmanyNeural",  "friendlyName": "Amany" },
+    { "shortName": "ar-SY-LaithNeural",  "friendlyName": "Laith" }
+  ],
+  "Arabic (Tunisia)": [
+    { "shortName": "ar-TN-MehdiNeural",  "friendlyName": "Mehdi" },
+    { "shortName": "ar-TN-ReemNeural",   "friendlyName": "Reem" }
+  ],
+  "Arabic (UAE)": [
+    { "shortName": "ar-AE-FatimaNeural", "friendlyName": "Fatima" },
+    { "shortName": "ar-AE-HamdanNeural", "friendlyName": "Hamdan" }
+  ],
+  "Armenian (Armenia)": [
+    { "shortName": "hy-AM-HaykNeural",   "friendlyName": "Hayk" },
+    { "shortName": "hy-AM-AnnaNeural",   "friendlyName": "Anna" }
+  ],
+  "Assamese (India)": [
+    { "shortName": "as-IN-ParthNeural",  "friendlyName": "Parth" },
+    { "shortName": "as-IN-DitheeNeural", "friendlyName": "Dithee" }
+  ],
+  "Azerbaijani (Azerbaijan)": [
+    { "shortName": "az-AZ-BabekNeural",  "friendlyName": "Babek" },
+    { "shortName": "az-AZ-BayanNeural",  "friendlyName": "Bayan" }
+  ],
+  "Bangla (Bangladesh)": [
+    { "shortName": "bn-BD-PradeepNeural","friendlyName": "Pradeep" },
+    { "shortName": "bn-BD-NabanitaNeural","friendlyName": "Nabanita" }
+  ],
+  "Bangla (India)": [
+    { "shortName": "bn-IN-BishalNeural",  "friendlyName": "Bishal" },
+    { "shortName": "bn-IN-TanishaaNeural","friendlyName": "Tanishaa" }
+  ],
+  "Basque (Spain)": [
+    { "shortName": "eu-ES-AnderNeural",  "friendlyName": "Ander" },
+    { "shortName": "eu-ES-MirenNeural",  "friendlyName": "Miren" }
+  ],
+  "Bosnian (Bosnia and Herzegovina)": [
+    { "shortName": "bs-BA-GoranNeural",  "friendlyName": "Goran" },
+    { "shortName": "bs-BA-ZehraNeural",  "friendlyName": "Zehra" }
+  ],
+  "Bulgarian (Bulgaria)": [
+    { "shortName": "bg-BG-BorislavNeural","friendlyName": "Borislav" },
+    { "shortName": "bg-BG-KalinaNeural",  "friendlyName": "Kalina" }
+  ],
+  "Burmese (Myanmar)": [
+    { "shortName": "my-MM-NilarNeural",   "friendlyName": "Nilar" },
+    { "shortName": "my-MM-ThihaNeural",   "friendlyName": "Thiha" }
+  ],
+  "Cantonese (Traditional, Hong Kong)": [
+    { "shortName": "yue-HK-HiuGaaiNeural", "friendlyName": "HiuGaai" },
+    { "shortName": "yue-HK-HiuMaanNeural", "friendlyName": "HiuMaan" },
+    { "shortName": "yue-HK-WanLungNeural", "friendlyName": "WanLung" }
+  ],
+  "Catalan (Spain)": [
+    { "shortName": "ca-ES-AlbaNeural",    "friendlyName": "Alba" },
+    { "shortName": "ca-ES-EnricNeural",   "friendlyName": "Enric" }
+  ],
+  "Chinese (Literary)": [
+    { "shortName": "lzh-CN-HanNeural",    "friendlyName": "Han" }
+  ],
+  "Chinese (Simplified, China)": [
+    { "shortName": "zh-CN-XiaoxiaoNeural", "friendlyName": "Xiaoxiao" },
+    { "shortName": "zh-CN-XiaoyanNeural",  "friendlyName": "Xiaoyan" },
+    { "shortName": "zh-CN-XiaoyiNeural",   "friendlyName": "Xiaoyi" },
+    { "shortName": "zh-CN-XiaomoNeural",   "friendlyName": "Xiaomo" },
+    { "shortName": "zh-CN-XiaoruiNeural",  "friendlyName": "Xiaorui" },
+    { "shortName": "zh-CN-XiaoqiuNeural",  "friendlyName": "Xiaoqiu" },
+    { "shortName": "zh-CN-XiaoshuangNeural","friendlyName": "Xiaoshuang" },
+    { "shortName": "zh-CN-XiaoxuanNeural", "friendlyName": "Xiaoxuan" },
+    { "shortName": "zh-CN-HuihuiNeural",   "friendlyName": "Huihui" },
+    { "shortName": "zh-CN-YunxiNeural",    "friendlyName": "Yunxi" },
+    { "shortName": "zh-CN-YunyangNeural",  "friendlyName": "Yunyang" },
+    { "shortName": "zh-CN-YunfengNeural",  "friendlyName": "Yunfeng" },
+    { "shortName": "zh-CN-YunzhiNeural",   "friendlyName": "Yunzhi" },
+    { "shortName": "zh-CN-YunhaoNeural",   "friendlyName": "Yunhao" },
+    { "shortName": "zh-CN-YunjianNeural",  "friendlyName": "Yunjian" }
+  ],
+  "Chinese (Traditional, Hong Kong S.A.R.)": [
+    { "shortName": "zh-HK-HiuMaanNeural",  "friendlyName": "HiuMaan" },
+    { "shortName": "zh-HK-HiuGaaiNeural",  "friendlyName": "HiuGaai" },
+    { "shortName": "zh-HK-WanLungNeural",  "friendlyName": "WanLung" }
+  ],
+  "Chinese (Traditional, Macau S.A.R.)": [
+    { "shortName": "zh-MO-WanLungNeural",  "friendlyName": "WanLung" }
+  ],
+  "Chinese (Traditional, Taiwan)": [
+    { "shortName": "zh-TW-HsiaoChenNeural","friendlyName": "HsiaoChen" },
+    { "shortName": "zh-TW-HsiaoYuNeural",  "friendlyName": "HsiaoYu" },
+    { "shortName": "zh-TW-HsiaoWanNeural", "friendlyName": "HsiaoWan" },
+    { "shortName": "zh-TW-YunJheNeural",   "friendlyName": "YunJhe" },
+    { "shortName": "zh-TW-YunZhiNeural",   "friendlyName": "YunZhi" }
+  ],
+  "Croatian (Croatia)": [
+    { "shortName": "hr-HR-GabrijelaNeural", "friendlyName": "Gabrijela" },
+    { "shortName": "hr-HR-SreckoNeural",    "friendlyName": "Srecko" }
+  ],
+  "Czech (Czech Republic)": [
+    { "shortName": "cs-CZ-VlastaNeural",  "friendlyName": "Vlasta" },
+    { "shortName": "cs-CZ-AntoninNeural", "friendlyName": "Antonin" }
+  ],
+  "Danish (Denmark)": [
+    { "shortName": "da-DK-ChristelNeural","friendlyName": "Christel" },
+    { "shortName": "da-DK-JeppeNeural",   "friendlyName": "Jeppe" }
+  ],
+  "Dutch (Belgium)": [
+    { "shortName": "nl-BE-ArnaudNeural",  "friendlyName": "Arnaud" },
+    { "shortName": "nl-BE-DenaNeural",    "friendlyName": "Dena" }
+  ],
+  "Dutch (Netherlands)": [
+    { "shortName": "nl-NL-ColetteNeural", "friendlyName": "Colette" },
+    { "shortName": "nl-NL-FennaNeural",   "friendlyName": "Fenna" },
+    { "shortName": "nl-NL-MaartenNeural", "friendlyName": "Maarten" }
+  ],
+  "English (Australia)": [
+    { "shortName": "en-AU-NatashaNeural", "friendlyName": "Natasha" },
+    { "shortName": "en-AU-TimNeural",     "friendlyName": "Tim" }
+  ],
+  "English (Belize)": [
+    { "shortName": "en-BZ-LyndaNeural",   "friendlyName": "Lynda" }
+  ],
+  "English (Canada)": [
+    { "shortName": "en-CA-ClaraNeural",   "friendlyName": "Clara" },
+    { "shortName": "en-CA-LiamNeural",    "friendlyName": "Liam" }
+  ],
+  "English (Caribbean)": [
+    { "shortName": "en-029-MichelleNeural", "friendlyName": "Michelle" }
+  ],
+  "English (Ghana)": [
+    { "shortName": "en-GH-AmaNeural",     "friendlyName": "Ama" }
+  ],
+  "English (Hong Kong)": [
+    { "shortName": "en-HK-SamNeural",     "friendlyName": "Sam" }
+  ],
+  "English (India)": [
+    { "shortName": "en-IN-NeerjaNeural",  "friendlyName": "Neerja" },
+    { "shortName": "en-IN-PrabhatNeural", "friendlyName": "Prabhat" }
+  ],
+  "English (Ireland)": [
+    { "shortName": "en-IE-EmilyNeural",   "friendlyName": "Emily" },
+    { "shortName": "en-IE-ConnorNeural",  "friendlyName": "Connor" }
+  ],
+  "English (Kenya)": [
+    { "shortName": "en-KE-AsiliaNeural",  "friendlyName": "Asilia" },
+    { "shortName": "en-KE-ChilembaNeural","friendlyName": "Chilemba" }
+  ],
+  "English (New Zealand)": [
+    { "shortName": "en-NZ-MollyNeural",   "friendlyName": "Molly" },
+    { "shortName": "en-NZ-MitchellNeural","friendlyName": "Mitchell" }
+  ],
+  "English (Nigeria)": [
+    { "shortName": "en-NG-AbeoNeural",    "friendlyName": "Abeo" },
+    { "shortName": "en-NG-EzinneNeural",  "friendlyName": "Ezinne" }
+  ],
+  "English (Philippines)": [
+    { "shortName": "en-PH-JamesNeural",   "friendlyName": "James" },
+    { "shortName": "en-PH-RosaNeural",    "friendlyName": "Rosa" }
+  ],
+  "English (Singapore)": [
+    { "shortName": "en-SG-LunaNeural",    "friendlyName": "Luna" },
+    { "shortName": "en-SG-WayneNeural",   "friendlyName": "Wayne" }
+  ],
+  "English (South Africa)": [
+    { "shortName": "en-ZA-LeahNeural",    "friendlyName": "Leah" },
+    { "shortName": "en-ZA-LukeNeural",    "friendlyName": "Luke" }
+  ],
+  "English (Tanzania)": [
+    { "shortName": "en-TZ-ImaniNeural",   "friendlyName": "Imani" }
+  ],
+  "English (United Kingdom)": [
+    { "shortName": "en-GB-LibbyNeural",   "friendlyName": "Libby" },
+    { "shortName": "en-GB-MiaNeural",     "friendlyName": "Mia" },
+    { "shortName": "en-GB-RyanNeural",    "friendlyName": "Ryan" },
+    { "shortName": "en-GB-MaisieNeural",    "friendlyName": "Maisie (child)" }
+  ],
+  "English (United States)": [
+    { "shortName": "en-US-AmberNeural",   "friendlyName": "Amber" },
+    { "shortName": "en-US-AnaNeural",     "friendlyName": "Ana (child)" },
+    { "shortName": "en-US-AriaNeural",    "friendlyName": "Aria" },
+    { "shortName": "en-US-AshleyNeural",  "friendlyName": "Ashley" },
+    { "shortName": "en-US-BrandonNeural", "friendlyName": "Brandon" },
+    { "shortName": "en-US-ChristopherNeural","friendlyName": "Christopher" },
+    { "shortName": "en-US-CoraNeural",    "friendlyName": "Cora" },
+    { "shortName": "en-US-ElizabethNeural","friendlyName": "Elizabeth" },
+    { "shortName": "en-US-EricNeural",    "friendlyName": "Eric" },
+    { "shortName": "en-US-GuyNeural",     "friendlyName": "Guy" },
+    { "shortName": "en-US-JacobNeural",   "friendlyName": "Jacob" },
+    { "shortName": "en-US-JaneNeural",    "friendlyName": "Jane" },
+    { "shortName": "en-US-JennyNeural",   "friendlyName": "Jenny" },
+    { "shortName": "en-US-MichelleNeural","friendlyName": "Michelle" },
+    { "shortName": "en-US-RogerNeural",   "friendlyName": "Roger" },
+    { "shortName": "en-US-SteffanNeural", "friendlyName": "Steffan" },
+    { "shortName": "en-US-TonyNeural",    "friendlyName": "Tony" }
+  ],
+  "English (Zimbabwe)": [
+    { "shortName": "en-ZW-FariraiNeural", "friendlyName": "Farirai" }
+  ],
+  "Estonian (Estonia)": [
+    { "shortName": "et-EE-AnuNeural",     "friendlyName": "Anu" },
+    { "shortName": "et-EE-KertNeural",    "friendlyName": "Kert" }
+  ],
+  "Filipino (Philippines)": [
+    { "shortName": "fil-PH-AngeloNeural", "friendlyName": "Angelo" },
+    { "shortName": "fil-PH-BlessieNeural","friendlyName": "Blessie" }
+  ],
+  "Finnish (Finland)": [
+    { "shortName": "fi-FI-NooraNeural",   "friendlyName": "Noora" },
+    { "shortName": "fi-FI-HarriNeural",   "friendlyName": "Harri" }
+  ],
+  "French (Belgium)": [
+    { "shortName": "fr-BE-CharlineNeural","friendlyName": "Charline" },
+    { "shortName": "fr-BE-GerardNeural",  "friendlyName": "Gerard" }
+  ],
+  "French (Canada)": [
+    { "shortName": "fr-CA-SylvieNeural",  "friendlyName": "Sylvie" },
+    { "shortName": "fr-CA-AntoineNeural", "friendlyName": "Antoine" }
+  ],
+  "French (France)": [
+    { "shortName": "fr-FR-DeniseNeural",  "friendlyName": "Denise" },
+    { "shortName": "fr-FR-HenriNeural",   "friendlyName": "Henri" },
+    { "shortName": "fr-FR-BrigitteNeural","friendlyName": "Brigitte" },
+    { "shortName": "fr-FR-AxelNeural",    "friendlyName": "Axel" }
+  ],
+  "French (Switzerland)": [
+    { "shortName": "fr-CH-ArianeNeural",  "friendlyName": "Ariane" },
+    { "shortName": "fr-CH-FabriceNeural", "friendlyName": "Fabrice" }
+  ],
+  "Galician (Spain)": [
+    { "shortName": "gl-ES-SabelaNeural",  "friendlyName": "Sabela" }
+  ],
+  "Georgian (Georgia)": [
+    { "shortName": "ka-GE-EkaNeural",     "friendlyName": "Eka" },
+    { "shortName": "ka-GE-GiorgiNeural",  "friendlyName": "Giorgi" }
+  ],
+  "German (Austria)": [
+    { "shortName": "de-AT-IngridNeural",  "friendlyName": "Ingrid" },
+    { "shortName": "de-AT-JonasNeural",   "friendlyName": "Jonas" }
+  ],
+  "German (Germany)": [
+    { "shortName": "de-DE-KatjaNeural",   "friendlyName": "Katja" },
+    { "shortName": "de-DE-ConradNeural",  "friendlyName": "Conrad" },
+    { "shortName": "de-DE-KasparNeural",  "friendlyName": "Kaspar" },
+    { "shortName": "de-DE-AmalaNeural",   "friendlyName": "Amala" }
+  ],
+  "German (Switzerland)": [
+    { "shortName": "de-CH-LeniNeural",    "friendlyName": "Leni" },
+    { "shortName": "de-CH-JanNeural",     "friendlyName": "Jan" }
+  ],
+  "Greek (Greece)": [
+    { "shortName": "el-GR-AthinaNeural",  "friendlyName": "Athina" },
+    { "shortName": "el-GR-NestorasNeural","friendlyName": "Nestoras" }
+  ],
+  "Gujarati (India)": [
+    { "shortName": "gu-IN-DhwaniNeural",  "friendlyName": "Dhwani" },
+    { "shortName": "gu-IN-NiranjanNeural","friendlyName": "Niranjan" }
+  ],
+  "Hausa (Nigeria)": [
+    { "shortName": "ha-NG-AinaNeural",    "friendlyName": "Aina" }
+  ],
+  "Hebrew (Israel)": [
+    { "shortName": "he-IL-AvriNeural",    "friendlyName": "Avri" },
+    { "shortName": "he-IL-HilaNeural",    "friendlyName": "Hila" }
+  ],
+  "Hindi (India)": [
+    { "shortName": "hi-IN-SwaraNeural",   "friendlyName": "Swara" },
+    { "shortName": "hi-IN-MadhurNeural",  "friendlyName": "Madhur" }
+  ],
+  "Hungarian (Hungary)": [
+    { "shortName": "hu-HU-NoemiNeural",   "friendlyName": "Noemi" },
+    { "shortName": "hu-HU-TamasNeural",   "friendlyName": "Tamas" }
+  ],
+  "Icelandic (Iceland)": [
+    { "shortName": "is-IS-GudrunNeural",  "friendlyName": "Gudrun" },
+    { "shortName": "is-IS-GunnarNeural",  "friendlyName": "Gunnar" }
+  ],
+  "Igbo (Nigeria)": [
+    { "shortName": "ig-NG-ChiomaNeural",  "friendlyName": "Chioma" }
+  ],
+  "Indonesian (Indonesia)": [
+    { "shortName": "id-ID-GadisNeural",   "friendlyName": "Gadis" },
+    { "shortName": "id-ID-ArdiNeural",    "friendlyName": "Ardi" }
+  ],
+  "Irish (Ireland)": [
+    { "shortName": "ga-IE-OrlaNeural",    "friendlyName": "Orla" },
+    { "shortName": "ga-IE-ColmNeural",    "friendlyName": "Colm" }
+  ],
+  "Italian (Italy)": [
+    { "shortName": "it-IT-ElsaNeural",    "friendlyName": "Elsa" },
+    { "shortName": "it-IT-DiegoNeural",   "friendlyName": "Diego" }
+  ],
+  "Japanese (Japan)": [
+    { "shortName": "ja-JP-NanamiNeural",  "friendlyName": "Nanami" },
+    { "shortName": "ja-JP-KeitaNeural",   "friendlyName": "Keita" },
+    { "shortName": "ja-JP-MayuNeural",    "friendlyName": "Mayu" },
+    { "shortName": "ja-JP-KazukiNeural",  "friendlyName": "Kazuki" }
+  ],
+  "Javanese (Indonesia)": [
+    { "shortName": "jv-ID-DimasNeural",   "friendlyName": "Dimas" }
+  ],
+  "Kannada (India)": [
+    { "shortName": "kn-IN-SapnaNeural",   "friendlyName": "Sapna" },
+    { "shortName": "kn-IN-GaganNeural",   "friendlyName": "Gagan" }
+  ],
+  "Kazakh (Kazakhstan)": [
+    { "shortName": "kk-KZ-AigulNeural",   "friendlyName": "Aigul" },
+    { "shortName": "kk-KZ-DauletNeural",  "friendlyName": "Daulet" }
+  ],
+  "Khmer (Cambodia)": [
+    { "shortName": "km-KH-PisethNeural",  "friendlyName": "Piseth" },
+    { "shortName": "km-KH-SreymomNeural", "friendlyName": "Sreymom" }
+  ],
+  "Kinyarwanda (Rwanda)": [
+    { "shortName": "rw-RW-EzraNeural",    "friendlyName": "Ezra" }
+  ],
+  "Korean (Korea)": [
+    { "shortName": "ko-KR-SunHiNeural",   "friendlyName": "SunHi" },
+    { "shortName": "ko-KR-InJoonNeural",  "friendlyName": "InJoon" }
+  ],
+  "Kurdish (Northern Iraq)": [
+    { "shortName": "ku-IQ-AliNeural",     "friendlyName": "Ali" }
+  ],
+  "Kyrgyz (Kyrgyzstan)": [
+    { "shortName": "ky-KG-BakaiNeural",   "friendlyName": "Bakai" }
+  ],
+  "Lao (Laos)": [
+    { "shortName": "lo-LA-ChanthavongNeural", "friendlyName": "Chanthavong" }
+  ],
+  "Latvian (Latvia)": [
+    { "shortName": "lv-LV-EveritaNeural", "friendlyName": "Everita" },
+    { "shortName": "lv-LV-NilsNeural",    "friendlyName": "Nils" }
+  ],
+  "Lingala (Congo)": [
+    { "shortName": "ln-CD-JulieNeural",   "friendlyName": "Julie" }
+  ],
+  "Lithuanian (Lithuania)": [
+    { "shortName": "lt-LT-OnaNeural",     "friendlyName": "Ona" },
+    { "shortName": "lt-LT-LeonasNeural",  "friendlyName": "Leonas" }
+  ],
+  "Luxembourgish (Luxembourg)": [
+    { "shortName": "lb-LU-EmileNeural",   "friendlyName": "Emile" }
+  ],
+  "Macedonian (North Macedonia)": [
+    { "shortName": "mk-MK-MarijaNeural",  "friendlyName": "Marija" },
+    { "shortName": "mk-MK-AleksandarNeural","friendlyName": "Aleksandar" }
+  ],
+  "Malay (Malaysia)": [
+    { "shortName": "ms-MY-YasminNeural",  "friendlyName": "Yasmin" },
+    { "shortName": "ms-MY-OsmanNeural",   "friendlyName": "Osman" }
+  ],
+  "Malayalam (India)": [
+    { "shortName": "ml-IN-MidhunNeural",  "friendlyName": "Midhun" },
+    { "shortName": "ml-IN-SobhanaNeural", "friendlyName": "Sobhana" }
+  ],
+  "Maltese (Malta)": [
+    { "shortName": "mt-MT-GraceNeural",   "friendlyName": "Grace" },
+    { "shortName": "mt-MT-JosephNeural",  "friendlyName": "Joseph" }
+  ],
+  "Maori (New Zealand)": [
+    { "shortName": "mi-NZ-MereNeural",    "friendlyName": "Mere" }
+  ],
+  "Marathi (India)": [
+    { "shortName": "mr-IN-AarohiNeural",  "friendlyName": "Aarohi" },
+    { "shortName": "mr-IN-ManoharNeural", "friendlyName": "Manohar" }
+  ],
+  "Mongolian (Mongolia)": [
+    { "shortName": "mn-MN-BataaNeural",   "friendlyName": "Bataa" }
+  ],
+  "Nepali (Nepal)": [
+    { "shortName": "ne-NP-HemkalaNeural", "friendlyName": "Hemkala" },
+    { "shortName": "ne-NP-SagarNeural",   "friendlyName": "Sagar" }
+  ],
+  "Norwegian Bokmål (Norway)": [
+    { "shortName": "nb-NO-PernilleNeural","friendlyName": "Pernille" },
+    { "shortName": "nb-NO-FinnNeural",    "friendlyName": "Finn" }
+  ],
+  "Oriya (India)": [
+    { "shortName": "or-IN-MadhuriNeural", "friendlyName": "Madhuri" },
+    { "shortName": "or-IN-SachinNeural",  "friendlyName": "Sachin" }
+  ],
+  "Pashto (Afghanistan)": [
+    { "shortName": "ps-AF-GulNawazNeural","friendlyName": "GulNawaz" }
+  ],
+  "Persian (Iran)": [
+    { "shortName": "fa-IR-DilaraNeural",  "friendlyName": "Dilara" },
+    { "shortName": "fa-IR-FaridNeural",   "friendlyName": "Farid" }
+  ],
+  "Polish (Poland)": [
+    { "shortName": "pl-PL-AgnieszkaNeural","friendlyName": "Agnieszka" },
+    { "shortName": "pl-PL-MarekNeural",   "friendlyName": "Marek" },
+    { "shortName": "pl-PL-ZofiaNeural",   "friendlyName": "Zofia" }
+  ],
+  "Portuguese (Brazil)": [
+    { "shortName": "pt-BR-FranciscaNeural","friendlyName": "Francisca" },
+    { "shortName": "pt-BR-AntonioNeural", "friendlyName": "Antonio" },
+    { "shortName": "pt-BR-JoanaNeural",   "friendlyName": "Joana" }
+  ],
+  "Portuguese (Portugal)": [
+    { "shortName": "pt-PT-FernandaNeural","friendlyName": "Fernanda" },
+    { "shortName": "pt-PT-RaquelNeural",  "friendlyName": "Raquel" },
+    { "shortName": "pt-PT-DuarteNeural",  "friendlyName": "Duarte" }
+  ],
+  "Punjabi (India)": [
+    { "shortName": "pa-IN-GurjeetNeural", "friendlyName": "Gurjeet" },
+    { "shortName": "pa-IN-IqraNeural",    "friendlyName": "Iqra" }
+  ],
+  "Quechua (Peru)": [
+    { "shortName": "qu-PE-CusiNeural",    "friendlyName": "Cusi" }
+  ],
+  "Romanian (Romania)": [
+    { "shortName": "ro-RO-AlinaNeural",   "friendlyName": "Alina" },
+    { "shortName": "ro-RO-EmilNeural",    "friendlyName": "Emil" }
+  ],
+  "Russian (Russia)": [
+    { "shortName": "ru-RU-SvetlanaNeural","friendlyName": "Svetlana" },
+    { "shortName": "ru-RU-DmitryNeural",  "friendlyName": "Dmitry" },
+    { "shortName": "ru-RU-DariyaNeural",  "friendlyName": "Dariya" }
+  ],
+  "Samoan (Samoa)": [
+    { "shortName": "sm-WS-JessicaNeural", "friendlyName": "Jessica" }
+  ],
+  "Serbian (Cyrillic, Serbia)": [
+    { "shortName": "sr-RS-SophieNeural",  "friendlyName": "Sophie" }
+  ],
+  "Serbian (Latin, Bosnia and Herzegovina)": [
+    { "shortName": "sr-BA-InesNeural",    "friendlyName": "Ines" }
+  ],
+  "Sesotho (Lesotho)": [
+    { "shortName": "st-LS-TebohoNeural",  "friendlyName": "Teboho" }
+  ],
+  "Sinhala (Sri Lanka)": [
+    { "shortName": "si-LK-SameeraNeural", "friendlyName": "Sameera" },
+    { "shortName": "si-LK-ThiliniNeural", "friendlyName": "Thilini" }
+  ],
+  "Slovak (Slovakia)": [
+    { "shortName": "sk-SK-ViktoriaNeural","friendlyName": "Viktoria" },
+    { "shortName": "sk-SK-LukasNeural",   "friendlyName": "Lukas" }
+  ],
+  "Slovenian (Slovenia)": [
+    { "shortName": "sl-SI-PetraNeural",   "friendlyName": "Petra" },
+    { "shortName": "sl-SI-RokNeural",     "friendlyName": "Rok" }
+  ],
+  "Somali (Somalia)": [
+    { "shortName": "so-SO-MuuseNeural",   "friendlyName": "Muuse" }
+  ],
+  "Spanish (Argentina)": [
+    { "shortName": "es-AR-ElenaNeural",   "friendlyName": "Elena" }
+  ],
+  "Spanish (Bolivia)": [
+    { "shortName": "es-BO-MarceloNeural", "friendlyName": "Marcelo" }
+  ],
+  "Spanish (Chile)": [
+    { "shortName": "es-CL-CatalinaNeural","friendlyName": "Catalina" },
+    { "shortName": "es-CL-LorenzoNeural", "friendlyName": "Lorenzo" }
+  ],
+  "Spanish (Colombia)": [
+    { "shortName": "es-CO-SalomeNeural",  "friendlyName": "Salome" },
+    { "shortName": "es-CO-GonzaloNeural", "friendlyName": "Gonzalo" }
+  ],
+  "Spanish (Costa Rica)": [
+    { "shortName": "es-CR-JuanNeural",    "friendlyName": "Juan" },
+    { "shortName": "es-CR-MariaNeural",   "friendlyName": "Maria" }
+  ],
+  "Spanish (Cuba)": [
+    { "shortName": "es-CU-BelkysNeural",  "friendlyName": "Belkys" }
+  ],
+  "Spanish (Dominican Republic)": [
+    { "shortName": "es-DO-RamonaNeural",  "friendlyName": "Ramona" }
+  ],
+  "Spanish (Ecuador)": [
+    { "shortName": "es-EC-AndreaNeural",  "friendlyName": "Andrea" }
+  ],
+  "Spanish (El Salvador)": [
+    { "shortName": "es-SV-LorenaNeural",  "friendlyName": "Lorena" }
+  ],
+  "Spanish (Guatemala)": [
+    { "shortName": "es-GT-AndresNeural",  "friendlyName": "Andres" }
+  ],
+  "Spanish (Honduras)": [
+    { "shortName": "es-HN-KarlaNeural",   "friendlyName": "Karla" }
+  ],
+  "Spanish (Mexico)": [
+    { "shortName": "es-MX-DaliaNeural",   "friendlyName": "Dalia" },
+    { "shortName": "es-MX-JorgeNeural",   "friendlyName": "Jorge" }
+  ],
+  "Spanish (Nicaragua)": [
+    { "shortName": "es-NI-FedericoNeural","friendlyName": "Federico" }
+  ],
+  "Spanish (Panama)": [
+    { "shortName": "es-PA-MargaritaNeural","friendlyName": "Margarita" }
+  ],
+  "Spanish (Paraguay)": [
+    { "shortName": "es-PY-JulioNeural",   "friendlyName": "Julio" }
+  ],
+  "Spanish (Peru)": [
+    { "shortName": "es-PE-CamilaNeural",  "friendlyName": "Camila" },
+    { "shortName": "es-PE-AlexNeural",    "friendlyName": "Alex" }
+  ],
+  "Spanish (Puerto Rico)": [
+    { "shortName": "es-PR-KarinaNeural",  "friendlyName": "Karina" }
+  ],
+  "Spanish (Spain)": [
+    { "shortName": "es-ES-ElviraNeural",  "friendlyName": "Elvira" },
+    { "shortName": "es-ES-AlvaroNeural",  "friendlyName": "Alvaro" },
+    { "shortName": "es-ES-EstrellaNeural","friendlyName": "Estrella" },
+    { "shortName": "es-ES-DarioNeural",   "friendlyName": "Dario" }
+  ],
+  "Spanish (United States)": [
+    { "shortName": "es-US-PalomaNeural",  "friendlyName": "Paloma" },
+    { "shortName": "es-US-AlonsoNeural",  "friendlyName": "Alonso" }
+  ],
+  "Spanish (Uruguay)": [
+    { "shortName": "es-UY-MateoNeural",   "friendlyName": "Mateo" }
+  ],
+  "Spanish (Venezuela)": [
+    { "shortName": "es-VE-PaolaNeural",   "friendlyName": "Paola" }
+  ],
+  "Swahili (Kenya)": [
+    { "shortName": "sw-KE-RafikiNeural",  "friendlyName": "Rafiki" }
+  ],
+  "Swahili (Tanzania)": [
+    { "shortName": "sw-TZ-RehemaNeural",  "friendlyName": "Rehema" }
+  ],
+  "Swedish (Sweden)": [
+    { "shortName": "sv-SE-HedvigNeural",  "friendlyName": "Hedvig" },
+    { "shortName": "sv-SE-MattiasNeural", "friendlyName": "Mattias" }
+  ],
+  "Tamil (India)": [
+    { "shortName": "ta-IN-PallaviNeural", "friendlyName": "Pallavi" },
+    { "shortName": "ta-IN-ValluvarNeural","friendlyName": "Valluvar" }
+  ],
+  "Tamil (Malaysia)": [
+    { "shortName": "ta-MY-KaniNeural",    "friendlyName": "Kani" }
+  ],
+  "Tamil (Singapore)": [
+    { "shortName": "ta-SG-AnbuNeural",    "friendlyName": "Anbu" }
+  ],
+  "Tamil (Sri Lanka)": [
+    { "shortName": "ta-LK-KumarNeural",   "friendlyName": "Kumar" }
+  ],
+  "Telugu (India)": [
+    { "shortName": "te-IN-ShrutiNeural",  "friendlyName": "Shruti" },
+    { "shortName": "te-IN-MohanNeural",   "friendlyName": "Mohan" }
+  ],
+  "Thai (Thailand)": [
+    { "shortName": "th-TH-AcharaNeural",  "friendlyName": "Achara" },
+    { "shortName": "th-TH-NiwatNeural",   "friendlyName": "Niwat" }
+  ],
+  "Tigrinya (Eritrea)": [
+    { "shortName": "ti-ER-MikrayNeural",  "friendlyName": "Mikray" }
+  ],
+  "Tswana (South Africa)": [
+    { "shortName": "tn-ZA-KaraboNeural",  "friendlyName": "Karabo" }
+  ],
+  "Turkish (Turkey)": [
+    { "shortName": "tr-TR-EmelNeural",    "friendlyName": "Emel" },
+    { "shortName": "tr-TR-AhmetNeural",   "friendlyName": "Ahmet" }
+  ],
+  "Turkmen (Turkmenistan)": [
+    { "shortName": "tk-TM-ArazNeural",    "friendlyName": "Araz" }
+  ],
+  "Ukrainian (Ukraine)": [
+    { "shortName": "uk-UA-OstapNeural",   "friendlyName": "Ostap" },
+    { "shortName": "uk-UA-PolinaNeural",  "friendlyName": "Polina" }
+  ],
+  "Urdu (Pakistan)": [
+    { "shortName": "ur-PK-AsadNeural",    "friendlyName": "Asad" },
+    { "shortName": "ur-PK-UzmaNeural",    "friendlyName": "Uzma" }
+  ],
+  "Uyghur (China)": [
+    { "shortName": "ug-CN-MehriNeural",   "friendlyName": "Mehri" }
+  ],
+  "Uzbek (Uzbekistan)": [
+    { "shortName": "uz-UZ-MirjamolNeural","friendlyName": "Mirjamol" }
+  ],
+  "Vietnamese (Vietnam)": [
+    { "shortName": "vi-VN-HoaiMyNeural",  "friendlyName": "HoaiMy" },
+    { "shortName": "vi-VN-NamMinhNeural", "friendlyName": "NamMinh" }
+  ],
+  "Welsh (United Kingdom)": [
+    { "shortName": "cy-GB-AngharadNeural","friendlyName": "Angharad" },
+    { "shortName": "cy-GB-AledNeural",    "friendlyName": "Aled" }
+  ],
+  "West Frisian (Netherlands)": [
+    { "shortName": "fy-NL-TetianaNeural", "friendlyName": "Tetiana" }
+  ],
+  "Xhosa (South Africa)": [
+    { "shortName": "xh-ZA-AyandaNeural",  "friendlyName": "Ayanda" }
+  ],
+  "Yoruba (Nigeria)": [
+    { "shortName": "yo-NG-AdegokeNeural", "friendlyName": "Adegoke" }
+  ],
+  "Zulu (South Africa)": [
+    { "shortName": "zu-ZA-ThandoNeural",  "friendlyName": "Thando" }
+  ]
+};
+
+    function populateMicrosoftLangList() {
+      const msLangSelect = document.getElementById("microsoftLangSelect");
+      msLangSelect.innerHTML = "";
+
+      const languageCodes = Object.keys(microsoftVoicesByLang).sort();
+      languageCodes.forEach((lang) => {
+        const opt = document.createElement("option");
+        opt.value = lang;
+        opt.textContent = lang; // e.g. "en-US"
+        if (lang === "English (United States)") {
+          opt.selected = true;
+        }
+        msLangSelect.appendChild(opt);
+      });
+
+      // Trigger initial population
+      handleMicrosoftLangChange();
+    }
+
+    function handleMicrosoftLangChange() {
+      const lang = document.getElementById("microsoftLangSelect").value;
+      const voiceSelect = document.getElementById("microsoftVoiceSelect");
+      voiceSelect.innerHTML = "";
+
+      const voices = microsoftVoicesByLang[lang] || [];
+      voices.forEach((v) => {
+        const opt = document.createElement("option");
+        opt.value = v.shortName;
+        opt.textContent = `${v.friendlyName} (${v.shortName})`;
+        voiceSelect.appendChild(opt);
+      });
+    }
+
+    /********************************************************
+     * 4) CREATE Agent
+     ********************************************************/
+    async function createAgent() {
+      const output = document.getElementById("agentResponse");
+      output.textContent = "Creating...";
+      uniqueName    = document.getElementById("uniqueName").value.trim();
+      channel       = document.getElementById("agoraChannelName").value.trim();
+      rtcUid        = document.getElementById("agoraRtcUid").value.trim();
+      llmApiKey     = document.getElementById("llmApiKey").value.trim();
+      llmUrl        = document.getElementById("llmUrl").value.trim();
+      ttsKey        = document.getElementById("ttsKey").value.trim();
+
+      // Agora code from your snippet
+      APP_ID = storedAppId;
+      CHANNEL_NAME = channel;
+      TOKEN = null;  // Replace with token if required
+      // Basic credentials check
+      if (!storedAppId) {
+        alert("App ID not set. Click 'Set API Credentials'.");
+        output.textContent = "Error: Missing App ID.";
+        return;
+      }
+
+
+
+      if (!uniqueName || !channel || !rtcUid || !llmApiKey || !llmUrl || !ttsKey) {
+        alert("Please fill out all required fields.");
+        output.textContent = "Error: Missing required fields.";
+        return;
+      }
+
+      const headers = getAuthHeaders();
+      if (!headers) {
+        output.textContent = "Error: Missing credentials.";
+        return;
+      }
+
+      // Additional fields
+      const token     = document.getElementById("agoraRtcToken").value.trim();
+      const asr       = document.getElementById("asrLang").value;
+      const vendor    = document.getElementById("ttsVendor").value;
+      const isStringUid = document.getElementById('enableStringUid').checked; // Read whether the box is checked
+      const llmModel  = document.getElementById("llmModel").value;
+
+      // Build request
+      const reqBody = {
+        name: uniqueName,
+        properties: {
+          channel,
+          token,
+          agent_rtc_uid: rtcUid,
+          enable_string_uid: isStringUid,
+          idle_timeout: 120,
+          remote_rtc_uids: ["*"],
+          advanced_features: {
+            enable_bhvs: true,
+            enable_aivad: true
+          },
+          asr: {
+            language: asr
+          },
+          vad: {
+            silence_duration_ms: 480
+          },
+          llm: {
+            url: llmUrl,
+            api_key: llmApiKey,
+            system_messages: [
+              { role: "system", content: "You are a helpful chatbot." }
+            ],
+            greeting_message: "Hello, how can I help you?",
+            failure_message: "Sorry, I do not know how to answer this question.",
+            max_history: 10,
+            params: {
+              model: llmModel,
+              max_completion_tokens: 1000
+            }
+          }
+        }
+      };
+
+      // TTS logic
+      if (vendor === "microsoft") {
+        const region = document.getElementById("ttsRegion").value;
+        const lang   = document.getElementById("microsoftLangSelect").value;
+        const voice  = document.getElementById("microsoftVoiceSelect").value;
+
+        reqBody.properties.tts = {
+          vendor: "microsoft",
+          params: {
+            key: ttsKey,
+            region,
+            voice_name: voice,
+            rate: 1,
+            volume: 70
+          }
+        };
+      } else {
+        // elevenlabs
+        const modelId = document.getElementById("elevenLabsModelId").value;
+        const voiceSel= document.getElementById("elevenLabsVoiceSelect").value;
+        let finalVoiceId = "";
+        if (voiceSel === "other") {
+          finalVoiceId = document.getElementById("elevenLabsVoiceId").value.trim();
+        } else {
+          finalVoiceId = voiceSel; // might be empty
+        }
+        reqBody.properties.tts = {
+          vendor: "elevenlabs",
+          params: {
+            key: ttsKey,
+            model_id: modelId,
+            voice_id: finalVoiceId,
+          }
+        };
+      }
+
+      // Example endpoint:
+      const url = `https://api.agora.io/api/conversational-ai-agent/v2/projects/${storedAppId}/join`;
+
+      try {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(reqBody)
+        });
+        const data = await resp.json();
+        output.textContent = JSON.stringify(data, null, 2);
+
+        // If success, fill agentId
+        if (data.agent_id) {
+          document.getElementById("agentId").value = data.agent_id;
+        }
+      } catch (err) {
+        output.textContent = "Error: " + err;
+      }
+    }
+
+    /********************************************************
+     * 5) UPDATE Agent
+     ********************************************************/
+    async function updateAgent() {
+      const output = document.getElementById("agentResponse");
+      output.textContent = "Updating...";
+
+      if (!storedAppId) {
+        alert("App ID not set. Click 'Set API Credentials'.");
+        output.textContent = "Error: Missing App ID.";
+        return;
+      }
+      const agentId = document.getElementById("agentId").value.trim();
+      if (!agentId) {
+        alert("Please enter an Agent ID to update.");
+        output.textContent = "Error: No agentId.";
+        return;
+      }
+
+      const token = document.getElementById("agoraRtcToken").value.trim();
+      const headers = getAuthHeaders();
+      if (!headers) {
+        output.textContent = "Error: Missing credentials.";
+        return;
+      }
+
+      const url = `https://api.agora.io/api/conversational-ai-agent/v2/projects/${storedAppId}/agents/${agentId}/update`;
+      const body = { token };
+
+      try {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body)
+        });
+        const data = await resp.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = "Error: " + err;
+      }
+    }
+
+    /********************************************************
+     * 6) STOP Agent
+     ********************************************************/
+     async function stopAgent(id = "nothing") {
+      let agentId;
+      const output = document.getElementById("agentResponse");
+      output.textContent = "Stopping...";
+
+      if (!storedAppId) {
+        alert("App ID not set. Click 'Set API Credentials'.");
+        output.textContent = "Error: Missing App ID.";
+        return;
+      }
+      if (id == "nothing") {
+        agentId = document.getElementById("agentId").value.trim();
+        if (!agentId) {
+            alert("Please enter an Agent ID to stop.");
+            output.textContent = "Error: No agentId.";
+            return;
+        }
+      } else {
+        agentId = id;
+      }
+
+      const headers = getAuthHeaders();
+      if (!headers) {
+        output.textContent = "Error: Missing credentials.";
+        return;
+      }
+
+      const url = `https://api.agora.io/api/conversational-ai-agent/v2/projects/${storedAppId}/agents/${agentId}/leave`;
+      try {
+        const resp = await fetch(url, { method: "POST", headers });
+        let data;
+        try {
+          data = await resp.json();
+        } catch {
+          data = { status: resp.status };
+        }
+
+        if (Object.keys(data).length === 0) {
+          output.textContent = "Agent stopped (empty JSON response).";
+        } else {
+          output.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        output.textContent = "Error: " + err;
+      }
+    }
+
+    /********************************************************
+     * 7) QUERY Agent
+     ********************************************************/
+    async function queryAgent() {
+      const outEl = document.getElementById("queryResponse");
+      outEl.textContent = "Querying agent status...";
+
+      if (!storedAppId) {
+        alert("App ID not set. Click 'Set API Credentials'.");
+        outEl.textContent = "Error: Missing App ID.";
+        return;
+      }
+      const agentId = document.getElementById("agentId").value.trim();
+      if (!agentId) {
+        alert("Please enter an Agent ID to query.");
+        outEl.textContent = "Error: No agentId.";
+        return;
+      }
+
+      const headers = getAuthHeaders();
+      if (!headers) {
+        outEl.textContent = "Error: Missing credentials.";
+        return;
+      }
+
+      const url = `https://api.agora.io/api/conversational-ai-agent/v2/projects/${storedAppId}/agents/${agentId}`;
+      try {
+        const resp = await fetch(url, { method: "GET", headers });
+        const data = await resp.json();
+        outEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        outEl.textContent = "Error: " + err;
+      }
+    }
+
+    /********************************************************
+     * 8) LIST Agents
+     ********************************************************/
+    async function listAgents() {
+      const outEl = document.getElementById("queryResponse");
+      outEl.textContent = "Retrieving agents...";
+
+      if (!storedAppId) {
+        alert("App ID not set. Click 'Set API Credentials'.");
+        outEl.textContent = "Error: Missing App ID.";
+        return;
+      }
+
+      const headers = getAuthHeaders();
+      if (!headers) {
+        outEl.textContent = "Error: Missing credentials.";
+        return;
+      }
+
+      const url = `https://api.agora.io/api/conversational-ai-agent/v2/projects/${storedAppId}/agents`;
+      try {
+        const resp = await fetch(url, { method: "GET", headers });
+        const data = await resp.json();
+        outEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        outEl.textContent = "Error: " + err;
+      }
+    }
+  </script>
+  <a
+  href="https://github.com/frank005/convo_ai"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="fixed top-4 right-4 w-10 h-10 bg-gray-800 flex items-center justify-center rounded-full shadow-lg hover:bg-gray-700 transition"
+  title="View my GitHub"
+  >
+  <!-- Inline SVG for GitHub icon -->
+  <svg
+    class="w-5 h-5 text-white"
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M12 .296a12 12 0 00-3.797 23.389c.6.111.82-.261.82-.58v-2.259c-3.338.725-4.042-1.61-4.042-1.61-.547-1.39-1.336-1.76-1.336-1.76-1.09-.746.082-.73.082-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.107-.776.42-1.305.764-1.604-2.665-.305-5.467-1.333-5.467-5.93 0-1.31.469-2.381 1.24-3.221-.125-.303-.54-1.52.117-3.165 0 0 1.012-.324 3.317 1.23.96-.267 1.987-.399 3.009-.404 1.02.005 2.049.137 3.01.404 2.304-1.554 3.315-1.23 3.315-1.23.659 1.646.244 2.863.12 3.166.772.84 1.24 1.91 1.24 3.22 0 4.61-2.807 5.623-5.48 5.92.431.372.817 1.104.817 2.224v3.293c0 .319.218.694.824.576A12 12 0 0012 .296z"
+    ></path>
+  </svg>
+  </a>
+</body>
+</html>
