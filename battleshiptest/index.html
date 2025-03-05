@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Battleship Agora</title>
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+    <script src="./batteship.js"></script>
+    <style>
+        .videos {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+        }
+        .player {
+          width: 480px;
+          height: 360px;
+          border: 2px solid green;
+          border-radius: 25rem;
+          overflow: hidden;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .center-align {
+            margin: auto;
+            width: 500px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .border {
+            border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+    <section id="header">
+        <h2 class="center-align border">Battleship Agora</h2>
+    </section>
+    <section id="buttons">
+        <div class="row">
+            <div>
+                <button type="button" id="start" onclick="startGame()">Start Game</button>
+                <button type="button" id="join" onclick="joinGame()">Join Game</button>
+                <button type="button" id="end" onclick="endGame()" disabled>End Game</button>
+            </div>
+        </div>
+    </section>
+    <section id="agora">
+        <div id="videos" class="videos">
+            <div id="localPlayer" class="player"></div>
+            <div id="remotePlayer" class="player"></div>
+        </div>
+    </section>
+</body>
+</html>

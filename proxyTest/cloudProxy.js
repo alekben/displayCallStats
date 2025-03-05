@@ -14,10 +14,14 @@ var chartArrayFPS = [];
 var chartBWE;
 var chartArrayBWE = [];
 
+var chartNet;
+var chartArrayNet = [];
+
 
 let statsInterval;
 
 AgoraRTC.enableLogUpload();
+AgoraRTC.setParameter("EXPERIMENTS", {"netqSensitivityMode": 1});
 //AgoraRTC.setArea("NORTH_AMERICA");
 //AgoraRTC.setArea("EUROPE");
 //AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
@@ -340,15 +344,18 @@ async function join() {
     chartJitter.clearChart();
     chartFPS.clearChart();
     chartBWE.clearChart();
+    chartNet.clearChart();
     chartArray.length = 0;
     chartArrayJitter.length = 0;
     chartArrayFPS.length = 0;
     chartArrayBWE.length = 0;
+    chartArrayNet.length = 0;
   }
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
   chartJitter = new google.visualization.LineChart(document.getElementById('chart-div-jitter'));
   chartFPS = new google.visualization.LineChart(document.getElementById('chart-div-fps'));
   chartBWE = new google.visualization.LineChart(document.getElementById('chart-div-bwe'));
+  chartNet = new google.visualization.LineChart(document.getElementById('chart-div-net'));
   initStats();
 }
 
@@ -745,6 +752,29 @@ async function drawCurveTypesBWE(array) {
   chartBWE.draw(data, options);
 };
 
+async function drawCurveTypesNet(array) {
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', 'X');
+  data.addColumn('number', 'Up');
+  data.addColumn('number', 'Down');
+
+  data.addRows(array);
+
+  var options = {
+    hAxis: {
+      title: 'Time (sec)'
+    },
+    vAxis: {
+      title: 'NetQ'
+    },
+    //series: {
+    //  1: {curveType: 'function'}
+    //}
+  };
+
+  chartNet.draw(data, options);
+};
+
 function initStats() {
   statsInterval = setInterval(flushStats, 1000);
 }
@@ -934,6 +964,9 @@ function flushStats() {
   //console.log(`pushing fps values ${clientStats.Duration}, ${localStats.video.sendFrameRate}, ${remoteTracksStats.video.renderFrameRate}`);
   chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.renderFrameRate]);
   drawCurveTypesFPS(chartArrayFPS);
+  //netq
+  chartArrayNet.push([clientStats.Duration, localNetQuality.uplink, local2NetQuality.downlink]);
+  drawCurveTypesNet(chartArrayNet);
 
 }
 

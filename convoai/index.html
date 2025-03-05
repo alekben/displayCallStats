@@ -105,10 +105,10 @@
           </div>
           <canvas id="audio-wave"></canvas>
         </div>
-        <button onclick="joinChannel()" class="mt-4 px-3 py-2 bg-cyan-500 text-gray-900 rounded hover:bg-cyan-400">
+        <button id="joinButton" onclick="joinChannel()" class="mt-4 px-3 py-2 bg-cyan-500 text-gray-900 rounded hover:bg-cyan-400 disabled:pointer-events-none disabled:opacity-50">
           Join Channel
         </button>
-        <button onclick="leaveChannel()" class="mt-4 px-3 py-2 bg-cyan-500 text-gray-900 rounded hover:bg-cyan-400">
+        <button id="leaveButton" onclick="leaveChannel()" class="mt-4 px-3 py-2 bg-cyan-500 text-gray-900 rounded hover:bg-cyan-400 disabled:pointer-events-none disabled:opacity-50" disabled>
           Leave Channel
         </button>
       </div>
@@ -437,10 +437,12 @@
       });
       }
       await client.publish(localTracks.audioTrack);
-
-
-
       console.log("Joined channel:", CHANNEL_NAME);
+
+      const joinButton = document.getElementById("joinButton");
+      joinButton.disabled = true;
+      const leaveButton = document.getElementById("leaveButton")
+      leaveButton.disabled = false;
     }
 
     async function leaveChannel() {
@@ -473,6 +475,11 @@
 
             // Reset Agora client
             client = null;
+
+            const joinButton = document.getElementById("joinButton");
+            joinButton.disabled = false;
+            const leaveButton = document.getElementById("leaveButton")
+            leaveButton.disabled = true;
         }
 
     function setupAudioProcessing(remoteAudioTrack) {
