@@ -371,7 +371,7 @@ function getCharCodes(s){
 }
 
 
-function base64ToUint8Array(string) {
+async function base64ToUint8Array(string) {
   const raw = window.atob(string);
   const result = new Uint8Array(new ArrayBuffer(raw.length));
 
@@ -385,7 +385,7 @@ function base64ToUint8Array(string) {
 async function setEncryption(secret) {
   let encryptionMode = "aes-256-gcm2";
   let salt = secret + "12";
-  client.setEncryptionConfig(encryptionMode, secret, base64ToUint8Array(salt));
+  client.setEncryptionConfig(encryptionMode, secret, await base64ToUint8Array(salt));
 }
 
 async function muteAudio() {
