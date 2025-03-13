@@ -384,8 +384,7 @@ async function base64ToUint8Array(string) {
 
 async function setEncryption(secret) {
   let encryptionMode = "aes-256-gcm2";
-  let salt = secret + "12";
-  client.setEncryptionConfig(encryptionMode, secret, await base64ToUint8Array(salt));
+  client.setEncryptionConfig(encryptionMode, secret, await base64ToUint8Array("1p4irGukOkKGor5hFgGEXwepBt95FpPipzAOj4q36Pk="));
 }
 
 async function muteAudio() {
