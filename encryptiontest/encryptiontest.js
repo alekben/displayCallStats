@@ -381,8 +381,20 @@ function base64ToUint8Array(base64Str)
   return result;
 }
 
+
+function base64ToUint8Array(string) {
+  const raw = window.atob(base64Str);
+  const result = new Uint8Array(new ArrayBuffer(raw.length));
+
+  for (let i = 0; i < raw.length; i += 1) {
+      result[i] = raw.charCodeAt(i);
+  }
+
+  return result;
+}
+
 async function setEncryption(secret) {
-  let encryptionMode = "aes-256-gcm";
+  let encryptionMode = "aes-256-gcm2";
   client.setEncryptionConfig(encryptionMode, secret, base64ToUint8Array(secret));
 }
 
@@ -501,13 +513,3 @@ function removeItemOnce(arr, value) {
   return arr;
 }
 
-function base64ToUint8Array(string) {
-  const raw = window.atob(base64Str);
-  const result = new Uint8Array(new ArrayBuffer(raw.length));
-
-  for (let i = 0; i < raw.length; i += 1) {
-      result[i] = raw.charCodeAt(i);
-  }
-
-  return result;
-}
