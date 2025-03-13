@@ -370,20 +370,9 @@ function getCharCodes(s){
   return charCodeArr;
 }
 
-function base64ToUint8Array(base64Str)
-{
-  const raw = window.atob(base64Str);
-  const result = new Uint8Array(new ArrayBuffer(raw.length));
-  for (let i = 0; i < raw.length; i += 1)
-  {
-    result[i] = raw.charCodeAt(i);
-  }
-  return result;
-}
-
 
 function base64ToUint8Array(string) {
-  const raw = window.atob(base64Str);
+  const raw = window.atob(string);
   const result = new Uint8Array(new ArrayBuffer(raw.length));
 
   for (let i = 0; i < raw.length; i += 1) {
