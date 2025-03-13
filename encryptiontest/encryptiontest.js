@@ -383,7 +383,7 @@ function base64ToUint8Array(base64Str)
 
 async function setEncryption(secret) {
   let encryptionMode = "aes-256-gcm";
-  client.setEncryptionConfig(encryptionMode, secret);
+  client.setEncryptionConfig(encryptionMode, secret, base64ToUint8Array(secret));
 }
 
 async function muteAudio() {
@@ -499,4 +499,15 @@ function removeItemOnce(arr, value) {
     arr.splice(index, 1);
   }
   return arr;
+}
+
+function base64ToUint8Array(string) {
+  const raw = window.atob(base64Str);
+  const result = new Uint8Array(new ArrayBuffer(raw.length));
+
+  for (let i = 0; i < raw.length; i += 1) {
+      result[i] = raw.charCodeAt(i);
+  }
+
+  return result;
 }
