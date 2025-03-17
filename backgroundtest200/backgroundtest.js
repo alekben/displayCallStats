@@ -297,7 +297,7 @@ function initVideoProfiles() {
   videoProfiles.forEach(profile => {
     $(".profile-cam-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
-  curVideoProfile = videoProfiles.find(item => item.label == '360p');
+  curVideoProfile = videoProfiles.find(item => item.label == '480p_2');
   $(".profile-cam-input").val(`${curVideoProfile.detail}`);
 }
 async function changeVideoProfile(label) {
