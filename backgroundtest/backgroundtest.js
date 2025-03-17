@@ -74,7 +74,7 @@ var videoProfiles = [
   }, {
   label: "640x360",
   detail: "640x360, 25fps",
-  value: `{"width":640, "height":360, "frameRate":25, "bitrateMin":58, "bitrateMax":580}`
+  value: "360p"
   }, {
   label: "480p_vp9",
   detail: "640×480, 30fps, 200Kbps",
