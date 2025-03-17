@@ -66,39 +66,48 @@ var options = {
   screenToken: null
 };
 
-var videoProfiles = [{
+var videoProfiles = [
+  {
+  label: "120p_1",
+  detail: "160x120, 15fps, 200Kbps",
+  value: "120p_1"
+  }, {
+  label: "640x360",
+  detail: "640x360, 25fps",
+  value: `{"width":640, "height":360, "frameRate":25, "bitrateMin":58, "bitrateMax":580}`
+  }, {
   label: "480p_vp9",
   detail: "640×480, 30fps, 200Kbps",
   value: `{"width":640, "height":480, "frameRate":30, "bitrateMin":100, "bitrateMax":200}`
-}, {
+  }, {
   label: "360p_7",
   detail: "480×360, 15fps, 320Kbps",
   value: "360p_7"
-}, {
+  }, {
   label: "360p_8",
   detail: "480×360, 30fps, 490Kbps",
   value: "360p_8"
-}, {
+  }, {
   label: "480p_1",
   detail: "640×480, 15fps, 500Kbps",
   value: "480p_1"
-}, {
+  }, {
   label: "480p_2",
   detail: "640×480, 30fps, 1000Kbps",
   value: "480p_2"
-}, {
+  }, {
   label: "720p_1",
   detail: "1280×720, 15fps, 1130Kbps",
   value: "720p_1"
-}, {
+  }, {
   label: "720p_2",
   detail: "1280×720, 30fps, 2000Kbps",
   value: "720p_2"
-}, {
+  }, {
   label: "1080p_1",
   detail: "1920×1080, 15fps, 2080Kbps",
   value: "1080p_1"
-}, {
+  }, {
   label: "1080p_2",
   detail: "1920×1080, 30fps, 3000Kbps",
   value: "1080p_2"
@@ -288,7 +297,7 @@ function initVideoProfiles() {
   videoProfiles.forEach(profile => {
     $(".profile-cam-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
-  curVideoProfile = videoProfiles.find(item => item.label == '1080p_2');
+  curVideoProfile = videoProfiles.find(item => item.label == '480p_2');
   $(".profile-cam-input").val(`${curVideoProfile.detail}`);
 }
 async function changeVideoProfile(label) {

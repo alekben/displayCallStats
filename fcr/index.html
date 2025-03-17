@@ -34,17 +34,18 @@
          {
             appId: 'ec35b6a4b51948f1aba261d218504556',
             region: 'NA',
-            userUuid: '222',
+            userUuid: '12345',
             userName: 'Teacher',
-            roomUuid: 'testroom',
+            roomUuid: 'cloudtest3',
             roomType: 10, // Room type: 10 is cloud class.
-            roomName: 'AlekseyTest',
+            roomName: 'test2',
             devicePretest: true, // Whether to enable pre-class equipment detection
-            token: '007eJxSYHi3jzcszrzL4dXkmEeM6n8XLZnXnVWxqkPOtPH2Fs0eVmMFhtRkY9Mks0STJFNDSxOLNMPEpEQjM8MUI0MLUwMTU1OzPTXn0wX4GBjell5iYWRgYmBkYGQA8ZkZjIyMAAEAAP//zN4dOA==', // In a test environment, you can use temporary RTM Token; in a production or security environment, it is strongly recommended that you use a server-generated RTM Token.
+            token: '007eJxSYJga/v9UWAO3l+9G/oQ9yS1Tf9WJlZx3D20WjhU6O+GUS50CQ2qysWmSWaJJkqmhpYlFmmFiUqKRmWGKkaGFqYGJqanZZ5cb6QJ8DAyzr+YwMjIwMTAyMDKA+KwMhkbGJqaAAAAA///l5R0P', // In a test environment, you can use temporary RTM Token; in a production or security environment, it is strongly recommended that you use a server-generated RTM Token.
             language: 'en',
             duration: 60 * 60 * 2, // Course time in seconds.
+            startTime: new Date().getTime(),
             recordUrl: '',
-            roleType: 2, // User roles: 1 is teacher, 2 is student
+            roleType: 1, // User roles: 1 is teacher, 2 is student
             widgets: {
                easemobIM: FcrChatroom, // IM widget
                netlessBoard: FcrBoardWidget, // Interactive whiteboard widget
