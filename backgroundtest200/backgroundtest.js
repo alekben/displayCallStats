@@ -37,8 +37,8 @@ var client = AgoraRTC.createClient({
   codec: "vp9"
 });
 AgoraRTC.enableLogUpload();
-client.startProxyServer(3);
-client.enableDualStream();
+//client.startProxyServer(3);
+//client.enableDualStream();
 
 var screenClient;
 
@@ -74,7 +74,7 @@ var videoProfiles = [
   }, {
   label: "320x240",
   detail: "320x240, 30fps",
-  value: `{"width":320, "height":240, "frameRate":30, "bitrateMin":100, "bitrateMax":300}`
+  value: `{width:"320",height:"240",frameRate:"30",bitrateMin:"100",bitrateMax:"300"}`
   }, {
   label: "640x360",
   detail: "640x360, 25fps",
@@ -82,7 +82,7 @@ var videoProfiles = [
   }, {
   label: "480p_vp9",
   detail: "640×480, 30fps, 200Kbps",
-  value: `{"width":640, "height":480, "frameRate":30, "bitrateMin":100, "bitrateMax":200}`
+  value: `{width:"640",height:"480",frameRate:"30",bitrateMin:"100",bitrateMax:"200"}`
   }, {
   label: "360p_7",
   detail: "480×360, 15fps, 320Kbps",
@@ -586,7 +586,7 @@ $("#vb").click(async e => {
   if (processorIsDisable) {
     try {
       await processor.enable();
-      $("#vb").val("VB Off");
+      $("#vb").text("VB Off");
       processorIsDisable = false;
     } catch (e) {
       console.error("enable VirtualBackground failure", e);
@@ -596,7 +596,7 @@ $("#vb").click(async e => {
   } else {
     try {
       await processor.disable();
-      $("#vb").val("VB On");
+      $("#vb").text("VB On");
       processorIsDisable = true;
     } catch (e) {
       console.error("disable VirtualBackground failure", e);
