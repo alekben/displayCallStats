@@ -74,7 +74,12 @@ var videoProfiles = [
   }, {
   label: "320x240",
   detail: "320x240, 30fps",
-  value: `{width:"320",height:"240",frameRate:"30",bitrateMin:"100",bitrateMax:"300"}`
+  value: {
+    width: 320,
+    height:240,
+    frameRate:30,
+    bitrateMin:100,
+    bitrateMax:300}
   }, {
   label: "640x360",
   detail: "640x360, 25fps",
@@ -82,7 +87,13 @@ var videoProfiles = [
   }, {
   label: "480p_vp9",
   detail: "640×480, 30fps, 200Kbps",
-  value: `{width:"640",height:"480",frameRate:"30",bitrateMin:"100",bitrateMax:"200"}`
+  value: {
+    width:640,
+    height:480,
+    frameRate:30,
+    bitrateMin:100,
+    bitrateMax:200
+  }
   }, {
   label: "360p_7",
   detail: "480×360, 15fps, 320Kbps",
@@ -183,9 +194,7 @@ AgoraRTC.onCameraChanged = async changedDevice => {
 async function initDevices() {
   if (joined) {
     if (!localTracks.audioTrack) {
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-      });
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({});
     } else {
       console.log("mic track already exists, replacing.");
       if (localTrackState.audioTrackPublished) {
@@ -193,9 +202,7 @@ async function initDevices() {
         await localTracks.audioTrack.stop();
         await localTracks.audioTrack.close();
         localTracks.audioTrack = undefined;
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-        });
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({});
         publishMic();
         $("#setMuted").attr("disabled", false);
         $("#setEnabled").attr("disabled", false);
@@ -208,9 +215,7 @@ async function initDevices() {
         await localTracks.audioTrack.stop();
         await localTracks.audioTrack.close();
         localTracks.audioTrack = undefined;
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-        });;
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({});;
         $("#setMuted").attr("disabled", false);
         $("#setEnabled").attr("disabled", false);
         $("#setMuted").text("Mute Mic Track");
