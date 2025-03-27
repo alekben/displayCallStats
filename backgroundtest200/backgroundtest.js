@@ -29,6 +29,9 @@ var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
 
+AgoraRTC.setParameter('WEBAUDIO_INIT_OPTIONS',
+  { latencyHint: 0.03, sampleRate: 48000, }
+  );
 AgoraRTC.setParameter("EXPERIMENTS", {"netqSensitivityMode": 1});
 
 // create Agora client early

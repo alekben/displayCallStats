@@ -37,7 +37,7 @@ var client = AgoraRTC.createClient({
   codec: "vp9"
 });
 AgoraRTC.enableLogUpload();
-client.startProxyServer(3);
+//client.startProxyServer(3);
 client.enableDualStream();
 
 var screenClient;
