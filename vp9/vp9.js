@@ -6,6 +6,10 @@ let downloadButton = document.getElementById("download");
 let logElement = document.getElementById("log");
 let recordingTimeMS = 10000;
 
+AgoraRTC.setParameter('WEBAUDIO_INIT_OPTIONS',
+  { latencyHint: 0.03, sampleRate: 48000, }
+  );
+
 
 function log(msg) {
   logElement.innerHTML += msg + "\n";
