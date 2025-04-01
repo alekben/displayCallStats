@@ -7,7 +7,8 @@ var chartArray = [];
 let statsInterval;
 
 AgoraRTC.enableLogUpload();
-AgoraRTC.setParameter("ENABLE_SVC",true);
+//AgoraRTC.setParameter("ENABLE_SVC",true);
+AgoraRTC.setParameter("SVC",["vp9"]);
 //AgoraRTC.setArea("NORTH_AMERICA");
 //AgoraRTC.setArea("EUROPE");
 //AgoraRTC.setParameter("ENABLE_INSTANT_VIDEO", true);
@@ -164,7 +165,7 @@ async function join() {
   options.uid2 = await client2.join(options.appid, options.channel, options.token || null, null);
 
   if (!localTracks.videoTrack) {
-    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
   }
 
   await localTracks.videoTrack.setEncoderConfiguration("720p_2");
