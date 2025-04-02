@@ -27,7 +27,7 @@ const localTokenUrlsRTC = {
 }
 
 const localTokenUrlsRTM = {
-  host: "https://ynmthlsyhpilcnyvxoxhrxw4w40uxnim.lambda-url.us-east-2.on.aws",
+  host: "https://upf6e3mmnnzmmwptt5tmz3wykm0ohsrv.lambda-url.us-east-2.on.aws",
   endpoint: ""
 }
 
@@ -99,7 +99,7 @@ $(() => {
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
   options.channel = urlParams.get("channel");
-  options.uid = urlParams.get("uid");
+  options.uid = Number(urlParams.get("uid"));
   options.rtcToken = urlParams.get("rtcToken");
   options.rtmToken = urlParams.get("rtmToken");
   options.host = urlParams.get("host");
@@ -443,7 +443,8 @@ async function handleUserLeft(user) {
 
 async function loginRtm() {
   try {
-    rtmClient = new RTM(options.appid, options.uid, rtmConfig); // Initialize the client instance
+    const uid = options.uid.toString();
+    rtmClient = new RTM(options.appid, uid, rtmConfig); // Initialize the client instance
   } catch (status) {
     console.log(status); 
   }
@@ -866,7 +867,7 @@ async function getTokens() {
             "expiration": 3600
             })});
       const response = await res.json();
-      console.log("RTC token fetched from server: ", response.token);
+      console.log(response.type + " token fetched from server: "  + response.token);
       options.rtcToken = response.token;
     } catch (err) {
       console.log(err);
@@ -884,13 +885,12 @@ async function getTokens() {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-            "tokenType": "rtm",
             "uid": options.uid,
-            "channel": "*", // optional: passing channel gives streamchannel. wildcard "*" is an option.
-            "expire": 3600 // optional: expiration time in seconds (default: 3600)})
+            "cname": options.channel + "_rtm", // optional: passing channel gives streamchannel. wildcard "*" is an option.
+            "expiration": 3600 // optional: expiration time in seconds (default: 3600)})
             })});
       const response = await res.json();
-      console.log("RTM token fetched from server: ", response.token);
+      console.log(response.type + " token fetched from server: " + response.token);
       options.rtmToken = response.token;
     } catch (err) {
       console.log(err);
@@ -908,13 +908,12 @@ if (options.nostream = false) {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-            "tokenType": "rtm",
             "uid": options.uid,
-            "channel": options.channel + "_stream", // optional: passing channel gives streamchannel. wildcard "*" is an option.
+            "cname": options.channel + "_rtm", // optional: passing channel gives streamchannel. wildcard "*" is an option.
             "expire": 3600 // optional: expiration time in seconds (default: 3600)})
             })});
       const response = await res.json();
-      console.log("StreamChannel RTC token fetched from server: ", response.token);
+      console.log(response.type + " token fetched from server: " + response.token);
       options.streamToken = response.token;
     } catch (err) {
       console.log(err);

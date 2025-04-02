@@ -17,10 +17,13 @@ var rtmConfig = {
   //2.1.x or below
   //token : null,
   presenceTimeout : 30,
-  logUpload : true,
+  logUpload : false,
   logLevel : "debug",
   cloudProxy : false,
-  useStringUserId : false,
+  useStringUserId : true,
+  privateConfig: {
+    serviceType: ["STREAM"]
+  }
   //encryptionMode: "AES_128_GCM",
   //cipherKey: "",
   //salt: ""
