@@ -530,11 +530,11 @@ async function loginRtm() {
         },
         {
           key: "hostID",
-          value: myUid,
+          value: myUid.toString(),
           revision: -1
         },
         {
-          key: myUid,
+          key: myUid.toString(),
           value: `${options.name} (${role})`,
           revision: -1
         }
