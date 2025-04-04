@@ -449,7 +449,7 @@ async function join() {
       //  localTrackState.audioTrackMuted = false;
       //  localTrackState.audioTrackEnabled = true;
       if (!localTracks.videoTrack) {
-        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({"facingMode":"environment"});
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_2", cameraId: "c04170002ba58cb04150cf8106f267abc74afd7edb30717ae8f7e0e4b76eca69"});
       };
       localTracks.videoTrack.play("local-player");
       await client.publish(localTracks.videoTrack);
