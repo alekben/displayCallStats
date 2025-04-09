@@ -183,7 +183,7 @@ async function setScale(label) {
   const params = videosender.getParameters();
   params.encodings[0].scaleResolutionDownBy = label;
   if (document.getElementById("touchBitrate").checked == true) {
-    const bitrate = Math.floor(1710000 / label);
+    const bitrate = Math.floor(580000 / label);
     params.encodings[0].maxBitrate = bitrate;
     videosender.setParameters(params);
   } else {
