@@ -1,3 +1,7 @@
+.checkbox {
+  display: inline-block;
+}
+
 .sso-hidden {
   display: block;
 }

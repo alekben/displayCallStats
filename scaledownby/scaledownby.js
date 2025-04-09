@@ -14,7 +14,7 @@ var dumbTempFix = "Selected";
 // create Agora client
 var client = AgoraRTC.createClient({
   mode: "live",
-  codec: "vp8"
+  codec: "vp9"
 });
 
 
@@ -182,9 +182,13 @@ async function setScale(label) {
   const videosender = rtpconnections.find((val) => val?.track?.kind === 'video');
   const params = videosender.getParameters();
   params.encodings[0].scaleResolutionDownBy = label;
-  const bitrate = Math.floor(1710000 / label);
-  params.encodings[0].maxBitrate = bitrate;
-  videosender.setParameters(params);
+  if (document.getElementById("touchBitrate").checked == true) {
+    const bitrate = Math.floor(1710000 / label);
+    params.encodings[0].maxBitrate = bitrate;
+    videosender.setParameters(params);
+  } else {
+    videosender.setParameters(params);
+  }
   } else {
     showPopup("Join first");
   }
@@ -246,7 +250,7 @@ $("#join-form").submit(async function (e) {
     if (!client) {
       client = AgoraRTC.createClient({
         mode: "live",
-        codec: "vp8"
+        codec: "vp9"
       });
     }
     options.channel = $("#channel").val();
@@ -419,7 +423,13 @@ async function join() {
 
   if (host) {
     if (!localTracks.videoTrack) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3"});
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: {
+        width:640,
+        height:360,
+        frameRate:25,
+        bitrateMin:580,
+        bitrateMax:100
+      }});
     }
     // play local video track
     localTracks.videoTrack.play("local-player");
