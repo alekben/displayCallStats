@@ -427,8 +427,8 @@ async function join() {
         width:640,
         height:360,
         frameRate:25,
-        bitrateMin:580,
-        bitrateMax:100
+        bitrateMin:100,
+        bitrateMax:580
       }});
     }
     // play local video track
