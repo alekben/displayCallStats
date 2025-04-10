@@ -21,9 +21,6 @@ var rtmConfig = {
   logLevel : "debug",
   cloudProxy : false,
   useStringUserId : true,
-  privateConfig: {
-    serviceType: ["STREAM"]
-  }
   //encryptionMode: "AES_128_GCM",
   //cipherKey: "",
   //salt: ""
