@@ -43,23 +43,23 @@ input {
 }
 
 .player {
-  width: 210px;
-  height: 210px;
+  width: 640px;
+  height: 360px;
   margin-right: 10px;
   display: flex;
   position: relative;
 }
 
 .remotePlayer {
-  width: 200px;
-  height: 200px;
+  width: 640px;
+  height: 360px;
   margin-right: 10px;
   display: flex;
 }
 
 .remotePlayerSelected {
-  width: 200px;
-  height: 200px;
+  width: 640px;
+  height: 360px;
   border-style: solid;
   border-color: red;
 }
@@ -122,20 +122,20 @@ input {
   min-width: 260px;
 }
 
-@media (max-width: 240px) {
+@media (max-width: 640px) {
   .player {
-    width: 240px;
-    height: 240px;
+    width: 640px;
+    height: 360px;
   }
 
   .remotePlayer {
-    width: 200px;
-    height: 200px;
+    width: 640px;
+    height: 360px;
   }
 
   .remotePlayerSelected {
-    width: 200px;
-    height: 200px;
+    width: 640px;
+    height: 360px;
     border-style: solid;
     border-color: red;
   }

@@ -13,6 +13,9 @@ var popups = 0;
 //role
 var roleHost = true;
 
+//fpf
+var fpf = 1;
+
 //misc
 var bigRemote = 0;
 var remoteFocus = 0;
@@ -20,15 +23,15 @@ var dumbTempFix = "Selected";
 
 
 // create Agora client
-var client = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp9"
-});
+//var client = AgoraRTC.createClient({
+//  mode: "rtc",
+//  codec: "vp9"
+//});
 
 
 AgoraRTC.setParameter("SVC",["vp9"]);
 AgoraRTC.setParameter("ENABLE_AUT_CC", true);
-AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 0 });
+AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 1 });
 //AgoraRTC.setParameter("ENABLE_SVC", true);
 
 
@@ -241,12 +244,10 @@ $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
   try {
-    if (!client) {
       client = AgoraRTC.createClient({
         mode: "rtc",
         codec: "vp9"
       });
-    }
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
@@ -263,6 +264,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
+    $("#feedback").attr("disabled", true);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
@@ -287,6 +289,10 @@ $("#leave").click(function (e) {
 
 $("#role").click(function (e) {
   handleRoleChange();
+});
+
+$("#feedback").click(function (e) {
+  handleFPF();
 });
 
 $(".uid-list").delegate("a", "click", function (e) {
@@ -532,6 +538,7 @@ async function leave() {
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
+  $("#feedback").attr("disabled", false);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);
   $("#setMuted").attr("disabled", true);
@@ -940,6 +947,22 @@ async function handleRoleChange() {
       localTracks.videoTrack.play("local-player");
       await client.publish(localTracks.videoTrack);
     }
+  }
+}
+
+async function handleFPF() {
+  if (fpf == 1) {
+    $("#feedback").text("Feedbackv2");
+    fpf = 2;
+    AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 2 });
+  } else if (fpf == 2) {
+    $("#feedback").text("Feedbackv0");
+    fpf = 0;
+    AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 0 });
+  } else {
+    $("#feedback").text("Feedbackv1");
+    fpf = 1;
+    AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 1 });
   }
 }
 
