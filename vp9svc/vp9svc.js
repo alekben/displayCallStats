@@ -10,6 +10,9 @@ var layers = {};
 //popup stuff
 var popups = 0;
 
+//role
+var roleHost = true;
+
 //misc
 var bigRemote = 0;
 var remoteFocus = 0;
@@ -25,6 +28,7 @@ var client = AgoraRTC.createClient({
 
 AgoraRTC.setParameter("SVC",["vp9"]);
 AgoraRTC.setParameter("ENABLE_AUT_CC", true);
+AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 0 });
 //AgoraRTC.setParameter("ENABLE_SVC", true);
 
 
@@ -281,6 +285,10 @@ $("#leave").click(function (e) {
   leave();
 });
 
+$("#role").click(function (e) {
+  handleRoleChange();
+});
+
 $(".uid-list").delegate("a", "click", function (e) {
   changeTargetUID(this.getAttribute("label"));
   updateLayersDropdowns();
@@ -468,18 +476,20 @@ async function join() {
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  if (options.host == 1) {
-    if (!localTracks.videoTrack) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
-    }
-    // play local video track
-    localTracks.videoTrack.play("local-player");
-    $("#joined-setup").css("display", "flex");
+  if (roleHost) {
+    if (options.host == 1) {
+      if (!localTracks.videoTrack) {
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
+      }
+      // play local video track
+      localTracks.videoTrack.play("local-player");
+      $("#joined-setup").css("display", "flex");
   
-    // publish local tracks to channel
-    await client.publish(localTracks.videoTrack);
-    console.log("publish cam success");
-    showPopup("Cam Track Published");
+      // publish local tracks to channel
+      await client.publish(localTracks.videoTrack);
+      console.log("publish cam success");
+      showPopup("Cam Track Published");
+    };
   };
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
@@ -911,6 +921,26 @@ function updateLayersDropdowns() {
   const id = $(".uid-input").val();
   $(".s-input").val(`${layers[id].spatialLayer}`);
   $(".t-input").val(`${layers[id].temporalLayer}`);
+}
+
+async function handleRoleChange() {
+  if (roleHost) {
+    roleHost = false;
+    $("#role").text("Audience");
+    if (joined) {
+      client.unpublish();
+      localTracks.videoTrack.stop();
+      localTracks.videoTrack.close();
+    }
+  } else {
+    roleHost = true;
+    $("#role").text("Host");
+    if (joined) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
+      localTracks.videoTrack.play("local-player");
+      await client.publish(localTracks.videoTrack);
+    }
+  }
 }
 
 function showPopup(message) {
