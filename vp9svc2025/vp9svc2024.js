@@ -29,8 +29,8 @@ var dumbTempFix = "Selected";
 //});
 
 
-AgoraRTC.setParameter("ENABLE_SVC", true);
-AgoraRTC.setParameter("SVC_MODE", "L3T3_KEY")
+AgoraRTC.setParameter("SVC",["vp9"]);
+AgoraRTC.setParameter("ENABLE_AUT_CC", true);
 AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 1 });
 //AgoraRTC.setParameter("ENABLE_SVC", true);
 
@@ -368,7 +368,6 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
-    //AgoraRTC.setParameter("SVC",["vp9"]);
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -495,6 +494,16 @@ function setSTMax(uid) {
     const id = Number(uid);
     client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
     updateLayersDropdowns();
+}
+
+function setSTAuto(uid) {
+  layers[uid].spatialLayer = 0;
+  layers[uid].temporalLayer = 0;
+  showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+  console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
+  const id = Number(uid);
+  client.pickSVCLayer(id, {spatialLayer: layers[id].spatialLayer, temporalLayer: layers[id].temporalLayer});
+  updateLayersDropdowns();
 }
 
 async function changeSLayer() {
@@ -685,7 +694,7 @@ async function manualSub() {
   await subscribe(user, "video");
   updateLayersDropdowns();
   changeBothLayers();
-  await setSTMin(id);
+  await setSTAuto(id);
   await subscribe(user, "audio");
 }
 
@@ -761,7 +770,7 @@ async function subscribe(user, mediaType) {
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
     user.videoTrack.play(`player-${uid}`);
-    setTimeout(handleMin, 500, uid);
+    setTimeout(handleAuto, 500, uid);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
@@ -779,6 +788,10 @@ function handleMin(uid) {
   setSTMax(Number(uid));
   }
 
+  function handleAuto(uid) {
+    console.log(`Auto Interval fired`);
+    setSTAuto(uid);
+  }
 
 
 function handleUserPublished(user, mediaType) {
