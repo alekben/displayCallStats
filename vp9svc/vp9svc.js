@@ -671,7 +671,7 @@ function handleUserPublished(user, mediaType) {
     if (layers[id]) {
       console.log(`not changing layers values for ${id}, already have them.`);
     } else {
-      layers[id] = {uid: id, spatialLayer: 3, temporalLayer: 3};
+      layers[id] = {uid: id, spatialLayer: 0, temporalLayer: 0};
     }
     updateUIDs(id, "add");
     changeTargetUID(id);
@@ -689,9 +689,9 @@ function handleUserPublished(user, mediaType) {
 function handleUserUnpublished(user, mediaType) {
   const id = user.uid;
   if (mediaType === 'video') {
+    updateLayersDropdowns();
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
-    updateLayersDropdowns();
     delete remoteUsers[id];
     //delete layers[id];
     $(`#player-wrapper-${id}`).remove();
