@@ -693,7 +693,7 @@ function handleUserUnpublished(user, mediaType) {
     updateUIDs(id, "remove");
     updateLayersDropdowns();
     delete remoteUsers[id];
-    delete layers[id];
+    //delete layers[id];
     $(`#player-wrapper-${id}`).remove();
   }
   userCount = getRemoteCount(remoteUsers);

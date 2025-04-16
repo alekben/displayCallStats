@@ -826,7 +826,7 @@ function handleUserUnpublished(user, mediaType) {
     updateUIDs(id, "remove");
     updateLayersDropdowns();
     delete remoteUsers[id];
-    delete layers[id];
+    //delete layers[id];
     $(`#player-wrapper-${id}`).remove();
   }
   userCount = getRemoteCount(remoteUsers);
@@ -1059,8 +1059,8 @@ function shrinkRemote(uid) {
 
 function updateLayersDropdowns() {
   const id = $(".uid-input").val();
-  $(".s-input").val(`${layers[id].spatialLayer}`);
-  $(".t-input").val(`${layers[id].temporalLayer}`);
+  $(".s-input").val(`${layers[id]?.spatialLayer}`);
+  $(".t-input").val(`${layers[id]?.temporalLayer}`);
 }
 
 async function handleRoleChange() {
