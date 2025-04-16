@@ -217,7 +217,7 @@ async function initDevices() {
 
     if (!localTracks.videoTrack) {
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: curVideoProfile.value, scalabiltyMode: curLayer
+        encoderConfig: curVideoProfile.value, scalabiltyMode: curLayer.value
       });
     } else {
       console.log("cam track already exists, replacing.");
@@ -226,7 +226,7 @@ async function initDevices() {
       await localTracks.videoTrack.close();
       localTracks.videoTrack = undefined;
       localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
-        encoderConfig: curVideoProfile.value, scalabiltyMode: curLayer
+        encoderConfig: curVideoProfile.value, scalabiltyMode: curLayer.value
       });
       await client.publish(localTracks.videoTrack);
       localTracks.videoTrack.play("local-player");
@@ -612,9 +612,9 @@ async function join() {
       if (localTracks.videoTrack) {
         await localTracks.videoTrack.close();
         await localTracks.videoTrack.stop();
-        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer});
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer.value});
       } else {
-        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer});
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer.value});
       }
       // play local video track
       localTracks.videoTrack.play("local-player");
@@ -1076,7 +1076,7 @@ async function handleRoleChange() {
     roleHost = true;
     $("#role").text("Host");
     if (joined) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer.value});
       localTracks.videoTrack.play("local-player");
       await client.publish(localTracks.videoTrack);
     }
