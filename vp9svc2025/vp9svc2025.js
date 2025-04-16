@@ -824,7 +824,7 @@ function handleUserUnpublished(user, mediaType) {
   if (mediaType === 'video') {
     removeItemOnce(remotesArray, id);
     updateUIDs(id, "remove");
-    updateLayersButtons();
+    updateLayersDropdowns();
     delete remoteUsers[id];
     delete layers[id];
     $(`#player-wrapper-${id}`).remove();
