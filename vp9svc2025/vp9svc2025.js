@@ -29,10 +29,9 @@ var dumbTempFix = "Selected";
 //});
 
 
-AgoraRTC.setParameter("SVC",["vp9"]);
-AgoraRTC.setParameter("ENABLE_AUT_CC", true);
+AgoraRTC.setParameter("ENABLE_SVC", true);
+AgoraRTC.setParameter("SVC_MODE", "L2T3_KEY")
 AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 1 });
-//AgoraRTC.setParameter("ENABLE_SVC", true);
 
 var videoProfiles = [
   {
@@ -768,7 +767,7 @@ async function subscribe(user, mediaType) {
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
     user.videoTrack.play(`player-${uid}`);
-    setTimeout(handleAuto, 500, uid);
+    //setTimeout(handleAuto, 500, uid);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();

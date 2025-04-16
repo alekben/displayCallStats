@@ -768,7 +768,7 @@ async function subscribe(user, mediaType) {
         console.log(`This shouldn't have happened, remote user count is: ${userCount}`);
     }
     user.videoTrack.play(`player-${uid}`);
-    setTimeout(handleAuto, 500, uid);
+    //setTimeout(handleAuto, 500, uid);
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
