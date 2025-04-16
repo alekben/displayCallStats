@@ -10,6 +10,12 @@ var layers = {};
 //popup stuff
 var popups = 0;
 
+//role
+var roleHost = true;
+
+//fpf
+var fpf = 1;
+
 //misc
 var bigRemote = 0;
 var remoteFocus = 0;
@@ -17,16 +23,119 @@ var dumbTempFix = "Selected";
 
 
 // create Agora client
-var client = AgoraRTC.createClient({
-  mode: "rtc",
-  codec: "vp9"
-});
+//var client = AgoraRTC.createClient({
+//  mode: "rtc",
+//  codec: "vp9"
+//});
 
 
-AgoraRTC.setParameter("SVC",["vp9"]);
 AgoraRTC.setParameter("ENABLE_SVC", true);
-AgoraRTC.setParameter("ENABLE_AUT_CC", true);
+AgoraRTC.setParameter("SVC_MODE", "L3T3_KEY")
+AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 1 });
+//AgoraRTC.setParameter("ENABLE_SVC", true);
 
+var videoProfiles = [
+  {
+  label: "120p_1",
+  detail: "160x120, 15fps, 200Kbps",
+  value: "120p_1"
+  }, {
+  label: "320x240",
+  detail: "320x240, 30fps",
+  value: {
+    width: 320,
+    height:240,
+    frameRate:30,
+    bitrateMin:100,
+    bitrateMax:300}
+  }, {
+  label: "640x360",
+  detail: "640x360, 25fps",
+  value: "360p"
+  }, {
+  label: "480p_vp9",
+  detail: "640×480, 30fps, 200Kbps",
+  value: {
+    width:640,
+    height:480,
+    frameRate:30,
+    bitrateMin:100,
+    bitrateMax:200
+  }
+  }, {
+  label: "360p_7",
+  detail: "480×360, 15fps, 320Kbps",
+  value: "360p_7"
+  }, {
+  label: "360p_8",
+  detail: "480×360, 30fps, 490Kbps",
+  value: "360p_8"
+  }, {
+  label: "480p_1",
+  detail: "640×480, 15fps, 500Kbps",
+  value: "480p_1"
+  }, {
+  label: "480p_2",
+  detail: "640×480, 30fps, 1000Kbps",
+  value: "480p_2"
+  }, {
+  label: "720p_1",
+  detail: "1280×720, 15fps, 1130Kbps",
+  value: "720p_1"
+  }, {
+  label: "720p_2",
+  detail: "1280×720, 30fps, 2000Kbps",
+  value: "720p_2"
+  }, {
+  label: "1080p_1",
+  detail: "1920×1080, 15fps, 2080Kbps",
+  value: "1080p_1"
+  }, {
+  label: "1080p_2",
+  detail: "1920×1080, 30fps, 3000Kbps",
+  value: "1080p_2"
+}];
+var curVideoProfile;
+
+var Layers = [
+  {
+    label: "S1T1",
+    detail: "S1T1",
+    value: "1SL1TL"
+  }, {
+    label: "S2T1",
+    detail: "S2T1",
+    value: "2SL1TL"
+  }, {
+    label: "S3T1",
+    detail: "S3T1",
+    value: "3SL1TL"
+  }, {
+    label: "S1T2",
+    detail: "S1T2",
+    value: "1SL2TL"
+  }, {
+    label: "S2T2",
+    detail: "S2T2",
+    value: "2SL2TL"
+  }, {
+    label: "S3T2",
+    detail: "S3T2",
+    value: "3SL2TL"
+  }, {
+    label: "S1T3",
+    detail: "S1T3",
+    value: "1SL3TL"
+  }, {
+    label: "S2T3",
+    detail: "S2T3",
+    value: "2SL3TL"
+  }, {
+    label: "S3T3",
+    detail: "S3T3",
+    value: "3SL3TL"
+  }];
+var curLayer;
 
 
 AgoraRTC.enableLogUpload();
@@ -58,42 +167,6 @@ var options = {
 
 };
 
-var audioProfiles = [{
-  label: "speech_low_quality",
-  detail: "16 Khz, mono, 24Kbps",
-  value: "speech_low_quality"
-}, {
-  label: "speech_standard",
-  detail: "32 Khz, mono, 24Kbps",
-  value: "speech_standard"
-}, {
-  label: "music_standard",
-  detail: "48 Khz, mono, 40 Kbps",
-  value: "music_standard"
-}, {
-  label: "standard_stereo",
-  detail: "48 Khz, stereo, 64 Kbps",
-  value: "standard_stereo"
-}, {
-  label: "high_quality",
-  detail: "48 Khz, mono, 129 Kbps",
-  value: "high_quality"
-}, {
-  label: "high_quality_stereo",
-  detail: "48 Khz, stereo, 192 Kbps",
-  value: "high_quality_stereo"
-}, {
-  label: "320_high",
-  detail: "48 Khz, stereo, 320 Kbps",
-  value: {
-    bitrate: 320,
-    sampleRate: 48000,
-    sampleSize: 16,
-    stereo: true
-  }
-}];
-var curMicProfile;
-
 AgoraRTC.onAutoplayFailed = () => {
   alert("click to start autoplay!");
 };
@@ -110,21 +183,28 @@ AgoraRTC.onMicrophoneChanged = async changedDevice => {
   }
 };
 
+AgoraRTC.onCameraChanged = async changedDevice => {
+  // When plugging in a device, switch to a device that is newly plugged in.
+  if (changedDevice.state === "ACTIVE") {
+    localTracks.videoTrack.setDevice(changedDevice.device.deviceId);
+    // Switch to an existing device when the current device is unplugged.
+  } else if (changedDevice.device.label === localTracks.videoTrack.getTrackLabel()) {
+    const oldCameras = await AgoraRTC.getCameras();
+    oldCameras[0] && localTracks.videoTrack.setDevice(oldCameras[0].deviceId);
+  }
+};
+
 async function initDevices() {
   if (joined) {
     if (!localTracks.audioTrack) {
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-      });
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
     } else {
       console.log("mic track already exists, replacing.");
       await client.unpublish(localTracks.audioTrack);
       await localTracks.audioTrack.stop();
       await localTracks.audioTrack.close();
       localTracks.audioTrack = undefined;
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
-      });
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       publishMic();
       $("#setMuted").attr("disabled", false);
       $("#setEnabled").attr("disabled", false);
@@ -135,37 +215,75 @@ async function initDevices() {
       }
     }
 
-  // get mics
-  mics = await AgoraRTC.getMicrophones();
-  const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
-  currentMic = mics.find(item => item.label === audioTrackLabel);
-  $(".mic-input").val(currentMic.label);
-  $(".mic-list").empty();
-  mics.forEach(mic => {
-    $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
+    if (!localTracks.videoTrack) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: curVideoProfile.value, scalabiltyMode: curLayer
+      });
+    } else {
+      console.log("cam track already exists, replacing.");
+      await client.unpublish(localTracks.videoTrack);
+      await localTracks.videoTrack.stop();
+      await localTracks.videoTrack.close();
+      localTracks.videoTrack = undefined;
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: curVideoProfile.value, scalabiltyMode: curLayer
+      });
+      await client.publish(localTracks.videoTrack);
+      localTracks.videoTrack.play("local-player");
+      localTrackState.videoTrackEnabled = true;
+      localTrackState.videoTrackMuted = false;
+    }
+
+    if (localTracks.videoTrack) {
+      //get cams
+      cams = await AgoraRTC.getCameras();
+      const videoTrackLabel = localTracks.videoTrack.getTrackLabel();
+      currentCam = cams.find(item => item.label === videoTrackLabel);
+      $(".cam-input").val(currentCam.label);
+      $(".cam-list").empty();
+      cams.forEach(cam => {
+        $(".cam-list").append(`<a class="dropdown-item" href="#">${cam.label}</a>`);
+      });
+    }
+}
+
+async function switchCamera(label) {
+  currentCam = cams.find(cam => cam.label === label);
+  $(".cam-input").val(currentCam.label);
+  // switch device of local video track.
+  console.log(`Setting cam device to ${currentCam.device} ${currentCam.deviceId}`);
+  await localTracks.videoTrack.setDevice(currentCam.deviceId);
+}
+
+function initLayers() {
+  Layers.forEach(layer => {
+    $(".layer-list").append(`<a class="dropdown-item" label="${layer.label}" href="#">${layer.label}: ${layer.detail}</a>`);
   });
+  curLayer = Layers.find(item => item.label == 'S3T3');
+  $(".layer-input").val(`${curLayer.detail}`);
 }
 
-async function switchMicrophone(label) {
-  currentMic = mics.find(mic => mic.label === label);
-  $(".mic-input").val(currentMic.label);
-  // switch device of local audio track.
-  await localTracks.audioTrack.setDevice(currentMic.deviceId);
+async function changeLayer(label) {
+  curLayer = Layers.find(profile => profile.label === label);
+  $(".layer-input").val(`${curLayer.detail}`);
+  // change the local video track`s encoder configuration if joined
+  if (joined) {
+    localTracks.videoTrack && (await localTracks.videoTrack.setScalabiltyMode(curLayer.value));
+  }
 }
 
-function initMicProfiles() {
-  audioProfiles.forEach(profile => {
-    $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
+function initVideoProfiles() {
+  videoProfiles.forEach(profile => {
+    $(".profile-cam-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
-  curMicProfile = audioProfiles.find(item => item.label == 'speech_low_quality');
-  $(".profile-input").val(`${curMicProfile.detail}`);
+  curVideoProfile = videoProfiles.find(item => item.label == '480p_2');
+  $(".profile-cam-input").val(`${curVideoProfile.detail}`);
 }
-
-async function changeMicProfile(label) {
-  curMicProfile = audioProfiles.find(profile => profile.label === label);
-  $(".profile-input").val(`${curMicProfile.detail}`);
-  // change the local audio track`s encoder configuration
-  initDevices();
+async function changeVideoProfile(label) {
+  curVideoProfile = videoProfiles.find(profile => profile.label === label);
+  $(".profile-cam-input").val(`${curVideoProfile.detail}`);
+  // change the local video track`s encoder configuration
+  localTracks.videoTrack && (await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value));
 }
 
 async function changeTargetUID(label) {
@@ -213,9 +331,13 @@ let statsInterval;
 
 // the demo can auto join channel with params in url
 $(() => {
-  initMicProfiles();
-  $(".profile-list").delegate("a", "click", function (e) {
-    changeMicProfile(this.getAttribute("label"));
+  initVideoProfiles();
+  $(".profile-cam-list").delegate("a", "click", function (e) {
+    changeVideoProfile(this.getAttribute("label"));
+  });
+  initLayers();
+  $(".layer-list").delegate("a", "click", function (e) {
+    changeLayer(this.getAttribute("label"));
   });
   var urlParams = new URL(location.href).searchParams;
   options.appid = urlParams.get("appid");
@@ -238,12 +360,10 @@ $("#join-form").submit(async function (e) {
   e.preventDefault();
   $("#join").attr("disabled", true);
   try {
-    if (!client) {
       client = AgoraRTC.createClient({
         mode: "rtc",
         codec: "vp9"
       });
-    }
     options.channel = $("#channel").val();
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
@@ -260,6 +380,7 @@ $("#join-form").submit(async function (e) {
     console.error(error);
   } finally {
     $("#leave").attr("disabled", false);
+    $("#feedback").attr("disabled", true);
     $("#createTrack").attr("disabled", false);
     $("#publishTrack").attr("disabled", true);
     $("#setMuted").attr("disabled", true);
@@ -280,6 +401,14 @@ $("#join-form").submit(async function (e) {
 });
 $("#leave").click(function (e) {
   leave();
+});
+
+$("#role").click(function (e) {
+  handleRoleChange();
+});
+
+$("#feedback").click(function (e) {
+  handleFPF();
 });
 
 $(".uid-list").delegate("a", "click", function (e) {
@@ -339,8 +468,8 @@ $("#unsubscribe").click(function (e) {
 $('#agora-collapse').on('show.bs.collapse	', function () {
   initDevices();
 });
-$(".mic-list").delegate("a", "click", function (e) {
-  switchMicrophone(this.text);
+$(".cam-list").delegate("a", "click", function (e) {
+  switchCamera(this.text);
 });
 
 $("#biggerView").click(function (e) {
@@ -350,7 +479,7 @@ $("#biggerView").click(function (e) {
 
 function setSTMin(uid) {
     layers[uid].spatialLayer = 1;
-    layers[uid].temporalLayer = 3;
+    layers[uid].temporalLayer = 1;
     showPopup(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     console.log(`Setting S${layers[uid].spatialLayer} T${layers[uid].temporalLayer} for UID ${uid}`);
     const id = Number(uid);
@@ -469,18 +598,24 @@ async function join() {
   // join the channel
   options.uid = await client.join(options.appid, options.channel, options.token || null, options.uid || null);
 
-  if (options.host == 1) {
-    if (!localTracks.videoTrack) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: {"width":1280,"height":720,"frameRate":30,"bitrateMin":100,"bitrateMax":1500},"optimizationMode":"detail", scalabiltyMode: "1SL3TL"});
-    }
-    // play local video track
-    localTracks.videoTrack.play("local-player");
-    $("#joined-setup").css("display", "flex");
+  if (roleHost) {
+    if (options.host == 1) {
+      if (localTracks.videoTrack) {
+        await localTracks.videoTrack.close();
+        await localTracks.videoTrack.stop();
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer});
+      } else {
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: curLayer});
+      }
+      // play local video track
+      localTracks.videoTrack.play("local-player");
+      $("#joined-setup").css("display", "flex");
   
-    // publish local tracks to channel
-    await client.publish(localTracks.videoTrack);
-    console.log("publish cam success");
-    showPopup("Cam Track Published");
+      // publish local tracks to channel
+      await client.publish(localTracks.videoTrack);
+      console.log("publish cam success");
+      showPopup("Cam Track Published");
+    };
   };
   showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
   chart = new google.visualization.LineChart(document.getElementById('chart-div'));
@@ -523,6 +658,7 @@ async function leave() {
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
+  $("#feedback").attr("disabled", false);
   $("#createTrack").attr("disabled", true);
   $("#publishTrack").attr("disabled", true);
   $("#setMuted").attr("disabled", true);
@@ -912,6 +1048,42 @@ function updateLayersDropdowns() {
   const id = $(".uid-input").val();
   $(".s-input").val(`${layers[id].spatialLayer}`);
   $(".t-input").val(`${layers[id].temporalLayer}`);
+}
+
+async function handleRoleChange() {
+  if (roleHost) {
+    roleHost = false;
+    $("#role").text("Audience");
+    if (joined) {
+      client.unpublish();
+      localTracks.videoTrack.stop();
+      localTracks.videoTrack.close();
+    }
+  } else {
+    roleHost = true;
+    $("#role").text("Host");
+    if (joined) {
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: "720p_3", scalabiltyMode: "3SL3TL"});
+      localTracks.videoTrack.play("local-player");
+      await client.publish(localTracks.videoTrack);
+    }
+  }
+}
+
+async function handleFPF() {
+  if (fpf == 1) {
+    $("#feedback").text("Feedbackv2");
+    fpf = 2;
+    AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 2 });
+  } else if (fpf == 2) {
+    $("#feedback").text("Feedbackv0");
+    fpf = 0;
+    AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 0 });
+  } else {
+    $("#feedback").text("Feedbackv1");
+    fpf = 1;
+    AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 1 });
+  }
 }
 
 function showPopup(message) {
