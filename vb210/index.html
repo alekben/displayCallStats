@@ -287,10 +287,10 @@ input {
     let extension = new BeautyExtension();
     AgoraRTC.registerExtensions([extension]);
     let beautyProcessor = extension.createProcessor();
-    //beautyProcessor.setOptions({sharpnessLevel: "100"});
-    //beautyProcessor.setOptions({contrastLevel: "2"});
-    //beautyProcessor.setOptions({smoothnessLevel: "100"});
-    //beautyProcessor.setOptions({lighteningLevel: "100"});
+    beautyProcessor.setOptions({sharpnessLevel: 1});
+    beautyProcessor.setOptions({contrastLevel: 2});
+    beautyProcessor.setOptions({smoothnessLevel: 1});
+    beautyProcessor.setOptions({lighteningLevel: 1});
 
 
 
