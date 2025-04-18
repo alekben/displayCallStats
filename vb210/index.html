@@ -270,17 +270,25 @@ input {
   <script src="../bootstrap.bundle.min.js"></script>
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
   <script src="../extensions/agora-extension-virtual-background_2_1_0/agora-extension-virtual-background.js"></script>
+  <script src="../extensions/agora-extension-beauty/agora-extension-beauty.js"></script>
   <script>
 
     //vb
     let vb = null;
     let processor = null;
     const pipeProcessor = (track, processor) => {
-      track.pipe(processor).pipe(track.processorDestination);
+      track.pipe(processor).pipe(beautyProcessor.track.processorDestination);
     };
     let processorIsDisable = true;
     let curCost = 0;
     var avgCost = [];
+
+    //beauty
+    let extension = new BeautyExtension();
+    AgoraRTC.registerExtensions([extension]);
+    let beautyProcessor = extension.createProcessor();
+
+
 
     var popups = 0;
     
@@ -453,6 +461,7 @@ input {
         pipeProcessor(localTracks.videoTrack, processor);
         processor.setOptions({type: 'blur', blurDegree: Number(curBlur.value)});
         await processor.enable();
+        await beautyProcessor.enable();
         processorIsDisable = false;
         }
         });
@@ -703,12 +712,14 @@ input {
     async function toggleVB() {
       if (processorIsDisable) {
         await processor.enable();
+        await beautyProcessor.enable();
         processorIsDisable = false;
-        showPopup(`VB on`);
+        showPopup(`VB and Beauty on`);
       } else {
         await processor.disable();
+        await beautyProcessor.disable();
         processorIsDisable = true;
-        showPopup(`VB off`);
+        showPopup(`VB and Beauty off`);
         curCost = 0;
       }
     }
