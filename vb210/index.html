@@ -277,7 +277,7 @@ input {
     let vb = null;
     let processor = null;
     const pipeProcessor = (track, processor) => {
-      track.pipe(processor).pipe(beautyProcessor.track.processorDestination);
+      track.pipe(beautyProcessor).pipe(processor.track.processorDestination);
     };
     let processorIsDisable = true;
     let curCost = 0;
