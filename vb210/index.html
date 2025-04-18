@@ -264,7 +264,7 @@ input {
   </div>
 
   <div id="popup-section"></div>
-
+  <script type="text/javascript" src="https://unpkg.com/default-passive-events"></script>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="../jquery-3.4.1.min.js"></script>
   <script src="../bootstrap.bundle.min.js"></script>
@@ -277,7 +277,7 @@ input {
     let vb = null;
     let processor = null;
     const pipeProcessor = (track, processor) => {
-      track.pipe(beautyProcessor).pipe(processor.track.processorDestination);
+      track.pipe(beautyProcessor).pipe(processor).pipe(track.processorDestination);
     };
     let processorIsDisable = true;
     let curCost = 0;
