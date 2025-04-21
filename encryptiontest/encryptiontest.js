@@ -324,6 +324,8 @@ async function join() {
   //await setEncryption();
   client.on("user-published", handleUserPublished);
   client.on("user-unpublished", handleUserUnpublished);
+  client.on("user-joined", handleUserJoined);
+  client.on("user-left", handleUserLeft);
   client.on("crypt-error", handleCryptError);
 
   // Join the channel.
@@ -384,7 +386,7 @@ async function base64ToUint8Array(string) {
 
 async function setEncryption(secret) {
   let encryptionMode = "aes-256-gcm2";
-  client.setEncryptionConfig(encryptionMode, "a3da50cbcee9ac12cc7fa771a24c7d5a8d45a47ac1de1fdeb442f62f63b5c4", await base64ToUint8Array("1p4irGukOkKGor5hFgGEXwepBt95FpPipzAOj4q36Pk="));
+  client.setEncryptionConfig(encryptionMode, "fcbf38af82dd01f1efbcba43ac6876a8a530d463188aa98e3e7b0efe4e59c5f1", await base64ToUint8Array("eIcLG4W5FqHTm7Sz4Bd1hbvk4tJGWVLcAQzrnEW2KkE="));
 }
 
 async function muteAudio() {
@@ -457,6 +459,14 @@ async function subscribe(user, mediaType) {
   if (mediaType === "audio") {
     user.audioTrack.play();
   }
+}
+
+function handleUserJoined(user) {
+  showPopup(`User Joined ${user.uid}`);
+}
+
+function handleUserLeft(user) {
+  showPopup(`User Joined ${user.uid}`);
 }
 
 function handleCryptError() {
