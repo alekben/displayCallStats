@@ -466,7 +466,7 @@ function handleUserJoined(user) {
 }
 
 function handleUserLeft(user) {
-  showPopup(`User Joined ${user.uid}`);
+  showPopup(`User Left ${user.uid}`);
 }
 
 function handleCryptError() {
