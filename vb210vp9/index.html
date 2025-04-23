@@ -282,6 +282,8 @@ input {
     let curCost = 0;
     var avgCost = [];
 
+
+
     var popups = 0;
     
     google.charts.load('current', {packages: ['corechart', 'line']});
@@ -296,12 +298,12 @@ input {
     
     var client = AgoraRTC.createClient({
       mode: "rtc",
-      codec: "vp8"
+      codec: "vp9"
     });
     
     var client2 = AgoraRTC.createClient({
       mode: "rtc",
-      codec: "vp8"
+      codec: "vp9"
     });
     
     var localTracks = {
@@ -704,11 +706,11 @@ input {
       if (processorIsDisable) {
         await processor.enable();
         processorIsDisable = false;
-        showPopup(`VB and Beauty on`);
+        showPopup(`VB on`);
       } else {
         await processor.disable();
         processorIsDisable = true;
-        showPopup(`VB and Beauty off`);
+        showPopup(`VB off`);
         curCost = 0;
       }
     }
