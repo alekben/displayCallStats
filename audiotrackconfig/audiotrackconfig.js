@@ -242,6 +242,9 @@ $("#join-form").submit(async function (e) {
     options.uid = Number($("#uid").val());
     options.appid = $("#appid").val();
     options.token = $("#token").val();
+
+    let encryptionMode = "aes-256-gcm2";
+    client.setEncryptionConfig(encryptionMode, hex2ascii("fcbf38af82dd01f1efbcba43ac6876a8a530d463188aa98e3e7b0efe4e59c5f1"), await base64ToUint8Array("eIcLG4W5FqHTm7Sz4Bd1hbvk4tJGWVLcAQzrnEW2KkE="), true);
     await join();
     if (options.token) {
       $("#success-alert-with-token").css("display", "block");
@@ -941,6 +944,27 @@ function removeItemOnce(arr, value) {
 
 async function createMicTrack() {
   localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({bypassWebAudio:false});
+}
+
+function hex2ascii(hexx)
+{
+  const hex = hexx.toString();//force conversion
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2)
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  return str;
+}
+
+
+async function base64ToUint8Array(string) {
+  const raw = window.atob(string);
+  const result = new Uint8Array(new ArrayBuffer(raw.length));
+
+  for (let i = 0; i < raw.length; i += 1) {
+      result[i] = raw.charCodeAt(i);
+  }
+
+  return result;
 }
 
 //AINS
