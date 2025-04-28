@@ -591,7 +591,7 @@ async function subscribe(user, mediaType) {
   }
   if (mediaType === 'audio') {
     user.audioTrack.play();
-    user.audioTrack.play();
+    //user.audioTrack.play();
   }
   showPopup(`Subscribing to ${mediaType} of UID ${uid}`);
 }
