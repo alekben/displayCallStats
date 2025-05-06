@@ -153,7 +153,7 @@ async function initDevices() {
   if (joined) {
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":false
       });
     } else {
       console.log("mic track already exists, replacing.");
@@ -162,7 +162,7 @@ async function initDevices() {
       await localTracks.audioTrack.close();
       localTracks.audioTrack = undefined;
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":false
       });
       publishMic();
       $("#setMuted").attr("disabled", false);
@@ -235,7 +235,7 @@ function initMicProfiles() {
   audioProfiles.forEach(profile => {
     $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
   });
-  curMicProfile = audioProfiles.find(item => item.label == 'speech_low_quality');
+  curMicProfile = audioProfiles.find(item => item.label == 'speech_standard');
   $(".profile-input").val(`${curMicProfile.detail}`);
 }
 
@@ -438,7 +438,7 @@ $("#role").click(function (e) {
 async function publishMic() {
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
+      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":false
     });
   }
     await client.publish(localTracks.audioTrack);
