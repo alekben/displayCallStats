@@ -153,7 +153,7 @@ async function initDevices() {
   if (joined) {
     if (!localTracks.audioTrack) {
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":false
+        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":true
       });
     } else {
       console.log("mic track already exists, replacing.");
@@ -162,7 +162,7 @@ async function initDevices() {
       await localTracks.audioTrack.close();
       localTracks.audioTrack = undefined;
       localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":false
+        encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":true
       });
       publishMic();
       $("#setMuted").attr("disabled", false);
@@ -438,7 +438,7 @@ $("#role").click(function (e) {
 async function publishMic() {
   if (!localTracks.audioTrack) {
     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":false
+      encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true, "bypassWebAudio":true
     });
   }
     await client.publish(localTracks.audioTrack);
