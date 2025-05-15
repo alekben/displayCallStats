@@ -660,7 +660,7 @@ function showPopup(message) {
   setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 5000);
 }
 
-async function drawCurveTypes(array) {
+function drawCurveTypes(array) {
   var data = new google.visualization.DataTable();
   data.addColumn('number', 'X');
   data.addColumn('number', 'Up');
@@ -683,7 +683,7 @@ async function drawCurveTypes(array) {
   chart.draw(data, options);
 };
 
-async function drawCurveTypesJitter(array) {
+function drawCurveTypesJitter(array) {
   var data = new google.visualization.DataTable();
   data.addColumn('number', 'X');
   data.addColumn('number', 'Send');
@@ -706,7 +706,7 @@ async function drawCurveTypesJitter(array) {
   chartJitter.draw(data, options);
 };
 
-async function drawCurveTypesFPS(array) {
+function drawCurveTypesFPS(array) {
   var data = new google.visualization.DataTable();
   data.addColumn('number', 'X');
   data.addColumn('number', 'Send');
@@ -729,7 +729,7 @@ async function drawCurveTypesFPS(array) {
   chartFPS.draw(data, options);
 };
 
-async function drawCurveTypesBWE(array) {
+function drawCurveTypesBWE(array) {
   var data = new google.visualization.DataTable();
   data.addColumn('number', 'X');
   data.addColumn('number', 'Available Tx');
@@ -752,7 +752,7 @@ async function drawCurveTypesBWE(array) {
   chartBWE.draw(data, options);
 };
 
-async function drawCurveTypesNet(array) {
+function drawCurveTypesNet(array) {
   var data = new google.visualization.DataTable();
   data.addColumn('number', 'X');
   data.addColumn('number', 'Up');
