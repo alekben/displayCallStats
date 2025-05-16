@@ -25,6 +25,18 @@ function setupListners () {
     document.getElementById("log").appendChild(document.createElement('div')).append("State changed To: " + state + " Reason: " + reason)
     })
 
+    // Display connection state changes
+    client.on('TokenExpired', function () {
+    document.getElementById("log").appendChild(document.createElement('div')).append("Token Expired!")
+    })
+
+    // Display connection state changes
+    client.on('TokenPrivilegeWillExpire', function () {
+    document.getElementById("log").appendChild(document.createElement('div')).append("Token Will Expire!")
+    })
+
+
+
     channel = client.createChannel("demoChannel")
 
     channel.on('ChannelMessage', function (message, memberId) {
