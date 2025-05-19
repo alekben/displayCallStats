@@ -502,7 +502,7 @@ async function join() {
 //{"encoderConfig": {"width":720, "height":1280, "frameRate":30, "bitrate":3420, "bitrateMax":3428,"bitrateMin":857}}
   if (host) {
     if (!localTracks.videoTrack) {
-      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({"encoderConfig":{"height":720,"width":1280,"fps":30,"bitrate":3420,"bitrateMin":857,"bitrateMax":3428},"optimizationMode":"motion"});
+      localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({"encoderConfig":{"height":720,"width":1280,"fps":30,"bitrateMin":857,"bitrateMax":1700},"optimizationMode":"motion"});
     }
 
     //localTracks.videoTrack.contentHint = "ptz";
