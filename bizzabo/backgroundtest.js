@@ -436,6 +436,7 @@ $("#join-form").submit(async function (e) {
   } catch (error) {
     console.error(error);
   } finally {
+    $("#mp3").attr("disabled", false);
     $("#leave").attr("disabled", false);
     $("#role").attr("disabled", true);
     //$("#ains").attr("disabled", false);
@@ -807,6 +808,7 @@ async function leave() {
   // leave the channel
   await client.leave();
   showPopup(`Left channel ${options.channel}`);
+  $("#mp3").attr("disabled", true);
   $("#local-player-name").text("");
   $("#join").attr("disabled", false);
   $("#role").attr("disabled", false);
