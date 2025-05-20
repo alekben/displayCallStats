@@ -459,7 +459,10 @@ $("#join-form").submit(async function (e) {
 });
 $("#mp3").click(function (e) {
   playMP3(1, {
-    source: "go_live_audio.mp3"
+    source: "go_live_audio.mp3",
+    encoderConfig: {
+      sampleRate: 44100,
+    }
   });
 });
 $("#leave").click(function (e) {
