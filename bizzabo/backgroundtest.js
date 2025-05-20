@@ -202,7 +202,7 @@ async function initDevices() {
       //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
       //});
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
     } else {
       console.log("mic track already exists, replacing.");
       if (localTrackState.audioTrackPublished) {
@@ -213,7 +213,7 @@ async function initDevices() {
         //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
         //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
         //});
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
         publishMic();
         $("#setMuted").attr("disabled", false);
         $("#setEnabled").attr("disabled", false);
@@ -229,7 +229,7 @@ async function initDevices() {
         //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
         //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
         //});
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
         $("#setMuted").attr("disabled", false);
         $("#setEnabled").attr("disabled", false);
         $("#setMuted").text("Mute Mic Track");
@@ -646,7 +646,7 @@ async function publishMic() {
     //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
     //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
     //});
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
   }
     await client.publish(localTracks.audioTrack);
     console.log("Published mic track");
