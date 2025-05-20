@@ -177,6 +177,11 @@ AgoraRTC.onAutoplayFailed = () => {
 AgoraRTC.onMicrophoneChanged = async changedDevice => {
   // When plugging in a device, switch to a device that is newly plugged in.
   console.log("OnMicrophoneChanged triggered");
+  mics = await AgoraRTC.getMicrophones();
+  $(".mic-list").empty();
+  mics.forEach(mic => {
+    $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
+  });
   if (changedDevice.state === "ACTIVE") {
     localTracks.audioTrack.setDevice(changedDevice.device.deviceId);
     // Switch to an existing device when the current device is unplugged.
