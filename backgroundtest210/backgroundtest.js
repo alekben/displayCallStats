@@ -1,4 +1,3 @@
-
 //
 let dual = false;
 //vb
@@ -262,7 +261,7 @@ async function initDevices() {
 
   if (localTracks.audioTrack) {
   // get mics
-  mics = await AgoraRTC.getMicrophones();
+  mics = (await AgoraRTC.getMicrophones()).filter(mic => mic.deviceId !== 'communications');
   const audioTrackLabel = localTracks.audioTrack.getTrackLabel();
   currentMic = mics.find(item => item.label === audioTrackLabel);
   $(".mic-input").val(currentMic.label);
