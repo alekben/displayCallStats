@@ -11,7 +11,7 @@ const pipeProcessor = (track, processor) => {
 //ains
 let denoiser = null;
 let processor_ains = null;
-let processorEnable = true;
+let processorEnable = false;
 const pipeAIDenosier = (audioTrack, processor_ains) => {
   audioTrack.pipe(processor_ains).pipe(audioTrack.processorDestination);
 };
@@ -297,7 +297,13 @@ async function switchMicrophone(label) {
   $(".mic-input").val(currentMic.label);
   // switch device of local audio track.
   console.log(`Setting mic device to ${currentMic.device} ${currentMic.deviceId}`);
-  await localTracks.audioTrack.setDevice(currentMic.deviceId);
+  if (processorEnable) {
+    await processor_ains.disable();
+    await localTracks.audioTrack.setDevice(currentMic.deviceId);
+    await processor_ains.enable();
+  } else {
+    await localTracks.audioTrack.setDevice(currentMic.deviceId);
+  }
 }
 
 function initMicProfiles() {
@@ -531,12 +537,12 @@ $("#ains").click(async e => {
       return denoiser;
     })();
     processor_ains = processor_ains || (() => {
-      let processor_ains = denoiser.createProcessor();
+      processor_ains = denoiser.createProcessor();
       processor_ains.onoverload = async (elapsedTimeInMs) => {
         console.log(`"overload!!! elapsed: ${elapsedTimeInMs}`);
         try {
           await processor_ains.disable();
-          processorEnable = true;
+          processorEnable = false;
         } catch (error) {
           console.error("disable AIDenoiser failure");
         } finally {
@@ -547,13 +553,13 @@ $("#ains").click(async e => {
     })();
     pipeAIDenosier(localTracks.audioTrack, processor_ains);
   
-    if (processorEnable) {
+    if (!processorEnable) {
       try {
         await processor_ains.enable();
         showPopup("AINS enabled");
-        processorEnable = false;
-        //await processor_ains.setMode("STATIONARY_NS");
-        await processor_ains.setLevel("AGGRESSIVE");
+        processorEnable = true;
+        await processor_ains.setMode("STATIONARY_NS");
+        await processor_ains.setLevel("SOFT");
       } catch (e) {
         console.error("enable AIDenoiser failure");
       } finally {
@@ -562,7 +568,7 @@ $("#ains").click(async e => {
     } else {
       try {
         await processor_ains.disable();
-        processorEnable = true;
+        processorEnable = false;
         showPopup("AINS disabled");
       } catch (e) {
         console.error("disable AIDenoiser failure");
