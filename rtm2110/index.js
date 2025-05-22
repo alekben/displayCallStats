@@ -15,7 +15,7 @@ var rtmClient;
 
 var rtmConfig = {
   //2.1.x or below
-  //token : null,
+  token : null,
   presenceTimeout : 30,
   logUpload : false,
   logLevel : "debug",
@@ -57,6 +57,8 @@ window.onload = function () {
     document.getElementById("start").onclick = async function () {
         appID = document.getElementById("appid").value.toString();
         options.uid = document.getElementById("userID").value.toString();
+        options.token = document.getElementById("token").value.toString();
+        rtmConfig.token = options.token;
         if (!state.client) {
           try {
             rtmClient = new RTM(appID, options.uid, rtmConfig); 
@@ -78,7 +80,7 @@ window.onload = function () {
         appID = document.getElementById("appid").value.toString();
         options.uid = document.getElementById("userID").value.toString();
         options.token = document.getElementById("token").value.toString();
-
+        rtmConfig.token = options.token;
         if (!state.client) {
           try {
             rtmClient = new RTM(appID, options.uid, rtmConfig); 
@@ -96,7 +98,7 @@ window.onload = function () {
 
         if (!state.loggedin) {
           try {
-            const result = await rtmClient.login({token: options.token});
+            const result = await rtmClient.login();
             console.log(result);
             console.log(state);
           } catch (status) {
@@ -114,7 +116,7 @@ window.onload = function () {
         options.token = document.getElementById("token").value.toString() 
         if (!state.loggedin) {
           try {
-            const result = await rtmClient.login({token: options.token});
+            const result = await rtmClient.login();
             console.log(result);
 
             console.log(state);
