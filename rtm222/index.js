@@ -47,7 +47,7 @@ function setupListners () {
           const d = new Date();
           time2 = d.getTime();
           const timeTaken = time2 - timeStart;
-          document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginSuccess at ${event.timestamp}, time taken ${timeTaken}`);
+          document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginSuccess at ${event.timestamp}, time taken ${timeTaken}ms`);
         }
       });
       // Token Privilege Will Expire
@@ -130,6 +130,10 @@ window.onload = function () {
       options.token = document.getElementById("token").value.toString();
 
       rtmConfig.cloudProxy = "true";
+
+      const d = new Date();
+      timeStart = d.getTime();
+      document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: login with proxy start at ${timeStart}`);
 
       if (!state.client) {
         try {
