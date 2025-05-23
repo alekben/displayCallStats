@@ -79,6 +79,8 @@ window.onload = function () {
         options.uid = document.getElementById("userID").value.toString();
         options.token = document.getElementById("token").value.toString();
 
+        rtmConfig.cloudProxy = "false";
+        
         if (!state.client) {
           try {
             rtmClient = new RTM(appID, options.uid, rtmConfig); 
@@ -109,6 +111,45 @@ window.onload = function () {
           document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already true");
         }
     }
+
+    document.getElementById("startLoginProxy").onclick = async function () {
+      appID = document.getElementById("appid").value.toString();
+      options.uid = document.getElementById("userID").value.toString();
+      options.token = document.getElementById("token").value.toString();
+
+      rtmConfig.cloudProxy = "true";
+
+      if (!state.client) {
+        try {
+          rtmClient = new RTM(appID, options.uid, rtmConfig); 
+          } catch (status) {
+          console.log(status); 
+          console.log(state);
+          } finally {
+            state.client = true;
+          };
+      setupListners();
+      } else {
+        console.log("SIGNALING: client status already true");
+        document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client status already true");
+      }
+
+      if (!state.loggedin) {
+        try {
+          const result = await rtmClient.login({token: options.token});
+          console.log(result);
+          console.log(state);
+        } catch (status) {
+        console.log(status);
+        } finally {
+          state.loggedin = true;
+        };
+      } else {
+        console.log("SIGNALING: client logged in already true");
+        document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already true");
+      }
+  }
+
 
     document.getElementById("login").onclick = async function () {
         options.token = document.getElementById("token").value.toString() 
