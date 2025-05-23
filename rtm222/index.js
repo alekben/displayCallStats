@@ -43,7 +43,7 @@ function setupListners () {
       // Connection State Change
       rtmClient.addEventListener("linkState", event => {
         document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LinkState changed To: ${event.currentState} Reason: ${event.reason}`);
-        if (event.reason == "LOGIN_SUCCESS") {
+        if (event.reason == "Login success") {
           const d = new Date();
           time2 = d.getTime();
           const timeTaken = time2 - timeStart;
