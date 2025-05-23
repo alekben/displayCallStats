@@ -1,3 +1,6 @@
+//login tracking var
+timeStart = 0;
+
 // Params for login
 let options = {
     uid: "",
@@ -38,8 +41,14 @@ function setupListners () {
         document.getElementById("log").appendChild(document.createElement('div')).append("Message from: " + event.publisher + " Message: " + event.message)
       });
       // Connection State Change
-      rtmClient.addEventListener("status", event => {
-        document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: State changed To: ${event.state} Reason: ${event.reason}`)
+      rtmClient.addEventListener("linkState", event => {
+        document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LinkState changed To: ${event.currentState} Reason: ${event.reason}`);
+        if (event.reason == "LOGIN_SUCCESS") {
+          const d = new Date();
+          time2 = d.getTime();
+          const timeTaken = time2 - timeStart;
+          document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginSuccess at ${event.timestamp}, time taken ${timeTaken}`);
+        }
       });
       // Token Privilege Will Expire
       rtmClient.addEventListener("tokenPrivilegeWillExpire", (channelName) => {
@@ -80,7 +89,10 @@ window.onload = function () {
         options.token = document.getElementById("token").value.toString();
 
         rtmConfig.cloudProxy = "false";
-        
+
+        const d = new Date();
+        timeStart = d.getTime();
+        document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: login start at ${timeStart}`);
         if (!state.client) {
           try {
             rtmClient = new RTM(appID, options.uid, rtmConfig); 
