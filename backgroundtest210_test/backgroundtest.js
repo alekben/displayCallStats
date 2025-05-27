@@ -856,13 +856,15 @@ async function manualUnsub() {
 async function subscribe(user, mediaType) {
   const uid = user.uid;
   // subscribe to a remote user
+  if (mediaType === 'video') {
+    if (uid == 555) {
+      localTracks.videoTrack.setEncoderConfiguration("120p");
+    }
+  }
   await client.subscribe(user, mediaType);
   console.log("subscribe success");
 
   if (mediaType === 'video') {
-    if (uid == 555) {
-      await localTracks.videoTrack.setEncoderConfiguration("120p");
-    }
     if (remoteFocus != 0) {
       dumbTempFix = "";
     } else {
