@@ -88,7 +88,7 @@ window.onload = function () {
         options.uid = document.getElementById("userID").value.toString();
         options.token = document.getElementById("token").value.toString();
 
-        rtmConfig.cloudProxy = "false";
+        rtmConfig.cloudProxy = false;
 
         const d = new Date();
         timeStart = d.getTime();
@@ -129,7 +129,7 @@ window.onload = function () {
       options.uid = document.getElementById("userID").value.toString();
       options.token = document.getElementById("token").value.toString();
 
-      rtmConfig.cloudProxy = "true";
+      rtmConfig.cloudProxy = true;
 
       const d = new Date();
       timeStart = d.getTime();
