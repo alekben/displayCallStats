@@ -951,7 +951,7 @@ function handleUserUnpublished(user, mediaType) {
     updateUIDs(id, "remove");
     delete remoteUsers[id];
     $(`#player-wrapper-${id}`).remove();
-    if (uid == 555) {
+    if (id == 555) {
       localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
     }
   }
