@@ -49,11 +49,43 @@ function setupListners () {
           const timeTaken = time2 - timeStart;
           document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginSuccess at ${event.timestamp}, time taken ${timeTaken}ms`);
         }
+        if (event.reason == "Login timeout") {
+          document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginTimeout at ${event.timestamp}, trying force proxy.`);
+          setTimeout(forceProxy, 500);
+        }
       });
       // Token Privilege Will Expire
       rtmClient.addEventListener("tokenPrivilegeWillExpire", (channelName) => {
         document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: Token will expire for ${channelName}`)
       });
+}
+
+async function forceProxy() {
+  await rtmClient.logout();
+  state.loggedin = false;
+  console.log(state);
+  rtmClient = "";
+  state.client = false;
+  state.subscribed = false;
+  rtmConfig.cloudProxy = true;
+  try {
+    rtmClient = new RTM(appID, options.uid, rtmConfig); 
+  } catch (status) {
+    console.log(status); 
+    console.log(state);
+  } finally {
+    state.client = true;
+  };
+  setupListners();
+  try {
+    const result = await rtmClient.login({token: options.token});
+    console.log(result);
+    console.log(state);
+  } catch (status) {
+    console.log(status);
+  } finally {
+    state.loggedin = true;
+  };
 }
 
 
