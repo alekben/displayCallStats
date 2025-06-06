@@ -28,6 +28,10 @@ var bigRemote = 0;
 var remoteFocus = 0;
 var dumbTempFix = "Selected";
 
+//client = await AgoraRTC.createClient({mode:"rtc",codec:"vp8"});
+AgoraRTC.setParameter("FILTER_VIDEO_CODEC", ["vp8","vp9","h264"]);
+
+
 AgoraRTC.setParameter("EXPERIMENTS", {"netqSensitivityMode": 1});
 
 AgoraRTC.setParameter('WEBAUDIO_INIT_OPTIONS',
