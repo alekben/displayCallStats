@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Signaling 221 Quickstart</title>
+    <script src="https://agora-packages.s3.us-west-2.amazonaws.com/rtm/agora-rtm-2.2.1.min.js"></script>
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <h1 class="left-align">Signaling 221 Quickstart</h1>
+    <form id="loginForm">
+      <div class="col" style="min-width: 433px; max-width: 443px">
+        <div class="card" style="margin-top: 0px; margin-bottom: 0px">
+          <div
+            class="row card-content"
+            style="margin-bottom: 0px; margin-top: 10px"
+          >
+            <div class="input-field">
+              <label>User ID</label>
+              <input type="text" placeholder="User ID" id="userID" />
+            </div>
+            <div class="input-field">
+                <label>AppID</label>
+                <input type="text" placeholder="AppID" id="appid" />
+              </div>
+              <div class="input-field">
+                <label>Token</label>
+                <input type="text" placeholder="Token" id="token" />
+              </div>
+            <div class="row">
+              <div>
+                <button type="button" id="start">START RTM CLIENT</button>
+                <button type="button" id="login">LOGIN</button>
+                <button type="button" id="startLogin">START AND LOGIN RTM CLIENT</button>
+                <button type="button" id="startLoginProxy">START AND LOGIN RTM CLIENT (Proxy)</button>
+                <button type="button" id="logout">LOGOUT</button>
+                <button type="button" id="logoutNull">LOGOUT AND NULL CLIENT</button>
+              </div>
+            </div>
+            <div class="input-field">
+              <label>Channel name: demoChannel</label>
+            </div>
+            <div class="row">
+              <div>
+                <button type="button" id="join">JOIN</button>
+                <button type="button" id="leave">LEAVE</button>
+              </div>
+            </div>
+            <div class="input-field channel-padding">
+              <label>Channel Message</label>
+              <input
+                type="text"
+                placeholder="channel message"
+                id="channelMessage"
+              />
+              <button type="button" id="send_channel_message">SEND</button>
+            </div>
+            <div class="input-field">
+              <label>Peer Id</label>
+              <input type="text" placeholder="peer id" id="peerId" />
+            </div>
+            <div class="input-field channel-padding">
+              <label>Peer Message</label>
+              <input type="text" placeholder="peer message" id="peerMessage" />
+              <button type="button" id="send_peer_message">SEND</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <hr />
+    <div id="log"></div>
+  </body>
+</html>
