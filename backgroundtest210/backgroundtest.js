@@ -757,11 +757,10 @@ async function join() {
 async function shareScreen() {
   if (!screenClient) {
     screenClient = AgoraRTC.createClient({
-      mode: "live",
-      codec: "vp8",
-      role: "host"
+      mode: "rtc",
+      codec: "vp8"
     });
-    screenClient.startProxyServer(3);
+    //screenClient.startProxyServer(3);
   }
   if (localTrackState.screenTrackPublished) {
     console.log('unpublishing screen track');
