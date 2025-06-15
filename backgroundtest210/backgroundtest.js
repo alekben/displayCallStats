@@ -834,6 +834,8 @@ async function leave() {
   await client.leave();
   showPopup(`Left channel ${options.channel}`);
   $("#local-player-name").text("");
+  $("#local-player").css("border", "");
+  $("#local-player").css("border-radius", "");
   $("#join").attr("disabled", false);
   $("#role").attr("disabled", false);
   $("#leave").attr("disabled", true);
@@ -848,6 +850,7 @@ async function leave() {
   $("#ains").attr("disabled", true);
   $("#vb").attr("disabled", true);
   $("#screen").attr("disabled", true);
+  $("#screen").text("Share Screen");
   remoteFocus = 0;
   bigRemote = 0;
   console.log("client leaves channel success");
@@ -1024,6 +1027,7 @@ function destructStats() {
   $("#session-stats").html("");
   $("#transport-stats").html("");
   $("#local-stats").html("");
+  $("#client-stats").html("");
 }
 
 function notifyReady() {
