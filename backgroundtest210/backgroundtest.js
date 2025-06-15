@@ -777,7 +777,7 @@ async function shareScreen() {
     screenClient.leave();
   } else {
     console.log('publishing screen track');
-    const screenTrackTemp = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "disabled");
+    const screenTrackTemp = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "auto");
     if (screenTrackTemp instanceof Array) {
       localTracks.screenVideoTrack = screenTrackTemp[0];
       localTracks.screenAudioTrack = screenTrackTemp[1];
