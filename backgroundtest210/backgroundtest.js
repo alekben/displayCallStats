@@ -793,9 +793,9 @@ async function shareScreen() {
 
     options.screenUid = await screenClient.join(options.appid, options.channel, options.screenToken || null, options.screenUid || null);
     if (localTracks.screenAudioTrack == null) {
-      await screenClient.publish([localTracks.screenVideoTrack, localTracks.audioTrack]);
+      await screenClient.publish([localTracks.screenVideoTrack]);
     } else {
-      await screenClient.publish([localTracks.screenVideoTrack, localTracks.audioTrack, localTracks.screenAudioTrack]);
+      await screenClient.publish([localTracks.screenVideoTrack, localTracks.screenAudioTrack]);
     }
     //screenClient.publish(localTracks.screenTrack);
     localTrackState.screenTrackPublished = true;
