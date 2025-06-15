@@ -765,16 +765,39 @@ async function shareScreen() {
   if (localTrackState.screenTrackPublished) {
     console.log('unpublishing screen track');
     localTrackState.screenTrackPublished = false;
-    screenClient.unpublish(localTracks.screenTrack);
-    localTracks.screenTrack.stop();
-    localTracks.screenTrack.close();
+    //screenClient.unpublish(localTracks.screenTrack);
+    if (localTracks.screenAudioTrack == null) {
+      await screenClient.unpublish([localTracks.screenVideoTrack]);
+    } else {
+      await screenClient.unpublish([localTracks.screenVideoTrack, localTracks.screenAudioTrack]);
+    }
+    localTracks.screenVideoTrack && localTracks.screenVideoTrack.close();
+    localTracks.screenAudioTrack && localTracks.screenAudioTrack.close();
     $("#screen").text("Share Screen");
     screenClient.leave();
   } else {
     console.log('publishing screen track');
-    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "disabled");
+    const screenTrackTemp = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "disabled");
+    if (screenTrackTemp instanceof Array) {
+      localTracks.screenVideoTrack = screenTrack[0];
+      localTracks.screenAudioTrack = screenTrack[1];
+    } else {
+      localTracks.screenVideoTrack = screenTrack;
+    }
+
+    localTracks.screenVideoTrack.on("track-ended", () => {
+      alert(`Screen-share track ended, stop sharing screen ` + localTracks.screenVideoTrack.getTrackId());
+      localTracks.screenVideoTrack && localTracks.screenVideoTrack.close();
+      localTracks.screenAudioTrack && localTracks.screenAudioTrack.close();
+    });
+
     options.screenUid = await screenClient.join(options.appid, options.channel, options.screenToken || null, options.screenUid || null);
-    screenClient.publish(localTracks.screenTrack);
+    if (localTracks.screenAudioTrack == null) {
+      await screenClient.publish([localTracks.screenVideoTrack, localTracks.audioTrack]);
+    } else {
+      await screenClient.publish([localTracks.screenVideoTrack, localTracks.audioTrack, localTracks.screenAudioTrack]);
+    }
+    //screenClient.publish(localTracks.screenTrack);
     localTrackState.screenTrackPublished = true;
     $("#screen").text("Stop Screen Share");
   }
