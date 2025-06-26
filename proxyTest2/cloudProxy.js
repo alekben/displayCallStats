@@ -45,7 +45,9 @@ var localTracks = {
 
 var localTrackState = {
   audioTrackMuted: false,
-  audioTrackPublished: false
+  audioTrackPublished: false,
+  videoTrackMuted: false,
+  videoTrackPublished: false
 };
 
 var connectionState = {
@@ -59,7 +61,7 @@ var localNetQuality = {uplink: 0, downlink: 0};
 var local2NetQuality = {uplink: 0, downlink: 0};
 
 var remoteUsers = {};
-var remote = 0;
+let remoteFetched = false;
 let loopback = false;
 
 let ff_applied = false;
@@ -261,10 +263,9 @@ $("#join-form").submit(async function (e) {
       encoderConfig: "music_standard", "AEC": true, "ANS": true, "AGC": true
     });
     };
+    await localTracks.audioTrack.setMuted(true);
     localTrackState.audioTrackMuted = true;
     localTrackState.audioTrackPublished = false;
-    localTrackState.videoTrackMuted = true;
-    localTrackState.videoTrackPublished = false;
   }
 });
 
@@ -302,10 +303,10 @@ $("#iframeParams").click(function (e) {
 });
 
 $("#mute").click(function (e) {
-  if (!localTrackState.audioTrackMuted) {
-    muteAudio();
-  } else {
+  if (localTrackState.audioTrackMuted) {
     unmuteAudio();
+  } else {
+    muteAudio();
   }
 });
 
@@ -326,6 +327,7 @@ $("#dualSwitch").click(function (e) {
 });
 
 $("#subAndPlay").click(function (e) {
+  remoteFetched = true;
   handleUserPublished2(client2.remoteUsers[0], "video");
 });
 
@@ -337,8 +339,7 @@ async function join() {
   client2.on("stream-type-changed", reportStreamTypeChanged)
   client.on("connection-state-change", handleConnectionState);
   client.on("network-quality", handleNetworkQuality);
-  //client2.on("user-published", handleUserPublished2);
-  client2.on("user-published", setRemote);
+  client2.on("user-published", handleUserPublished2);
   client2.on("user-unpublished", handleUserUnpublished2);
   client2.on("network-quality", handleNetworkQuality2);
   client2.on("connection-state-change", handleConnectionState2);
@@ -424,9 +425,10 @@ async function leave() {
   //chartArrayFPS.length = 0;
   //chartArrayBWE.length = 0;
   loopback = false;
+  remoteFetched = false;
   $("#join").attr("disabled", false);
   $("#leave").attr("disabled", true);
-  $("#mute").text("Mute Mic Track");
+  $("#mute").text("Unmute Mic");
   $("#mute").attr("disabled", true);
   $("#dualSwitch").attr("disabled", true);
   $("#showSettings").attr("disabled", true);
@@ -435,9 +437,9 @@ async function leave() {
   $("#muteCam").text("Disable Cam");
   $("#muteCam").attr("disabled", true);
   $("#iframeParams").attr("disabled", false);
-  localTrackState.videoTrackMuted = true;
+  localTrackState.videoTrackMuted = false;
   localTrackState.videoTrackPublished = false;
-  localTrackState.audioTrackMuted = true;
+  localTrackState.audioTrackMuted = false;
   localTrackState.audioTrackPublished = false;
   console.log("client leaves channel success");
 }
@@ -488,7 +490,7 @@ async function unmuteAudio() {
     console.log("publish mic success");
     localTrackState.audioTrackPublished = true;
   }
-  $("#mute").text("Mute Mic Track");
+  $("#mute").text("Mute Mic");
   showPopup("Mic Track Unmuted");
 }
 
@@ -544,23 +546,18 @@ async function subscribe2(user, mediaType) {
 
 
 function handleUserPublished2(user, mediaType) {
-  if (user.uid = options.uid) {
+  if (remoteFetched) {
+    if (user.uid = options.uid) {
       const id = user.uid;
       remoteUsers[id] = user;
       subscribe2(user, mediaType);
       loopback = true;
-  } else {
-    console.log('some other user ignoring');
+    } else {
+      console.log('some other user ignoring');
+    } 
   }
 }
 
-function setRemote(user, mediaType) {
-  if (user.uid = options.uid) {
-    remote = user.uid;
-  } else {
-    console.log('some other user ignoring');
-  }
-}
 
 function handleUserUnpublished2(user, mediaType) {
   if (user.uid = options.uid) {
