@@ -1,14 +1,21 @@
 // RTC client instance
 let client = null;
+AgoraRTC.setParameter("SHOW_GLOBAL_CLIENT_LIST", true);
+
 
 // Declare variables for the local tracks
 let localAudioTrack = null; 
 let localVideoTrack = null; 
 
+// PeerConnection array
+let PC = [];
+
 // Connection parameters
 let appId = "7c9a6773eb7b4650831ecdb3a0931dac";
 let channel = "TEST";
 let uid = 0; // User ID
+
+let leaving = false;
 
 // Initialize the AgoraRTC client
 function initializeClient() {
@@ -39,6 +46,10 @@ function setupEventListeners() {
     client.on("connection-state-change", (cur, prev, reason) => {
         if (cur === "DISCONNECTED") {
             log(`WebSocket Connection state changed to ${cur} from ${prev} for reason ${reason}.`);
+            if (leaving) {
+                PC[client._clientId].connection?.close();
+                leaving = false;
+            }
         } else {
             log(`WebSocket Connection state changed to ${cur}.`);
         }
@@ -47,8 +58,9 @@ function setupEventListeners() {
     client.on("peerconnection-state-change", (curState, revState) => {
         if (curState === "disconnected") {
             log(`Media PeerConnection state changed to ${curState} from ${revState}.`);
-        } else {
+        } else if (curState === "connected") {
             log(`Media PeerConnection state changed to ${curState}.`);
+            PC[client._clientId] = client._p2pChannel;
         }
     });
 }
@@ -120,6 +132,7 @@ async function leaveChannel() {
     });
 
     // Leave the channel
+    leaving = true;
     await client.leave();
 }
 
