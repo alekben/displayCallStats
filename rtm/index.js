@@ -34,24 +34,24 @@ function setupListners () {
     client.on('TokenPrivilegeWillExpire', function () {
     document.getElementById("log").appendChild(document.createElement('div')).append("Token Will Expire!")
     })
+}
 
-
-
+function setupChannelListeners() {
     channel = client.createChannel("demoChannel")
 
     channel.on('ChannelMessage', function (message, memberId) {
-    document.getElementById("log").appendChild(document.createElement('div')).append("Message received from: " + memberId + " Message: " + message)
-    })
-    // Display channel member stats
-    channel.on('MemberJoined', function (memberId) {
-    document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " joined the channel")
-    })
-    // Display channel member stats
-    channel.on('MemberLeft', function (memberId) {
-    document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " left the channel")
-    })
-}
+        document.getElementById("log").appendChild(document.createElement('div')).append("Message received from: " + memberId + " Message: " + message)
+        })
+        // Display channel member stats
+        channel.on('MemberJoined', function (memberId) {
+        document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " joined the channel")
+        })
+        // Display channel member stats
+        channel.on('MemberLeft', function (memberId) {
+        document.getElementById("log").appendChild(document.createElement('div')).append(memberId + " left the channel")
+        })
 
+}
 
 // Button behavior
 window.onload = function () {

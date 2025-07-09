@@ -244,19 +244,22 @@ window.onload = function () {
         console.log("SIGNALING: client logged in already false");
         document.getElementById("log").appendChild(document.createElement('div')).append("SIGNALING: client logged in already false");
       }
-  }
+    }
 
     // create and join channel
     document.getElementById("join").onclick = async function () {
+
+      let channelName = document.getElementById("channelName").value.toString()
+
         try {
-            const result = await rtmClient.subscribe("demoChannel", {
+            const result = await rtmClient.subscribe(channelName, {
               withMessage: true,
               withPresence: true, 
               withMetadata: true,
               withLock: false,
             });
             console.log("SIGNALING: rtm channel sub result: ", result.channelName);
-            document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully joined channel demoChannel");
+            document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully joined channel " + channelName);
             state.subscribed = true;
           } catch (status) {
             console.log(status);
@@ -266,10 +269,12 @@ window.onload = function () {
     // leave channel
     document.getElementById("leave").onclick = async function () {
 
+      let channelName = document.getElementById("channelName").value.toString()
+
         try {
-            const result = await rtmClient.unsubscribe("demoChannel");
+            const result = await rtmClient.unsubscribe(channelName);
             console.log("SIGNALING: rtm channel unsub result: ", result.channelName);
-            document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully left channel demoChannel");
+            document.getElementById("log").appendChild(document.createElement('div')).append("You have successfully left channel " + channelName);
             state.subscribed = false;
           } catch (status) {
             console.log(status);
@@ -281,36 +286,30 @@ window.onload = function () {
 
         let peerId = document.getElementById("peerId").value.toString()
         let peerMessage = document.getElementById("peerMessage").value.toString()
-
-        await client.sendMessageToPeer(
-            { text: peerMessage },
-            peerId,
-        ).then(sendResult => {
-            if (sendResult.hasPeerReceived) {
-
-                document.getElementById("log").appendChild(document.createElement('div')).append("Message has been received by: " + peerId + " Message: " + peerMessage)
-
-            } else {
-
-                document.getElementById("log").appendChild(document.createElement('div')).append("Message sent to: " + peerId + " Message: " + peerMessage)
-
-            }
-        })
+        try {
+            const result = await rtmClient.publish(peerId, peerMessage, { channelType: "USER"} );
+            console.log(result);
+        } catch (status) {
+            console.log(status);
+        }
+        document.getElementById("log").appendChild(document.createElement('div')).append("Message sent to: " + peerId + " Message: " + peerMessage)
     }
 
     // send channel message
     document.getElementById("send_channel_message").onclick = async function () {
 
-        let channelMessage = document.getElementById("channelMessage").value.toString()
+        if (state.subscribed) {
+          let channelMessage = document.getElementById("channelMessage").value.toString();
 
-        if (channel != null) {
-            await channel.sendMessage({ text: channelMessage }).then(() => {
-
-                document.getElementById("log").appendChild(document.createElement('div')).append("Channel message: " + channelMessage + " from " + channel.channelId)
-
-            }
-
-            )
+          try {
+            const result = await rtmClient.publish(channelName, channelMessage, { channelType: "MESSAGE"} );
+            console.log(result);
+            document.getElementById("log").appendChild(document.createElement('div')).append("Channel Message sent to: " + channelName)
+        } catch (status) {
+            console.log(status);
+        }
+        } else {
+          alert("Join a channel first!");
         }
     }
 }
