@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>VB210 VP8 Test -- Agora</title>
+  <link rel="stylesheet" href="../bootstrap.min.css">
+  <style>
+.sso-hidden {
+  display: block;
+}
+
+.banner {
+  padding: 0;
+  background-color: #52575c;
+  color: white;
+}
+
+.banner-text {
+  padding: 8px 20px;
+  margin: 0;
+}
+
+
+#join-form {
+  margin-top: 10px;
+}
+
+.tips {
+  font-size: 12px;
+  margin-bottom: 2px;
+  color: gray;
+}
+
+.join-info-text {
+  margin-bottom: 2px;
+}
+
+input {
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.player {
+  width: 480px;
+  height: 320px;
+  display:inline-block;
+}
+
+
+.player-name {
+  margin: 8px 0;
+}
+
+#success-alert, #success-alert-with-token {
+  display: none;
+}
+
+#client-stats {
+  margin-top: 10px;
+}
+
+.stats {
+  color: rgb(0, 255, 68);
+  margin-left: 10px;
+  position: absolute;
+  font-weight: bolder;
+}
+
+.stats2 {
+  color: #4b2e83;
+  font-size: 14px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, auto);
+  grid-gap: 10px;
+}
+.stat-item {
+  background: rgba(255, 204, 153, 0.9);
+  padding: 10px;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  position: relative;
+}
+
+@media (max-width: 767.98px) {
+  .stats2 {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(5, auto);
+  }
+}
+
+.remoteStats {
+  color: rgb(0, 255, 30);
+  margin-left: 10px;
+  position: absolute;
+  font-weight: bolder;
+}
+
+.stats-row {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.player-with-stats {
+  display: flex;
+  position: relative;
+}
+
+.stream-stats {
+  min-width: 260px;
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .player {
+    width: 320px;
+    height: 240px;
+  }
+}
+
+.popupHidden {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 0%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+
+.popupShow {
+  visibility: true; /* Hidden by default. Visible on click */
+  min-width: 10%; /* Set a default minimum width */
+  max-width: 10%;
+  margin-left: 0px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 0%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 10.0s;
+  animation: fadein 0.5s, fadeout 0.5s 10.0s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid banner">
+    <p class="banner-text">VB210 Test</p>
+    <a style="color: rgb(255, 255, 255);fill: rgb(255, 255, 255);fill-rule: evenodd; position: absolute; right: 10px; top: 4px;"
+      class="Header-link " href="https://github.com/AgoraIO/API-Examples-Web/tree/main/Demo">
+      <svg class="octicon octicon-mark-github v-align-middle" height="32" viewBox="0 0 16 16" version="1.1" width="32"
+        aria-hidden="true">
+        <path fill-rule="evenodd"
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+        </path>
+      </svg>
+    </a>
+  </div>
+
+  <div class="container">
+
+    <div id="settings">
+      <form id="join-form">
+        <div id="channelSettings" class="row join-info-group">
+        <div id="camSettings">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">Video Camera</button>
+              <div class="cam-list dropdown-menu"></div>
+            </div>
+            <input type="text" class="cam-input form-control" aria-label="Text input with dropdown button" readonly>
+          </div>
+        </div>
+
+        <div id="resSettings">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" >Video Profile</button>
+              <div class="profile-list dropdown-menu"></div>
+            </div>
+            <input type="text" class="profile-input form-control" aria-label="Text input with dropdown button" readonly>
+          </div>
+        </div>
+
+        <div id="blurSettings">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false" >Blur Intensity</button>
+              <div class="blur-list dropdown-menu"></div>
+            </div>
+            <input type="text" class="blur-input form-control" aria-label="Text input with dropdown button" readonly>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button id="join" type="submit" class="btn btn-primary btn-sm">Start</button>
+          <button id="leave" type="button" class="btn btn-primary btn-sm" disabled>Stop</button>
+          <button id="vb" type="button" class="btn btn-primary btn-sm" disabled>VB Toggle</button>
+          <button id="beauty" type="button" class="btn btn-primary btn-sm" disabled>Beauty Toggle</button>
+        </div>
+      </form>
+
+    </div>
+    </div>
+    </div>
+
+    <div class="row video-group">
+      <div class="col">
+        <div class="col-md-12">
+          <div id="client-stats" class="stats2"></div>
+        </div>
+          <div id="chart-div-cost"></div>
+          <div id="chart-div-fps"></div>
+          <div id="chart-div-res"></div>
+          <div id="local-player" class="player">
+            <div id="local-stats" class="stream-stats stats"></div>
+          </div>
+          <div id="remote-player" class="player">
+            <div id="remote-stats" class="stream-stats stats"></div>
+          </div>
+          
+      </div>
+    </div>
+  </div>
+
+  <div id="popup-section"></div>
+  <script type="text/javascript" src="https://unpkg.com/default-passive-events"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="../jquery-3.4.1.min.js"></script>
+  <script src="../bootstrap.bundle.min.js"></script>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <script src="../extensions/agora-extension-virtual-background_2_1_0/agora-extension-virtual-background.js"></script>
+  <script src="../extensions/agora-extension-beauty/agora-extension-beauty.js"></script>
+  <script>
+
+    //beauty
+    let beauty = null;
+    let processorBeauty = null;
+    let processorBeautyIsDisable = true;
+
+    //vb
+    let vb = null;
+    let processor = null;
+    const pipeProcessor = (track, processor, processorBeauty) => {
+      track.pipe(processor).pipe(processorBeauty).pipe(track.processorDestination);
+    };
+    let processorIsDisable = true;
+    let curCost = 0;
+    var avgCost = [];
+
+    var popups = 0;
+    
+    google.charts.load('current', {packages: ['corechart', 'line']});
+    var chartCost;
+    var chartArrayCost = [];
+    var chartFPS;
+    var chartArrayFPS = [];
+    var chartRes;
+    var chartArrayRes = [];
+    
+    let statsInterval;
+    
+    var client = AgoraRTC.createClient({
+      mode: "rtc",
+      codec: "vp8"
+    });
+    
+    var client2 = AgoraRTC.createClient({
+      mode: "rtc",
+      codec: "vp8"
+    });
+    
+    var localTracks = {
+      videoTrack: null
+    };
+    
+    var connectionState = {
+      isJoined: null,
+      mediaReceived: null
+    };
+    
+    var localNetQuality = {uplink: 0, downlink: 0};
+    var local2NetQuality = {uplink: 0, downlink: 0};
+    
+    var remoteUsers = {};
+    let loopback = false;
+    
+    var options = {
+      appid: null,
+      channel: null,
+      uid: null,
+      uid2: null
+    };
+    
+    //random
+    let leftOnce = false;
+    var timeStart = 0;
+    var timeTaken = 0;   
+
+    var blurValues = [{
+      label: "1",
+      detail: "Blur Intensity 1",
+      value: "1"
+    }, {
+      label: "2",
+      detail: "Blur Intensity 2",
+      value: "2"
+    }, {
+      label: "3",
+      detail: "Blur Intensity 3",
+      value: "3"
+    }];
+    var curBlur;
+    
+    //video profiles
+    var videoProfiles = [{
+      label: "360p_1",
+      detail: "640x360, 15fps, 400Kbps",
+      value: "360p_1"
+    }, {
+      label: "360p_4",
+      detail: "640x360, 30fps, 600Kbps",
+      value: "360p_4"
+    }, {
+      label: "480p_8",
+      detail: "848×480, 15fps, 610Kbps",
+      value: "480p_8"
+    }, {
+      label: "480p_9",
+      detail: "848×480, 30fps, 930Kbps",
+      value: "480p_9"
+    }, {
+      label: "720p_1",
+      detail: "1280×720, 15fps, 1130Kbps",
+      value: "720p_1"
+    }, {
+      label: "720p_2",
+      detail: "1280×720, 30fps, 2000Kbps",
+      value: "720p_2"
+    }, {
+      label: "720p_auto",
+      detail: "1280×720, 30fps, 3000Kbps",
+      value: "720p_auto"
+    }, {
+      label: "1080p_1",
+      detail: "1920×1080, 15fps, 2080Kbps",
+      value: "1080p_1"
+    }, {
+      label: "1080p_2",
+      detail: "1920×1080, 30fps, 3000Kbps",
+      value: "1080p_2"
+    }, {
+      label: "1080p_5",
+      detail: "1920×1080, 60fps, 4780Kbps",
+      value: "1080p_5"
+    }];
+    var curVideoProfile;
+    var curCam;
+    
+    $(() => {
+      initProfiles();
+      initCams();
+      initBlur();
+      $(".cam-list").delegate("a", "click", function (e) {
+        switchCamera(this.text);
+      });
+      $(".profile-list").delegate("a", "click", function (e) {
+        changeProfiles(this.getAttribute("label"));
+      });
+      $(".blur-list").delegate("a", "click", function (e) {
+        changeBlur(this.getAttribute("label"));
+      });
+    });
+    
+    $("#join-form").submit(async function (e) {
+      e.preventDefault();
+      $("#join").attr("disabled", true);
+      try {
+        options.channel = generateRandomString(10);
+        options.uid = Number(0);
+        options.appid = "7c9a6773eb7b4650831ecdb3a0931dac";
+        $("#local-player").css("display", "");
+        $("#remote-player").css("display", "");
+        await join();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        $("#leave").attr("disabled", false);
+        $("#vb").attr("disabled", false);
+        $("#beauty").attr("disabled", false);
+        vb = vb || (() => {
+          let vb = new VirtualBackgroundExtension();
+          AgoraRTC.registerExtensions([vb]);
+          return vb;
+        })();
+        processor = processor || (await (async () => {
+          let processor = vb.createProcessor();
+          processor.eventBus.on("PERFORMANCE_WARNING", () => {
+          console.warn("Performance warning!!!!!!!!!!!!!!!!!");
+          showPopup("VirtualBackground performance warning!");
+        });
+        processor.eventBus.on("cost", (cost) => {
+          console.warn(`cost of vb is ${cost}`);
+          if (cost !== 0) {
+            curCost = cost;
+            avgCost.push(cost);
+          }
+        });
+        processor.onoverload = async () => {
+          console.log("overload!!!");
+        };
+        try {
+          await processor.init("not_needed");
+        } catch (error) {
+          console.error(error);
+          processor = null;
+        }
+        return processor;
+        })());
+        processor.setOptions({type: 'blur', blurDegree: Number(curBlur.value)});
+        await processor.enable();
+        processorIsDisable = false;
+        //beauty
+        beauty = beauty || (() => {
+          let beauty = new BeautyExtension();
+          AgoraRTC.registerExtensions([beauty]);
+          return beauty;
+        })();
+        processorBeauty = processorBeauty || (await (async () => {
+          processorBeauty = beauty.createProcessor();
+        return processorBeauty;
+        })());
+        pipeProcessor(localTracks.videoTrack, processor, processorBeauty);
+        await processorBeauty.enable();
+        processorBeautyIsDisable = false;
+        }
+        });
+    
+    $("#leave").click(function (e) {
+      leave();
+      $("#local-player").css("display", "none");
+      $("#remote-player").css("display", "none");
+    });
+
+    $("#vb").click(function (e) {
+      toggleVB();
+    });
+
+    $("#beauty").click(function (e) {
+      toggleBeauty();
+    });
+   
+    async function join() {
+      client.on("connection-state-change", handleConnectionState);
+      client.on("network-quality", handleNetworkQuality);
+      client2.on("user-published", handleUserPublished2);
+      client2.on("user-unpublished", handleUserUnpublished2);
+      client2.on("network-quality", handleNetworkQuality2);
+      client2.on("connection-state-change", handleConnectionState2);
+    
+      options.uid = await client.join(options.appid, options.channel, null, null);
+      options.uid2 = await client2.join(options.appid, options.channel, null, null);
+    
+      if (!localTracks.videoTrack) {
+        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack({encoderConfig: curVideoProfile.value, cameraId: curCam.deviceId, optimizationMode: "detail"});
+      }
+    
+      localTracks.videoTrack.play("local-player");
+      await client.publish(localTracks.videoTrack);
+      console.log("publish cam success");
+      showPopup(`Joined to channel ${options.channel} with UID ${options.uid}`);
+      if (leftOnce == true) {
+        destructStats();
+        chartCost.clearChart();
+        chartFPS.clearChart();
+        chartRes.clearChart();
+        chartArrayCost.length = 0;
+        chartArrayFPS.length = 0;
+        chartArrayRes.length = 0;
+      }
+      chartCost = new google.visualization.LineChart(document.getElementById('chart-div-cost'));
+      chartFPS = new google.visualization.LineChart(document.getElementById('chart-div-fps'));
+      chartRes = new google.visualization.LineChart(document.getElementById('chart-div-res'));
+
+      initStats();
+    }
+
+    function getAvgCost() {
+      const nonZeroNumbers = avgCost.filter(number => number !== 0);
+      if (nonZeroNumbers.length === 0) {
+        return 0;
+      }
+      const sum = nonZeroNumbers.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+      return sum / nonZeroNumbers.length;
+    }
+    
+    async function leave() {
+      leftOnce = true;
+      clearInterval(statsInterval);
+      //destructStats();
+      for (trackName in localTracks) {
+        var track = localTracks[trackName];
+        if (track) {
+          track.stop();
+          track.close();
+          localTracks[trackName] = undefined;
+        }
+      }
+      remoteUsers = {};
+      await processor.disable();
+      processorIsDisable = true;
+      await client.leave();
+      await client2.leave();
+      loopback = false;
+      $("#join").attr("disabled", false);
+      $("#leave").attr("disabled", true);
+      $("#vb").attr("disabled", true);
+      console.log("client leaves channel success");
+    }
+       
+    async function subscribe2(user, mediaType) {
+      const uid = user.uid;
+      const d = new Date();
+      timeStart = d.getTime();
+      await client2.subscribe(user, mediaType);
+      console.log("subscribe success");
+      if (mediaType === 'video') {
+        const player = $(`
+          <div id="player-wrapper-${uid}">
+            <div id="player-${uid}" class="player"></div>
+          </div>
+        `);
+        $("#remote-player").append(player);
+        user.videoTrack.play(`player-${uid}`);
+        remoteUsers[uid]._videoTrack._player.videoElement.addEventListener("playing", function () {
+          const d = new Date();
+          const time2 = d.getTime();
+          //console.log(`cloned track for ${uid} playing at ${time2}`);
+          timeTaken = time2 - timeStart;
+          //console.log(`cloned track for ${uid} took ${timeTaken} to render`);
+          showPopup(`Subscribe to Render took ${timeTaken}`)
+          //$(`#renderTime-${uid}-cloned`).text(`Time to render: ${timeTaken}ms`);
+        });
+        const player2 = remoteUsers[uid]._videoTrack._player.trackId;
+        $(`#agora-video-player-${player2}`).css("background-color", "red");
+      }
+      if (mediaType === 'audio') {
+        user.audioTrack.play();
+        user.audioTrack.setVolume(0);
+      }
+    }
+    
+    function handleUserPublished2(user, mediaType) {
+      if (user.uid = options.uid) {
+          const id = user.uid;
+          remoteUsers[id] = user;
+          subscribe2(user, mediaType);
+          loopback = true;
+      } else {
+        console.log('some other user ignoring');
+      }
+    }
+    
+    function handleUserUnpublished2(user, mediaType) {
+      if (user.uid = options.uid) {
+        if (mediaType === 'video') {
+          const id = user.uid;
+          delete remoteUsers[id];
+          $(`#player-wrapper-${id}`).remove();
+          loopback = false;
+        }
+      } else {
+        console.log('some other user ignoring');
+      }
+    }
+    
+    function handleNetworkQuality(stats) {
+      localNetQuality.uplink = stats.uplinkNetworkQuality;
+      localNetQuality.downlink = stats.downlinkNetworkQuality;
+    }
+    
+    function handleNetworkQuality2(stats) {
+      local2NetQuality.uplink = stats.uplinkNetworkQuality;
+      local2NetQuality.downlink = stats.downlinkNetworkQuality;
+    }
+    
+    function handleConnectionState(cur, prev, reason) {
+      if (cur == "DISCONNECTED") {
+        console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+        showPopup(`Sender: Connection State: ${cur}, Reason: ${reason}`)
+        if (reason == "FALLBACK") {
+          console.log(`Sender: Autofallback TCP Proxy being attempted.`);
+          showPopup(`Sender: Autofallback TCP Proxy Attempted`);
+        }
+      } else if (cur == "CONNECTED") {
+        console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+        showPopup(`Sender: Connection State: ${cur}`);
+        connectionState.isJoined = true;
+        client._p2pChannel.connection.onICEConnectionStateChange = (state) => {
+          console.log(`Sender: ice state changed: ${state}`);
+          showPopup(`Sender: ICE State: ${state}`);
+        };
+      } else {
+        console.log(`Sender: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+        showPopup(`Sender: Connection State: ${cur}`);
+        connectionState.isJoined = false;
+      }
+      }
+    
+      function handleConnectionState2(cur, prev, reason) {
+        if (cur == "DISCONNECTED") {
+          console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}, Reason: ${reason}`);
+          showPopup(`Receiver: Connection State: ${cur}, Reason: ${reason}`)
+          if (reason == "FALLBACK") {
+            console.log(`Receiver: Autofallback TCP Proxy being attempted.`);
+            showPopup(`Receiver: Autofallback TCP Proxy Attempted`);
+          }
+        } else if (cur == "CONNECTED") {
+          console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+          showPopup(`Receiver: Connection State: ${cur}`);
+          connectionState.isJoined = true;
+          client2._p2pChannel.connection.onICEConnectionStateChange = (state) => {
+            console.log(`Receiver: ice state changed: ${state}`);
+            showPopup(`Receiver: ICE State: ${state}`);
+          };
+        } else {
+          console.log(`Receiver: connection-state-changed: Current: ${cur}, Previous: ${prev}`);
+          showPopup(`Receiver: Connection State: ${cur}`);
+          connectionState.isJoined = false;
+        }
+        }
+
+    //video encoder functions
+    
+    async function changeProfiles(label) {
+      curVideoProfile = videoProfiles.find(profile => profile.label === label);
+      $(".profile-input").val(`${curVideoProfile.detail}`);
+      if (connectionState.isJoined) {
+        localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
+      }
+    }
+
+    async function changeBlur(label) {
+      curBlur = blurValues.find(blur => blur.label === label);
+      $(".blur-input").val(`${curBlur.detail}`);
+      if (connectionState.isJoined) {
+        processor.setOptions({type: 'blur', blurDegree: Number(curBlur.value)});
+      }
+    }
+    
+    async function initProfiles() {
+      videoProfiles.forEach(profile => {
+        $(".profile-list").append(`<a class="dropdown-item" label="${profile.label}" href="#">${profile.label}: ${profile.detail}</a>`);
+      });
+      curVideoProfile = videoProfiles[5];
+      $(".profile-input").val(`${curVideoProfile.detail}`);
+    }
+    
+    //device functions
+    async function initCams() {
+      cams = await AgoraRTC.getCameras();
+      curCam = cams[0];
+      $(".cam-input").val(curCam.label);
+      $(".cam-list").empty();
+      cams.forEach(cam => {
+        $(".cam-list").append(`<a class="dropdown-item" href="#">${cam.label}</a>`);
+      });
+    }
+    
+    async function switchCamera(label) {
+      curCam = cams.find(cam => cam.label === label);
+      $(".cam-input").val(curCam.label);
+      if (connectionState.isJoined) {
+        await localTracks.videoTrack.setDevice(curCam.deviceId);
+      }
+    }
+
+    async function initBlur() {
+      blurValues.forEach(blur => {
+        $(".blur-list").append(`<a class="dropdown-item" label="${blur.label}" href="#">${blur.label}: ${blur.detail}</a>`);
+      });
+      curBlur = blurValues[0];
+      $(".blur-input").val(`${curBlur.detail}`);
+    }
+
+    async function toggleVB() {
+      if (processorIsDisable) {
+        await processor.enable();
+        processorIsDisable = false;
+        showPopup(`VB on`);
+      } else {
+        await processor.disable();
+        processorIsDisable = true;
+        showPopup(`VB off`);
+        curCost = 0;
+      }
+    }
+
+    async function toggleBeauty() {
+      if (processorBeautyIsDisable) {
+        await processorBeauty.enable();
+        processorBeautyIsDisable = false;
+        showPopup(`Beauty on`);
+      } else {
+        await processorBeauty.disable();
+        processorBeautyIsDisable = true;
+        showPopup(`Beauty off`);
+        curCost = 0;
+      }
+    }
+    
+    function showPopup(message) {
+      const newPopup = popups + 1;
+      console.log(`Popup count: ${newPopup}`);
+      const y = $(`<div id="popup-${newPopup}" class="popupHidden">${message}</div>`);
+      $("#popup-section").append(y);
+      var x = document.getElementById(`popup-${newPopup}`);
+      x.className = "popupShow";
+      z = popups * 10;
+      $(`#popup-${newPopup}`).css("left", `${z}%`);
+      popups++;
+      setTimeout(function(){ $(`#popup-${newPopup}`).remove(); popups--;}, 5000);
+    }
+    
+    async function drawCurveTypes(array) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Cost');
+    
+      data.addRows(array);
+    
+      var options = {
+        hAxis: {
+          title: 'Time (sec)'
+        },
+        vAxis: {
+          title: 'ms'
+        },
+        //series: {
+        //  1: {curveType: 'function'}
+        //}
+      };
+    
+      chartCost.draw(data, options);
+    };
+    
+    async function drawCurveTypesRes(array) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Send');
+      data.addColumn('number', 'Receive');
+    
+      data.addRows(array);
+    
+      var options = {
+        hAxis: {
+          title: 'Time (sec)'
+        },
+        vAxis: {
+          title: 'Width'
+        },
+        //series: {
+        //  1: {curveType: 'function'}
+        //}
+      };
+    
+      chartRes.draw(data, options);
+    };
+    
+    async function drawCurveTypesFPS(array) {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Send');
+      data.addColumn('number', 'Render');
+    
+      data.addRows(array);
+    
+      var options = {
+        hAxis: {
+          title: 'Time (sec)'
+        },
+        vAxis: {
+          title: 'FPS'
+        },
+        //series: {
+        //  1: {curveType: 'function'}
+        //}
+      };
+    
+      chartFPS.draw(data, options);
+    };
+    
+    function initStats() {
+      statsInterval = setInterval(flushStats, 1000);
+    }
+    
+    function destructStats() {
+      //clearInterval(statsInterval);
+      $("#client-stats").html("");
+      $("#local-stats").html("");
+      $("#remote-player").html("");
+      //not a good way to do this it's hack but works
+      const rStats = $(`
+        <div id="remote-stats" class="stream-stats stats"></div>
+      `);
+      $("#remote-player").append(rStats);
+    }
+    
+    function flushStats() {
+      // get the client stats message
+      const clientStats = client.getRTCStats();
+      const clientStats2 = client2.getRTCStats();
+      const status = navigator.onLine;
+      const clientStatsList = [
+      {
+        description: "Local UID",
+        value: options.uid,
+        unit: ""
+      }, {
+        description: "Channel",
+        value: options.channel,
+        unit: ""
+      }, {
+        description: "VB Cost",
+        value: curCost,
+        unit: "ms"
+      }, {
+        description: "VB Cost Avg",
+        value: getAvgCost(),
+        unit: "ms"
+      }, {
+        description: "Bitrate recv",
+        value: (Number(clientStats2.RecvBitrate) * 0.000001).toFixed(4),
+        unit: "Mbps"
+      }, {
+        description: "Bitrate sent",
+        value: (Number(clientStats.SendBitrate) * 0.000001).toFixed(4),
+        unit: "Mbps"
+      }, {
+        description: "BWE",
+        value: Number((clientStats.OutgoingAvailableBandwidth) * 0.001).toFixed(4),
+        unit: "Mbps"
+      }, {
+        description: "Uplink Stat",
+        value: localNetQuality.uplink,
+        unit: ""
+      }, {
+        description: "Downlink Stat",
+        value: local2NetQuality.downlink,
+        unit: ""
+      }, {
+        description: "Link Status",
+        value: status,
+        unit: ""
+      }];
+      $("#client-stats").html(`
+        ${clientStatsList
+            .map(
+                (stat) =>
+                    `<div class="stat-item">${stat.description}: ${stat.value} ${stat.unit}</div>`,
+            )
+            .join("")}
+    `);
+    
+      //console.log(`pushing bitrate values ${clientStats.Duration}, ${clientStats.SendBitrate}, ${clientStats2.RecvBitrate}`);
+      chartArrayCost.push([clientStats.Duration, curCost]);
+      drawCurveTypes(chartArrayCost);
+      
+      const localStats = {
+        video: client.getLocalVideoStats()
+      };
+      const localStatsList = [{
+        description: "Capture FPS",
+        value: localStats.video.captureFrameRate,
+        unit: ""
+        }, {
+        description: "Send FPS",
+        value: localStats.video.sendFrameRate,
+        unit: ""
+        }, {
+        description: "Video encode delay",
+        value: Number(localStats.video.encodeDelay).toFixed(2),
+        unit: "ms"
+        }, {
+        description: "Video send resolution height",
+        value: localStats.video.sendResolutionHeight,
+        unit: ""
+        }, {
+        description: "Video send resolution width",
+        value: localStats.video.sendResolutionWidth,
+        unit: ""
+        },  {
+        description: "Send video bit rate",
+        value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
+        unit: "Mbps"
+        }, {
+        description: "Send Jitter",
+        value: (Number(localStats.video.sendJitterMs)),
+        unit: "ms"
+        }, {
+        description: "Send RTT",
+        value: (Number(localStats.video.sendRttMs)),
+        unit: "ms"
+        }, {
+        description: "Video packet loss rate",
+        value: Number(localStats.video.currentPacketLossRate).toFixed(3),
+        unit: "%"
+      }];
+      $("#local-stats").html(`
+        ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+      `);
+    
+      const remoteTracksStats = {
+        video: client2.getRemoteVideoStats()[options.uid]
+      };
+      const remoteTracksStatsList = [
+      {
+        description: "Receive FPS",
+        value: remoteTracksStats.video.receiveFrameRate,
+        unit: ""
+      }, {
+        description: "Decode FPS",
+        value: remoteTracksStats.video.decodeFrameRate,
+        unit: ""
+      }, {
+        description: "Render FPS",
+        value: remoteTracksStats.video.renderFrameRate,
+        unit: ""
+      }, {
+        description: "Video received height",
+        value: remoteTracksStats.video.receiveResolutionHeight,
+        unit: ""
+      }, {
+        description: "Video received width",
+        value: remoteTracksStats.video.receiveResolutionWidth,
+        unit: ""
+      }, {
+        description: "Recv video bitrate",
+        value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
+        unit: "Mbps"
+      }, {
+        description: "Video receive delay",
+        value: Number(remoteTracksStats.video.receiveDelay).toFixed(0),
+        unit: "ms"
+      }, {
+        description: "Video packets lost",
+        value: remoteTracksStats.video.receivePacketsLost,
+        unit: ""
+      }, {
+        description: "E2E Delay",
+        value: remoteTracksStats.video.end2EndDelay,
+        unit: ""
+      }, {
+        description: "Transport Delay",
+        value: remoteTracksStats.video.transportDelay,
+        unit: ""
+      },{
+        description: "Freeze Rate",
+        value: Number(remoteTracksStats.video.freezeRate).toFixed(3),
+        unit: "%"
+      }, {
+        description: "Total video freeze time",
+        value: remoteTracksStats.video.totalFreezeTime,
+        unit: "s"
+      }, {
+        description: "Time Taken to Render",
+        value: timeTaken,
+        unit: "ms"
+      }];
+      $(`#remote-stats`).html(`
+        ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+      `);
+      chartArrayRes.push([clientStats.Duration, localStats.video.sendResolutionWidth, remoteTracksStats.video.receiveResolutionWidth]);
+      drawCurveTypesRes(chartArrayRes);
+      chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.receiveFrameRate]);
+      drawCurveTypesFPS(chartArrayFPS);
+    
+    }
+    
+    function generateRandomString(length) {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+    
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters.charAt(randomIndex);
+      }
+    
+      return result;
+    }</script>
+
+</body>
+
+</html>
