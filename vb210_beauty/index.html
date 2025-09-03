@@ -287,6 +287,7 @@ input {
     };
     let processorIsDisable = true;
     let curCost = 0;
+    let beautyCost = 0;
     var avgCost = [];
 
     var popups = 0;
@@ -443,8 +444,9 @@ input {
         processor.eventBus.on("cost", (cost) => {
           console.warn(`cost of vb is ${cost}`);
           if (cost !== 0) {
-            curCost = cost;
-            avgCost.push(cost);
+            beautyCost = processorBeauty?.avgCost;
+            curCost = cost + beautyCost;
+            avgCost.push(cost + beautyCost);
           }
         });
         processor.onoverload = async () => {
@@ -746,7 +748,7 @@ input {
         await processorBeauty.disable();
         processorBeautyIsDisable = true;
         showPopup(`Beauty off`);
-        curCost = 0;
+        beautyCost = 0;
       }
     }
     
@@ -862,11 +864,11 @@ input {
         value: options.channel,
         unit: ""
       }, {
-        description: "VB Cost",
+        description: "VB Beauty Cost",
         value: curCost,
         unit: "ms"
       }, {
-        description: "VB Cost Avg",
+        description: "VB Beauty Cost Avg",
         value: getAvgCost(),
         unit: "ms"
       }, {
