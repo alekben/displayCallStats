@@ -442,7 +442,7 @@ input {
           showPopup("VirtualBackground performance warning!");
         });
         processor.eventBus.on("cost", (cost) => {
-          console.warn(`cost of vb is ${cost}`);
+          console.warn(`cost of vb is ${cost} cost of beauty is ${beautyCost}`);
           if (cost !== 0) {
             beautyCost = processorBeauty?.avgCost;
             curCost = cost + beautyCost;
