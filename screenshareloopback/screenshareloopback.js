@@ -67,7 +67,7 @@ var player2;
 
 
 //dual
-let dual = true;
+let dual = false;
 let lowStream = false;
 
 //superclarity
@@ -894,6 +894,8 @@ function flushStats() {
   $("#local-stats").html(`
     ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
   `);
+
+  //console.log(`pushing bitrate values, client: ${clientStats.SendBitrate}, localvideo: ${localStats.video.sendBitrate}, recv: ${clientStats2.RecvBitrate}`);
 
   const remoteTracksStats = {
     video: client2.getRemoteVideoStats()[options.uid]
