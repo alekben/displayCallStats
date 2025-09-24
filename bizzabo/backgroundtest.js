@@ -290,6 +290,13 @@ async function initDevices() {
   }
 }
 
+async function getMics() {
+  mics = await AgoraRTC.getMicrophones();
+  mics.forEach(mic => {
+    $(".mic-list").append(`<a class="dropdown-item" href="#">${mic.label}</a>`);
+  });
+}
+
 async function switchCamera(label) {
   currentCam = cams.find(cam => cam.label === label);
   $(".cam-input").val(currentCam.label);

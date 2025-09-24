@@ -16,6 +16,7 @@ var remoteFocus = 0;
 var dumbTempFix = "Selected";
 
 //AgoraRTC.setParameter("AG_DEGRADATION_PREFERENCE", 1);
+AgoraRTC.setParameter('EXPERIMENTS', {"enableStringuidCompatible":true});
 
 
 // create Agora client
