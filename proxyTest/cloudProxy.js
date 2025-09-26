@@ -776,7 +776,13 @@ function drawCurveTypesNet(array) {
 };
 
 function initStats() {
-  statsInterval = setInterval(flushStats, 1000);
+  statsInterval = setInterval(async () => {
+    try {
+      await flushStats();
+    } catch (error) {
+      console.error('Error in flushStats:', error);
+    }
+  }, 1000);
 }
 
 function destructStats() {
@@ -791,10 +797,25 @@ function destructStats() {
   $("#remote-player").append(rStats);
 }
 
-function flushStats() {
-  // get the client stats message
-  const clientStats = client.getRTCStats();
-  const clientStats2 = client2.getRTCStats();
+// Add a flag to prevent overlapping executions
+let isFlushStatsRunning = false;
+
+async function flushStats() {
+  // Prevent overlapping executions
+  if (isFlushStatsRunning) {
+    console.log('flushStats already running, skipping this execution');
+    return;
+  }
+  
+  isFlushStatsRunning = true;
+  
+  try {
+    // Use setTimeout to break up the work and prevent blocking
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
+    // get the client stats message
+    const clientStats = client.getRTCStats();
+    const clientStats2 = client2.getRTCStats();
   const status = navigator.onLine;
   const clientStatsList = [
   {
@@ -838,18 +859,21 @@ function flushStats() {
     value: status,
     unit: ""
   }];
-  $("#client-stats").html(`
-    ${clientStatsList
-        .map(
-            (stat) =>
-                `<div class="stat-item">${stat.description}: ${stat.value} ${stat.unit}</div>`,
-        )
-        .join("")}
-`);
+    $("#client-stats").html(`
+      ${clientStatsList
+          .map(
+              (stat) =>
+                  `<div class="stat-item">${stat.description}: ${stat.value} ${stat.unit}</div>`,
+          )
+          .join("")}
+  `);
 
-  //console.log(`pushing bitrate values ${clientStats.Duration}, ${clientStats.SendBitrate}, ${clientStats2.RecvBitrate}`);
-  chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
-  drawCurveTypes(chartArray);
+    // Yield control to prevent blocking
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    //console.log(`pushing bitrate values ${clientStats.Duration}, ${clientStats.SendBitrate}, ${clientStats2.RecvBitrate}`);
+    chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats2.RecvBitrate]);
+    drawCurveTypes(chartArray);
   
   const localStats = {
     video: client.getLocalVideoStats()
@@ -891,9 +915,12 @@ function flushStats() {
     value: Number(localStats.video.currentPacketLossRate).toFixed(3),
     unit: "%"
   }];
-  $("#local-stats").html(`
-    ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-  `);
+    $("#local-stats").html(`
+      ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+    `);
+    
+    // Yield control to prevent blocking
+    await new Promise(resolve => setTimeout(resolve, 0));
 
   const remoteTracksStats = {
     video: client2.getRemoteVideoStats()[options.uid]
@@ -952,22 +979,32 @@ function flushStats() {
     value: timeTaken,
     unit: "ms"
   }];
-  $(`#remote-stats`).html(`
-    ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-  `);
-  //console.log(`pushing bwe value ${clientStats.Duration}, ${clientStatsList[5].value}`);
-  chartArrayBWE.push([clientStats.Duration, (clientStats.OutgoingAvailableBandwidth * 0.001)]);
-  drawCurveTypesBWE(chartArrayBWE);
+    $(`#remote-stats`).html(`
+      ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+    `);
+    
+    // Yield control to prevent blocking
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
+    //console.log(`pushing bwe value ${clientStats.Duration}, ${clientStatsList[5].value}`);
+    chartArrayBWE.push([clientStats.Duration, (clientStats.OutgoingAvailableBandwidth * 0.001)]);
+    drawCurveTypesBWE(chartArrayBWE);
   //console.log(`pushing jitter values ${clientStats.Duration}, ${localStats.video.sendJitterMs}, ${remoteTracksStats.video.receiveDelay}`);
   chartArrayJitter.push([clientStats.Duration, localStats.video.sendJitterMs, remoteTracksStats.video.receiveDelay]);
   drawCurveTypesJitter(chartArrayJitter);
   //console.log(`pushing fps values ${clientStats.Duration}, ${localStats.video.sendFrameRate}, ${remoteTracksStats.video.renderFrameRate}`);
   chartArrayFPS.push([clientStats.Duration, localStats.video.sendFrameRate, remoteTracksStats.video.renderFrameRate]);
   drawCurveTypesFPS(chartArrayFPS);
-  //netq
-  chartArrayNet.push([clientStats.Duration, localNetQuality.uplink, local2NetQuality.downlink]);
-  drawCurveTypesNet(chartArrayNet);
-
+    //netq
+    chartArrayNet.push([clientStats.Duration, localNetQuality.uplink, local2NetQuality.downlink]);
+    drawCurveTypesNet(chartArrayNet);
+    
+  } catch (error) {
+    console.error('Error in flushStats:', error);
+  } finally {
+    // Always reset the flag, even if an error occurred
+    isFlushStatsRunning = false;
+  }
 }
 
 function generateRandomString(length) {
