@@ -3,6 +3,39 @@ let client = null;
 AgoraRTC.setParameter("SHOW_GLOBAL_CLIENT_LIST", true);
 
 
+//AgoraRTC.onMicrophoneChanged = async changedDevice => {
+  // When plugging in a device, switch to a device that is newly plugged in.
+//  if (changedDevice.state === "ACTIVE") {
+//    //localTracks.audioTrack.setDevice(changedDevice.device.deviceId);
+//    console.log(changedDevice.state + changedDevice.deviceName + changedDevice.deviceId);
+//    const microphones = await AgoraRTC.getMicrophones();
+//    console.log(microphones);
+//    // Switch to an existing device when the current device is unplugged.
+//  } else if (changedDevice.device.label === localAudioTrack.getTrackLabel()) {
+//    console.log(changedDevice.state + changedDevice.deviceName + changedDevice.deviceId);
+//    const microphones = await AgoraRTC.getMicrophones();
+//    console.log(microphones);
+//  }
+//};
+
+  AgoraRTC.on('microphone-changed', async (changedDevice) => {
+    console.log(`Audio device changed: ${JSON.stringify(changedDevice)}`);
+    console.log(changedDevice.state + changedDevice.device.label + changedDevice.device.deviceId);
+    const microphones = await AgoraRTC.getMicrophones();
+    console.log(changedDevice.state + changedDevice.device.label + changedDevice.device.deviceId);
+    // When a new device is detected, switch to the new device
+    if (changedDevice.state === 'ACTIVE') {
+      console.log(changedDevice.state + changedDevice.device.label + changedDevice.device.deviceId);
+      const microphones = await AgoraRTC.getMicrophones();
+      console.log(microphones);
+    } else {
+      // Switch to an existing device when the unplugged device is the current device
+      console.log(changedDevice.state + changedDevice.device.label + changedDevice.device.deviceId);
+      const microphones = await AgoraRTC.getMicrophones();
+      console.log(microphones);
+    }
+  });
+
 // Declare variables for the local tracks
 let localAudioTrack = null; 
 let localVideoTrack = null; 

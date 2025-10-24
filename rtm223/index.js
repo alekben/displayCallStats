@@ -24,7 +24,7 @@ var rtmConfig = {
   //2.1.x or below
   //token : null,
   presenceTimeout : 30,
-  logUpload : false,
+  logUpload : true,
   logLevel : "debug",
   cloudProxy : false,
   useStringUserId : true,
@@ -59,9 +59,13 @@ function setupListners () {
         }
       });
       // Token Privilege Will Expire
-      rtmClient.addEventListener("tokenPrivilegeWillExpire", (channelName) => {
-        document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: Token will expire for ${channelName}`)
+      rtmClient.addEventListener("tokenPrivilegeWillExpire", event => {
+        document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: Token will expire for`)
       });
+
+      //rtmClient.addEventListener("token", event => {
+      //  document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: Token will expire ${event.reason}`)
+      //});
 }
 
 async function forceProxy() {

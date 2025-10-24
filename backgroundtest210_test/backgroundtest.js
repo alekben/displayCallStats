@@ -773,9 +773,17 @@ async function shareScreen() {
     localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
   } else {
     console.log('publishing screen track');
-    localTracks.screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "disabled");
+    screenTrack = await AgoraRTC.createScreenVideoTrack({encoderConfig: "1080p", monitorTypeSurfaces: "exclude"}, "enabled");
     options.screenUid = Number($("#uidScreen").val());
     options.screenUid = await screenClient.join(options.appid, options.channel, options.screenToken || null, options.screenUid || null);
+    if (screenTrack instanceof Array) {
+      localTracks.screenVideoTrack = screenTrack[0];
+      localTracks.screenAudioTrack = screenTrack[1];
+      client.publish(localTracks.screenAudioTrack);
+      console.log("publishing audio for screen");
+    } else {
+      localTracks.screenVideoTrack = screenTrack;
+    };
     screenClient.publish(localTracks.screenTrack);
     localTrackState.screenTrackPublished = true;
     $("#screen").text("Stop Screen Share");
