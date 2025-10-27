@@ -770,7 +770,7 @@ async function shareScreen() {
     if (localTracks.screenAudioTrack == null) {
       await screenClient.unpublish([localTracks.screenVideoTrack]);
     } else {
-      await screenClient.unpublish([localTracks.screenVideoTrack, localTracks.screenAudioTrack]);
+      await screenClient.unpublish(localTracks.screenVideoTrack);
       await client.unpublish(localTracks.screenAudioTrack);
     }
     localTracks.screenVideoTrack && localTracks.screenVideoTrack.close();
