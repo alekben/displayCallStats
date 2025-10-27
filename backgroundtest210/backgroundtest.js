@@ -771,6 +771,7 @@ async function shareScreen() {
       await screenClient.unpublish([localTracks.screenVideoTrack]);
     } else {
       await screenClient.unpublish([localTracks.screenVideoTrack, localTracks.screenAudioTrack]);
+      await client.unpublish(localTracks.screenAudioTrack);
     }
     localTracks.screenVideoTrack && localTracks.screenVideoTrack.close();
     localTracks.screenAudioTrack && localTracks.screenAudioTrack.close();
@@ -796,7 +797,8 @@ async function shareScreen() {
     if (localTracks.screenAudioTrack == null) {
       await screenClient.publish([localTracks.screenVideoTrack]);
     } else {
-      await screenClient.publish([localTracks.screenVideoTrack, localTracks.screenAudioTrack]);
+      await screenClient.publish(localTracks.screenVideoTrack);
+      await client.publish(localTracks.screenAudioTrack);
     }
     //screenClient.publish(localTracks.screenTrack);
     localTrackState.screenTrackPublished = true;
