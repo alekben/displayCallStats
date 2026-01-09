@@ -15,6 +15,7 @@ let processorEnable = false;
 const pipeAIDenosier = (audioTrack, processor_ains) => {
   audioTrack.pipe(processor_ains).pipe(audioTrack.processorDestination);
 };
+let pipe = false;
 
 //misc
 var popups = 0;
@@ -185,7 +186,9 @@ AgoraRTC.onMicrophoneChanged = async changedDevice => {
     // Switch to an existing device when the current device is unplugged.
   } else if (changedDevice.device.label === localTracks.audioTrack.getTrackLabel()) {
     const oldMicrophones = await AgoraRTC.getMicrophones();
+    if (processorEnable) {await processor_ains.disable(); console.log('disable ains before switch');};
     oldMicrophones[0] && localTracks.audioTrack.setDevice(oldMicrophones[0].deviceId);
+    if (processorEnable) {await processor_ains.enable(); console.log('enable ains after switch');};
   }
 };
 AgoraRTC.onCameraChanged = async changedDevice => {
@@ -205,7 +208,7 @@ async function initDevices() {
       //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
       //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
       //});
-      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
     } else {
       console.log("mic track already exists, replacing.");
       if (localTrackState.audioTrackPublished) {
@@ -216,7 +219,7 @@ async function initDevices() {
         //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
         //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
         //});
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
         publishMic();
         $("#setMuted").attr("disabled", false);
         $("#setEnabled").attr("disabled", false);
@@ -232,7 +235,7 @@ async function initDevices() {
         //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
         //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
         //});
-        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
         $("#setMuted").attr("disabled", false);
         $("#setEnabled").attr("disabled", false);
         $("#setMuted").text("Mute Mic Track");
@@ -530,6 +533,7 @@ $("#biggerView").click(function (e) {
 $("#ains").click(async e => {
     e.preventDefault();
     denoiser = denoiser || (() => {
+      console.log('creating AI denoiser first time');
       let denoiser = new AIDenoiser.AIDenoiserExtension({
         assetsPath: '../audiotrackconfig/aiDenoiserExtension/external'
       });
@@ -542,6 +546,7 @@ $("#ains").click(async e => {
       return denoiser;
     })();
     processor_ains = processor_ains || (() => {
+      console.log('creating AI desnoiser processor first time');
       processor_ains = denoiser.createProcessor();
       processor_ains.onoverload = async (elapsedTimeInMs) => {
         console.log(`"overload!!! elapsed: ${elapsedTimeInMs}`);
@@ -556,12 +561,17 @@ $("#ains").click(async e => {
       };
       return processor_ains;
     })();
-    pipeAIDenosier(localTracks.audioTrack, processor_ains);
-  
+
+    if (!pipe) {
+      pipeAIDenosier(localTracks.audioTrack, processor_ains);
+      pipe = true;
+    };
+    
     if (!processorEnable) {
       try {
         await processor_ains.enable();
         showPopup("AINS enabled");
+        console.log('enabled AINS');
         processorEnable = true;
         await processor_ains.setMode("STATIONARY_NS");
         await processor_ains.setLevel("SOFT");
@@ -575,6 +585,7 @@ $("#ains").click(async e => {
         await processor_ains.disable();
         processorEnable = false;
         showPopup("AINS disabled");
+        console.log('disabled AINS');
       } catch (e) {
         console.error("disable AIDenoiser failure");
       } finally {
@@ -651,7 +662,7 @@ async function publishMic() {
     //localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({
     //  encoderConfig: curMicProfile.value, "AEC": true, "ANS": true, "AGC": true
     //});
-    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack({"AEC": true, "ANS": true, "AGC": true});
   }
     await client.publish(localTracks.audioTrack);
     console.log("Published mic track");

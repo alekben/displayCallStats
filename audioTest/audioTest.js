@@ -83,7 +83,7 @@ var loopback_client = AgoraRTC.createClient({
 });
 
 AgoraRTC.setParameter("DISABLE_WEBAUDIO", true);
-AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
+//AgoraRTC.setParameter("MEDIA_DEVICE_CONSTRAINTS",{audio:{googHighpassFilter: {exact:true}}});
 console.log("Start with Web Audio OFF");
 var webAudioOff = true;
 let zeroVolume = false;

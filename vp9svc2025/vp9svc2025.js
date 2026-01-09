@@ -1085,6 +1085,7 @@ async function handleFPF() {
     $("#feedback").text("Feedbackv2");
     fpf = 2;
     AgoraRTC.setParameter('EXPERIMENTS', { FeedbackConfig: 2 });
+    AgoraRTC.setParameter('EXPERIMENTS', { netqSensitivityMode: 1});
   } else if (fpf == 2) {
     $("#feedback").text("Feedbackv0");
     fpf = 0;
