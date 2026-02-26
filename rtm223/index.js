@@ -268,9 +268,9 @@ window.onload = function () {
           let channelMessage = document.getElementById("channelMessage").value.toString();
 
           try {
-            const result = await rtmClient.publish(channelName, channelMessage, { channelType: "MESSAGE"} );
+            const result = await rtmClient.publish(channelName.value, channelMessage, { channelType: "MESSAGE"} );
             console.log(result);
-            document.getElementById("log").appendChild(document.createElement('div')).append("Channel Message sent to: " + channelName)
+            document.getElementById("log").appendChild(document.createElement('div')).append("Channel Message sent to: " + channelName.value)
         } catch (status) {
             console.log(status);
         }
