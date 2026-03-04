@@ -2,77 +2,306 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signaling 224 Quickstart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://agora-packages.s3.us-west-2.amazonaws.com/rtm/agora-rtm-2.2.4.min.js"></script>
     <script src="./index.js"></script>
+    <style>
+      :root {
+        --agora-black: #000000;
+        --agora-cyan: #00c2ff;
+        --agora-cyan-dark: #075c9a;
+        --agora-bg-dark: #0f0f0f;
+        --agora-cyan-light: #a0faff;
+        --agora-gray-mid: #b3b3b3;
+        --agora-purple: #c46ffb;
+        --agora-purple-dark: #9443c7;
+        --agora-offwhite: #fcf9f8;
+        --bg-primary: var(--agora-bg-dark);
+        --bg-secondary: #171717;
+        --bg-tertiary: #2c2c2c;
+        --border: #484848;
+        --text-muted: #626262;
+        --text-secondary: var(--agora-gray-mid);
+        --text-primary: var(--agora-offwhite);
+        --accent: var(--agora-cyan);
+        --accent-hover: var(--agora-cyan-light);
+        --accent-dark: var(--agora-cyan-dark);
+        --success: #42b03d;
+        --warning: #dca311;
+        --error: #de344a;
+        --radius: 8px;
+        --font-sans: "Instrument Sans", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        padding: 2rem;
+      }
+
+      h1 {
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+      }
+
+      .card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+      }
+
+      .input-field {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.875rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text-primary);
+        transition: border-color 0.2s ease;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      input[type="text"]::placeholder {
+        color: var(--text-muted);
+      }
+
+      .row {
+        margin: 1rem 0;
+      }
+
+      .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+
+      button {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+
+      button.primary {
+        background: var(--accent);
+        color: var(--bg-primary);
+        border: 1px solid var(--accent);
+      }
+
+      button.primary:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+      }
+
+      button.secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+      }
+
+      button.secondary:hover {
+        background: var(--bg-primary);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      button.danger {
+        background: transparent;
+        color: var(--error);
+        border: 1px solid var(--error);
+      }
+
+      button.danger:hover {
+        background: var(--error);
+        color: var(--text-primary);
+      }
+
+      .message-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+      }
+
+      .message-row .input-field {
+        flex: 1;
+        margin-bottom: 0;
+      }
+
+      .message-row button {
+        margin-bottom: 0;
+        height: fit-content;
+      }
+
+      .section-divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 1.5rem 0;
+      }
+
+      #log {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem;
+        min-height: 150px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      #log:empty::before {
+        content: "Logs will appear here...";
+        color: var(--text-muted);
+        font-style: italic;
+      }
+
+      .form-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        input, button {
+          font-size: 16px !important;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        .button-group button {
+          width: 100%;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1 class="left-align">Signaling 224 Quickstart</h1>
+    <h1>Signaling 224 Quickstart</h1>
     <form id="loginForm">
-      <div class="col" style="min-width: 433px; max-width: 443px">
-        <div class="card" style="margin-top: 0px; margin-bottom: 0px">
-          <div
-            class="row card-content"
-            style="margin-bottom: 0px; margin-top: 10px"
-          >
+      <div class="card">
+        <div class="form-section">
+          <div class="section-title">Authentication</div>
+          <div class="input-field">
+            <label for="userID">User ID</label>
+            <input type="text" placeholder="Enter user ID" id="userID" />
+          </div>
+          <div class="input-field">
+            <label for="appid">App ID</label>
+            <input type="text" placeholder="Enter App ID" id="appid" />
+          </div>
+          <div class="input-field">
+            <label for="token">Token</label>
+            <input type="text" placeholder="Enter token" id="token" />
+          </div>
+          <div class="button-group">
+            <button type="button" id="start" class="secondary">START RTM CLIENT</button>
+            <button type="button" id="login" class="primary">LOGIN</button>
+            <button type="button" id="startLogin" class="primary">START AND LOGIN</button>
+            <button type="button" id="logout" class="secondary">LOGOUT</button>
+            <button type="button" id="logoutNull" class="danger">LOGOUT AND NULL</button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-title">Channel</div>
+          <div class="input-field">
+            <label for="channelName">Channel Name</label>
+            <input type="text" placeholder="Enter channel name" id="channelName" />
+          </div>
+          <div class="button-group">
+            <button type="button" id="join" class="primary">JOIN</button>
+            <button type="button" id="leave" class="danger">LEAVE</button>
+          </div>
+          <div class="message-row">
             <div class="input-field">
-              <label>User ID</label>
-              <input type="text" placeholder="User ID" id="userID" />
+              <label for="channelMessage">Channel Message</label>
+              <input type="text" placeholder="Type a message..." id="channelMessage" />
             </div>
+            <button type="button" id="send_channel_message" class="primary">SEND</button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-title">Peer-to-Peer</div>
+          <div class="input-field">
+            <label for="peerId">Peer ID</label>
+            <input type="text" placeholder="Enter peer ID" id="peerId" />
+          </div>
+          <div class="message-row">
             <div class="input-field">
-                <label>AppID</label>
-                <input type="text" placeholder="AppID" id="appid" />
-              </div>
-              <div class="input-field">
-                <label>Token</label>
-                <input type="text" placeholder="Token" id="token" />
-              </div>
-            <div class="row">
-              <div>
-                <button type="button" id="start">START RTM CLIENT</button>
-                <button type="button" id="login">LOGIN</button>
-                <button type="button" id="startLogin">START AND LOGIN RTM CLIENT</button>
-                <button type="button" id="logout">LOGOUT</button>
-                <button type="button" id="logoutNull">LOGOUT AND NULL CLIENT</button>
-              </div>
+              <label for="peerMessage">Peer Message</label>
+              <input type="text" placeholder="Type a message..." id="peerMessage" />
             </div>
-            <div class="input-field">
-              <label>Channel Name</label>
-            </div>
-            <input
-            type="text"
-            placeholder="channel name"
-            id="channelName"
-            />
-            <div class="row">
-              <div>
-                <button type="button" id="join">JOIN</button>
-                <button type="button" id="leave">LEAVE</button>
-              </div>
-            </div>
-            <div class="input-field channel-padding">
-              <label>Channel Message</label>
-              <input
-                type="text"
-                placeholder="channel message"
-                id="channelMessage"
-              />
-              <button type="button" id="send_channel_message">SEND</button>
-            </div>
-            <div class="input-field">
-              <label>Peer Id</label>
-              <input type="text" placeholder="peer id" id="peerId" />
-            </div>
-            <div class="input-field channel-padding">
-              <label>Peer Message</label>
-              <input type="text" placeholder="peer message" id="peerMessage" />
-              <button type="button" id="send_peer_message">SEND</button>
-            </div>
+            <button type="button" id="send_peer_message" class="primary">SEND</button>
           </div>
         </div>
       </div>
     </form>
-    <hr />
+
+    <hr class="section-divider" />
     <div id="log"></div>
   </body>
 </html>
