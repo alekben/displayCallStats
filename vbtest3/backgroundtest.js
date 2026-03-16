@@ -1,12 +1,20 @@
 //
 let dual = false;
-//vb
-let vb = null;
-let processor = null;
-let processorIsDisable = true;
-const pipeProcessor = (track, processor) => {
-  track.pipe(processor).pipe(track.processorDestination);
-};
+// Virtual background via MediaPipe ImageSegmenter + canvas + Agora createCustomVideoTrack
+let processorIsDisable = true; // true = VB off, false = VB on
+let vbCustomTrack = null;
+let vbCanvasStream = null;
+let vbImageSegmenter = null;
+let vbRafId = null;
+let vbHiddenVideo = null;
+let vbMaskCanvas = null;
+let vbBlurCanvas = null;
+let vbPersonCanvas = null;
+const VB_WASM_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/wasm";
+const VB_MODEL_URL =
+  "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite";
+/** Must match Agora local video / encoder frame rate (15 FPS). */
+const VB_CAPTURE_FPS = 15;
 
 //ains
 let denoiser = null;
@@ -109,6 +117,10 @@ var videoProfiles = [
     bitrateMax:300
   }
   }, {
+  label: "360p_7",
+  detail: "480×360, 15fps, 320Kbps",
+  value: "360p_7"
+  }, {
   label: "360p_custom",
   detail: "640×360, 15fps, 400Kbps",
   value: {
@@ -117,10 +129,6 @@ var videoProfiles = [
     frameRate: 15,
     bitrateMax: 400,
     bitrateMin: 200}
-  }, {
-  label: "360p_7",
-  detail: "480×360, 15fps, 320Kbps",
-  value: "360p_7"
   }, {
   label: "360p_8",
   detail: "480×360, 30fps, 490Kbps",
@@ -266,6 +274,10 @@ async function initDevices() {
         });
       } else {
         console.log("cam track already exists, replacing.");
+        if (!processorIsDisable && vbCustomTrack) {
+          await stopMediaPipeVB();
+          $("#vb").text("VB On");
+        }
         await client.unpublish(localTracks.videoTrack);
         await localTracks.videoTrack.stop();
         await localTracks.videoTrack.close();
@@ -353,7 +365,11 @@ async function changeVideoProfile(label) {
   curVideoProfile = videoProfiles.find(profile => profile.label === label);
   $(".profile-cam-input").val(`${curVideoProfile.detail}`);
   // change the local video track`s encoder configuration
-  localTracks.videoTrack && (await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value));
+  if (vbCustomTrack) {
+    await vbCustomTrack.setEncoderConfiguration(curVideoProfile.value);
+  } else if (localTracks.videoTrack) {
+    await localTracks.videoTrack.setEncoderConfiguration(curVideoProfile.value);
+  }
 }
 
 async function changeTargetUID(label) {
@@ -608,54 +624,213 @@ $("#ains").click(async e => {
   }
 });
 
+async function stopMediaPipeVB() {
+  const hadCustom = !!vbCustomTrack;
+  if (vbRafId) {
+    cancelAnimationFrame(vbRafId);
+    vbRafId = null;
+  }
+  if (vbCustomTrack) {
+    try {
+      await client.unpublish(vbCustomTrack);
+    } catch (err) {
+      console.warn("unpublish vb custom track", err);
+    }
+    try {
+      vbCustomTrack.stop();
+      vbCustomTrack.close();
+    } catch (err) {
+      console.warn("close vb custom track", err);
+    }
+    vbCustomTrack = null;
+  }
+  if (vbCanvasStream) {
+    vbCanvasStream.getTracks().forEach(t => t.stop());
+    vbCanvasStream = null;
+  }
+  if (vbImageSegmenter) {
+    try {
+      vbImageSegmenter.close();
+    } catch (err) {
+      console.warn("close segmenter", err);
+    }
+    vbImageSegmenter = null;
+  }
+  if (vbHiddenVideo) {
+    vbHiddenVideo.srcObject = null;
+    vbHiddenVideo = null;
+  }
+  vbMaskCanvas = null;
+  vbBlurCanvas = null;
+  vbPersonCanvas = null;
+  processorIsDisable = true;
+  if (hadCustom && joined && host && localTracks.videoTrack) {
+    try {
+      await client.publish(localTracks.videoTrack);
+      localTracks.videoTrack.play("local-player");
+    } catch (err) {
+      console.error("republish camera after VB off", err);
+    }
+  }
+}
+
+async function startMediaPipeVB() {
+  if (!localTracks.videoTrack || !joined) {
+    showPopup("Join as host with camera first");
+    return;
+  }
+  const { FilesetResolver, ImageSegmenter } = await import(
+    "https://esm.sh/@mediapipe/tasks-vision@0.10.17"
+  );
+  const vision = await FilesetResolver.forVisionTasks(VB_WASM_BASE);
+  const segOpts = {
+    baseOptions: { modelAssetPath: VB_MODEL_URL, delegate: "GPU" },
+    runningMode: "VIDEO",
+    outputCategoryMask: true,
+    outputConfidenceMasks: false
+  };
+  try {
+    vbImageSegmenter = await ImageSegmenter.createFromOptions(vision, segOpts);
+  } catch (gpuErr) {
+    console.warn("MediaPipe GPU delegate failed, trying CPU", gpuErr);
+    segOpts.baseOptions.delegate = undefined;
+    vbImageSegmenter = await ImageSegmenter.createFromOptions(vision, segOpts);
+  }
+
+  await client.unpublish(localTracks.videoTrack);
+
+  $("#local-player").empty();
+
+  vbHiddenVideo = document.createElement("video");
+  vbHiddenVideo.muted = true;
+  vbHiddenVideo.playsInline = true;
+  vbHiddenVideo.setAttribute("playsinline", "");
+  vbHiddenVideo.srcObject = new MediaStream([localTracks.videoTrack.getMediaStreamTrack()]);
+  await vbHiddenVideo.play();
+
+  const outCanvas = document.createElement("canvas");
+  const outCtx = outCanvas.getContext("2d");
+  vbBlurCanvas = document.createElement("canvas");
+  const blurCtx = vbBlurCanvas.getContext("2d");
+  vbMaskCanvas = document.createElement("canvas");
+  const maskCtx = vbMaskCanvas.getContext("2d");
+  vbPersonCanvas = document.createElement("canvas");
+  const personCtx = vbPersonCanvas.getContext("2d");
+  const BLUR_SCALE = 22;
+  const vbBlurPass2 = document.createElement("canvas");
+  const vbBlurPass2Ctx = vbBlurPass2.getContext("2d");
+
+  vbCanvasStream = outCanvas.captureStream(VB_CAPTURE_FPS);
+  const mediaTrack = vbCanvasStream.getVideoTracks()[0];
+  vbCustomTrack = AgoraRTC.createCustomVideoTrack({
+    mediaStreamTrack: mediaTrack,
+    encoderConfig: curVideoProfile.value
+  });
+  await client.publish(vbCustomTrack);
+  vbCustomTrack.play("local-player");
+  processorIsDisable = false;
+
+  const frameMs = 1000 / VB_CAPTURE_FPS;
+  let lastFrameT = 0;
+  const render = () => {
+    if (processorIsDisable || !vbImageSegmenter || !vbHiddenVideo || !vbCustomTrack) {
+      return;
+    }
+    const w = vbHiddenVideo.videoWidth;
+    const h = vbHiddenVideo.videoHeight;
+    if (w < 2 || h < 2) {
+      vbRafId = requestAnimationFrame(render);
+      return;
+    }
+    const now = performance.now();
+    if (now - lastFrameT < frameMs) {
+      vbRafId = requestAnimationFrame(render);
+      return;
+    }
+    lastFrameT = now;
+    outCanvas.width = w;
+    outCanvas.height = h;
+    vbPersonCanvas.width = w;
+    vbPersonCanvas.height = h;
+    const bw = Math.max(1, Math.floor(w / BLUR_SCALE));
+    const bh = Math.max(1, Math.floor(h / BLUR_SCALE));
+    vbBlurCanvas.width = bw;
+    vbBlurCanvas.height = bh;
+    blurCtx.drawImage(vbHiddenVideo, 0, 0, bw, bh);
+    vbBlurPass2.width = Math.max(1, Math.floor(bw / 2));
+    vbBlurPass2.height = Math.max(1, Math.floor(bh / 2));
+    vbBlurPass2Ctx.drawImage(vbBlurCanvas, 0, 0, vbBlurPass2.width, vbBlurPass2.height);
+    blurCtx.drawImage(vbBlurPass2, 0, 0, bw, bh);
+    outCtx.imageSmoothingEnabled = true;
+    outCtx.drawImage(vbBlurCanvas, 0, 0, w, h);
+
+    let result;
+    try {
+      result = vbImageSegmenter.segmentForVideo(vbHiddenVideo, performance.now());
+    } catch (err) {
+      console.warn("segmentForVideo", err);
+      vbRafId = requestAnimationFrame(render);
+      return;
+    }
+    const cat = result && result.categoryMask;
+    if (!cat) {
+      vbRafId = requestAnimationFrame(render);
+      return;
+    }
+    const mw = cat.width;
+    const mh = cat.height;
+    const maskArr = cat.getAsUint8Array();
+    vbMaskCanvas.width = mw;
+    vbMaskCanvas.height = mh;
+    const img = maskCtx.createImageData(mw, mh);
+    const d = img.data;
+    for (let i = 0, p = 0; i < maskArr.length; i++, p += 4) {
+      const fg = maskArr[i] === 0 ? 255 : 0;
+      d[p] = 255;
+      d[p + 1] = 255;
+      d[p + 2] = 255;
+      d[p + 3] = fg;
+    }
+    maskCtx.putImageData(img, 0, 0);
+
+    personCtx.save();
+    personCtx.drawImage(vbHiddenVideo, 0, 0, w, h);
+    personCtx.globalCompositeOperation = "destination-in";
+    personCtx.drawImage(vbMaskCanvas, 0, 0, w, h);
+    personCtx.restore();
+    outCtx.save();
+    outCtx.globalCompositeOperation = "source-over";
+    outCtx.drawImage(vbPersonCanvas, 0, 0, w, h);
+    outCtx.restore();
+    vbRafId = requestAnimationFrame(render);
+  };
+  vbRafId = requestAnimationFrame(render);
+}
+
 $("#vb").click(async e => {
   e.preventDefault();
-  vb = vb || (() => {
-    let vb = new VirtualBackgroundExtension();
-    AgoraRTC.registerExtensions([vb]);
-    return vb;
-  })();
-  processor = processor || (await (async () => {
-    let processor = vb.createProcessor();
-    processor.eventBus.on("PERFORMANCE_WARNING", () => {
-      console.warn("Performance warning!!!!!!!!!!!!!!!!!");
-      showPopup("VirtualBackground performance warning!");
-    });
-    processor.eventBus.on("cost", (cost) => {
-      console.warn(`cost of vb is ${cost}`);
-    });
-    processor.onoverload = async () => {
-      console.log("overload!!!");
-    };
-    try {
-      await processor.init("not_needed");
-    } catch (error) {
-      console.error(error);
-      processor = null;
-    }
-    return processor;
-  })());
-  pipeProcessor(localTracks.videoTrack, processor);
-  processor.setOptions({type: 'blur', blurDegree: 3});
+  if (!localTracks.videoTrack) {
+    showPopup("No camera track");
+    return;
+  }
   if (processorIsDisable) {
     try {
-      await processor.enable();
+      await startMediaPipeVB();
       $("#vb").text("VB Off");
-      processorIsDisable = false;
-    } catch (e) {
-      console.error("enable VirtualBackground failure", e);
-    } finally {
-      showPopup("VirtualBackground On!");
+      showPopup("MediaPipe virtual background (blur) on");
+    } catch (err) {
+      console.error("MediaPipe VB start", err);
+      showPopup("MediaPipe VB failed: " + (err && err.message));
+      await stopMediaPipeVB();
+      $("#vb").text("VB On");
     }
   } else {
     try {
-      await processor.disable();
+      await stopMediaPipeVB();
       $("#vb").text("VB On");
-      processorIsDisable = true;
-    } catch (e) {
-      console.error("disable VirtualBackground failure", e);
-    } finally {
-      showPopup("VirtualBackground Off!");
+      showPopup("Virtual background off (camera)");
+    } catch (err) {
+      console.error("MediaPipe VB stop", err);
     }
   }
 });
@@ -833,6 +1008,8 @@ async function shareScreen() {
 
 
 async function leave() {
+  await stopMediaPipeVB();
+  $("#vb").text("VB On");
   for (trackName in localTracks) {
     var track = localTracks[trackName];
     if (track) {
