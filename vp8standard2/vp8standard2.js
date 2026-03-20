@@ -803,53 +803,59 @@ function flushStats() {
     value: status,
     unit: ""
   }];
+
   $("#client-stats").html(`
     ${clientStatsList.map(stat => `<class="stats-row">${stat.description}: ${stat.value} ${stat.unit}<br>`).join("")}
   `);
+
   chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats.RecvBitrate]);
   drawCurveTypes(chartArray);
+  
+  Object.keys(remoteUsers).forEach(uid => {
+    // get the remote track stats message
+    const remoteTracksStats = {
+      audio: client.getRemoteAudioStats()[uid],
+      audio2: remoteUsers[uid].audioTrack.getMediaStreamTrackSettings(),
+    };
+    const remoteTracksStatsList = [{
+      description: "Codec",
+      value: remoteTracksStats.audio.codecType,
+      unit: ""
+    }, {
+      description: "end2EndDelay",
+      value: remoteTracksStats.audio.end2EndDelay,
+      unit: ""
+    }, {
+      description: "receive Bitrate",
+      value: remoteTracksStats.audio.receiveBitrate,
+      unit: ""
+    }, {
+      description: "receive Delay",
+      value: remoteTracksStats.audio.receiveDelay,
+      unit: ""
+    }, {
+      description: "receive Level",
+      value: remoteTracksStats.audio.receiveLevel,
+      unit: ""
+    }, {
+      description: "transport Delay",
+      value: remoteTracksStats.audio.transportDelay,
+      unit: ""
+    }, {
+      description: "channels",
+      value: remoteTracksStats.audio2.channelCount,
+      unit: ""
+    }, {
+      description: "sampleRate",
+      value: remoteTracksStats.audio2.sampleRate,
+      unit: ""
+    }
+    ];
+  })
 
-// get the local track stats message
-const localStats = {
-  video: client.getLocalVideoStats(),
-  //audio: client.getLocalAudioStats()
-};
-const localStatsList = [{
-  description: "Codec",
-  value: localStats.video.codecType,
-  unit: ""
-  }, {
-  description: "Capture FPS",
-  value: localStats.video.captureFrameRate,
-  unit: ""
-  }, {
-  description: "Send FPS",
-  value: localStats.video.sendFrameRate,
-  unit: ""
-  }, {
-  description: "Video encode delay",
-  value: Number(localStats.video.encodeDelay).toFixed(2),
-  unit: "ms"
-  }, {
-  description: "Video send resolution height",
-  value: localStats.video.sendResolutionHeight,
-  unit: ""
-  }, {
-  description: "Video send resolution width",
-  value: localStats.video.sendResolutionWidth,
-  unit: ""
-  },  {
-  description: "Send video bit rate",
-  value: (Number(localStats.video.sendBitrate) * 0.000001).toFixed(4),
-  unit: "Mbps"
-  }, {
-  description: "Total video packets loss",
-  value: localStats.video.sendPacketsLost,
-  unit: ""
-}];
-$("#local-stats").html(`
-  ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-`);
+  $(`#player-wrapper-${uid} .track-stats`).html(`
+  ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
+  `);
 }
 
 function handleExpand() {
