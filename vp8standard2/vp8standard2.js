@@ -850,60 +850,6 @@ const localStatsList = [{
 $("#local-stats").html(`
   ${localStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
 `);
-Object.keys(remoteUsers).forEach(uid => {
-  // get the remote track stats message
-  const remoteTracksStats = {
-    video: client.getRemoteVideoStats()[uid],
-    net: client.getRemoteNetworkQuality()[uid]
-    //audio: client.getRemoteAudioStats()[uid]
-  };
-  const remoteTracksStatsList = [
-    {
-      description: "UID",
-      value: uid,
-      unit: ""
-    },
-    {
-    description: "Codec",
-    value: remoteTracksStats.video.codecType,
-    unit: ""
-  }, {
-    description: "Receiving FPS",
-    value: remoteTracksStats.video.receiveFrameRate,
-    unit: ""
-  }, {
-    description: "Render FPS",
-    value: remoteTracksStats.video.renderFrameRate,
-    unit: ""
-  }, {
-    description: "Video received height",
-    value: remoteTracksStats.video.receiveResolutionHeight,
-    unit: ""
-  }, {
-    description: "Video received width",
-    value: remoteTracksStats.video.receiveResolutionWidth,
-    unit: ""
-  }, {
-    description: "Recv video bitrate",
-    value: (Number(remoteTracksStats.video.receiveBitrate) * 0.000001).toFixed(4),
-    unit: "Mbps"
-  }, {
-    description: "Total video freeze time",
-    value: remoteTracksStats.video.totalFreezeTime,
-    unit: "s"
-  }, {
-    description: "Remote Uplink",
-    value: remoteTracksStats.net.uplinkNetworkQuality,
-    unit: ""
-  }, {
-    description: "Remote Downlink",
-    value: remoteTracksStats.net.downlinkNetworkQuality,
-    unit: ""
-  }];
-  $(`#player-wrapper-${uid} .track-stats`).html(`
-    ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-  `);
-});
 }
 
 function handleExpand() {
