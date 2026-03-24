@@ -579,6 +579,7 @@ async function manualSub() {
   const id = $(".uid-input").val();
   let user = remoteUsers[id];
   showPopup(`Manually subscribed to UID ${id}`);
+  console.log(`Manually subscribed to UID ${id}`);
   await subscribe(user, "audio");
 }
 
@@ -589,6 +590,7 @@ async function manualUnsub() {
   await client.unsubscribe(user, "");
   $(`#player-wrapper-${id}`).remove();
   showPopup(`Manually unsubscribed from UID ${id}`);
+  console.log(`Manually unsubscribed from UID ${id}`);
 }
 
 
@@ -810,18 +812,44 @@ function flushStats() {
 
   chartArray.push([clientStats.Duration, clientStats.SendBitrate, clientStats.RecvBitrate]);
   drawCurveTypes(chartArray);
-  
+
   Object.keys(remoteUsers).forEach(uid => {
     // get the remote track stats message
     const remoteTracksStats = {
-      audio: client.getRemoteAudioStats()[uid],
-      audio2: remoteUsers[uid].audioTrack.getMediaStreamTrackSettings(),
-    };
-    const remoteTracksStatsList = [{
-      description: "Codec",
-      value: remoteTracksStats.audio.codecType,
+      audio: client.getRemoteAudioStats()[uid]
+    }
+	  if (!remoteTracksStats.audio) {
+	    const remoteTracksStatsList = [{
+      description: "end2EndDelay",
+      value: 0,
       unit: ""
     }, {
+      description: "receive Bitrate",
+      value: 0,
+      unit: ""
+    }, {
+      description: "receive Delay",
+      value: 0,
+      unit: ""
+    }, {
+      description: "transport Delay",
+      value: 0,
+      unit: ""
+    }, {
+      description: "currentPacketLossRate",
+      value: 0,
+      unit: ""
+    }, {
+      description: "receivePacketsLost",
+      value: 0,
+      unit: ""
+    }
+    ];
+    console.log(`UID: ${uid}`);
+    remoteTracksStatsList.map(stat => console.log(`${stat.description}: ${stat.value} ${stat.unit}`));
+    console.log("**************************************************");
+	} else {
+    const remoteTracksStatsList = [{
       description: "end2EndDelay",
       value: remoteTracksStats.audio.end2EndDelay,
       unit: ""
@@ -834,28 +862,24 @@ function flushStats() {
       value: remoteTracksStats.audio.receiveDelay,
       unit: ""
     }, {
-      description: "receive Level",
-      value: remoteTracksStats.audio.receiveLevel,
-      unit: ""
-    }, {
       description: "transport Delay",
       value: remoteTracksStats.audio.transportDelay,
       unit: ""
     }, {
-      description: "channels",
-      value: remoteTracksStats.audio2.channelCount,
+      description: "currentPacketLossRate",
+      value: remoteTracksStats.audio.currentPacketLossRate,
       unit: ""
     }, {
-      description: "sampleRate",
-      value: remoteTracksStats.audio2.sampleRate,
+      description: "receivePacketsLost",
+      value: remoteTracksStats.audio.receivePacketsLost,
       unit: ""
     }
     ];
-  })
-
-  $(`#player-wrapper-${uid} .track-stats`).html(`
-  ${remoteTracksStatsList.map(stat => `<p class="stats-row">${stat.description}: ${stat.value} ${stat.unit}</p>`).join("")}
-  `);
+  console.log(`UID: ${uid}`);
+  remoteTracksStatsList.map(stat => console.log(`${stat.description}: ${stat.value} ${stat.unit}`))
+  console.log("**************************************************");
+  }}
+  )
 }
 
 function handleExpand() {
