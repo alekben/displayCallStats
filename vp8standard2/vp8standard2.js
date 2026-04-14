@@ -820,34 +820,19 @@ function flushStats() {
     }
 	  if (!remoteTracksStats.audio) {
 	    const remoteTracksStatsList = [{
-      description: "end2EndDelay",
-      value: 0,
-      unit: ""
-    }, {
-      description: "receive Bitrate",
-      value: 0,
-      unit: ""
-    }, {
-      description: "receive Delay",
-      value: 0,
-      unit: ""
-    }, {
-      description: "transport Delay",
-      value: 0,
-      unit: ""
-    }, {
-      description: "currentPacketLossRate",
-      value: 0,
-      unit: ""
-    }, {
-      description: "receivePacketsLost",
+      description: "notsubscriberornostats",
       value: 0,
       unit: ""
     }
     ];
-    console.log(`UID: ${uid}`);
-    remoteTracksStatsList.map(stat => console.log(`${stat.description}: ${stat.value} ${stat.unit}`));
-    console.log("**************************************************");
+    if (uid === "555") {
+      return 
+    } else {
+      console.log(`UID: ${uid}`);
+      remoteTracksStatsList.map(stat => console.log(`${stat.description}: ${stat.value} ${stat.unit}`));
+      console.log("**************************************************");
+    }
+
 	} else {
     const remoteTracksStatsList = [{
       description: "end2EndDelay",
