@@ -549,9 +549,9 @@ $("#ains").click(async e => {
     denoiser = denoiser || (() => {
       console.log('creating AI denoiser first time');
       let denoiser = new AIDenoiser.AIDenoiserExtension({
-        assetsPath: '../audiotrackconfig/aiDenoiserExtension/external'
+        assetsPath: '../audiotrackconfig/agora-extension-ai-denoiser210/external/'
       });
-      denoiser.logger.logLevel = 4;
+      denoiser.logger.logLevel = 1;
       AgoraRTC.registerExtensions([denoiser]);
       denoiser.onloaderror = e => {
         console.error(e);

@@ -1,0 +1,17 @@
+{
+  "name": "agora-extension-ai-denoiser",
+  "version": "2.0.1",
+  "description": "Agora AI Denoiser for Agora Web SDK",
+  "keywords": ["agora", "audio", "noise"],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "agora",
+  "main": "index.js",
+  "module": "index.es.js",
+  "typings": "index.d.ts",
+  "devDependencies": {
+    "agora-rte-extension": "^1.2.3"
+  },
+  "peerDependencies": {
+    "agora-rtc-sdk-ng": ">=4.15.1"
+  }
+}
