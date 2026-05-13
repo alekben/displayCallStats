@@ -54,8 +54,8 @@ function setupListners () {
           document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginSuccess at ${event.timestamp}, time taken ${timeTaken}ms`);
         }
         if (event.reason == "Login timeout") {
-          document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginTimeout at ${event.timestamp}, trying force proxy.`);
-          setTimeout(forceProxy, 500);
+          document.getElementById("log").appendChild(document.createElement('div')).append(`SIGNALING: LoginTimeout at ${event.timestamp}, would try trying force proxy here.`);
+          //setTimeout(forceProxy, 500);
         }
       });
       // Token Privilege Will Expire
